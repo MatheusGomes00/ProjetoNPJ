@@ -1,4 +1,4 @@
-package com.npj.ProjetoNPJ.clientes.entitie;
+package com.npj.ProjetoNPJ.triagem.entitie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,16 +13,15 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "endereco")
-public class Endereco implements Serializable {
+@Document(collection = "parteContraria")
+public class ParteContraria implements Serializable {
 
     @Id
     private String id;
-    private String rua;
-    private String bairro;
-    private String numero;
-    private String complemento;
-    private String cidade;
-    private String cep;
+    private String nomeRazaoSocial;
+    private Endereco endereco;
+    private String cpfCnpj;
+    private String rg;
+    private String ssp;
 
 }

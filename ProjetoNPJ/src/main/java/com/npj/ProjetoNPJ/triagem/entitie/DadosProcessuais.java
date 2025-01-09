@@ -1,4 +1,4 @@
-package com.npj.ProjetoNPJ.clientes.entitie;
+package com.npj.ProjetoNPJ.triagem.entitie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,17 +8,17 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "contato")
-public class Contato implements Serializable {
+@Document(collection = "dadosProcessuais")
+public class DadosProcessuais implements Serializable {
 
     @Id
     private String id;
-    private List<String> numeros;
-    private String email;
+    private String competencia;
+    private String necessidades;
+
 }
