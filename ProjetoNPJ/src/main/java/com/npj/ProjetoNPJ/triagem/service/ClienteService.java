@@ -30,7 +30,6 @@ public class ClienteService {
         updateData(newObj, obj);
         return repository.save(newObj);
     }
-
     public void updateData(Cadastro newObj, Cadastro obj) {
         newObj.setStatus(obj.getStatus());
         newObj.setCliente(obj.getCliente());

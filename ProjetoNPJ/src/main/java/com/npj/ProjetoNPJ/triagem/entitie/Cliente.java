@@ -26,6 +26,8 @@ public class Cliente implements Serializable {
     private String nascimento;
     private Contato contato;
     //  private Boolean casaPropria;  ??? ela que pediu esse campo?
+    //sim, é um dos requisitos pra ser atendido
+
 
 
 }
