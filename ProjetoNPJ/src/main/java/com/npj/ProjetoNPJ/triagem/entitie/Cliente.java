@@ -25,7 +25,7 @@ public class Cliente implements Serializable {
     private String ssp; // secretaria de segurança publica
     private String nascimento;
     private Contato contato;
-    //  private Boolean casaPropria;  ??? ela que pediu esse campo?
+    private Boolean casaPropria;
 
 
 }

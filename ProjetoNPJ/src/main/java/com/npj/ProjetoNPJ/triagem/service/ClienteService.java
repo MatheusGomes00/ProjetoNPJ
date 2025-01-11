@@ -6,6 +6,8 @@ import com.npj.ProjetoNPJ.triagem.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,12 +18,11 @@ public class ClienteService {
 
     public Cadastro insert(Cadastro obj) {
 
-        Optional<Cliente> fakeClient = repository.findByCpf(obj.getCliente().getCpf());
-        if (fakeClient.isPresent()) {
-            throw new RuntimeException("CPF já cadastrado!");
-        }
-
-
+//        Optional<List<Cadastro>> cadastro = repository.findByCpf(obj.getCliente().getCpf());
+//        if (cadastro.isPresent()) {
+//            throw new RuntimeException("CPF já cadastrado!");
+//        }
+        obj.setStatus(true);
         return repository.insert(obj);
     }
 
@@ -42,7 +43,16 @@ public class ClienteService {
 
     }
 
-//    public Cadastro findByNome(String nome) {
-//        return repository.findByNome(nome).orElseThrow(() -> new RuntimeException("Não localizado."));
-//    }
+    public List<Cadastro> findByNome(String nome) {
+        return repository.findByNome(nome).orElseThrow(() -> new RuntimeException("Não localizado."));
+    }
+
+    public List<Cadastro> findByCpf(String cpf) {
+        return repository.findByCpf(cpf).orElseThrow(() -> new RuntimeException("Não localizado."));
+    }
+
+    public void delete(Cadastro obj) {
+        obj.setStatus(false);
+        repository.save(obj);
+    }
 }
