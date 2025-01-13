@@ -1,12 +1,12 @@
 package com.npj.ProjetoNPJ.triagem.service;
 
+import com.npj.ProjetoNPJ.triagem.dto.CadastroDto;
 import com.npj.ProjetoNPJ.triagem.entitie.Cadastro;
-import com.npj.ProjetoNPJ.triagem.entitie.Cliente;
+import com.npj.ProjetoNPJ.triagem.mapper.CadastroMapper;
 import com.npj.ProjetoNPJ.triagem.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,43 +16,66 @@ public class ClienteService {
     @Autowired
     private ClienteRepository repository;
 
-    public Cadastro insert(Cadastro obj) {
+    public void insert(CadastroDto obj) {
 
-//        Optional<List<Cadastro>> cadastro = repository.findByCpf(obj.getCliente().getCpf());
-//        if (cadastro.isPresent()) {
-//            throw new RuntimeException("CPF já cadastrado!");
-//        }
-        obj.setStatus(true);
-        return repository.insert(obj);
-    }
-
-    public Cadastro update(Cadastro obj) {
-        Cadastro newObj = repository.findById(obj.getId()).orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
-        updateData(newObj, obj);
-        return repository.save(newObj);
-    }
-
-    public void updateData(Cadastro newObj, Cadastro obj) {
-        newObj.setStatus(obj.getStatus());
-        newObj.setCliente(obj.getCliente());
-        newObj.setRepresentante(obj.getRepresentante());
-        newObj.setParteContraria(obj.getParteContraria());
-        newObj.setDadosProcessuais(obj.getDadosProcessuais());
-        newObj.setNatureza(obj.getNatureza());
-        newObj.setResponsaveis(obj.getResponsaveis());
+        try {
+            obj.setStatus(true);
+            Cadastro cadastro = CadastroMapper.toEntitie(obj);
+            repository.insert(cadastro);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
 
     }
 
-    public List<Cadastro> findByNome(String nome) {
-        return repository.findByNome(nome).orElseThrow(() -> new RuntimeException("Não localizado."));
+    public void update(CadastroDto obj, String id) {
+        Cadastro objAtualizado = CadastroMapper.toEntitie(obj);
+
+        Cadastro objAntigo = repository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
+
+        objAtualizado.setId(id);
+        updateData(objAntigo, objAtualizado);
+
+        repository.save(objAtualizado);
+
     }
 
-    public List<Cadastro> findByCpf(String cpf) {
-        return repository.findByCpf(cpf).orElseThrow(() -> new RuntimeException("Não localizado."));
+    public void updateData(Cadastro oldObj, Cadastro newObj) {
+        oldObj.setStatus(newObj.getStatus());
+        oldObj.setCliente(newObj.getCliente());
+        oldObj.setRepresentante(newObj.getRepresentante());
+        oldObj.setParteContraria(newObj.getParteContraria());
+        oldObj.setDadosProcessuais(newObj.getDadosProcessuais());
+        oldObj.setNatureza(newObj.getNatureza());
+        oldObj.setResponsaveis(newObj.getResponsaveis());
+
     }
 
-    public void delete(Cadastro obj) {
-        obj.setStatus(false);
-        repository.save(obj);
+    public List<CadastroDto> findByNome(String nome) {
+        List<Cadastro> cadastros = repository
+                .findByNome(nome)
+                .orElseThrow(() -> new RuntimeException("Não localizado."));
+        return CadastroMapper.toListDto(cadastros);
+    }
+
+    public List<CadastroDto> findByCpf(String cpf) {
+        List<Cadastro> cadastros = repository
+                .findByCpf(cpf)
+                .orElseThrow(() -> new RuntimeException("Não localizado."));
+        return CadastroMapper.toListDto(cadastros);
+    }
+
+    public List<CadastroDto> findAll() {
+        List<Cadastro> cadastros =   repository.findAll();
+        return CadastroMapper.toListDto(cadastros);
+    }
+
+    public void delete(String id) {
+        Optional<Cadastro> cadastro = repository.findById(id);
+        if(cadastro.isEmpty()) {
+            throw new RuntimeException("Não localizado");
+        }
+        cadastro.get().setStatus(false);
+        repository.save(cadastro.get());
     }
 }

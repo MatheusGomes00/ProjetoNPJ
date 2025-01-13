@@ -1,6 +1,6 @@
 package com.npj.ProjetoNPJ.triagem.dto;
 
-import com.npj.ProjetoNPJ.triagem.entitie.*;
+
 import lombok.*;
 
 @Getter
@@ -11,10 +11,11 @@ import lombok.*;
 public class CadastroDto {
 
     private Boolean status;
-    private Cliente cliente;
-    private Representante representante;
-    private ParteContraria parteContraria;
-    private DadosProcessuais dadosProcessuais;
-    private Natureza natureza;
-    private Responsaveis responsaveis;
+    private ClienteDto cliente;
+    private RepresentanteDto representante;
+    private ParteContrariaDto parteContraria;
+    private DadosProcessuaisDto dadosProcessuais;
+    private NaturezaDto natureza;
+    private ResponsaveisDto responsaveis;
+
 }
