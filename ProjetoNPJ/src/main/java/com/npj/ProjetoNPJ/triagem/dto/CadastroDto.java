@@ -1,7 +1,6 @@
 package com.npj.ProjetoNPJ.triagem.dto;
 
-import com.npj.ProjetoNPJ.triagem.entitie.Cliente;
-import com.npj.ProjetoNPJ.triagem.entitie.Responsaveis;
+import com.npj.ProjetoNPJ.triagem.entitie.*;
 import lombok.*;
 
 @Getter
@@ -11,9 +10,11 @@ import lombok.*;
 @ToString
 public class CadastroDto {
 
-    private ClienteDto cliente;
-    private RepresentanteDto representante;
-    private ParteContrariaDto parteContra;
-    private ResponsaveisDto responsaveis;
-
+    private Boolean status;
+    private Cliente cliente;
+    private Representante representante;
+    private ParteContraria parteContraria;
+    private DadosProcessuais dadosProcessuais;
+    private Natureza natureza;
+    private Responsaveis responsaveis;
 }
