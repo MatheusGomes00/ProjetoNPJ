@@ -13,11 +13,8 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "cliente")
 public class Cliente implements Serializable {
 
-    @Id
-    private String id;
     private String nome;
     private Endereco endereco;
     private String cpf;

@@ -10,6 +10,7 @@ import lombok.*;
 @ToString
 public class CadastroDto {
 
+    private String id;
     private Boolean status;
     private ClienteDto cliente;
     private RepresentanteDto representante;

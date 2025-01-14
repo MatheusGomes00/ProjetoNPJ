@@ -13,11 +13,9 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "endereco")
 public class Endereco implements Serializable {
 
-    @Id
-    private String id;
+
     private String rua;
     private String numero;
     private String complemento;

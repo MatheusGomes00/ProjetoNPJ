@@ -30,13 +30,13 @@ public class ClienteController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping(value = "/nome")
-    public ResponseEntity<List<CadastroDto>> getByName(@RequestBody String nome) {
+    @GetMapping(value = "/nome/{nome}")
+    public ResponseEntity<List<CadastroDto>> getByName(@PathVariable String nome) {
         List<CadastroDto> cadastros = service.findByNome(nome);
         return ResponseEntity.ok().body(cadastros);
     }
 
-    @GetMapping(value = "/cpf")
+    @PostMapping(value = "/cpf")
     public ResponseEntity<List<CadastroDto>> getByCpf(@RequestBody String cpf) {
         List<CadastroDto> cadastros = service.findByCpf(cpf);
         return ResponseEntity.ok().body(cadastros);

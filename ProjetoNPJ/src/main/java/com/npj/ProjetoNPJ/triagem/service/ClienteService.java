@@ -34,6 +34,7 @@ public class ClienteService {
         Cadastro objAntigo = repository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
 
         objAtualizado.setId(id);
+        objAtualizado.setStatus(true);
         updateData(objAntigo, objAtualizado);
 
         repository.save(objAtualizado);

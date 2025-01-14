@@ -14,11 +14,8 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "dadosProcessuais")
 public class Natureza implements Serializable {
 
-    @Id
-    private String id;
     private String causa;
 
 }

@@ -13,11 +13,8 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "dadosProcessuais")
 public class DadosProcessuais implements Serializable {
 
-    @Id
-    private String id;
     private String competencia;
     private String necessidades;
 

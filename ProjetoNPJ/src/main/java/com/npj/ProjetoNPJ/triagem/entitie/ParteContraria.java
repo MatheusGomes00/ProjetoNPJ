@@ -13,11 +13,8 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "parteContraria")
 public class ParteContraria implements Serializable {
 
-    @Id
-    private String id;
     private String nomeRazaoSocial;
     private Endereco endereco;
     private String cpfCnpj;

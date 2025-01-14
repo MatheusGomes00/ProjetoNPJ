@@ -12,14 +12,14 @@ import java.util.Optional;
 @Repository
 public interface ClienteRepository extends MongoRepository<Cadastro, String> {
 
-    @Query("{ $or: [ { 'cliente.nome': ?0 }, " +
-            "{ 'representante.nome': ?0 }, " +
-            "{ 'parteContraria.nome': ?0 } ] }")
+    @Query("{ $or: [ { 'cliente.nome': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'representante.nome': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'parteContraria.nome': { $regex: ?0, $options: 'i' } } ] }")
     Optional<List<Cadastro>> findByNome(String nome);
 
-    @Query("{ $or: [ { 'cliente.cpf': ?0 }, " +
-            "{ 'representante.cpf': ?0 }, " +
-            "{ 'parteContraria.cpf': ?0 } ] }")
+    @Query("{ $or: [ { 'cliente.cpf': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'representante.cpf': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'parteContraria.cpf': { $regex: ?0, $options: 'i' } } ] }")
     Optional<List<Cadastro>> findByCpf(String cpf);
 
 
