@@ -19,4 +19,29 @@ public class AdvogadoService {
         repository.insert(newAdvogado);
 
     }
+
+    public void update(dtoAdvogado dto, String id){
+
+        advogado advAtualizado = AdvogadoMapper.toEntitie(dto);
+
+        advogado advAntigo = repository.findById(id).orElseThrow(() -> new RuntimeException("Advogado não encontrado."));
+
+        advAtualizado.setId(id);
+        updateData(advAntigo, advAtualizado);
+
+        repository.save(advAtualizado);
+
+
+
+    }
+    public void updateData(advogado oldObj, advogado newObj) {
+
+        oldObj.setNome(newObj.getNome());
+        oldObj.setDatanasc(newObj.getDatanasc());
+        oldObj.setCpf(newObj.getCpf());
+        oldObj.setRegistroOab(newObj.getRegistroOab());
+        oldObj.setSecaoOab(newObj.getSecaoOab());
+
+
+    }
 }
