@@ -19,5 +19,5 @@ public class dtoAdvogado {
 
     private String secaoOab;
 
-    private boolean statusA;
+    private boolean status;
 }

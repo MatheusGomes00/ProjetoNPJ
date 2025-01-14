@@ -31,5 +31,5 @@ public class advogado implements Serializable {
 
     private String secaoOab;
 
-    private Boolean status;
+    private boolean status;
 }

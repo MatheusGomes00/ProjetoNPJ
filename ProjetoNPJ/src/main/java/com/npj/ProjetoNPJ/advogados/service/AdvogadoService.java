@@ -14,8 +14,9 @@ public class AdvogadoService {
     private AdvogadoRepository repository;
 
     public void insert(dtoAdvogado dto){
-
+        dto.setStatus(true);
         advogado newAdvogado = AdvogadoMapper.toEntitie(dto);
         repository.insert(newAdvogado);
+
     }
 }

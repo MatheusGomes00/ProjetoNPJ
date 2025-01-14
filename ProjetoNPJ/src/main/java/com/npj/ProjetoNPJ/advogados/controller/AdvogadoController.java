@@ -3,7 +3,6 @@ package com.npj.ProjetoNPJ.advogados.controller;
 
 import com.npj.ProjetoNPJ.advogados.dtos.dtoAdvogado;
 
-import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 
