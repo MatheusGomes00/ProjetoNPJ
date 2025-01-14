@@ -2,8 +2,6 @@ package com.npj.ProjetoNPJ.triagem.controller;
 
 
 import com.npj.ProjetoNPJ.triagem.dto.CadastroDto;
-import com.npj.ProjetoNPJ.triagem.entitie.Cadastro;
-import com.npj.ProjetoNPJ.triagem.mapper.CadastroMapper;
 import com.npj.ProjetoNPJ.triagem.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

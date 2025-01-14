@@ -63,6 +63,7 @@ public class ClienteService {
         List<Cadastro> cadastros = repository
                 .findByCpf(cpf)
                 .orElseThrow(() -> new RuntimeException("Não localizado."));
+        System.out.println("Resultado da busca: " + cadastros);
         return CadastroMapper.toListDto(cadastros);
     }
 
