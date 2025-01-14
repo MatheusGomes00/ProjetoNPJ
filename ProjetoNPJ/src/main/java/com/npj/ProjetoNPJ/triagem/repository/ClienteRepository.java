@@ -17,9 +17,9 @@ public interface ClienteRepository extends MongoRepository<Cadastro, String> {
             "{ 'parteContraria.nome': { $regex: ?0, $options: 'i' } } ] }")
     Optional<List<Cadastro>> findByNome(String nome);
 
-    @Query("{ $or: [ { 'cliente.cpf': { $regex: ?0, $options: 'i' } }, " +
-            "{ 'representante.cpf': { $regex: ?0, $options: 'i' } }, " +
-            "{ 'parteContraria.cpf': { $regex: ?0, $options: 'i' } } ] }")
+    @Query("{ $or: [ { 'cliente.cpf': { $regex: ?0 } }, " +
+            "{ 'representante.cpf': { $regex: ?0 } }, " +
+            "{ 'parteContraria.cpfCnpj': { $regex: ?0 } } ] }")
     Optional<List<Cadastro>> findByCpf(String cpf);
 
 

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/cad")
@@ -20,8 +21,8 @@ public class ClienteController {
 
     @PostMapping(value = "/ins")
     public ResponseEntity<CadastroDto> insert(@RequestBody CadastroDto objDto) {
-        service.insert(objDto);
-        return ResponseEntity.ok().body(objDto);
+        CadastroDto novoObj = service.insert(objDto);
+        return ResponseEntity.ok().body(novoObj);
     }
 
     @PutMapping(value =  "/upd/{id}")
@@ -37,7 +38,8 @@ public class ClienteController {
     }
 
     @PostMapping(value = "/cpf")
-    public ResponseEntity<List<CadastroDto>> getByCpf(@RequestBody String cpf) {
+    public ResponseEntity<List<CadastroDto>> getByCpf(@RequestBody Map<String, String> request) {
+        String cpf = request.get("cpf");
         List<CadastroDto> cadastros = service.findByCpf(cpf);
         return ResponseEntity.ok().body(cadastros);
     }
@@ -48,9 +50,9 @@ public class ClienteController {
         return ResponseEntity.ok().body(cadastros);
     }
 
-    @DeleteMapping(value = "/del/{id}")
-    public ResponseEntity<Void> delete(String id) {
-        service.delete(id);
+    @PostMapping(value = "/del/{id}")
+    public ResponseEntity<Void> toggleStatus(@PathVariable String id) {
+        service.changeStatus(id);
         return ResponseEntity.noContent().build();
     }
 

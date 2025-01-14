@@ -16,16 +16,16 @@ public class ClienteService {
     @Autowired
     private ClienteRepository repository;
 
-    public void insert(CadastroDto obj) {
+    public CadastroDto insert(CadastroDto obj) {
 
         try {
             obj.setStatus(true);
             Cadastro cadastro = CadastroMapper.toEntitie(obj);
             repository.insert(cadastro);
+            return CadastroMapper.toDto(cadastro);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
-
     }
 
     public void update(CadastroDto obj, String id) {
@@ -71,12 +71,13 @@ public class ClienteService {
         return CadastroMapper.toListDto(cadastros);
     }
 
-    public void delete(String id) {
+    public void changeStatus(String id) {
         Optional<Cadastro> cadastro = repository.findById(id);
         if(cadastro.isEmpty()) {
             throw new RuntimeException("Não localizado");
         }
-        cadastro.get().setStatus(false);
+        cadastro.get().setStatus(!cadastro.get().getStatus());
         repository.save(cadastro.get());
     }
+    
 }
