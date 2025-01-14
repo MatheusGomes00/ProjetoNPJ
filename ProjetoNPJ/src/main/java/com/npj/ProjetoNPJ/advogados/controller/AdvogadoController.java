@@ -3,6 +3,7 @@ package com.npj.ProjetoNPJ.advogados.controller;
 
 import com.npj.ProjetoNPJ.advogados.dtos.dtoAdvogado;
 
+import com.npj.ProjetoNPJ.advogados.entity.advogado;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,6 +30,13 @@ public class AdvogadoController {
         service.update(dto, id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/del/{id}")
+    public ResponseEntity<Void> excluir( dtoAdvogado dto, @PathVariable String id){
+        service.delete(dto, id);
+
+        return ResponseEntity.ok().build();
     }
 
 

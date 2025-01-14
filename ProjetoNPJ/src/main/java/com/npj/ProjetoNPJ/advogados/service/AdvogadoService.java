@@ -33,7 +33,20 @@ public class AdvogadoService {
 
 
 
+        }
+
+    public void delete(dtoAdvogado dto, String id){
+
+
+        advogado advativo = repository.findById(id).orElseThrow(() -> new RuntimeException("Advogado não encontrado"));
+
+        advativo.setStatus(false);
+
+        repository.save(advativo);
+
     }
+
+
     public void updateData(advogado oldObj, advogado newObj) {
 
         oldObj.setNome(newObj.getNome());
