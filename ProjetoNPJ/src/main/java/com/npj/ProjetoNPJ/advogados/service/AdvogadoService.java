@@ -32,7 +32,6 @@ public class AdvogadoService {
         repository.save(advAtualizado);
 
 
-
         }
 
     public void delete(dtoAdvogado dto, String id){

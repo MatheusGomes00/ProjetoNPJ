@@ -28,14 +28,6 @@ public class advogado implements Serializable {
 
     private String secaoOab;
 
-    public boolean isStatus() {
-        return status;
-    }
-
-    public boolean setStatus(boolean status) {
-        this.status = status;
-        return status;
-    }
 
     private boolean status;
 }
