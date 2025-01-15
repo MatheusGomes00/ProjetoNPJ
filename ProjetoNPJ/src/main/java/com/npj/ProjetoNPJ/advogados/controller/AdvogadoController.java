@@ -2,8 +2,6 @@ package com.npj.ProjetoNPJ.advogados.controller;
 
 
 import com.npj.ProjetoNPJ.advogados.dtos.dtoAdvogado;
-
-import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

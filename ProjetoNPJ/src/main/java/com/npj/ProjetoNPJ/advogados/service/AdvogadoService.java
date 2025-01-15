@@ -4,10 +4,10 @@ import com.npj.ProjetoNPJ.advogados.dtos.dtoAdvogado;
 import com.npj.ProjetoNPJ.advogados.entity.advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
-import com.npj.ProjetoNPJ.advogados.tratadoresErros.TratadorException;
+import com.npj.ProjetoNPJ.advogados.tratadoresErros.AdvogadoNaoAchado;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+
 
 import java.util.List;
 
@@ -64,14 +64,22 @@ public class AdvogadoService {
 
         List<advogado> advogados = repository
                 .findByNome(nome)
-                .orElseThrow((()-> new RuntimeException("Advogado não localizado, verifique se digitou o nome corretamente")));
+                .orElseThrow((()-> new RuntimeException("Advogado não localizado")));
+        if (advogados.isEmpty()){
+            throw new AdvogadoNaoAchado("Advogado não localizado");
+        }
         return AdvogadoMapper.toListDto(advogados);
+
     }
 
     public List<dtoAdvogado> findByCpf(String cpf){
         List<advogado> advogados = repository
                 .findByCpf(cpf)
-                .orElseThrow((()-> new RuntimeException("\"Advogado não localizado, verifique se digitou o nome corretamente")));
+                .orElseThrow((()-> new RuntimeException("Advogado não localizado")));
+
+        if (advogados.isEmpty()){
+            throw new AdvogadoNaoAchado("Advogado não localizado");
+        }
         return AdvogadoMapper.toListDto(advogados);
     }
 }
