@@ -4,8 +4,12 @@ import com.npj.ProjetoNPJ.advogados.dtos.dtoAdvogado;
 import com.npj.ProjetoNPJ.advogados.entity.advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
+import com.npj.ProjetoNPJ.advogados.tratadoresErros.TratadorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+
+import java.util.List;
 
 @Service
 public class AdvogadoService {
@@ -13,11 +17,12 @@ public class AdvogadoService {
     @Autowired
     private AdvogadoRepository repository;
 
+
+
     public void insert(dtoAdvogado dto){
         dto.setStatus(true);
         advogado newAdvogado = AdvogadoMapper.toEntitie(dto);
         repository.insert(newAdvogado);
-
     }
 
     public void update(dtoAdvogado dto, String id){
@@ -30,21 +35,16 @@ public class AdvogadoService {
         updateData(advAntigo, advAtualizado);
 
         repository.save(advAtualizado);
-
-
         }
 
     public void delete(dtoAdvogado dto, String id){
-
 
         advogado advativo = repository.findById(id).orElseThrow(() -> new RuntimeException("Advogado não encontrado"));
 
         advativo.setStatus(false);
 
         repository.save(advativo);
-
     }
-
 
     public void updateData(advogado oldObj, advogado newObj) {
 
@@ -53,7 +53,25 @@ public class AdvogadoService {
         oldObj.setCpf(newObj.getCpf());
         oldObj.setRegistroOab(newObj.getRegistroOab());
         oldObj.setSecaoOab(newObj.getSecaoOab());
+    }
 
+    public List<dtoAdvogado> findAll(){
+        List<advogado> cadastros = repository.findAll();
+        return AdvogadoMapper.toListDto(cadastros);
+    }
 
+    public List<dtoAdvogado> findByNome(String nome){
+
+        List<advogado> advogados = repository
+                .findByNome(nome)
+                .orElseThrow((()-> new RuntimeException("Advogado não localizado, verifique se digitou o nome corretamente")));
+        return AdvogadoMapper.toListDto(advogados);
+    }
+
+    public List<dtoAdvogado> findByCpf(String cpf){
+        List<advogado> advogados = repository
+                .findByCpf(cpf)
+                .orElseThrow((()-> new RuntimeException("\"Advogado não localizado, verifique se digitou o nome corretamente")));
+        return AdvogadoMapper.toListDto(advogados);
     }
 }
