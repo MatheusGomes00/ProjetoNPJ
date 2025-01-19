@@ -2,10 +2,15 @@ package com.npj.ProjetoNPJ.triagem.service;
 
 import com.npj.ProjetoNPJ.triagem.dto.CadastroDto;
 import com.npj.ProjetoNPJ.triagem.entitie.Cadastro;
+import com.npj.ProjetoNPJ.triagem.exceptions.CpfNaoEncontradoException;
+import com.npj.ProjetoNPJ.triagem.exceptions.CpfUnicoException;
+import com.npj.ProjetoNPJ.triagem.exceptions.NomeNaoLocalizadoException;
 import com.npj.ProjetoNPJ.triagem.mapper.CadastroMapper;
 import com.npj.ProjetoNPJ.triagem.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,16 +21,14 @@ public class ClienteService {
     @Autowired
     private ClienteRepository repository;
 
-    public CadastroDto insert(CadastroDto obj) {
+    public void insert(CadastroDto obj) {
 
-        try {
-            obj.setStatus(true);
-            Cadastro cadastro = CadastroMapper.toEntitie(obj);
-            repository.insert(cadastro);
-            return CadastroMapper.toDto(cadastro);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        if (repository.findByCpf(obj.getCliente().getCpf()).isPresent()) {
+            throw new CpfUnicoException("CPF já cadastrado!");
         }
+        obj.setStatus(true);
+        Cadastro cadastro = CadastroMapper.toEntitie(obj);
+        repository.insert(cadastro);
     }
 
     public void update(CadastroDto obj, String id) {
@@ -55,30 +58,31 @@ public class ClienteService {
     public List<CadastroDto> findByNome(String nome) {
         List<Cadastro> cadastros = repository
                 .findByNome(nome)
-                .orElseThrow(() -> new RuntimeException("Não localizado."));
+                .orElseThrow(() -> new NomeNaoLocalizadoException("Nome não localizado."));
         return CadastroMapper.toListDto(cadastros);
     }
 
     public List<CadastroDto> findByCpf(String cpf) {
         List<Cadastro> cadastros = repository
                 .findByCpf(cpf)
-                .orElseThrow(() -> new RuntimeException("Não localizado."));
-        System.out.println("Resultado da busca: " + cadastros);
+                .orElseThrow(() -> new CpfNaoEncontradoException("CPF não localizado."));
         return CadastroMapper.toListDto(cadastros);
     }
 
     public List<CadastroDto> findAll() {
-        List<Cadastro> cadastros =   repository.findAll();
+        List<Cadastro> cadastros = repository.findAll();
+        if(cadastros.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Não localizado");
+        }
         return CadastroMapper.toListDto(cadastros);
     }
 
-    public void changeStatus(String id) {
+    public void delete(String id) {
         Optional<Cadastro> cadastro = repository.findById(id);
         if(cadastro.isEmpty()) {
-            throw new RuntimeException("Não localizado");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Não localizado");
         }
-        cadastro.get().setStatus(!cadastro.get().getStatus());
+        cadastro.get().setStatus(false);
         repository.save(cadastro.get());
     }
-    
 }

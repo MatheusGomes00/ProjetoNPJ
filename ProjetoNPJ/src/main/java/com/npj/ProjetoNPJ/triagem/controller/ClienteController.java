@@ -3,6 +3,7 @@ package com.npj.ProjetoNPJ.triagem.controller;
 
 import com.npj.ProjetoNPJ.triagem.dto.CadastroDto;
 import com.npj.ProjetoNPJ.triagem.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +19,9 @@ public class ClienteController {
     private ClienteService service;
 
     @PostMapping(value = "/ins")
-    public ResponseEntity<CadastroDto> insert(@RequestBody CadastroDto objDto) {
-        CadastroDto novoObj = service.insert(objDto);
-        return ResponseEntity.ok().body(novoObj);
+    public ResponseEntity<CadastroDto> insert(@RequestBody @Valid CadastroDto objDto) {
+        service.insert(objDto);
+        return ResponseEntity.ok().body(objDto);
     }
 
     @PutMapping(value =  "/upd/{id}")
@@ -48,9 +49,9 @@ public class ClienteController {
         return ResponseEntity.ok().body(cadastros);
     }
 
-    @PostMapping(value = "/del/{id}")
-    public ResponseEntity<Void> toggleStatus(@PathVariable String id) {
-        service.changeStatus(id);
+    @DeleteMapping(value = "/del/{id}")
+    public ResponseEntity<Void> delete(String id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 

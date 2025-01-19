@@ -2,6 +2,7 @@ package com.npj.ProjetoNPJ.triagem.dto;
 
 import com.npj.ProjetoNPJ.triagem.entitie.Contato;
 import com.npj.ProjetoNPJ.triagem.entitie.Endereco;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 //import org.hibernate.validator.constraints.br.CPF;
 
@@ -12,9 +13,11 @@ import lombok.*;
 @ToString
 public class ClienteDto {
 
+    @NotBlank
     private String nome;
+    @NotBlank
     private EnderecoDto endereco;
-    //@CPF
+    @NotBlank
     private String cpf;
     private String rg;
     private String ssp; // secretaria de segurança publica
