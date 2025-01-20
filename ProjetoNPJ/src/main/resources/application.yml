@@ -7,3 +7,5 @@ spring:
 google:
   credentials:
     path: src/main/resources/google-drive-credentials.json
+  application:
+    name: DriveApiProjetoNPJ
