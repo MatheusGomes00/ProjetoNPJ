@@ -1,0 +1,316 @@
+/* Estilização geral */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Alinha horizontalmente no centro */
+  justify-content: center; /* Alinha verticalmente no centro */
+  height: 100vh; /* Preenche a altura da janela */
+  background-color: #f0f0f0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+/* Layout principal */
+.main-content {
+  display: flex;
+  gap: 20px; /* Espaço entre a Sidebar e o conteúdo */
+  width: 80%; /* Largura ajustável para o conteúdo */
+  max-width: 1200px; /* Limita a largura máxima */
+}
+
+/* Sidebar à esquerda */
+/* Sidebar estilizada */
+.sidebar {
+  position: fixed; /* Fixa a sidebar na tela */
+  top: 100px; /* Alinha no topo da página */
+  left: 0; /* Alinha na esquerda */
+  width: 200px; /* Define a largura da sidebar */
+  height: calc(100% - 50px); /* Faz a sidebar ocupar toda a altura da tela */
+  background-color: #f4f4f4; /* Cor de fundo */
+  border-right: 1px solid #000000; /* Linha divisória */
+  box-shadow: 2px 0 5px rgba(158, 78, 78, 0.1); /* Adiciona uma sombra para destaque */
+  padding: 1rem; /* Adiciona espaçamento interno */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Alinha os itens à esquerda */
+}
+
+/* Título da Sidebar */
+.sidebar h2 {
+  font-size: 24px;
+  margin-bottom: 1rem;
+  text-transform: uppercase; /* Deixa o texto em caixa alta */
+  font-weight: bold;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4); /* Linha decorativa */
+  padding-bottom: 10px;
+  color: #333;
+}
+
+/* Lista de itens */
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.sidebar ul li {
+  margin: 15px 0;
+}
+
+/* Botões da Sidebar */
+.sidebar button {
+  width: 100%; /* Ocupa toda a largura do item */
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.2); /* Fundo semi-transparente */
+  color: rgb(0, 0, 0); /* Texto branco */
+  border: 1px solid rgba(12, 7, 7, 0.3); /* Borda discreta */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease; /* Transição suave para hover */
+}
+
+/* Efeito hover nos botões */
+.sidebar button:hover {
+  background: rgba(255, 255, 255, 0.4); /* Fundo mais claro ao passar o mouse */
+  transform: scale(1.05); /* Leve aumento no tamanho */
+  border-color: rgba(255, 255, 255, 0.5); /* Destaque na borda */
+}
+
+/* Texto no botão */
+.sidebar button:focus {
+  outline: none; /* Remove o contorno padrão ao focar */
+}
+
+/* Conteúdo principal à direita */
+.content {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 40px; /* Espaço entre SearchBar e ResultsList */
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Estilo da SearchBar */
+.search-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  width: 100%; /* Ajusta a largura total da barra */
+  max-width: 500px; /* Limita a largura máxima */
+  padding: 15px; /* Aumenta o tamanho interno */
+  font-size: 18px; /* Texto maior */
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar button {
+  padding: 15px 20px;
+  font-size: 16px;
+  margin-left: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+  background-color: #0056b3;
+}
+
+/* Estilização para limitar a altura do contêiner de resultados */
+.results-list {
+  max-height: 400px; /* Limite de altura */
+  overflow-y: auto; /* Adiciona barra de rolagem vertical quando necessário */
+  padding: 10px;
+  align-items: center;
+  border: 1px solid #ddd; /* Borda para destacar */
+  border-radius: 8px;
+  background-color: #fff; /* Fundo branco */
+  margin-top: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para visual limpo */
+}
+
+
+.result-card {
+  background-color: #fff;
+  border: 2px solid #ddd; /* Contorno da caixa */
+  border-radius: 8px;
+  width: 100%;
+  max-width: 900px; /* Aumentando a largura máxima da caixa */
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease; /* Adicionando transição para opacidade */
+  overflow: hidden;
+  opacity: 1; /* Inicialmente opaco */
+}
+
+.result-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  opacity: 0.9; /* Efeito de fading quando o cartão é hover */
+}
+
+.result-card-header {
+  background-color: #f1f1f1;
+  padding: 15px;
+  text-align: center;
+}
+
+.result-card-header h3 {
+  font-size: 20px;
+  margin: 0;
+  color: #333;
+}
+
+.result-card-body {
+  padding: 15px;
+}
+
+.result-card-body p {
+  font-size: 14px;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.result-card-body p:last-child {
+  margin-bottom: 0;
+}
+
+.result-card-body strong {
+  font-weight: bold;
+  color: #333;
+}
+
+/* Estilos para o indicador de status */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-badge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%; /* Tornar o indicador um círculo */
+  margin-left: 5px;
+}
+
+.status-badge.active {
+  background-color: green; /* Bolinha verde para ativo */
+}
+
+.status-badge.inactive {
+  background-color: red; /* Bolinha vermelha para inativo */
+}
+
+.horizontal-line {
+  position: absolute; /* Garante que a linha seja posicionada em relação à página */
+  top: 100px; /* Altura a partir do topo da página */
+  left: 0; /* Começa na borda esquerda */
+  width: 100%; /* Faz a linha ocupar toda a largura da tela */
+  height: 0.1px; /* Espessura da linha */
+  background-color: #000; /* Cor da linha (preto) */
+  z-index: 999; /* Garante que a linha fique acima de outros elementos, se necessário */
+}
+/* Container da label no canto superior esquerdo */
+.corner-label {
+  position: absolute; /* Posiciona em relação à tela */
+  top: 10px; /* Distância do topo */
+  left: 10px; /* Distância da esquerda */
+  text-align: center; /* Centraliza os textos em relação uns aos outros */
+}
+
+/* Estilo para "NPJ" */
+.corner-label-npj {
+  font-size: 24px; /* Tamanho maior para "NPJ" */
+  font-weight: bold; /* Texto em negrito */
+  color: #000; /* Cor preta */
+}
+
+/* Estilo para "ANHANGUERA" */
+.corner-label-anhanguera {
+  font-size: 18px; /* Tamanho menor para "ANHANGUERA" */
+  font-weight: normal; /* Texto normal */
+  color: #000; /* Cor preta */
+}
+/* SearchBar no topo */
+.search-bar-top {
+  position: absolute; /* Fixa a barra no topo */
+  top: 10px; /* Ajuste para posicioná-la acima da linha horizontal */
+  left: 20%; /* Centraliza horizontalmente */
+  transform: translateX(-50%); /* Ajusta o ponto de referência do centro */
+  display: flex; /* Organiza o input e o botão lado a lado */
+  align-items: center; /* Alinha os itens verticalmente */
+  gap: 10px; /* Espaçamento entre o input e o botão */
+}
+
+/* Estilo do input */
+.search-bar-top input {
+  width: 350px; /* Largura do input */
+  padding: 8px; /* Espaçamento interno */
+  font-size: 14px; /* Tamanho do texto */
+  border: 1px solid #ccc; /* Borda cinza */
+  border-radius: 4px; /* Cantos arredondados */
+}
+
+/* Estilo do botão */
+.search-bar-top button {
+  padding: 8px 16px; /* Espaçamento interno */
+  background-color: #007bff; /* Cor de fundo azul */
+  color: #fff; /* Cor do texto branca */
+  border: none; /* Remove a borda */
+  border-radius: 4px; /* Cantos arredondados */
+  cursor: pointer; /* Muda o cursor ao passar o mouse */
+}
+
+.search-bar-top button:hover {
+  background-color: #0056b3; /* Cor mais escura ao passar o mouse */
+}
+/* Ícones no topo direito */
+.top-right-icons {
+  position: absolute;
+  top: 10px; /* Ajuste a posição vertical */
+  right: 20px; /* Ajuste a posição horizontal */
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Espaço entre os ícones */
+}
+
+/* Estilo para cada ícone individual */
+.icon-wrapper .icon {
+  font-size: 24px; /* Tamanho do ícone */
+  color: #333; /* Cor do ícone */
+  cursor: pointer;
+}
+/* Estilização do título "Gerenciar Advogados" */
+.advogados-title {
+  position: absolute;
+  top: 120px; /* Ajuste para ficar abaixo da linha horizontal */
+  left: 250px; /* Ajuste para alinhar à esquerda */
+  font-size: 24px; /* Tamanho da fonte */
+  font-weight: bold; /* Negrito para destacar */
+  color: #333; /* Cor do texto */
+}
