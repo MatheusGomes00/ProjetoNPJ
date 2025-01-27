@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 public class ContatoDto {
 
+
     private String telefone;
     private String celular;
     private String email;

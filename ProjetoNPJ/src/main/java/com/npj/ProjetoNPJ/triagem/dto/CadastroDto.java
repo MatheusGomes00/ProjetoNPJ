@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.triagem.dto;
 
-
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -12,7 +13,11 @@ public class CadastroDto {
 
     private String id;
     private Boolean status;
+
+    @Valid
+    @NotNull(message = "Cliente não pode estar nulo!")
     private ClienteDto cliente;
+
     private RepresentanteDto representante;
     private ParteContrariaDto parteContraria;
     private DadosProcessuaisDto dadosProcessuais;

@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "cadastro")
+@Document(collection = "cadastroCliente")
 public class Cadastro implements Serializable {
 
     @Id

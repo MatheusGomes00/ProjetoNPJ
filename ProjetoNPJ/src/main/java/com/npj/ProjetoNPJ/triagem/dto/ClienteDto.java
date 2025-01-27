@@ -1,8 +1,9 @@
 package com.npj.ProjetoNPJ.triagem.dto;
 
-import com.npj.ProjetoNPJ.triagem.entitie.Contato;
-import com.npj.ProjetoNPJ.triagem.entitie.Endereco;
+
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 //import org.hibernate.validator.constraints.br.CPF;
 
@@ -13,15 +14,24 @@ import lombok.*;
 @ToString
 public class ClienteDto {
 
-    @NotBlank
+    @NotBlank(message = "Nome não pode ser nulo ou estar em branco!")
     private String nome;
-    @NotBlank
+
+    @Valid
+    @NotNull(message = "Endereço não pode ser nulo!")
     private EnderecoDto endereco;
-    @NotBlank
+
+    @NotBlank(message = "CPF não pode ser nulo ou estar em branco!")
     private String cpf;
+
     private String rg;
+
     private String ssp; // secretaria de segurança publica
+
     private String nascimento;
+
+    @NotNull(message = "Contato não pode ser nulo!")
     private ContatoDto contato;
+
     private Boolean casaPropria;
 }
