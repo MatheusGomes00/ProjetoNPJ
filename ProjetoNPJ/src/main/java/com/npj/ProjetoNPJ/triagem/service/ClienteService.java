@@ -21,14 +21,16 @@ public class ClienteService {
     @Autowired
     private ClienteRepository repository;
 
-    public void insert(CadastroDto obj) {
+    public CadastroDto insert(CadastroDto obj) {
 
-        if (repository.findByCpf(obj.getCliente().getCpf()).isPresent()) {
+        Optional<List<Cadastro>> existente = repository.findByCpf(obj.getCliente().getCpf());
+        if (existente.isPresent() && !existente.get().isEmpty()) {
             throw new CpfUnicoException("CPF já cadastrado!");
         }
         obj.setStatus(true);
         Cadastro cadastro = CadastroMapper.toEntitie(obj);
         repository.insert(cadastro);
+        return CadastroMapper.toDto(cadastro);
     }
 
     public void update(CadastroDto obj, String id) {

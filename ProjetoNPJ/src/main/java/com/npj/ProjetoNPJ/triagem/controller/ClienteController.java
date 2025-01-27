@@ -20,8 +20,8 @@ public class ClienteController {
 
     @PostMapping(value = "/ins")
     public ResponseEntity<CadastroDto> insert(@RequestBody @Valid CadastroDto objDto) {
-        service.insert(objDto);
-        return ResponseEntity.ok().body(objDto);
+        CadastroDto novoObj = service.insert(objDto);
+        return ResponseEntity.ok().body(novoObj);
     }
 
     @PutMapping(value =  "/upd/{id}")
