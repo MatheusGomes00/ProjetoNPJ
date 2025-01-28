@@ -25,9 +25,9 @@ public class ClienteController {
     }
 
     @PutMapping(value =  "/upd/{id}")
-    public ResponseEntity<Void> update(@RequestBody CadastroDto dto, @PathVariable String id) {
-        service.update(dto, id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<CadastroDto> update(@RequestBody CadastroDto dto, @PathVariable String id) {
+        CadastroDto cadastro = service.update(dto, id);
+        return ResponseEntity.ok(cadastro);
     }
 
     @GetMapping(value = "/nome/{nome}")

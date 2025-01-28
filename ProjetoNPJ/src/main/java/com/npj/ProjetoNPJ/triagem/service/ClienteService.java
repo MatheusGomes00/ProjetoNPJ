@@ -33,7 +33,7 @@ public class ClienteService {
         return CadastroMapper.toDto(cadastro);
     }
 
-    public void update(CadastroDto obj, String id) {
+    public CadastroDto update(CadastroDto obj, String id) {
         Cadastro objAtualizado = CadastroMapper.toEntitie(obj);
 
         Cadastro objAntigo = repository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
@@ -44,6 +44,7 @@ public class ClienteService {
 
         repository.save(objAtualizado);
 
+        return CadastroMapper.toDto(objAtualizado);
     }
 
     public void updateData(Cadastro oldObj, Cadastro newObj) {
