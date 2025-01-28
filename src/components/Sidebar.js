@@ -1,5 +1,6 @@
 import React from 'react';
-import { FaCalendarAlt, FaUsers, FaUserTie, FaFileAlt, FaTasks, FaFolder } from 'react-icons/fa'; // Importando ícones do react-icons
+import { FaCalendarAlt, FaUsers, FaUserTie, FaFileAlt, FaTasks, FaFolder } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 function Sidebar() {
   return (
@@ -17,9 +18,10 @@ function Sidebar() {
           </button>
         </li>
         <li>
-          <button className="sidebar-button">
+          {/* Link para Advogados */}
+          <Link to="/advogados" className="sidebar-button">
             <FaUserTie /> Advogados
-          </button>
+          </Link>
         </li>
         <li>
           <button className="sidebar-button">
