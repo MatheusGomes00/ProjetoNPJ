@@ -1,12 +1,8 @@
 import React from 'react';
-
-import { Routes, Route } from 'react-router-dom'; // Apenas importando Routes e Route
-
+import { Routes, Route } from 'react-router-dom'; // Importando Routes e Route
 import Sidebar from './components/Sidebar';
 import AreaDeTrabalho from './components/AreaDeTrabalho';
-
-import GerenciarAdvogados from './components/Advogados/GerenciarAdvogados';
-
+import SearchBar from './components/Searchbar';
 
 function App() {
   return (
@@ -18,7 +14,7 @@ function App() {
           <Route path="/" element={<AreaDeTrabalho />} />
 
           {/* Página de Advogados */}
-          <Route path="/advogados" element={<GerenciarAdvogados />} />
+          <Route path="/advogados" element={<SearchBar />} />
         </Routes>
       </div>
     </div>

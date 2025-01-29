@@ -1,26 +1,21 @@
-// SearchBarTop.js
-import React, { useState } from 'react';
+import { useState } from "react";
 
-function SearchBarTop({ onSearch }) {
-  const [searchTerm, setSearchTerm] = useState('');
+export default function SearchBarTop() {
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = () => {
-    if (searchTerm.trim() !== '') {
-      onSearch(searchTerm);
-    }
+    console.log("Pesquisando por:", searchTerm);
   };
 
   return (
     <div className="search-bar-top">
       <input
         type="text"
-        placeholder="Pesquisar Cliente, Processo ou Tarefa"
+        placeholder="Pesquise clientes, advogados ou casos"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <button onClick={handleSearch}>Buscar</button>
+      <button onClick={handleSearch}>Procurar</button>
     </div>
   );
 }
-
-export default SearchBarTop;

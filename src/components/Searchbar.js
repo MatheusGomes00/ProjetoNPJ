@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import SearchBar from './components/SearchBar'; 
-import ResultsList from './components/ResultsList';  
-import Sidebar from './components/Sidebar';
-import SearchBarTop from './components/SearchBarTop';
-import IconeLogOut from './components/botoesTelaImovel/IconeLogOut';
-import IconeNotificacoes from './components/botoesTelaImovel/IconeNotificacoes';
-import IconeNovaTarefa from './components/botoesTelaImovel/IconeNovaTarefa';
+import SearchBarTop from './SearchBarTop';
+import IconeLogOut from './botoesTelaImovel/IconeLogOut';
+import Sidebar from './Sidebar';
+import IconeNotificacoes from './botoesTelaImovel/IconeNotificacoes';
+import ResultsList from './ResultsList';
 
-function App() {
+
+
+
+
+function SearchBar() {
   const [clientes, setClientes] = useState([]);  // Armazena os clientes retornados da API
   const [nome, setNome] = useState('');  // Armazena o nome digitado no SearchBar
   
@@ -44,8 +46,7 @@ function App() {
         <Sidebar /> 
         
         <div className="content">
-          {/* Passa a função buscarClientes para o SearchBar */}
-          <SearchBar onSearch={buscarClientes} /> 
+        
           {/* Passa os clientes encontrados para o ResultsList */}
           <ResultsList clientes={clientes} /> 
         </div>
@@ -53,5 +54,4 @@ function App() {
     </div>
   );
 }
-
-export default App;
+export default SearchBar;

@@ -1,12 +1,17 @@
-import React from 'react';
-import { FaCalendarAlt, FaUsers, FaUserTie, FaFileAlt, FaTasks, FaFolder } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom"; // Para navegação entre as rotas
+import { FaCalendarAlt, FaUsers, FaUserTie, FaFileAlt, FaTasks, FaFolder, FaHome } from "react-icons/fa";
 
-function Sidebar() {
+function Sidebar({ onAdvogadosClick }) {
   return (
     <div className="sidebar">
       <h2>Atalhos</h2>
       <ul>
+        <li>
+          <Link to="/" className="sidebar-button"> {/* Link para a Área de Trabalho */}
+            <FaHome /> Área de Trabalho
+          </Link>
+        </li>
         <li>
           <button className="sidebar-button">
             <FaCalendarAlt /> Agenda
@@ -18,8 +23,7 @@ function Sidebar() {
           </button>
         </li>
         <li>
-          {/* Link para Advogados */}
-          <Link to="/advogados" className="sidebar-button">
+          <Link to="/advogados" className="sidebar-button"> {/* Link para "Advogados" */}
             <FaUserTie /> Advogados
           </Link>
         </li>
