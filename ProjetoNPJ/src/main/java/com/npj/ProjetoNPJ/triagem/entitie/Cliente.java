@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -17,7 +18,10 @@ public class Cliente implements Serializable {
 
     private String nome;
     private Endereco endereco;
+
+    @Indexed(unique = true)
     private String cpf;
+
     private String rg;
     private String ssp; // secretaria de segurança publica
     private String nascimento;

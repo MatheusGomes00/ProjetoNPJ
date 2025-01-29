@@ -25,7 +25,7 @@ public class ClienteController {
     }
 
     @PutMapping(value =  "/upd/{id}")
-    public ResponseEntity<CadastroDto> update(@RequestBody CadastroDto dto, @PathVariable String id) {
+    public ResponseEntity<CadastroDto> update(@RequestBody @Valid CadastroDto dto, @PathVariable String id) {
         CadastroDto cadastro = service.update(dto, id);
         return ResponseEntity.ok(cadastro);
     }
