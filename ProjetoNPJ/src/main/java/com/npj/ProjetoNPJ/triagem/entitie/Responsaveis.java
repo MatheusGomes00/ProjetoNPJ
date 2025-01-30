@@ -13,8 +13,11 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Document(collection = "responsaveis")
 public class Responsaveis implements Serializable {
 
+    @Id
+    private String id;
     private String advogado;
     private String docente;
     private String estagiario1;
