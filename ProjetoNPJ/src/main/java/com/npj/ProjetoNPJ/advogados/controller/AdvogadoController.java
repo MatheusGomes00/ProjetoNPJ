@@ -1,7 +1,7 @@
 package com.npj.ProjetoNPJ.advogados.controller;
 
 
-import com.npj.ProjetoNPJ.advogados.dtos.dtoAdvogado;
+import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,41 +20,43 @@ public class AdvogadoController {
     private AdvogadoService service;
 
     @PostMapping(value = "/ins")
-    public ResponseEntity<dtoAdvogado> criarAdvogado(@RequestBody @Valid dtoAdvogado advogadod){
+    public ResponseEntity<DtoAdvogado> criarAdvogado(@RequestBody @Valid DtoAdvogado advogadod){
         service.insert(advogadod);
 
         return ResponseEntity.ok().body(advogadod);
     }
 
     @PutMapping(value = "/upd/{id}")
-    public ResponseEntity<Void> atualizar(@RequestBody dtoAdvogado dto, @PathVariable String id){
+    public ResponseEntity<Void> atualizar(@Valid @RequestBody DtoAdvogado dto, @PathVariable String id){
         service.update(dto, id);
 
         return ResponseEntity.noContent().build();
     }
-    @PutMapping(value = "/del/{id}")
-    public ResponseEntity<Void> excluir( dtoAdvogado dto, @PathVariable String id){
-        service.delete(dto, id);
+
+    @PatchMapping(value = "/del/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable String id){
+        service.delete(id);
 
         return ResponseEntity.ok().build();
     }
+
     @GetMapping
-    public ResponseEntity<List<dtoAdvogado>> buscarTodos(){
-        List<dtoAdvogado> cadastros = service.findAll();
+    public ResponseEntity<List<DtoAdvogado>> buscarTodos(){
+        List<DtoAdvogado> cadastros = service.findAll();
         return ResponseEntity.ok(cadastros);
     }
 
     @GetMapping(value = "/buscanome/{nome}")
-    public ResponseEntity<List<dtoAdvogado>> buscarPorNome(@PathVariable String nome){
-        List<dtoAdvogado> cadastros = service.findByNome(nome);
+    public ResponseEntity<List<DtoAdvogado>> buscarPorNome(@PathVariable String nome){
+        List<DtoAdvogado> cadastros = service.findByNome(nome);
         return ResponseEntity.ok(cadastros);
     }
 
-    @GetMapping(value = "/buscacpf")
-    public ResponseEntity<List<dtoAdvogado>> buscarPorCpf(@RequestBody Map<String, String> request){
+    @PostMapping(value = "/buscacpf")
+    public ResponseEntity<List<DtoAdvogado>> buscarPorCpf(@RequestBody Map<String, String> request){
 
         String cpf = request.get("cpf");
-        List<dtoAdvogado> advogados = service.findByCpf(cpf);
+        List<DtoAdvogado> advogados = service.findByCpf(cpf);
         return ResponseEntity.ok(advogados);
 
     }

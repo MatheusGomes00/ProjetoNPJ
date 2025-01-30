@@ -1,4 +1,4 @@
-package com.npj.ProjetoNPJ.triagem.exceptions;
+package com.npj.ProjetoNPJ.exceptions;
 
 public class CpfUnicoException extends RuntimeException{
 

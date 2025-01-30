@@ -5,15 +5,13 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
-
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "cadastroAdvogado")
-public class advogado implements Serializable {
+public class Advogado {
 
     @Id
     private String id;
@@ -28,5 +26,5 @@ public class advogado implements Serializable {
 
     private String secaoOab;
 
-    private boolean status;
+    private Boolean status;
 }

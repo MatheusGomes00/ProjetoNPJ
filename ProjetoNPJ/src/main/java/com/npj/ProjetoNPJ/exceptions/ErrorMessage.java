@@ -1,4 +1,4 @@
-package com.npj.ProjetoNPJ.triagem.exceptions;
+package com.npj.ProjetoNPJ.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.servlet.http.HttpServletRequest;

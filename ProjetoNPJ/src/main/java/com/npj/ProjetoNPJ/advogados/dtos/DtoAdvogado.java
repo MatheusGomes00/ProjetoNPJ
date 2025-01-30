@@ -1,7 +1,6 @@
 package com.npj.ProjetoNPJ.advogados.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -9,22 +8,22 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class dtoAdvogado {
+public class DtoAdvogado {
 
 
-    @NotNull
+    @NotBlank
     private String nome;
 
-    @NotNull
+    @NotBlank
     private String datanasc;
 
-    @NotNull
+    @NotBlank
     private String cpf;
 
-    @NotNull
+    @NotBlank
     private String registroOab;
 
-    @NotNull
+    @NotBlank
     private String secaoOab;
 
     private boolean status;

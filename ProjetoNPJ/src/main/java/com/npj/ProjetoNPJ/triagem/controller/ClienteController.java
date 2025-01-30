@@ -49,7 +49,7 @@ public class ClienteController {
         return ResponseEntity.ok().body(cadastros);
     }
 
-    @DeleteMapping(value = "/del/{id}")
+    @PatchMapping(value = "/del/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

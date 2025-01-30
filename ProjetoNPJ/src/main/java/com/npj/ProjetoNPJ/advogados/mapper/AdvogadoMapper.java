@@ -1,7 +1,7 @@
 package com.npj.ProjetoNPJ.advogados.mapper;
 
-import com.npj.ProjetoNPJ.advogados.dtos.dtoAdvogado;
-import com.npj.ProjetoNPJ.advogados.entity.advogado;
+import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
+import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
@@ -9,17 +9,17 @@ import java.util.stream.Collectors;
 
 public class AdvogadoMapper {
 
-    public static advogado toEntitie(dtoAdvogado dto){
+    public static Advogado toEntitie(DtoAdvogado dto){
 
-        return new ModelMapper().map(dto, advogado.class);
+        return new ModelMapper().map(dto, Advogado.class);
 
     }
 
-    public static dtoAdvogado toDto(advogado advogado){
-        return new ModelMapper().map(advogado, dtoAdvogado.class);
+    public static DtoAdvogado toDto(Advogado advogado){
+        return new ModelMapper().map(advogado, DtoAdvogado.class);
     }
 
-    public static List<dtoAdvogado> toListDto(List<advogado> list){
+    public static List<DtoAdvogado> toListDto(List<Advogado> list){
         return list.stream().map(AdvogadoMapper::toDto).collect(Collectors.toList());
     }
 }
