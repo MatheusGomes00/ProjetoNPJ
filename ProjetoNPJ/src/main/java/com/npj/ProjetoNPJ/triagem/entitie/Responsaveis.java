@@ -15,7 +15,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Responsaveis implements Serializable {
 
-    private String id;
     private String advogado;
     private String docente;
     private String estagiario1;

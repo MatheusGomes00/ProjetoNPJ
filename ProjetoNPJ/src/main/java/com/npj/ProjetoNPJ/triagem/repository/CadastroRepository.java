@@ -10,4 +10,16 @@ import java.util.Optional;
 
 @Repository
 public interface CadastroRepository extends MongoRepository<Cadastro, String> {
+
+    @Query("{ $or: [ { 'cliente.nome': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'representante.nome': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'parteContraria.nome': { $regex: ?0, $options: 'i' } } ] }")
+    Optional<List<Cadastro>> findByNome(String nome);
+
+    @Query("{ $or: [ { 'cliente.cpf': { $regex: ?0 } }, " +
+            "{ 'representante.cpf': { $regex: ?0 } }, " +
+            "{ 'parteContraria.cpfCnpj': { $regex: ?0 } } ] }")
+    Optional<List<Cadastro>> findByCpf(String cpf);
+
+    Boolean existsByClienteCpf(String cpf);
 }

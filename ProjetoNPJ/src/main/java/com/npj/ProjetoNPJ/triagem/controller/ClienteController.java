@@ -50,7 +50,7 @@ public class ClienteController {
     }
 
     @DeleteMapping(value = "/del/{id}")
-    public ResponseEntity<Void> delete(String id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

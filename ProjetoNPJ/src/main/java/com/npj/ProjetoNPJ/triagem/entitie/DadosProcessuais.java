@@ -15,7 +15,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class DadosProcessuais implements Serializable {
 
-    private String id;
     private String competencia;
     private String necessidades;
 

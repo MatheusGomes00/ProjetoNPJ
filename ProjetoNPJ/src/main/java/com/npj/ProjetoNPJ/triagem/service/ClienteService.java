@@ -7,7 +7,6 @@ import com.npj.ProjetoNPJ.triagem.exceptions.CpfUnicoException;
 import com.npj.ProjetoNPJ.triagem.exceptions.NomeNaoLocalizadoException;
 import com.npj.ProjetoNPJ.triagem.mapper.CadastroMapper;
 import com.npj.ProjetoNPJ.triagem.repository.CadastroRepository;
-import com.npj.ProjetoNPJ.triagem.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,23 +21,20 @@ public class ClienteService {
     @Autowired
     private CadastroRepository cadastroRepository;
 
-    @Autowired
-    private ClienteRepository clienteRepository;
-
-    public void normalizarCpf(String cpf) {
-        Boolean verificador = clienteRepository.existsByCpf(cpf);
+    public void validarCpf(String cpf) {
+        Boolean verificador = cadastroRepository.existsByClienteCpf(cpf);
         if (verificador) {
             throw new CpfUnicoException("CPF " + cpf + " já cadastrado!");
         }
     }
 
-    public String tratarCpf(String cpf) {
+    public String normalizarCpf(String cpf) {
         return cpf.replaceAll("[.\\-\\s]", "");
     }
 
     public CadastroDto insert(CadastroDto obj) {
-        String cpf = tratarCpf(obj.getCliente().getCpf());
-        normalizarCpf(cpf);
+        String cpf = normalizarCpf(obj.getCliente().getCpf());
+        validarCpf(cpf);
         obj.getCliente().setCpf(cpf);
         obj.setStatus(true);
         Cadastro cadastro = cadastroRepository.insert(CadastroMapper.toEntitie(obj));
@@ -47,15 +43,15 @@ public class ClienteService {
 
     public CadastroDto update(CadastroDto obj, String id) {
         Cadastro objAtualizado = CadastroMapper.toEntitie(obj);
-        String cpfNovo = tratarCpf(obj.getCliente().getCpf());
+        String cpfNovo = normalizarCpf(obj.getCliente().getCpf());
 
         Cadastro objAntigo = cadastroRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Erro ao localizar cliente"));
-        String cpfAntigo = tratarCpf(objAntigo.getCliente().getCpf());
+        String cpfAntigo = normalizarCpf(objAntigo.getCliente().getCpf());
 
         if(!cpfAntigo.equals(cpfNovo)) {
-            normalizarCpf(cpfNovo);
+            validarCpf(cpfNovo);
         } else {
             objAtualizado.setId(id);
             objAtualizado.getCliente().setCpf(cpfNovo);
@@ -78,14 +74,14 @@ public class ClienteService {
     }
 
     public List<CadastroDto> findByNome(String nome) {
-        List<Cadastro> cadastros = clienteRepository
+        List<Cadastro> cadastros = cadastroRepository
                 .findByNome(nome)
                 .orElseThrow(() -> new NomeNaoLocalizadoException("Nome não localizado."));
         return CadastroMapper.toListDto(cadastros);
     }
 
     public List<CadastroDto> findByCpf(String cpf) {
-        List<Cadastro> cadastros = clienteRepository
+        List<Cadastro> cadastros = cadastroRepository
                 .findByCpf(cpf)
                 .orElseThrow(() -> new CpfNaoEncontradoException("CPF não localizado."));
         return CadastroMapper.toListDto(cadastros);
@@ -94,7 +90,7 @@ public class ClienteService {
     public List<CadastroDto> findAll() {
         List<Cadastro> cadastros = cadastroRepository.findAll();
         if(cadastros.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Não localizado");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sem registros");
         }
         return CadastroMapper.toListDto(cadastros);
     }

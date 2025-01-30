@@ -15,7 +15,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Representante implements Serializable {
 
-    private String id;
     private String nome;
     private Endereco endereco;
     private String cpf;
