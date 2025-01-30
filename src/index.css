@@ -345,4 +345,97 @@ h1 {
   font-weight: bold; /* Negrito para destacar */
   color: #333; /* Cor do texto */
 }
+.search-bar-area {
+  position: absolute; /* Permite posicionamento personalizado */
+  top: 20%; /* Posiciona no meio verticalmente */
+  left: 50%; /* Posiciona no meio horizontalmente */
+  transform: translate(-50%, -50%); /* Ajusta para ficar exatamente no centro */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 600px;
+  width: 100%;
+  padding: 0;
+  background-color: transparent;
+  border-radius: 8px;
+  z-index: 1000;
+}
 
+/* Input de pesquisa */
+.search-bar-area input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+/* Input de pesquisa ao focar */
+.search-bar-area input:focus {
+  border-color: #007bff;
+}
+
+/* Botão de pesquisa */
+.search-bar-area button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botão de pesquisa ao passar o mouse */
+.search-bar-area button:hover {
+  background-color: #0056b3;
+}
+
+/* Botão de pesquisa ao clicar */
+.search-bar-area button:active {
+  background-color: #003f7f;
+}
+.tarefas-container {
+  display: flex;
+  gap: 22px;
+  top: -200px; /* Move o container 20px para cima */
+  margin-top: 0;
+  margin-left: -60px;
+  position: relative;
+  align-items: flex-start;
+}
+
+
+.tarefa-card {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  width: 200px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.tarefa-card h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.tarefa-card p {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+.horizontal-line-2 {
+  position: absolute;
+  top: -60px; /* Ajuste a posição para onde você quer que a linha horizontal comece */
+  right: 0; /* Alinha com a borda direita */
+  width: 1030%; /* A linha horizontal deve ocupar toda a largura disponível */
+  border-top: 1px solid #ff0000;
+}

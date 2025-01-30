@@ -7,6 +7,8 @@ import IconeNotificacoes from "./botoesTelaImovel/IconeNotificacoes";
 import IconeNovaTarefa from "./botoesTelaImovel/IconeNovaTarefa";
 import ResultsList from "./ResultsList"; // Import the ResultsList component
 import SearchBar from "./Searchbar";
+import Tarefas from "./AreaDeTrabalho/Tarefas";
+
 
 function AreaDeTrabalho() {
   const [activePage, setActivePage] = useState("home"); // 'home' or 'advogados'
@@ -22,9 +24,11 @@ function AreaDeTrabalho() {
         <IconeNotificacoes />
         <IconeNovaTarefa />
       </div>
+      <Tarefas /> {/* Renderizando as tarefas */}
 
       {/* Linha horizontal */}
       <div className="horizontal-line"></div>
+      <div className="horizontal-line2"></div> 
 
       {/* Rótulo no canto */}
       <div className="corner-label">
@@ -43,6 +47,7 @@ function AreaDeTrabalho() {
             Tarefas e prazos que expiram hoje
           </div>
         )}
+        
         {activePage === "advogados" && (
           <div className="advogados-content">
             <SearchBar />
