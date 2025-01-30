@@ -16,6 +16,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Natureza implements Serializable {
 
+    private String id;
     private String causa;
 
 }

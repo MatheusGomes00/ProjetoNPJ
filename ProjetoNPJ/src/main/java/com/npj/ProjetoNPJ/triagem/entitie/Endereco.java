@@ -15,7 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Endereco implements Serializable {
 
-
+    private String id;
     private String rua;
     private String numero;
     private String complemento;

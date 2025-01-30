@@ -15,6 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ParteContraria implements Serializable {
 
+    private String id;
     private String nomeRazaoSocial;
     private Endereco endereco;
     private String cpfCnpj;

@@ -1,17 +1,14 @@
 package com.npj.ProjetoNPJ.triagem.exceptions;
 
-import com.mongodb.DuplicateKeyException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
@@ -39,7 +36,7 @@ public class GlobalHandlerException {
     }
 
     @ExceptionHandler(CpfUnicoException.class)
-    public ResponseEntity<ErrorMessage> cpfDuplicadoHandlerException(DuplicateKeyException ex,
+    public ResponseEntity<ErrorMessage> cpfDuplicadoHandlerException(CpfUnicoException ex,
                                                                      HttpServletRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -52,7 +49,7 @@ public class GlobalHandlerException {
     }
 
     @ExceptionHandler(CpfNaoEncontradoException.class)
-    public ResponseEntity<Map<String, Object>> cpfNaoEncontradoHandlerException(CpfUnicoException ex, HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> cpfNaoEncontradoHandlerException(CpfNaoEncontradoException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", "Not Found");
         body.put("message", ex.getMessage());

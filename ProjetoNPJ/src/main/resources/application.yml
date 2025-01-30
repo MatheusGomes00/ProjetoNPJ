@@ -3,4 +3,8 @@ spring:
     name: ProjetoNPJ
   data:
     mongodb:
+      host: localhost
+      port: 27017
+      database: PorjetoNPJ
       uri: mongodb://localhost:27017/ProjetoNPJ
+    auto-index-creation: true
