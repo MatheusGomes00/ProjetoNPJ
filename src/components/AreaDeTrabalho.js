@@ -8,7 +8,7 @@ import IconeNovaTarefa from "./botoesTelaImovel/IconeNovaTarefa";
 import ResultsList from "./ResultsList"; // Import the ResultsList component
 import SearchBar from "./Searchbar";
 import Tarefas from "./AreaDeTrabalho/Tarefas";
-
+import Notificacao from "./AreaDeTrabalho/Notificacoes";
 
 function AreaDeTrabalho() {
   const [activePage, setActivePage] = useState("home"); // 'home' or 'advogados'
@@ -25,11 +25,10 @@ function AreaDeTrabalho() {
         <IconeNovaTarefa />
       </div>
       <Tarefas /> {/* Renderizando as tarefas */}
-
       {/* Linha horizontal */}
       <div className="horizontal-line"></div>
-      <div className="horizontal-line2"></div> 
-
+      <hr className="linha-horizontal" /> {/* Adiciona a linha horizontal */}
+      <div class="notificacoes-hoje">Notificações de hoje:</div>
       {/* Rótulo no canto */}
       <div className="corner-label">
         <span className="corner-label-npj">NPJ</span>
@@ -39,7 +38,8 @@ function AreaDeTrabalho() {
 
       {/* Sidebar */}
       <Sidebar onAdvogadosClick={() => setActivePage("advogados")} />
-
+      <Notificacao />
+      
       {/* Conteúdo dinâmico */}
       <div className="content-container">
         {activePage === "home" && (
@@ -52,7 +52,9 @@ function AreaDeTrabalho() {
           <div className="advogados-content">
             <SearchBar />
             <ResultsList />
+            
           </div>
+          
         )}
       </div>
     </div>

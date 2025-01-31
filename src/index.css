@@ -315,6 +315,8 @@ h1 {
   color: #333; /* Cor do ícone */
   cursor: pointer;
 }
+
+
 /* Estilização do título "Gerenciar Advogados" */
 .advogados-title {
   position: absolute;
@@ -404,14 +406,10 @@ h1 {
 .tarefas-container {
   display: flex;
   gap: 22px;
-  top: -200px; /* Move o container 20px para cima */
-  margin-top: 0;
-  margin-left: -60px;
-  position: relative;
+  flex-wrap: wrap; /* Permite que os itens se movam para a linha seguinte, caso necessário */
+  margin-top: -400px; /* Pode adicionar margem para mover para baixo, sem afetar outros elementos fora do contêiner */
   align-items: flex-start;
 }
-
-
 .tarefa-card {
   background-color: #f9f9f9;
   padding: 20px;
@@ -419,6 +417,7 @@ h1 {
   width: 200px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
+  position: relative; /* Para posicionar os indicadores dentro do card */
 }
 
 .tarefa-card h2 {
@@ -432,10 +431,42 @@ h1 {
   font-size: 14px;
   color: #666;
 }
-.horizontal-line-2 {
+
+/* Posiciona os indicadores no canto inferior direito */
+.indicadores {
   position: absolute;
-  top: -60px; /* Ajuste a posição para onde você quer que a linha horizontal comece */
-  right: 0; /* Alinha com a borda direita */
-  width: 1030%; /* A linha horizontal deve ocupar toda a largura disponível */
-  border-top: 1px solid #ff0000;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+/* Estiliza os indicadores como retângulos arredondados */
+.indicador {
+  width: 40px; /* Largura maior para parecer um retângulo */
+  height: 15px;
+  border-radius: 8px; /* Bordas arredondadas */
+}
+
+.verde { background-color: green; }
+.amarelo { background-color: yellow; }
+.laranja { background-color: orange; }
+.vermelho { background-color: red; }
+
+.linha-horizontal {
+  position: absolute;
+  top: 40%; /* Posiciona no meio da tela */
+  left: -60px; /* Define um espaçamento da borda esquerda */
+  width: 80%; /* Define a largura (ajuste conforme necessário) */
+  height: 1px; /* Espessura da linha */
+  background-color: black; /* Cor da linha */
+  border: none; /* Remove qualquer borda padrão */
+}
+.notificacoes-hoje {
+  position: absolute;
+  top: 400px; /* Ajuste para ficar abaixo da linha horizontal */
+  left: 250px; /* Alinhar à esquerda */
+  font-size: 16px; /* Tamanho da fonte */
+  font-weight: bold; /* Negrito */
+  color: #333; /* Cor do texto */
 }
