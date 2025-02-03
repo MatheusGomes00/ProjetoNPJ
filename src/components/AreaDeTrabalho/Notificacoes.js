@@ -20,6 +20,7 @@ const Notificacao = () => {
           O sistema foi atualizado com novos recursos de segurança e melhorias de
           desempenho. Por favor, reinicie sua sessão para aplicar as mudanças.
         </p>
+        <p></p>
       </div>
     );
   };

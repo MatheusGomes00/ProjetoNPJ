@@ -9,6 +9,8 @@ import ResultsList from "./ResultsList"; // Import the ResultsList component
 import SearchBar from "./Searchbar";
 import Tarefas from "./AreaDeTrabalho/Tarefas";
 import Notificacao from "./AreaDeTrabalho/Notificacoes";
+import ProcessosArea from "./AreaDeTrabalho/ProcessosArea";
+
 
 function AreaDeTrabalho() {
   const [activePage, setActivePage] = useState("home"); // 'home' or 'advogados'
@@ -39,6 +41,7 @@ function AreaDeTrabalho() {
       {/* Sidebar */}
       <Sidebar onAdvogadosClick={() => setActivePage("advogados")} />
       <Notificacao />
+      <ProcessosArea />
       
       {/* Conteúdo dinâmico */}
       <div className="content-container">
@@ -46,6 +49,7 @@ function AreaDeTrabalho() {
           <div className="tarefas-expirando-hoje">
             Tarefas e prazos que expiram hoje
           </div>
+          
         )}
         
         {activePage === "advogados" && (

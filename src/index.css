@@ -411,13 +411,15 @@ h1 {
   align-items: flex-start;
 }
 .tarefa-card {
+  left: -55px;
   background-color: #f9f9f9;
   padding: 20px;
   border-radius: 10px;
-  width: 200px;
+  width: 150px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   position: relative; /* Para posicionar os indicadores dentro do card */
+  height: 100px;
 }
 
 .tarefa-card h2 {
@@ -456,7 +458,7 @@ h1 {
 .linha-horizontal {
   position: absolute;
   top: 40%; /* Posiciona no meio da tela */
-  left: -60px; /* Define um espaçamento da borda esquerda */
+  right: 420px;
   width: 80%; /* Define a largura (ajuste conforme necessário) */
   height: 1px; /* Espessura da linha */
   background-color: black; /* Cor da linha */
@@ -469,4 +471,7 @@ h1 {
   font-size: 16px; /* Tamanho da fonte */
   font-weight: bold; /* Negrito */
   color: #333; /* Cor do texto */
+}
+.linha-vertical{
+  
 }
