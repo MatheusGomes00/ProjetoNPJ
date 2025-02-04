@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Sidebar from "./Sidebar";
-import SearchBarTop from "./SearchBarTop";
-import IconeLogOut from "./botoesTelaImovel/IconeLogOut";
-import IconeNotificacoes from "./botoesTelaImovel/IconeNotificacoes";
-import IconeNovaTarefa from "./botoesTelaImovel/IconeNovaTarefa";
-import ResultsList from "./ResultsList"; // Import the ResultsList component
-import SearchBar from "./Searchbar";
-import Tarefas from "./AreaDeTrabalho/Tarefas";
-import Notificacao from "./AreaDeTrabalho/Notificacoes";
-import ProcessosArea from "./AreaDeTrabalho/ProcessosArea";
+import Sidebar from "../Sidebar";
+import SearchBarTop from "../SearchBarTop";
+import IconeLogOut from "../botoesTelaImovel/IconeLogOut";
+import IconeNotificacoes from "../botoesTelaImovel/IconeNotificacoes";
+import IconeNovaTarefa from "../botoesTelaImovel/IconeNovaTarefa";
+import ResultsList from "../Advogados/ResultsList"; // Import the ResultsList component
+import SearchBar from "../Advogados/Searchbar";
+import Tarefas from "./Tarefas";
+import Notificacao from "./Notificacoes";
+import ProcessosArea from "./ProcessosArea";
 
 
 function AreaDeTrabalho() {
@@ -54,8 +54,6 @@ function AreaDeTrabalho() {
         
         {activePage === "advogados" && (
           <div className="advogados-content">
-            <SearchBar />
-            <ResultsList />
             
           </div>
           
