@@ -29,84 +29,6 @@ h1 {
   max-width: 1200px; /* Limita a largura máxima */
 }
 
-/* Sidebar à esquerda */
-/* Sidebar estilizada */
-.sidebar {
-  position: fixed; /* Fixa a sidebar na tela */
-  top: 100px; /* Alinha no topo da página */
-  left: 0; /* Alinha na esquerda */
-  width: 200px; /* Define a largura da sidebar */
-  height: calc(100% - 50px); /* Faz a sidebar ocupar toda a altura da tela */
-  background-color: #ffffff; /* Cor de fundo */
-  border-right: 1px solid #000000; /* Linha divisória */
-  box-shadow: 2px 0 5px rgba(158, 78, 78, 0.1); /* Adiciona uma sombra para destaque */
-  padding: 1rem; /* Adiciona espaçamento interno */
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Alinha os itens à esquerda */
-}
-
-/* Título da Sidebar */
-.sidebar h2 {
-  font-size: 24px;
-  margin-bottom: 1rem;
-  text-transform: uppercase; /* Deixa o texto em caixa alta */
-  font-weight: bold;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.4); /* Linha decorativa */
-  padding-bottom: 10px;
-  color: #333;
-}
-.sidebar-button {
-  width: 100%; /* Faz os botões ocuparem toda a largura do container */
-  display: inline-flex; /* Alinha o conteúdo dentro do botão */
-  align-items: center; /* Alinha o conteúdo verticalmente */
-  justify-content: flex-start; /* Alinha o conteúdo à esquerda */
-  font-size: 16px;
-  padding: 12px;
-  margin: 5px 0;
-  background-color: white; /* Cor de fundo branco */
-  color: black; /* Cor da fonte preta */
-  text-decoration: none; /* Remover o sublinhado do Link */
-  border-radius: 4px; /* Bordas arredondadas */
-  border: 1px solid #ccc; /* Borda cinza clara */
-  transition: background-color 0.3s, border 0.3s;
-  box-sizing: border-box; /* Garante que o padding não afete o tamanho total do botão */
-  height: 50px; /* Define uma altura fixa para todos os botões */
-}
-
-/* Lista de itens */
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-}
-
-.sidebar ul li {
-  margin: 6px 0;
-}
-
-/* Botões da Sidebar */
-
-/* Efeito hover nos botões */
-.sidebar-button:hover {
-  background: rgba(0, 15, 221, 0.4); /* Fundo mais claro ao passar o mouse */
-  transform: scale(1.05); /* Leve aumento no tamanho */
-  border-color: rgba(255, 255, 255, 0.5); /* Destaque na borda */
-}
-
-/* Garantir que o Link dentro do botão tenha o mesmo comportamento de hover */
-.sidebar-button a:hover {
-  background: rgba(0, 15, 221, 0.4); /* Fundo mais claro ao passar o mouse */
-  transform: scale(1.05); /* Leve aumento no tamanho */
-  border-color: rgba(255, 255, 255, 0.5); /* Destaque na borda */
-}
-
-/* Texto no botão */
-.sidebar button:focus {
-  outline: none; /* Remove o contorno padrão ao focar */
-}
-
 
 /* Estilos para o indicador de status */
 .status-indicator {
@@ -129,7 +51,7 @@ h1 {
 .status-badge.inactive {
   background-color: red; /* Bolinha vermelha para inativo */
 }
-
+/*Essa linha horizontal se refere a linha fixa principal */
 .horizontal-line {
   position: absolute; /* Garante que a linha seja posicionada em relação à página */
   top: 100px; /* Altura a partir do topo da página */
@@ -160,62 +82,6 @@ h1 {
   font-weight: normal; /* Texto normal */
   color: #000; /* Cor preta */
 }
-/* Estilização para a barra de pesquisa no topo */
-/* Estilização para a barra de pesquisa no topo */
-.search-bar-top {
-  position: fixed; /* Fixa o componente no topo */
-  top: 20px; /* Define uma margem de 20px do topo da tela */
-  left: 50%; /* Centraliza horizontalmente */
-  transform: translateX(-50%); /* Ajusta para o centro exato */
-  display: flex;
-  align-items: center; /* Alinha o conteúdo verticalmente no centro */
-  justify-content: space-between; /* Espaçamento entre o input e o botão */
-  max-width: 600px; /* Aumenta a largura máxima da barra */
-  width: 100%; /* Garante que a largura ocupe 100% do espaço disponível até o max-width */
-  padding: 0; /* Remove o padding */
-  background-color: transparent; /* Remove completamente o fundo */
-  border-radius: 8px; /* Borda arredondada */
-  z-index: 1000; /* Garante que o componente fique sobre outros elementos */
-}
-
-/* Input de pesquisa */
-.search-bar-top input {
-  flex: 1; /* Faz o input ocupar todo o espaço disponível */
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc; /* Borda do input */
-  border-radius: 4px; /* Bordas arredondadas no input */
-  outline: none; /* Remove o contorno padrão do input */
-  transition: border-color 0.3s; /* Transição suave de cor */
-}
-
-/* Input de pesquisa ao focar */
-.search-bar-top input:focus {
-  border-color: #007bff; /* Altera a cor da borda ao focar */
-}
-
-/* Botão de pesquisa */
-.search-bar-top button {
-  padding: 10px 20px;
-  background-color: #007bff; /* Cor de fundo azul */
-  color: white; /* Cor da fonte branca */
-  font-size: 16px;
-  border: none; /* Remove a borda do botão */
-  border-radius: 4px; /* Bordas arredondadas */
-  cursor: pointer; /* Cursor de pointer para indicar que é clicável */
-  transition: background-color 0.3s; /* Transição suave para a cor de fundo */
-}
-
-/* Botão de pesquisa ao passar o mouse */
-.search-bar-top button:hover {
-  background-color: #0056b3; /* Cor de fundo mais escura ao passar o mouse */
-}
-
-/* Botão de pesquisa ao clicar */
-.search-bar-top button:active {
-  background-color: #003f7f; /* Cor de fundo mais escura ao clicar */
-}
-
 
 /* Ícones no topo direito */
 .top-right-icons {
@@ -251,71 +117,11 @@ h1 {
   transform: translate(-50%, -50%);
   width: 400px;
   height: 300px;
-  background-color: #c00000;
+  background-color: #080606;
   border: 1px solid #cf0000;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-/* Estilo simples para a label "Tarefas e prazos que expiram hoje" */
-.tarefas-expirando-hoje {
-  position: absolute;
-  top: 150px; /* Ajuste a posição para ficar abaixo da linha horizontal */
-  left: 250px; /* Ajuste a posição para alinhar à esquerda */
-  font-size: 18px; /* Tamanho da fonte */
-  font-weight: bold; /* Negrito para destacar */
-  color: #333; /* Cor do texto */
-}
-.tarefas-container {
-  display: flex;
-  gap: 22px;
-  flex-wrap: wrap; /* Permite que os itens se movam para a linha seguinte, caso necessário */
-  margin-top: -400px; /* Pode adicionar margem para mover para baixo, sem afetar outros elementos fora do contêiner */
-  align-items: flex-start;
-}
-.tarefa-card {
-  left: -55px;
-  background-color: #f9f9f9;
-  padding: 20px;
-  border-radius: 10px;
-  width: 150px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  position: relative; /* Para posicionar os indicadores dentro do card */
-  height: 100px;
-}
-
-.tarefa-card h2 {
-  margin: 0;
-  font-size: 18px;
-  color: #333;
-}
-
-.tarefa-card p {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #666;
-}
-
-/* Posiciona os indicadores no canto inferior direito */
-.indicadores {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  display: flex;
-  gap: 5px;
-}
-
-/* Estiliza os indicadores como retângulos arredondados */
-.indicador {
-  width: 40px; /* Largura maior para parecer um retângulo */
-  height: 15px;
-  border-radius: 8px; /* Bordas arredondadas */
-}
-
-.verde { background-color: green; }
-.amarelo { background-color: yellow; }
-.laranja { background-color: orange; }
-.vermelho { background-color: red; }
 
 .linha-horizontal {
   position: absolute;
@@ -431,14 +237,14 @@ h1 {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Estilização para o "Nenhum resultado encontrado" */
-.results-list .no-results {
-  color: #999;
-  font-size: 16px;
-  font-weight: 600;
-  text-align: center;
-  margin-top: 50px;
+.corner-label {
+  height: 10%;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  font-size: 12px;
 }
+
 
 
 
