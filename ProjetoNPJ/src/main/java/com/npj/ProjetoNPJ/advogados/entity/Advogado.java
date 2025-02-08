@@ -27,4 +27,6 @@ public class Advogado {
     private String secaoOab;
 
     private Boolean status;
+
+
 }
