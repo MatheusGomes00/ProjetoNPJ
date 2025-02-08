@@ -7,6 +7,7 @@ import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.CpfUnicoException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -17,6 +18,9 @@ public class AdvogadoService {
 
     @Autowired
     private AdvogadoRepository repository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public void validarCpf(String cpf) {
         Boolean verificador = repository.existsByCpf(cpf);
@@ -33,6 +37,7 @@ public class AdvogadoService {
         dto.setCpf(normalizarCpf(dto.getCpf()));
         validarCpf(dto.getCpf());
         dto.setStatus(true);
+        dto.setSenha(passwordEncoder.encode(dto.getSenha()));
         Advogado newAdvogado = AdvogadoMapper.toEntitie(dto);
         repository.insert(newAdvogado);
     }
@@ -47,7 +52,7 @@ public class AdvogadoService {
 
         advAtualizado.setId(id);
         updateData(advAntigo, advAtualizado);
-
+        advAtualizado.setSenha(passwordEncoder.encode(advAtualizado.getSenha()));
         repository.save(advAtualizado);
     }
 
@@ -79,11 +84,9 @@ public class AdvogadoService {
         return AdvogadoMapper.toListDto(advogados);
     }
 
-    public List<DtoAdvogado> findByCpf(String cpf){
-        List<Advogado> advogados = repository.findByCpf(cpf);
-        if(advogados.isEmpty()) {
-            throw new RecursoNaoEncontradoException("CPF não localizado");
-        }
-        return AdvogadoMapper.toListDto(advogados);
+    public DtoAdvogado findByCpf(String cpf){
+        Advogado advogados = repository.findByCpf(cpf).orElseThrow(() -> new RecursoNaoEncontradoException("CPF não localizado."));
+
+        return AdvogadoMapper.toDto(advogados);
     }
 }

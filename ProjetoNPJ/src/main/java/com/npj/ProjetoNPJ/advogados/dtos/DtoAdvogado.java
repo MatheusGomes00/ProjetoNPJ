@@ -26,5 +26,11 @@ public class DtoAdvogado {
     @NotBlank
     private String secaoOab;
 
+    @NotBlank
+    private String senha;
+
+    @NotBlank
+    private String role;
+
     private boolean status;
 }

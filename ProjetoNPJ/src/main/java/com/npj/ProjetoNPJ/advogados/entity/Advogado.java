@@ -5,6 +5,8 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -16,11 +18,15 @@ public class Advogado {
     @Id
     private String id;
 
+    private String cpf;
+
+    private String senha;
+
+    private Roles role;
+
     private String nome;
 
     private String datanasc;
-
-    private String cpf;
 
     private String registroOab;
 

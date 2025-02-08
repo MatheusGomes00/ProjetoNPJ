@@ -62,4 +62,10 @@ public class GlobalHandlerException {
                 ));
     }
 
+    @ExceptionHandler(CustomAuthenticationException.class)
+    public ResponseEntity<Map<String, String>> handleAuthenticationException(CustomAuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Unauthorized", "message", ex.getMessage()));
+    }
+
 }

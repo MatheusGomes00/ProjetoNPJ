@@ -53,11 +53,11 @@ public class AdvogadoController {
     }
 
     @PostMapping(value = "/buscacpf")
-    public ResponseEntity<List<DtoAdvogado>> buscarPorCpf(@RequestBody Map<String, String> request){
+    public ResponseEntity<DtoAdvogado> buscarPorCpf(@RequestBody Map<String, String> request){
 
         String cpf = request.get("cpf");
-        List<DtoAdvogado> advogados = service.findByCpf(cpf);
-        return ResponseEntity.ok(advogados);
+        DtoAdvogado advogado = service.findByCpf(cpf);
+        return ResponseEntity.ok(advogado);
 
     }
 
