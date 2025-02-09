@@ -12,9 +12,13 @@ import java.util.stream.Collectors;
 
 public class TarefasMapper {
 
+
     public static Tarefas toEntity(DtoTarefas dtoTarefas){
+
         return new ModelMapper().map(dtoTarefas, Tarefas.class);
     }
+
+
     public static DtoTarefas toDto(Tarefas tarefas){
         return new ModelMapper().map(tarefas, DtoTarefas.class);
     }

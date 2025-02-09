@@ -5,5 +5,5 @@ spring:
     mongodb:
       host: localhost
       port: 27017
-      database: PorjetoNPJ
+      database: ProjetoNPJ
       uri: mongodb://localhost:27017/ProjetoNPJ

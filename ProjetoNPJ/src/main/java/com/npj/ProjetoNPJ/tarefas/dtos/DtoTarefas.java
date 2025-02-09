@@ -1,5 +1,6 @@
 package com.npj.ProjetoNPJ.tarefas.dtos;
 
+import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -19,6 +20,7 @@ public class DtoTarefas {
     private String descricao;
 
 
+
     private boolean status;
 
     @NotBlank
@@ -30,10 +32,12 @@ public class DtoTarefas {
 
     private LocalDateTime dataCriacao;
 
+    @NotBlank
+    private String responsavelId;
+    @NotBlank
+    private String responsavelNome;
 
-    //private Object responsavel;
 
-
-    private boolean processoRelacionado;
+    //private boolean processoRelacionado;
 
 }
