@@ -11,11 +11,15 @@ import java.util.Optional;
 @Repository
 public interface AdvogadoRepository extends MongoRepository<Advogado, String> {
 
-    @Query("{ 'nome': { $regex: ?0, $options: 'i' } }}")
+    @Query("{ 'nome': { $regex: ?0, $options: 'i' } }")
     List<Advogado> findByNome(String nome);
 
-    @Query("{ 'cpf': { $regex: ?0, $options: 'i' } }}")
+    @Query("{ 'cpf': ?0 }")
     Optional<Advogado> findByCpf(String cpf);
 
     Boolean existsByCpf(String cpf);
+
+    @Query("{ 'cpf': { $regex: ?0, $options: 'i' } }")
+    List<Advogado> findExistsByCpf(String cpf);
+
 }

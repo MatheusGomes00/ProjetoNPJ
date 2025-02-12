@@ -79,7 +79,9 @@ public class ClienteService {
     }
 
     public List<CadastroDto> findByCpf(String cpf) {
-        List<Cadastro> cadastros = cadastroRepository.findByCpf(cpf);
+
+        String cpfTratado = normalizarCpf(cpf);
+        List<Cadastro> cadastros = cadastroRepository.findByCpf(cpfTratado);
         if(cadastros.isEmpty()) {
             throw new RecursoNaoEncontradoException("CPF não localizado.");
         }

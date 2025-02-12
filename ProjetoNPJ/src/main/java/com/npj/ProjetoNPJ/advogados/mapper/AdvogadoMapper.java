@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.advogados.mapper;
 
 import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
+import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import org.modelmapper.ModelMapper;
 
@@ -12,14 +13,21 @@ public class AdvogadoMapper {
     public static Advogado toEntitie(DtoAdvogado dto){
 
         return new ModelMapper().map(dto, Advogado.class);
-
     }
 
     public static DtoAdvogado toDto(Advogado advogado){
+
         return new ModelMapper().map(advogado, DtoAdvogado.class);
     }
 
-    public static List<DtoAdvogado> toListDto(List<Advogado> list){
-        return list.stream().map(AdvogadoMapper::toDto).collect(Collectors.toList());
+    public static List<ResponseAdvogadoDto> toListDto(List<Advogado> list){
+
+        return list.stream().map(AdvogadoMapper::responseDto).collect(Collectors.toList());
     }
+
+    public static ResponseAdvogadoDto responseDto(Advogado advogado) {
+
+        return new ModelMapper().map(advogado, ResponseAdvogadoDto.class);
+    }
+
 }

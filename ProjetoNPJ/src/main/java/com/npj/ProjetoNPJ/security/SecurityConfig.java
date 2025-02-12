@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/refresh-token").permitAll()
                         .requestMatchers("/adv/**").authenticated()
+                        //.requestMatchers("/adv/ins").permitAll()
                         .requestMatchers("/adv/ins").hasRole("ADVOGADO")
                         .anyRequest().authenticated()
                 )

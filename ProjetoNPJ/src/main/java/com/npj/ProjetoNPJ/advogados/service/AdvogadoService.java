@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.advogados.service;
 
 import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
+import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
@@ -33,13 +34,14 @@ public class AdvogadoService {
         return cpf.replaceAll("[.\\-\\s]", "");
     }
 
-    public void insert(DtoAdvogado dto){
+    public Advogado insert(DtoAdvogado dto){
         dto.setCpf(normalizarCpf(dto.getCpf()));
         validarCpf(dto.getCpf());
         dto.setStatus(true);
         dto.setSenha(passwordEncoder.encode(dto.getSenha()));
         Advogado newAdvogado = AdvogadoMapper.toEntitie(dto);
         repository.insert(newAdvogado);
+        return newAdvogado;
     }
 
     public void update(DtoAdvogado dto, String id){
@@ -70,12 +72,12 @@ public class AdvogadoService {
         repository.save(advogado);
     }
 
-    public List<DtoAdvogado> findAll(){
+    public List<ResponseAdvogadoDto> findAll(){
         List<Advogado> cadastros = repository.findAll();
         return AdvogadoMapper.toListDto(cadastros);
     }
 
-    public List<DtoAdvogado> findByNome(String nome){
+    public List<ResponseAdvogadoDto> findByNome(String nome){
 
         List<Advogado> advogados = repository.findByNome(nome);
         if(advogados.isEmpty()) {
@@ -84,9 +86,19 @@ public class AdvogadoService {
         return AdvogadoMapper.toListDto(advogados);
     }
 
-    public DtoAdvogado findByCpf(String cpf){
-        Advogado advogados = repository.findByCpf(cpf).orElseThrow(() -> new RecursoNaoEncontradoException("CPF não localizado."));
+    public List<ResponseAdvogadoDto> findByCpf(String cpf){
 
-        return AdvogadoMapper.toDto(advogados);
+        String cpfTratado = normalizarCpf(cpf);
+        List<Advogado> advogados = repository.findExistsByCpf(cpfTratado);
+        if(advogados.isEmpty()) {
+            throw new RecursoNaoEncontradoException("CPF não localizado.");
+        }
+        return AdvogadoMapper.toListDto(advogados);
+    }
+
+    public ResponseAdvogadoDto findById(String id) {
+        Advogado advogado = repository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Id não localizado"));
+
+        return AdvogadoMapper.responseDto(advogado);
     }
 }
