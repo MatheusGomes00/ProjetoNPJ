@@ -16,6 +16,7 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Provider;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/task")
@@ -31,22 +32,28 @@ public class TarefasController {
     private TarefasRepository repository;
 
     @PostMapping(value = "/create")
-    public ResponseEntity<Object> criarTarefa(@RequestBody @Valid DtoTarefas tarefas){
+    public ResponseEntity<Object> criarTarefa(@RequestBody @Valid DtoTarefas tarefas) {
+        try {
+            Tarefas novaTarefa = TarefasMapper.toEntity(tarefas);
 
-        try{service.insert(tarefas);
+            // Garante que o ID seja null para forçar a criação de uma nova tarefa
+            novaTarefa.setId(null);
 
-            return ResponseEntity.ok().body(tarefas);}
-        catch (IllegalArgumentException e){
+            // Buscar o Advogado pelo ID para associá-lo à tarefa
+            Advogado advogado = repositoryAdv.findById(tarefas.getResponsavelId())
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
+
+            novaTarefa.setResponsavel(advogado);
+
+            // Salvar a nova tarefa no banco
+            Tarefas tarefaCriada = repository.save(novaTarefa);
+
+            return ResponseEntity.ok().body(tarefaCriada);
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-
         }
+    }
 
-    }
-    @GetMapping("/nome-advogado/{tarefaId}")
-    public ResponseEntity<String> getNomeAdvogado(@PathVariable String tarefaId) {
-        String nomeAdvogado = service.getNomeAdvogadoPorTarefa(tarefaId);
-        return ResponseEntity.ok(nomeAdvogado);
-    }
 
     public void update(DtoTarefas dto, String id){
 
@@ -74,5 +81,13 @@ public class TarefasController {
     public ResponseEntity<String> finalizarTarefa(@PathVariable String id){
         service.finalizar(id);
         return ResponseEntity.ok().body("Tarefa FInalizada com sucesso");
+    }
+    @GetMapping("/get")
+    public ResponseEntity<List<Tarefas>> listarTarefas() {
+        List<Tarefas> tarefas = repository.findAll(); // Retorna todas as tarefas cadastradas
+        if (tarefas.isEmpty()) {
+            return ResponseEntity.noContent().build(); // Retorna 204 se não houver tarefas
+        }
+        return ResponseEntity.ok(tarefas); // Retorna 200 com a lista de tarefas
     }
 }

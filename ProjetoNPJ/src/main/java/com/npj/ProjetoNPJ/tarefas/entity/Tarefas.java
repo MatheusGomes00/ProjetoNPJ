@@ -37,7 +37,7 @@ public class Tarefas {
     private Advogado responsavel;
 
 
-    private boolean processoRelacionado;
+
 
 
 }
