@@ -1,6 +1,21 @@
 import { useState } from "react";
 import styled from "styled-components";
 
+/* Grid que vai de ponta a ponta */
+const GridContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px; /* Ajuste a altura conforme necessário */
+  background-color: #f8f9fa; /* Cor de fundo opcional */
+  border-bottom: 2px solid black; /* Linha preta para separação */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+/* Mantém a barra de pesquisa no mesmo lugar */
 const SearchBarContainer = styled.div`
   position: absolute;
   top: 20px;
@@ -17,6 +32,7 @@ const SearchBarContainer = styled.div`
   z-index: 1000;
 `;
 
+/* Campo de pesquisa */
 const SearchInput = styled.input`
   flex: 1;
   padding: 10px;
@@ -31,6 +47,7 @@ const SearchInput = styled.input`
   }
 `;
 
+/* Botão de pesquisa */
 const SearchButton = styled.button`
   padding: 10px 20px;
   background-color: #007bff;
@@ -58,14 +75,16 @@ export default function SearchBarTop() {
   };
 
   return (
-    <SearchBarContainer>
-      <SearchInput
-        type="text"
-        placeholder="Pesquise clientes, advogados ou casos"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <SearchButton onClick={handleSearch}>Procurar</SearchButton>
-    </SearchBarContainer>
+    <GridContainer>
+      <SearchBarContainer>
+        <SearchInput
+          type="text"
+          placeholder="Pesquise clientes, advogados ou casos"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <SearchButton onClick={handleSearch}>Procurar</SearchButton>
+      </SearchBarContainer>
+    </GridContainer>
   );
 }

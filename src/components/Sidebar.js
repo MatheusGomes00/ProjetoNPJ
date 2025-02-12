@@ -8,6 +8,7 @@ const SidebarContainer = styled.div`
   position: absolute;
   top: 100px;
   left: 0;
+  height: 605px;
   width: 200px;
   background-color: #ffffff;
   border-right: 1px solid #000000;

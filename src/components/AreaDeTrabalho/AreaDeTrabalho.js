@@ -5,6 +5,9 @@ import SearchBarTop from "../SearchBarTop";
 import IconeLogOut from "../botoesTelaImovel/IconeLogOut";
 import IconeNotificacoes from "../botoesTelaImovel/IconeNotificacoes";
 import IconeNovaTarefa from "../botoesTelaImovel/IconeNovaTarefa";
+import Tarefas from "./Tarefas";
+
+
 
 function AreaDeTrabalho() {
   return (
@@ -27,7 +30,10 @@ function AreaDeTrabalho() {
           {/* Células do grid */}
           <div className="grid-item"></div>
           <div className="grid-item"></div>
-          <div className="grid-item"></div>
+          <div className="grid-item">
+            {/* Adicionando o componente de Tarefas no grid */}
+            <Tarefas />
+          </div>
         </div>
       </div>
 
