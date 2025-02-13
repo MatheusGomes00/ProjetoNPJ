@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 
-// Container principal das tarefas
 const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -19,7 +18,6 @@ const TarefasContainer = styled.div`
   height: 300px;
 `;
 
-// Título da seção  
 const TituloTarefas = styled.h2`
   font-size: 20px;
   font-weight: bold;
@@ -28,7 +26,6 @@ const TituloTarefas = styled.h2`
   margin-bottom: 15px;
 `;
 
-// Lista de tarefas
 const ListaTarefas = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -44,41 +41,25 @@ const ListaTarefas = styled.div`
   border-radius: 8px;
 `;
 
-// Card de cada tarefa
 const TarefaCard = styled.div`
   background-color: #f9f9f9;
   padding: 15px;
   border-radius: 10px;
   width: 180px;
-  height: 200px; /* Aumento da altura */
+  height: 200px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: transform 0.2s ease-in-out;
+  cursor: pointer;
 
   &:hover {
     transform: scale(1.05);
   }
-
-  h2 {
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-
-  p {
-    font-size: 12px;
-    color: #555;
-    word-wrap: break-word;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-height: 60px;
-  }
 `;
 
-// Botão para adicionar tarefa
 const BotaoAdicionar = styled.button`
   background-color: #007bff;
   color: white;
@@ -95,9 +76,8 @@ const BotaoAdicionar = styled.button`
   }
 `;
 
-// Estilização do modal (popup)
 const ModalOverlay = styled.div`
-  display: ${({ show }) => (show ? "flex" : "none")};
+  display: ${({ show }) => (show ? "flex" : "none")}; 
   position: fixed;
   top: 0;
   left: 0;
@@ -108,7 +88,6 @@ const ModalOverlay = styled.div`
   align-items: center;
 `;
 
-// Container do formulário no modal
 const ModalContent = styled.div`
   background: white;
   padding: 20px;
@@ -118,9 +97,9 @@ const ModalContent = styled.div`
   flex-direction: column;
   gap: 10px;
   position: relative;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 `;
 
-// Botão de fechar
 const BotaoFechar = styled.button`
   position: absolute;
   top: 10px;
@@ -134,32 +113,56 @@ const BotaoFechar = styled.button`
   border-radius: 5px;
 `;
 
-// Botão de enviar
-const BotaoEnviar = styled.button`
-  background-color: green;
+const SelectPrioridade = styled.select`
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+`;
+
+const MensagemSucesso = styled.p`
+  color: green;
+  font-weight: bold;
+  text-align: center;
+`;
+
+const TarefaDetalhesModal = styled(ModalContent)`
+  width: 300px;
+`;
+
+const BotaoEditar = styled.button`
+  background-color: #28a745;
   color: white;
   border: none;
-  padding: 10px;
+  padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: bold;
 
   &:hover {
-    background-color: darkgreen;
+    background-color: #218838;
   }
 `;
 
 function Tarefas() {
   const [tarefas, setTarefas] = useState([]);
+  const [advogados, setAdvogados] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showDetalhesModal, setShowDetalhesModal] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [novaTarefa, setNovaTarefa] = useState({
     nomeTarefa: "",
     descricao: "",
-    status: false,
+    status: true,
     prioridade: "baixa",
-    prazoLimite: "",
-    responsavel: "",
+    prazoLimite: "", // Inicia como string vazia
+    dataCriacao: new Date().toISOString(), // Data correta, no formato ISO
+    responsavelId: "",
+    responsavelNome: ""
   });
+
+  const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
 
   const buscarTarefas = async () => {
     try {
@@ -170,96 +173,147 @@ function Tarefas() {
     }
   };
 
-  useEffect(() => {
-    buscarTarefas();
-  }, []);
-
-  const handleChange = (e) => {
-    setNovaTarefa({ ...novaTarefa, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async () => {
-    const prazoLimiteFormatado = new Date(novaTarefa.prazoLimite).toISOString();
-    const tarefaComPrazoFormatado = { ...novaTarefa, prazoLimite: prazoLimiteFormatado };
-  
-    console.log('Dados enviados:', tarefaComPrazoFormatado); // Verifica os dados antes de enviar
-  
+  const buscarAdvogados = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/task/create", tarefaComPrazoFormatado);
-      console.log('Resposta da API:', response.data); // Verifica a resposta
-      setShowModal(false);
-      buscarTarefas(); // Atualiza a lista após adicionar
+      const response = await axios.get("http://localhost:8080/adv/buscarTodos");
+      setAdvogados(response.data);
     } catch (error) {
-      console.error("Erro ao adicionar tarefa:", error.response ? error.response.data : error.message);
+      console.error("Erro ao buscar advogados:", error);
     }
   };
 
+  const handleSubmit = async () => {
+    try {
+      // Garantindo que o prazoLimite seja uma string no formato yyyy-MM-dd
+      const prazoLimiteFormatado = novaTarefa.prazoLimite ? novaTarefa.prazoLimite.split('T')[0] : null;
+  
+      const novaTarefaComData = {
+        ...novaTarefa,
+        prazoLimite: prazoLimiteFormatado, // Enviando data sem hora
+        dataCriacao: new Date().toISOString(), // Data de criação com a hora atual
+        responsavel: {
+          "$ref": "cadastroAdvogado", 
+          "$id": novaTarefa.responsavelId
+        }
+      };
+  
+      // Enviando dados para o backend
+      await axios.post("http://localhost:8080/task/create", novaTarefaComData);
+      setShowModal(false);
+      setNovaTarefa({
+        nomeTarefa: "",
+        descricao: "",
+        status: true,
+        prioridade: "baixa",
+        prazoLimite: "", // Resetando o prazoLimite
+        dataCriacao: new Date().toISOString(),
+        responsavelId: "",
+        responsavelNome: ""
+      });
+      setMensagemSucesso("Tarefa cadastrada!");
+      buscarTarefas();
+      setTimeout(() => setMensagemSucesso(""), 3000);
+    } catch (error) {
+      console.error("Erro ao adicionar tarefa:", error);
+    }
+  };
+
+  const abrirModal = () => setShowModal(true);
+
+  const fecharModal = () => setShowModal(false);
+
+  const abrirDetalhesModal = (tarefa) => {
+    setTarefaSelecionada(tarefa);
+    setShowDetalhesModal(true);
+  };
+
+  const fecharDetalhesModal = () => setShowDetalhesModal(false);
+
+  const handlePrazoLimiteChange = (e) => {
+    setNovaTarefa({
+      ...novaTarefa,
+      prazoLimite: e.target.value, // Garantindo que sempre tenha um valor controlado
+    });
+  };
+
+  useEffect(() => {
+    buscarTarefas();
+    buscarAdvogados();
+  }, []);
+
   return (
-    <>
-      <TarefasContainer>
-        <TituloTarefas>Tarefas e prazos que expiram hoje</TituloTarefas>
-        <ListaTarefas>
-          {tarefas.length === 0 ? (
-            <p>Nenhuma tarefa encontrada</p>
-          ) : (
-            tarefas.map((tarefa) => (
-              <TarefaCard key={tarefa.id}>
-                <h2>{tarefa.nomeTarefa}</h2>
-                <p>{tarefa.descricao}</p>
-              </TarefaCard>
-            ))
-          )}
-        </ListaTarefas>
+    <TarefasContainer>
+      <TituloTarefas>Tarefas e prazos que expiram hoje</TituloTarefas>
+      <ListaTarefas>
+        {tarefas.length === 0 ? <p>Nenhuma tarefa encontrada</p> : tarefas.map((tarefa) => (
+          <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
+            <h2>{tarefa.nomeTarefa}</h2>
+            <p>{tarefa.descricao}</p>
+          </TarefaCard>
+        ))}
+      </ListaTarefas>
+      {mensagemSucesso && <MensagemSucesso>{mensagemSucesso}</MensagemSucesso>}
+      <BotaoAdicionar onClick={abrirModal}>Adicionar Tarefa</BotaoAdicionar>
 
-        {/* Botão para abrir o modal */}
-        <BotaoAdicionar onClick={() => setShowModal(true)}>
-          Adicionar Tarefa
-        </BotaoAdicionar>
-      </TarefasContainer>
-
-      {/* Modal de Formulário */}
-      <ModalOverlay show={showModal}>
+      <ModalOverlay show={showModal ? "flex" : undefined}>
         <ModalContent>
-          <BotaoFechar onClick={() => setShowModal(false)}>X</BotaoFechar>
-          <h2>Adicionar Nova Tarefa</h2>
-
-          <input
-            type="text"
-            name="nomeTarefa"
-            placeholder="Nome da Tarefa"
+          <BotaoFechar onClick={fecharModal}>X</BotaoFechar>
+          <input 
+            type="text" 
+            placeholder="Nome da Tarefa" 
             value={novaTarefa.nomeTarefa}
-            onChange={handleChange}
+            onChange={(e) => setNovaTarefa({ ...novaTarefa, nomeTarefa: e.target.value })} 
           />
-          <textarea
-            name="descricao"
-            placeholder="Descrição"
+          <textarea 
+            placeholder="Descrição" 
             value={novaTarefa.descricao}
-            onChange={handleChange}
+            onChange={(e) => setNovaTarefa({ ...novaTarefa, descricao: e.target.value })} 
           />
-          <select name="prioridade" value={novaTarefa.prioridade} onChange={handleChange}>
+          <label htmlFor="prazoLimite">Prazo Limite</label>
+          <input 
+            type="date" 
+            id="prazoLimite"
+            value={novaTarefa.prazoLimite || ""} // Se estiver vazio, será uma string vazia
+            onChange={handlePrazoLimiteChange} 
+          />
+          <select
+            onChange={(e) => {
+              const advogadoSelecionado = advogados.find(adv => adv.id === e.target.value);
+              setNovaTarefa({ ...novaTarefa, responsavelId: e.target.value, responsavelNome: advogadoSelecionado ? advogadoSelecionado.nome : "" });
+            }}
+            value={novaTarefa.responsavelId}
+          >
+            <option value="">Selecione o Responsável</option>
+            {advogados.map((advogado) => (
+              <option key={advogado.id} value={advogado.id}>
+                {advogado.nome}
+              </option>
+            ))}
+          </select>
+          <SelectPrioridade onChange={(e) => setNovaTarefa({ ...novaTarefa, prioridade: e.target.value })}>
             <option value="baixa">Baixa</option>
             <option value="media">Média</option>
             <option value="alta">Alta</option>
-            <option value="maxima">Máxima</option>
-          </select>
-          <input
-            type="date"
-            name="prazoLimite"
-            value={novaTarefa.prazoLimite}
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            name="responsavel"
-            placeholder="Responsável"
-            value={novaTarefa.responsavel}
-            onChange={handleChange}
-          />
-
-          <BotaoEnviar onClick={handleSubmit}>Cadastrar Tarefa</BotaoEnviar>
+          </SelectPrioridade>
+          <button onClick={handleSubmit}>Cadastrar Tarefa</button>
         </ModalContent>
       </ModalOverlay>
-    </>
+
+      {tarefaSelecionada && (
+        <ModalOverlay show={showDetalhesModal ? "flex" : undefined}>
+          <TarefaDetalhesModal>
+            <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
+            <h2>{tarefaSelecionada.nomeTarefa}</h2>
+            <p><strong>Descrição:</strong> {tarefaSelecionada.descricao}</p>
+            <p><strong>Data de criação:</strong> {new Date(tarefaSelecionada.dataCriacao).toLocaleDateString()}</p>
+            <p><strong>Prioridade:</strong> {tarefaSelecionada.prioridade}</p>
+            <p><strong>Status:</strong> {tarefaSelecionada.status ? "Ativa" : "Inativa"}</p>
+            <p><strong>Prazo Limite:</strong> {tarefaSelecionada.prazoLimite}</p>
+            <BotaoEditar>Editar Tarefa</BotaoEditar>
+          </TarefaDetalhesModal>
+        </ModalOverlay>
+      )}
+    </TarefasContainer>
   );
 }
 
