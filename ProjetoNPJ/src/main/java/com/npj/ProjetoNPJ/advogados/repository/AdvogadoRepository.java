@@ -17,4 +17,7 @@ public interface AdvogadoRepository extends MongoRepository<Advogado, String> {
     List<Advogado> findByCpf(String cpf);
 
     Boolean existsByCpf(String cpf);
+
+
+
 }

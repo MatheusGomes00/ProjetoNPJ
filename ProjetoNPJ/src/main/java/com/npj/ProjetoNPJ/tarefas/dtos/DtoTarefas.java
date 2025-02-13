@@ -2,8 +2,11 @@ package com.npj.ProjetoNPJ.tarefas.dtos;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -26,11 +29,12 @@ public class DtoTarefas {
     @NotBlank
     private String prioridade;
 
+    @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate prazoLimite;
 
-    private LocalDateTime prazoLimite;
 
-
-    private LocalDateTime dataCriacao;
+    private LocalDate dataCriacao;
 
     @NotBlank
     private String responsavelId;

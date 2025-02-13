@@ -44,7 +44,7 @@ public class TarefasController {
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
 
             novaTarefa.setResponsavel(advogado);
-
+            System.out.println("Prazo Limite recebido: " + tarefas.getPrazoLimite());
             // Salvar a nova tarefa no banco
             Tarefas tarefaCriada = repository.save(novaTarefa);
 

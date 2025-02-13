@@ -40,7 +40,7 @@ public class AdvogadoController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
+    @GetMapping(value= "/buscarTodos")
     public ResponseEntity<List<DtoAdvogado>> buscarTodos(){
         List<DtoAdvogado> cadastros = service.findAll();
         return ResponseEntity.ok(cadastros);
