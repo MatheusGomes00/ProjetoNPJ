@@ -1,11 +1,15 @@
 package com.npj.ProjetoNPJ.exceptions;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +22,40 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalHandlerException {
+
+    @ExceptionHandler({ExpiredJwtException.class, JwtException.class})
+    public ResponseEntity<Map<String, String>> handleJwtException(Exception ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Token inválido ou expirado");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Map<String, String>> handleAuthenticationException(AuthenticationException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Acesso não autorizado. Faça login.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Acesso negado. Permissão insuficiente.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCredentialsNotFoundException(AuthenticationCredentialsNotFoundException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Credenciais de autenticação não encontradas.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(CustomAuthenticationException.class)
+    public ResponseEntity<Map<String, String>> handleAuthenticationException(CustomAuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Unauthorized", "message", ex.getMessage()));
+    }
 
     // exceção lançada pela validação dos campos incorretos do DTO
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -74,13 +112,6 @@ public class GlobalHandlerException {
                         ex.getMessage()
                 ));
     }
-
-    @ExceptionHandler(CustomAuthenticationException.class)
-    public ResponseEntity<Map<String, String>> handleAuthenticationException(CustomAuthenticationException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "Unauthorized", "message", ex.getMessage()));
-    }
-
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException ex, HttpServletRequest request) {
