@@ -38,19 +38,19 @@ public class TarefefasService {
 
 
         if (newTask.getId() == null) {
-            newTask.setId(new ObjectId().toString()); // Garantir que o ID da tarefa seja único
+            newTask.setId(new ObjectId().toString());
         }
 
-        // Salva a tarefa
-        repository.save(newTask); // Use save para evitar problema com insert e chave duplicada
+
+        repository.save(newTask);
 
     }
     public String getNomeAdvogadoPorTarefa(String tarefaId) {
-        // Buscar a tarefa pelo ID
+
         Tarefas tarefa = repository.findById(tarefaId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada"));
 
-        // Acessar o nome do advogado associado
+
         String nomeAdvogado = tarefa.getResponsavel().getNome();
 
         return nomeAdvogado;

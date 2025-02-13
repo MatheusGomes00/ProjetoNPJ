@@ -36,16 +36,14 @@ public class TarefasController {
         try {
             Tarefas novaTarefa = TarefasMapper.toEntity(tarefas);
 
-            // Garante que o ID seja null para forçar a criação de uma nova tarefa
+
             novaTarefa.setId(null);
 
-            // Buscar o Advogado pelo ID para associá-lo à tarefa
             Advogado advogado = repositoryAdv.findById(tarefas.getResponsavelId())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
 
             novaTarefa.setResponsavel(advogado);
             System.out.println("Prazo Limite recebido: " + tarefas.getPrazoLimite());
-            // Salvar a nova tarefa no banco
             Tarefas tarefaCriada = repository.save(novaTarefa);
 
             return ResponseEntity.ok().body(tarefaCriada);
@@ -57,23 +55,23 @@ public class TarefasController {
 
     public void update(DtoTarefas dto, String id){
 
-        // Buscar o Advogado pelo ID
+
         Advogado advogado = repositoryAdv.findById(dto.getResponsavelId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
 
-        // Converter DTO para entidade Tarefa
+
         Tarefas tarefaNova = TarefasMapper.toEntity(dto);
 
-        // Buscar a tarefa existente
+
         Tarefas tarefaAntiga = repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada"));
 
-        // Atualizar os dados da tarefa
+
         tarefaNova.setId(id);
-        tarefaNova.setResponsavel(advogado); // Atualizando o advogado
+        tarefaNova.setResponsavel(advogado);
         service.updateData(tarefaAntiga, tarefaNova);
 
-        // Salvar a tarefa atualizada
+
         repository.save(tarefaNova);
     }
 
@@ -84,10 +82,10 @@ public class TarefasController {
     }
     @GetMapping("/get")
     public ResponseEntity<List<Tarefas>> listarTarefas() {
-        List<Tarefas> tarefas = repository.findAll(); // Retorna todas as tarefas cadastradas
+        List<Tarefas> tarefas = repository.findAll();
         if (tarefas.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Retorna 204 se não houver tarefas
+            return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(tarefas); // Retorna 200 com a lista de tarefas
+        return ResponseEntity.ok(tarefas);
     }
 }

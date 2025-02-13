@@ -42,6 +42,6 @@ public class DtoTarefas {
     private String responsavelNome;
 
 
-    //private boolean processoRelacionado;
+
 
 }
