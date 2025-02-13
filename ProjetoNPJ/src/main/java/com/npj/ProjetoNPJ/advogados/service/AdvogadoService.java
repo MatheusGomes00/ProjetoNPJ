@@ -6,6 +6,7 @@ import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.CpfUnicoException;
+import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -87,6 +88,10 @@ public class AdvogadoService {
     }
 
     public List<ResponseAdvogadoDto> findByCpf(String cpf){
+
+        if(cpf == null || cpf.isBlank()) {
+            throw new NullPointerException("CPF não pode ser nulo ou estar em branco");
+        }
 
         String cpfTratado = normalizarCpf(cpf);
         List<Advogado> advogados = repository.findExistsByCpf(cpfTratado);
