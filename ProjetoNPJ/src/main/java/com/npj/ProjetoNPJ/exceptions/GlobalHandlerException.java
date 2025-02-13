@@ -62,6 +62,19 @@ public class GlobalHandlerException {
                 ));
     }
 
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorMessage> recursoNulo(NullPointerException ex,
+                                                          HttpServletRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(
+                        request,
+                        HttpStatus.BAD_REQUEST,
+                        ex.getMessage()
+                ));
+    }
+
     @ExceptionHandler(CustomAuthenticationException.class)
     public ResponseEntity<Map<String, String>> handleAuthenticationException(CustomAuthenticationException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
