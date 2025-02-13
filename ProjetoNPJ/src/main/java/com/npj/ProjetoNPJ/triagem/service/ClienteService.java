@@ -1,5 +1,6 @@
 package com.npj.ProjetoNPJ.triagem.service;
 
+import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.triagem.dto.CadastroDto;
 import com.npj.ProjetoNPJ.triagem.entitie.Cadastro;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ClienteService {
@@ -39,6 +39,7 @@ public class ClienteService {
     }
 
     public CadastroDto update(CadastroDto obj, String id) {
+
         Cadastro objAtualizado = CadastroMapper.toEntitie(obj);
         String cpfNovo = normalizarCpf(obj.getCliente().getCpf());
 
@@ -80,6 +81,10 @@ public class ClienteService {
 
     public List<CadastroDto> findByCpf(String cpf) {
 
+        if(cpf == null || cpf.isBlank()) {
+            throw new NullPointerException("CPF não pode ser nulo ou estar em branco");
+        }
+        
         String cpfTratado = normalizarCpf(cpf);
         List<Cadastro> cadastros = cadastroRepository.findByCpf(cpfTratado);
         if(cadastros.isEmpty()) {
