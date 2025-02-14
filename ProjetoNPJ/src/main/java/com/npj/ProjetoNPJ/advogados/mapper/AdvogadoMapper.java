@@ -2,6 +2,7 @@ package com.npj.ProjetoNPJ.advogados.mapper;
 
 import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
 import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
+import com.npj.ProjetoNPJ.advogados.dtos.UpdateRequestDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import org.modelmapper.ModelMapper;
 
@@ -11,6 +12,11 @@ import java.util.stream.Collectors;
 public class AdvogadoMapper {
 
     public static Advogado toEntitie(DtoAdvogado dto){
+
+        return new ModelMapper().map(dto, Advogado.class);
+    }
+
+    public static Advogado toEntitie(UpdateRequestDto dto){
 
         return new ModelMapper().map(dto, Advogado.class);
     }

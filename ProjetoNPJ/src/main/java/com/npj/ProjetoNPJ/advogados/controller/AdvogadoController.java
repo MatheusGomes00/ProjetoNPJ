@@ -3,6 +3,7 @@ package com.npj.ProjetoNPJ.advogados.controller;
 
 import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
 import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
+import com.npj.ProjetoNPJ.advogados.dtos.UpdateRequestDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -28,20 +30,15 @@ public class AdvogadoController {
 
     @PostMapping(value = "/ins")
     public ResponseEntity<ResponseAdvogadoDto> criarAdvogado(@RequestBody @Valid DtoAdvogado advogadoDto){
+        Advogado advogado = service.insert(advogadoDto);
+        ResponseAdvogadoDto dto = AdvogadoMapper.responseDto(advogado);
 
-        try {
-            Advogado advogado = service.insert(advogadoDto);
-            ResponseAdvogadoDto dto = AdvogadoMapper.responseDto(advogado);
-
-            URI location = URI.create("/who/" + advogado.getId());
-            return ResponseEntity.created(location).body(dto);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Erro ao cadastrar advogado.", e.getCause());
-        }
+        URI location = URI.create("/who/" + advogado.getId());
+        return ResponseEntity.created(location).body(dto);
     }
 
     @PutMapping(value = "/upd/{id}")
-    public ResponseEntity<Void> atualizar(@Valid @RequestBody DtoAdvogado dto, @PathVariable String id){
+    public ResponseEntity<Void> atualizar(@Valid @RequestBody UpdateRequestDto dto, @PathVariable String id){
 
         service.update(dto, id);
         return ResponseEntity.noContent().build();

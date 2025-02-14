@@ -2,6 +2,7 @@ package com.npj.ProjetoNPJ.advogados.service;
 
 import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
 import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
+import com.npj.ProjetoNPJ.advogados.dtos.UpdateRequestDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
@@ -45,7 +46,7 @@ public class AdvogadoService {
         return newAdvogado;
     }
 
-    public void update(DtoAdvogado dto, String id){
+    public void update(UpdateRequestDto dto, String id){
 
         Advogado advAtualizado = AdvogadoMapper.toEntitie(dto);
 
@@ -55,7 +56,6 @@ public class AdvogadoService {
 
         advAtualizado.setId(id);
         updateData(advAntigo, advAtualizado);
-        advAtualizado.setSenha(passwordEncoder.encode(advAtualizado.getSenha()));
         repository.save(advAtualizado);
     }
 
