@@ -3,19 +3,21 @@ import styled from "styled-components";
 import axios from "axios";
 
 const TarefasContainer = styled.div`
-  display: flex;
+  position: absolute;
   flex-direction: column;
   align-items: center;
-  width: 160%;
-  max-width: 180%;
+  width: 700px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 40px;
   border: 2px solid black;
-  border-radius: 10px;
+  border-radius: 0px;
   background: #fff;
   margin-left: 52px;
-  margin-top: -35%;
-  height: 300px;
+  margin-top: -269px;
+  height: 350px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const TituloTarefas = styled.h2`
@@ -29,7 +31,7 @@ const TituloTarefas = styled.h2`
 const ListaTarefas = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 22px;
+  gap: 30px;
   justify-content: center;
   align-items: flex-start;
   width: 100%;
@@ -42,22 +44,62 @@ const ListaTarefas = styled.div`
 `;
 
 const TarefaCard = styled.div`
+  font-size: 15px;
   background-color: #f9f9f9;
   padding: 15px;
   border-radius: 10px;
-  width: 180px;
-  height: 200px;
+  width: 120px;
+  height: 120px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
   transition: transform 0.2s ease-in-out;
   cursor: pointer;
 
   &:hover {
     transform: scale(1.05);
   }
+`;
+
+const StatusTag = styled.div`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 10px;
+  height: 20px;
+  background-color: ${({ prioridade }) =>
+    prioridade === "baixa"
+      ? "green"
+      : prioridade === "media"
+      ? "yellow" 
+      : "red"};
+  border-radius: 30%;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+`;
+
+const LegendaPrioridades = styled.div`
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+  width: 100%;
+  font-size: 14px;
+  color: #666;
+`;
+
+const TagLegenda = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const CorTag = styled.div`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: ${({ cor }) => cor};
 `;
 
 const BotaoAdicionar = styled.button`
@@ -83,21 +125,36 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   justify-content: center;
   align-items: center;
+  transition: all 0.3s ease-in-out;
+  
 `;
-
 const ModalContent = styled.div`
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  width: 450px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
   position: relative;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(30px);
+  opacity: 0;
+  animation: modalSlideIn 0.3s forwards;
+
+  @keyframes modalSlideIn {
+    0% {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 `;
 
 const BotaoFechar = styled.button`
@@ -105,14 +162,19 @@ const BotaoFechar = styled.button`
   top: 10px;
   right: 10px;
   border: none;
-  background: red;
-  color: white;
-  padding: 5px 10px;
+  background: transparent;
+  color: #333;
+  font-size: 18px;
   cursor: pointer;
   font-weight: bold;
-  border-radius: 5px;
-`;
+  border-radius: 50%;
+  padding: 5px;
+  transition: background 0.3s ease;
 
+  &:hover {
+    background: #f0f0f0;
+  }
+`;
 const SelectPrioridade = styled.select`
   padding: 10px;
   border-radius: 5px;
@@ -127,21 +189,24 @@ const MensagemSucesso = styled.p`
 `;
 
 const TarefaDetalhesModal = styled(ModalContent)`
-  width: 300px;
+  width: 380px;
+  padding: 25px;
 `;
 
 const BotaoEditar = styled.button`
   background-color: #28a745;
   color: white;
   border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
+  padding: 12px 20px;
+  border-radius: 30px;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
+  transition: all 0.3s ease;
 
   &:hover {
     background-color: #218838;
+    transform: translateY(-2px);
   }
 `;
 
@@ -156,8 +221,8 @@ function Tarefas() {
     descricao: "",
     status: true,
     prioridade: "baixa",
-    prazoLimite: "", // Inicia como string vazia
-    dataCriacao: new Date().toISOString(), // Data correta, no formato ISO
+    prazoLimite: "",
+    dataCriacao: new Date().toISOString(),
     responsavelId: "",
     responsavelNome: ""
   });
@@ -184,20 +249,16 @@ function Tarefas() {
 
   const handleSubmit = async () => {
     try {
-      // Garantindo que o prazoLimite seja uma string no formato yyyy-MM-dd
       const prazoLimiteFormatado = novaTarefa.prazoLimite ? novaTarefa.prazoLimite.split('T')[0] : null;
-  
       const novaTarefaComData = {
         ...novaTarefa,
-        prazoLimite: prazoLimiteFormatado, // Enviando data sem hora
-        dataCriacao: new Date().toISOString(), // Data de criação com a hora atual
+        prazoLimite: prazoLimiteFormatado,
+        dataCriacao: new Date().toISOString(),
         responsavel: {
-          "$ref": "cadastroAdvogado", 
+          "$ref": "cadastroAdvogado",
           "$id": novaTarefa.responsavelId
         }
       };
-  
-      // Enviando dados para o backend
       await axios.post("http://localhost:8080/task/create", novaTarefaComData);
       setShowModal(false);
       setNovaTarefa({
@@ -205,7 +266,7 @@ function Tarefas() {
         descricao: "",
         status: true,
         prioridade: "baixa",
-        prazoLimite: "", // Resetando o prazoLimite
+        prazoLimite: "",
         dataCriacao: new Date().toISOString(),
         responsavelId: "",
         responsavelNome: ""
@@ -232,7 +293,7 @@ function Tarefas() {
   const handlePrazoLimiteChange = (e) => {
     setNovaTarefa({
       ...novaTarefa,
-      prazoLimite: e.target.value, // Garantindo que sempre tenha um valor controlado
+      prazoLimite: e.target.value,
     });
   };
 
@@ -243,15 +304,30 @@ function Tarefas() {
 
   return (
     <TarefasContainer>
-      <TituloTarefas>Tarefas e prazos que expiram hoje</TituloTarefas>
+      <TituloTarefas>Suas tarefas e Prazos</TituloTarefas>
       <ListaTarefas>
         {tarefas.length === 0 ? <p>Nenhuma tarefa encontrada</p> : tarefas.map((tarefa) => (
           <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
             <h2>{tarefa.nomeTarefa}</h2>
             <p>{tarefa.descricao}</p>
+            <StatusTag prioridade={tarefa.prioridade} />
           </TarefaCard>
         ))}
       </ListaTarefas>
+      <LegendaPrioridades>
+        <TagLegenda>
+          <CorTag cor="green" />
+          <span>Baixa</span>
+        </TagLegenda>
+        <TagLegenda>
+          <CorTag cor="yellow" />
+          <span>Média</span>
+        </TagLegenda>
+        <TagLegenda>
+          <CorTag cor="red" />
+          <span>Alta</span>
+        </TagLegenda>
+      </LegendaPrioridades>
       {mensagemSucesso && <MensagemSucesso>{mensagemSucesso}</MensagemSucesso>}
       <BotaoAdicionar onClick={abrirModal}>Adicionar Tarefa</BotaoAdicionar>
 
@@ -273,7 +349,7 @@ function Tarefas() {
           <input 
             type="date" 
             id="prazoLimite"
-            value={novaTarefa.prazoLimite || ""} // Se estiver vazio, será uma string vazia
+            value={novaTarefa.prazoLimite || ""} 
             onChange={handlePrazoLimiteChange} 
           />
           <select

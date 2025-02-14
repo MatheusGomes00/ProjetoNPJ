@@ -108,10 +108,12 @@ function Sidebar({ onAdvogadosClick }) {
           </SidebarButton>
         </SidebarItem>
         <SidebarItem>
-          <SidebarButton>
+            <Link to="/tarefas">
+        <SidebarButton>
             <FaTasks /> Tarefas
-          </SidebarButton>
-        </SidebarItem>
+        </SidebarButton>
+      </Link>
+</SidebarItem>
       </SidebarList>
     </SidebarContainer>
   );
