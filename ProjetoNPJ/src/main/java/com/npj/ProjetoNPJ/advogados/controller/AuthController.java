@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.advogados.controller;
 
 import com.npj.ProjetoNPJ.advogados.dtos.AuthRequest;
+import com.npj.ProjetoNPJ.advogados.dtos.RefreshTokenRequest;
 import com.npj.ProjetoNPJ.security.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +32,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<Map<String, String>> refreshToken(@RequestParam String refreshToken) {
+    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody RefreshTokenRequest refreshToken) {
         try {
-            String newAccessToken = authenticationService.refreshAccessToken(refreshToken);
+            String newAccessToken = authenticationService.refreshAccessToken(refreshToken.getRefreshToken());
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Refresh token inválido ou expirado!"));

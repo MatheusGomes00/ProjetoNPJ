@@ -22,7 +22,7 @@ public class AuthenticationService {
         this.jwtService = jwtService;
     }
 
-    // Autentica o usuário e gera tokens
+
     public Map<String, String> authenticate(String username, String password) {
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -31,7 +31,7 @@ public class AuthenticationService {
 
             String authenticatedUsername = authentication.getName();
 
-            // Gera tokens
+
             String accessToken = jwtService.generateAccessToken(authenticatedUsername);
             String refreshToken = jwtService.generateRefreshToken(authenticatedUsername);
 
@@ -44,8 +44,12 @@ public class AuthenticationService {
         }
     }
 
-    // Gera um novo access token usando o refresh token
+
     public String refreshAccessToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            throw new IllegalArgumentException("Refresh token não pode ser nulo ou vazio!");
+        }
+
         if (jwtService.validateToken(refreshToken)) {
             String username = jwtService.extractUsername(refreshToken);
             return jwtService.generateAccessToken(username);

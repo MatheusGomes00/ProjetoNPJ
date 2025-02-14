@@ -6,13 +6,13 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Slf4j
@@ -28,20 +28,38 @@ public class JwtService {
     @Value("${jwt.refreshTokenExpiration}")
     private long refreshExpiration;
 
-    // Gera o access token
+    private final UserDetailsService userDetailsService;
+
+    public JwtService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+
     public String generateAccessToken(String username) {
-        return createToken(new HashMap<>(), username, accessExpiration);
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role); // Adiciona a role ao payload do token
+
+        return createToken(claims, username, accessExpiration);
     }
 
-    // Gera o refresh token
+
     public String generateRefreshToken(String username) {
-        return createToken(new HashMap<>(), username, refreshExpiration);
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role); // Adiciona a role no refresh token
+
+        return createToken(claims, username, refreshExpiration);
     }
 
-    // Cria o token JWT
+
     private String createToken(Map<String, Object> claims, String username, long expiration) {
         return Jwts.builder()
-                .claims(claims) // Define as claims
+                .claims(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
@@ -49,7 +67,7 @@ public class JwtService {
                 .compact();
     }
 
-    // Valida o token
+
     public boolean validateToken(String token) {
         try {
             getJwtParser().parseSignedClaims(token);
@@ -60,39 +78,52 @@ public class JwtService {
         }
     }
 
-    // Extrai o username do token
     public String extractUsername(String token) {
+
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Extrai a data de expiração do token
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // Método genérico para extrair claims
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    // Extrai todas as claims do token
+    public List<SimpleGrantedAuthority> extractRoles(String token) {
+        JwtParser jwtParser = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build();
+
+        Claims claims = jwtParser.parseSignedClaims(token).getPayload();
+
+        // Obtém a Role do payload
+        String role = (String) claims.get("role");
+
+        if (role != null) {
+            return List.of(new SimpleGrantedAuthority(role));
+        }
+
+        return Collections.emptyList();
+    }
+
+
     private Claims extractAllClaims(String token) {
         return getJwtParser()
                 .parseSignedClaims(token)
                 .getPayload();
     }
 
-    // Cria o parser JWT configurado com a chave
     private JwtParser getJwtParser() {
         return Jwts.parser()
-                .verifyWith(getSigningKey()) // Define a chave de verificação
+                .verifyWith(getSigningKey())
                 .build();
     }
 
-    // Gera a chave de assinatura a partir da chave secreta
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret); // Decodifica a chave Base64
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

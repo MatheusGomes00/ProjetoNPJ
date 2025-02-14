@@ -17,10 +17,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         Advogado advogado = repository
-                .findByCpf(username)
+                .findByCpf(normalizarCpf(username))
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Username nao localizado."));
 
         return new UserAutenticado(advogado);
+    }
+
+    public String normalizarCpf(String cpf) {
+        return cpf.replaceAll("[.\\-\\s]", "");
     }
 }

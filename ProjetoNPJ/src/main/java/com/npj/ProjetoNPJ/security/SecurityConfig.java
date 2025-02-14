@@ -40,9 +40,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/refresh-token").permitAll()
-                        .requestMatchers("/adv/**").authenticated()
+                        //.requestMatchers("/adv/**").authenticated()
                         //.requestMatchers("/adv/ins").permitAll()
-                        .requestMatchers("/adv/ins").hasRole("ADVOGADO")
+                        .requestMatchers("/adv/ins").hasAuthority("ROLE_ADVOGADO")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
@@ -58,7 +58,7 @@ public class SecurityConfig {
     public AuthenticationEntryPoint unauthorizedHandler() {
         return (request, response, authException) -> {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.getWriter().write("Erro: Não autenticado!");
+            response.getWriter().write("Erro: Nao autenticado verifique o token!");
         };
     }
 
