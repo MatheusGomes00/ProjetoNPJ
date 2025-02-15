@@ -16,6 +16,7 @@ public interface AdvogadoRepository extends MongoRepository<Advogado, String> {
     @Query("{ 'cpf': { $regex: ?0, $options: 'i' } }}")
     List<Advogado> findByCpf(String cpf);
 
+
     Boolean existsByCpf(String cpf);
 
 

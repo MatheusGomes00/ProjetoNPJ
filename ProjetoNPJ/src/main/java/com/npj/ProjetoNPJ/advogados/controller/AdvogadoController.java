@@ -2,15 +2,20 @@ package com.npj.ProjetoNPJ.advogados.controller;
 
 
 import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
+import com.npj.ProjetoNPJ.advogados.entity.Advogado;
+import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
+import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/adv")
@@ -18,6 +23,24 @@ public class AdvogadoController {
 
     @Autowired
     private AdvogadoService service;
+
+    @GetMapping("/buscar/{id}")
+    public ResponseEntity<DtoAdvogado> buscarAdvogadoPorId(@PathVariable String id) {
+        try {
+
+            Optional<DtoAdvogado> dtoAdvogadoOpt = service.findById(id);
+
+
+            if (dtoAdvogadoOpt.isPresent()) {
+                return ResponseEntity.ok(dtoAdvogadoOpt.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  //
+            }
+        } catch (RecursoNaoEncontradoException e) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
     @PostMapping(value = "/ins")
     public ResponseEntity<DtoAdvogado> criarAdvogado(@RequestBody @Valid DtoAdvogado advogadod){
@@ -61,7 +84,9 @@ public class AdvogadoController {
 
     }
 
-}
+    }
+
+
 
 
 

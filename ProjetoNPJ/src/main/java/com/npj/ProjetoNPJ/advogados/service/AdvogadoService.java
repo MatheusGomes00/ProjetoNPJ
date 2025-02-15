@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AdvogadoService {
@@ -85,5 +86,14 @@ public class AdvogadoService {
             throw new RecursoNaoEncontradoException("CPF não localizado");
         }
         return AdvogadoMapper.toListDto(advogados);
+    }
+
+    public Optional<DtoAdvogado> findById(String id) {
+        Optional<Advogado> advogados = repository.findById(id);
+        if (advogados.isEmpty()) {
+            throw new RecursoNaoEncontradoException("Falha ao acessar Advogado");
+        }
+
+        return advogados.map(AdvogadoMapper::toDto);
     }
 }
