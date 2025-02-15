@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import Sidebar from "../Sidebar";
-import SearchBarTop from "../SearchBarTop";
+import Sidebar from "../ComponentesPadroes/Sidebar";
+import SearchBarTop from "../ComponentesPadroes/SearchBarTop";
 import IconeLogOut from "../botoesTelaImovel/IconeLogOut";
 import IconeNotificacoes from "../botoesTelaImovel/IconeNotificacoes";
 import IconeNovaTarefa from "../botoesTelaImovel/IconeNovaTarefa";
@@ -16,7 +16,7 @@ function AreaDeTrabalho() {
       {/* Barra de pesquisa no topo */}
       <SearchBarTop />
 
-      {/* Ícones no canto superior direito */}
+      
       <div className="top-right-icons">
         <IconeLogOut />
         <IconeNotificacoes />

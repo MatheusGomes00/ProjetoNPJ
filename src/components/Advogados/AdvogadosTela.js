@@ -1,7 +1,7 @@
 import React, { useState } from "react"; // Certifique-se de importar useState corretamente
  // Importar React e useState
-import Sidebar from "../Sidebar"; // Importar Sidebar
-import SearchBarTop from "../SearchBarTop";
+import Sidebar from "../ComponentesPadroes/Sidebar"; // Importar Sidebar
+import SearchBarTop from "../ComponentesPadroes/SearchBarTop";
 import IconeLogOut from "../botoesTelaImovel/IconeLogOut"; // Importar IconeLogOut
 import IconeNotificacoes from "../botoesTelaImovel/IconeNotificacoes"; // Importar IconeNotificacoes
 import SearchBar from "../Advogados/Searchbar"; // Importar SearchBar
