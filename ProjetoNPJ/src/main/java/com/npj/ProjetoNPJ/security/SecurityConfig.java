@@ -66,7 +66,7 @@ public class SecurityConfig {
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
             response.setStatus(HttpStatus.FORBIDDEN.value());
-            response.getWriter().write("Erro: Acesso negado!");
+            response.getWriter().write("Erro: Acesso negado. Verifique condições para acesso ao recurso!");
         };
     }
 

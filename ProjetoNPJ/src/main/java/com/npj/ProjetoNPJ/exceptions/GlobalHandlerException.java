@@ -94,6 +94,19 @@ public class GlobalHandlerException {
                 ));
     }
 
+    @ExceptionHandler(SenhaInvalidaException.class)
+    public ResponseEntity<ErrorMessage> senhaIncorretaException(SenhaInvalidaException ex,
+                                                                     HttpServletRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(
+                        request,
+                        HttpStatus.CONFLICT,
+                        ex.getMessage()
+                ));
+    }
+
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<ErrorMessage> recursoNaoEntrado(RecursoNaoEncontradoException ex,
                                                           HttpServletRequest request) {

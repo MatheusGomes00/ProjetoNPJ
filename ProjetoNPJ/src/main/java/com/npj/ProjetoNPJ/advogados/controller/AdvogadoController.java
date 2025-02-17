@@ -4,6 +4,7 @@ package com.npj.ProjetoNPJ.advogados.controller;
 import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
 import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
 import com.npj.ProjetoNPJ.advogados.dtos.UpdateRequestDto;
+import com.npj.ProjetoNPJ.advogados.dtos.UpdateSenhaDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
@@ -41,6 +42,13 @@ public class AdvogadoController {
     public ResponseEntity<Void> atualizar(@Valid @RequestBody UpdateRequestDto dto, @PathVariable String id){
 
         service.update(dto, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/upd")
+    public ResponseEntity<Void> alterarSenha(@Valid @RequestBody UpdateSenhaDto dto) {
+
+        service.updateSenha(dto);
         return ResponseEntity.noContent().build();
     }
 

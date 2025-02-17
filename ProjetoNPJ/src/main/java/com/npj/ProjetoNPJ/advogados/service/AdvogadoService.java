@@ -3,13 +3,18 @@ package com.npj.ProjetoNPJ.advogados.service;
 import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
 import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
 import com.npj.ProjetoNPJ.advogados.dtos.UpdateRequestDto;
+import com.npj.ProjetoNPJ.advogados.dtos.UpdateSenhaDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
+import com.npj.ProjetoNPJ.advogados.entity.Roles;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.CpfUnicoException;
 import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
+import com.npj.ProjetoNPJ.exceptions.SenhaInvalidaException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +29,16 @@ public class AdvogadoService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    public String getAuthenticatedUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername(); // username do usuário autenticado
+        } else {
+            return principal.toString(); // Caso seja um token simples
+        }
+    }
 
     public void validarCpf(String cpf) {
         Boolean verificador = repository.existsByCpf(cpf);
@@ -48,23 +63,48 @@ public class AdvogadoService {
 
     public void update(UpdateRequestDto dto, String id){
 
-        Advogado advAtualizado = AdvogadoMapper.toEntitie(dto);
-
         Advogado advAntigo = repository
                 .findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado."));
 
-        advAtualizado.setId(id);
-        updateData(advAntigo, advAtualizado);
-        repository.save(advAtualizado);
+        updateData(advAntigo, dto);
+        repository.save(advAntigo);
     }
 
-    public void updateData(Advogado oldObj, Advogado newObj) {
-        oldObj.setNome(newObj.getNome());
-        oldObj.setDatanasc(newObj.getDatanasc());
-        oldObj.setCpf(newObj.getCpf());
-        oldObj.setRegistroOab(newObj.getRegistroOab());
-        oldObj.setSecaoOab(newObj.getSecaoOab());
+    public void updateData(Advogado advogado, UpdateRequestDto dto) {
+        if (dto.getNome() != null) {
+            advogado.setNome(dto.getNome());
+        }
+        if (dto.getDatanasc() != null) {
+            advogado.setDatanasc(dto.getDatanasc());
+        }
+        if (dto.getCpf() != null) {
+            advogado.setCpf(normalizarCpf(dto.getCpf()));
+        }
+        if (dto.getRegistroOab() != null) {
+            advogado.setRegistroOab(dto.getRegistroOab());
+        }
+        if (dto.getSecaoOab() != null) {
+            advogado.setSecaoOab(dto.getSecaoOab());
+        }
+        if (dto.getRole() != null) {
+            advogado.setRole(Roles.valueOf(dto.getRole()));
+        }
+    }
+
+    public void updateSenha(UpdateSenhaDto senhaDto) {
+        String username = getAuthenticatedUsername();
+        Advogado advogado = repository
+                .findByCpf(username)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario não localizado."));
+
+        if (!senhaDto.getNovaSenha().equals(senhaDto.getRepeteSenha())) {
+            throw new SenhaInvalidaException("Nova senha e repete senha não conferem.");
+        }
+
+        String novaSenha = senhaDto.getNovaSenha();
+        advogado.setSenha(passwordEncoder.encode(novaSenha));
+        repository.save(advogado);
     }
 
     public void delete(String id) {

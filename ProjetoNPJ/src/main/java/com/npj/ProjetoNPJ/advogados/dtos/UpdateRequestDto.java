@@ -25,4 +25,6 @@ public class UpdateRequestDto {
     private String secaoOab;
 
     private boolean status;
+
+    private String role;
 }

@@ -38,37 +38,48 @@ public class ClienteService {
         return CadastroMapper.toDto(cadastro);
     }
 
-    public CadastroDto update(CadastroDto obj, String id) {
-
-        Cadastro objAtualizado = CadastroMapper.toEntitie(obj);
-        String cpfNovo = normalizarCpf(obj.getCliente().getCpf());
+    public CadastroDto update(CadastroDto objNovo, String id) {
 
         Cadastro objAntigo = cadastroRepository
                 .findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Erro ao localizar cliente"));
+
+        String cpfNovo = normalizarCpf(objNovo.getCliente().getCpf());
         String cpfAntigo = normalizarCpf(objAntigo.getCliente().getCpf());
 
         if(!cpfAntigo.equals(cpfNovo)) {
             validarCpf(cpfNovo);
-        } else {
-            objAtualizado.setId(id);
-            objAtualizado.getCliente().setCpf(cpfNovo);
-            objAtualizado.setStatus(true);
-            objAtualizado = updateData(objAntigo, objAtualizado);
-            cadastroRepository.save(objAtualizado);
         }
-        return CadastroMapper.toDto(objAtualizado);
+
+        updateData(objAntigo, objNovo);
+        cadastroRepository.save(objAntigo);
+
+        return CadastroMapper.toDto(objAntigo);
     }
 
-    public Cadastro updateData(Cadastro oldObj, Cadastro newObj) {
-        oldObj.setStatus(newObj.getStatus());
-        oldObj.setCliente(newObj.getCliente());
-        oldObj.setRepresentante(newObj.getRepresentante());
-        oldObj.setParteContraria(newObj.getParteContraria());
-        oldObj.setDadosProcessuais(newObj.getDadosProcessuais());
-        oldObj.setNatureza(newObj.getNatureza());
-        oldObj.setResponsaveis(newObj.getResponsaveis());
-        return oldObj;
+    private void updateData(Cadastro oldObj, CadastroDto dto) {
+        Cadastro dtoAtualizado = CadastroMapper.toEntitie(dto);
+        if (dto.getStatus() != null) {
+            oldObj.setStatus(dto.getStatus());
+        }
+        if (dto.getCliente() != null) {
+            oldObj.getCliente().setCpf(normalizarCpf(dto.getCliente().getCpf()));
+        }
+        if (dto.getRepresentante() != null) {
+            oldObj.setRepresentante(dtoAtualizado.getRepresentante());
+        }
+        if (dto.getParteContraria() != null) {
+            oldObj.setParteContraria(dtoAtualizado.getParteContraria());
+        }
+        if (dto.getDadosProcessuais() != null) {
+            oldObj.setDadosProcessuais(dtoAtualizado.getDadosProcessuais());
+        }
+        if (dto.getNatureza() != null) {
+            oldObj.setNatureza(dtoAtualizado.getNatureza());
+        }
+        if (dto.getResponsaveis() != null) {
+            oldObj.setResponsaveis(dtoAtualizado.getResponsaveis());
+        }
     }
 
     public List<CadastroDto> findByNome(String nome) {
