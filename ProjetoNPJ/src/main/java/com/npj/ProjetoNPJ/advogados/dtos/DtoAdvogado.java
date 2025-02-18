@@ -2,6 +2,7 @@ package com.npj.ProjetoNPJ.advogados.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.data.annotation.Id;
 
 @Getter
 @Setter
@@ -10,7 +11,8 @@ import lombok.*;
 @ToString
 public class DtoAdvogado {
 
-
+    @Id
+    private String id;
     @NotBlank
     private String nome;
 

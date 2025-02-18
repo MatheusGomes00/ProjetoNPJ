@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AdvogadoService {
@@ -142,8 +143,9 @@ public class AdvogadoService {
     }
 
     public ResponseAdvogadoDto findById(String id) {
-        Advogado advogado = repository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Id não localizado"));
 
+        Advogado advogado = repository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não localizado."));
         return AdvogadoMapper.responseDto(advogado);
     }
 }

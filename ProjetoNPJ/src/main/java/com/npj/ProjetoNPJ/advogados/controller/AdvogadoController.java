@@ -7,7 +7,10 @@ import com.npj.ProjetoNPJ.advogados.dtos.UpdateRequestDto;
 import com.npj.ProjetoNPJ.advogados.dtos.UpdateSenhaDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
+import com.npj.ProjetoNPJ.advogados.entity.Advogado;
+import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
+import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/adv")
@@ -29,12 +33,18 @@ public class AdvogadoController {
     @Autowired
     private AdvogadoService service;
 
+    @GetMapping("/buscar/{id}")
+    public ResponseEntity<ResponseAdvogadoDto> buscarAdvogadoPorId(@PathVariable String id) {
+        ResponseAdvogadoDto advogadoDto = service.findById(id);
+        return ResponseEntity.ok(advogadoDto);
+    }
+
     @PostMapping(value = "/ins")
     public ResponseEntity<ResponseAdvogadoDto> criarAdvogado(@RequestBody @Valid DtoAdvogado advogadoDto){
         Advogado advogado = service.insert(advogadoDto);
         ResponseAdvogadoDto dto = AdvogadoMapper.responseDto(advogado);
 
-        URI location = URI.create("/who/" + advogado.getId());
+        URI location = URI.create("/buscar/" + advogado.getId());
         return ResponseEntity.created(location).body(dto);
     }
 
@@ -57,12 +67,6 @@ public class AdvogadoController {
 
         service.delete(id);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping(value = "/who/{id}")
-    public ResponseEntity<ResponseAdvogadoDto> buscarPorId(@PathVariable String id) {
-
-        return ResponseEntity.ok(service.findById(id));
     }
 
     @GetMapping
