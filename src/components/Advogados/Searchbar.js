@@ -55,11 +55,31 @@ function SearchBar() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
+  const isCpf = (value) => {
+    // Verifica se a string tem 11 caracteres numéricos
+    return /^\d{11}$/.test(value);
+  };
+
   const handleSearch = async () => {
     if (!query.trim()) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/adv/buscanome/${query}`);
+      const url = isCpf(query)
+        ? `http://localhost:8080/adv/buscacpf`  // Alterado para o endpoint de busca por CPF com POST
+        : `http://localhost:8080/adv/buscanome/${query}`; // Mantido como GET para buscar por nome
+      
+      const requestBody = isCpf(query)
+        ? JSON.stringify({ cpf: query.toString() }) // Envia o CPF como string para garantir que o backend entenda
+        : null;
+
+      const response = await fetch(url, {
+        method: isCpf(query) ? "POST" : "GET",  // Se CPF, usa POST, caso contrário usa GET
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: requestBody, // Corpo com o CPF, caso seja CPF
+      });
+
       if (!response.ok) {
         throw new Error("Erro ao buscar dados");
       }
@@ -77,7 +97,7 @@ function SearchBar() {
         <SearchBarWrapper>
           <Input
             type="text"
-            placeholder="Buscar advogado..."
+            placeholder="Buscar advogado por nome ou CPF..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}

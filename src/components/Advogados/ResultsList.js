@@ -11,7 +11,7 @@ const ResultsContainer = styled.div`
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   max-height: 250px;
   overflow-y: auto;
-  width: 800px;
+  width: 900px;
 `;
 
 const ResultInfo = styled.div`
