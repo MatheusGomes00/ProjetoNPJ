@@ -9,6 +9,8 @@ import lombok.*;
 @ToString
 public class ResponseAdvogadoDto {
 
+    private String id;
+
     private String nome;
 
     private String datanasc;

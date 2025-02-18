@@ -143,17 +143,9 @@ public class AdvogadoService {
     }
 
     public ResponseAdvogadoDto findById(String id) {
-        Advogado advogado = repository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Id não localizado"));
 
+        Advogado advogado = repository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não localizado."));
         return AdvogadoMapper.responseDto(advogado);
-    }
-
-    public Optional<DtoAdvogado> findById(String id) {
-        Optional<Advogado> advogados = repository.findById(id);
-        if (advogados.isEmpty()) {
-            throw new RecursoNaoEncontradoException("Falha ao acessar Advogado");
-        }
-
-        return advogados.map(AdvogadoMapper::toDto);
     }
 }

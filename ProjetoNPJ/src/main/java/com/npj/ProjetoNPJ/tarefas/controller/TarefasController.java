@@ -32,45 +32,24 @@ public class TarefasController {
     private TarefasRepository repository;
 
     @PostMapping(value = "/create")
-    public ResponseEntity<Object> criarTarefa(@RequestBody @Valid DtoTarefas tarefas) {
-        try {
-            Tarefas novaTarefa = TarefasMapper.toEntity(tarefas);
-
-
-            novaTarefa.setId(null);
-
-            Advogado advogado = repositoryAdv.findById(tarefas.getResponsavelId())
-                    .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
-
-            novaTarefa.setResponsavel(advogado);
-            System.out.println("Prazo Limite recebido: " + tarefas.getPrazoLimite());
-            Tarefas tarefaCriada = repository.save(novaTarefa);
-
-            return ResponseEntity.ok().body(tarefaCriada);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody @Valid DtoTarefas tarefaDto) {
+        DtoTarefas tarefa = service.insert(tarefaDto);
+        return ResponseEntity.ok().body(tarefa);
     }
 
-
     public void update(DtoTarefas dto, String id){
-
 
         Advogado advogado = repositoryAdv.findById(dto.getResponsavelId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
 
-
         Tarefas tarefaNova = TarefasMapper.toEntity(dto);
-
 
         Tarefas tarefaAntiga = repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada"));
 
-
         tarefaNova.setId(id);
         tarefaNova.setResponsavel(advogado);
         service.updateData(tarefaAntiga, tarefaNova);
-
 
         repository.save(tarefaNova);
     }

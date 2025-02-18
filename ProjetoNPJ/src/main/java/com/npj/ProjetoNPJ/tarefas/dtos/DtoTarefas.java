@@ -22,8 +22,6 @@ public class DtoTarefas {
     @NotBlank
     private String descricao;
 
-
-
     private boolean status;
 
     @NotBlank
@@ -33,15 +31,14 @@ public class DtoTarefas {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate prazoLimite;
 
-
     private LocalDate dataCriacao;
 
     @NotBlank
     private String responsavelId;
+
     @NotBlank
     private String responsavelNome;
 
-
-
+    private String criador;
 
 }

@@ -37,8 +37,5 @@ public class Tarefas {
     @DBRef
     private Advogado responsavel;
 
-
-
-
-
+    private String criador;
 }

@@ -34,21 +34,9 @@ public class AdvogadoController {
     private AdvogadoService service;
 
     @GetMapping("/buscar/{id}")
-    public ResponseEntity<DtoAdvogado> buscarAdvogadoPorId(@PathVariable String id) {
-        try {
-
-            Optional<DtoAdvogado> dtoAdvogadoOpt = service.findById(id);
-
-
-            if (dtoAdvogadoOpt.isPresent()) {
-                return ResponseEntity.ok(dtoAdvogadoOpt.get());
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  //
-            }
-        } catch (RecursoNaoEncontradoException e) {
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+    public ResponseEntity<ResponseAdvogadoDto> buscarAdvogadoPorId(@PathVariable String id) {
+        ResponseAdvogadoDto advogadoDto = service.findById(id);
+        return ResponseEntity.ok(advogadoDto);
     }
 
     @PostMapping(value = "/ins")
@@ -56,7 +44,7 @@ public class AdvogadoController {
         Advogado advogado = service.insert(advogadoDto);
         ResponseAdvogadoDto dto = AdvogadoMapper.responseDto(advogado);
 
-        URI location = URI.create("/who/" + advogado.getId());
+        URI location = URI.create("/buscar/" + advogado.getId());
         return ResponseEntity.created(location).body(dto);
     }
 
@@ -79,12 +67,6 @@ public class AdvogadoController {
 
         service.delete(id);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping(value = "/who/{id}")
-    public ResponseEntity<ResponseAdvogadoDto> buscarPorId(@PathVariable String id) {
-
-        return ResponseEntity.ok(service.findById(id));
     }
 
     @GetMapping
