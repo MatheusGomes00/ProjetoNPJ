@@ -38,15 +38,12 @@ public class TarefefasService {
         dto.setStatus(true);
         Advogado advogado = advogadoRepository.findById(dto.getResponsavelId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
-
         if (!advogado.getNome().equals(dto.getResponsavelNome())) {
             throw new IllegalArgumentException("O nome do advogado não corresponde ao ID informado.");
         }
-
         Tarefas newTask = TarefasMapper.toEntity(dto);
         newTask.setResponsavel(advogado);
         newTask.setCriador(getAuthenticatedUsername());
-
         repository.save(newTask);
         return TarefasMapper.toDto(newTask);
     }
@@ -55,36 +52,23 @@ public class TarefefasService {
 
         Tarefas tarefa = repository.findById(tarefaId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada"));
-
-
-        String nomeAdvogado = tarefa.getResponsavel().getNome();
-
-        return nomeAdvogado;
+        return tarefa.getResponsavel().getNome();
     }
 
     public void update(DtoTarefas dto, String id){
 
-        Tarefas tarefaNova = TarefasMapper.toEntity(dto);
-
-        Tarefas tarefaAntiga = repository.findById(id)
+        Tarefas tarefa = repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado."));
-
-        tarefaNova.setId(id);
-
-        updateData(tarefaAntiga, tarefaNova);
-
-        repository.save(tarefaNova);
-
+        updateData(tarefa, dto);
+        repository.save(tarefa);
     }
 
-    public void updateData(Tarefas oldTask, Tarefas newTask) {
-        oldTask.setNomeTarefa(newTask.getNomeTarefa());
-        oldTask.setDataCriacao(newTask.getDataCriacao());
-        oldTask.setDescricao(newTask.getDescricao());
-        oldTask.setPrioridade(newTask.getPrioridade());
-        oldTask.setPrazoLimite(newTask.getPrazoLimite());
-        oldTask.setResponsavel(newTask.getResponsavel());
-
+    public void updateData(Tarefas tarefa, DtoTarefas dto) {
+        tarefa.setNomeTarefa(dto.getNomeTarefa());
+        tarefa.setDataCriacao(dto.getDataCriacao());
+        tarefa.setDescricao(dto.getDescricao());
+        tarefa.setPrioridade(dto.getPrioridade());
+        tarefa.setPrazoLimite(dto.getPrazoLimite());
     }
 
     public void finalizar(String id){

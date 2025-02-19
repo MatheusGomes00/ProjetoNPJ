@@ -37,21 +37,11 @@ public class TarefasController {
         return ResponseEntity.ok().body(tarefa);
     }
 
-    public void update(DtoTarefas dto, String id){
+    @PutMapping(value = "/upd")
+    public ResponseEntity<Void> update(DtoTarefas dto, String id){
 
-        Advogado advogado = repositoryAdv.findById(dto.getResponsavelId())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
-
-        Tarefas tarefaNova = TarefasMapper.toEntity(dto);
-
-        Tarefas tarefaAntiga = repository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada"));
-
-        tarefaNova.setId(id);
-        tarefaNova.setResponsavel(advogado);
-        service.updateData(tarefaAntiga, tarefaNova);
-
-        repository.save(tarefaNova);
+        service.update(dto, id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/end/{id}")
@@ -59,6 +49,7 @@ public class TarefasController {
         service.finalizar(id);
         return ResponseEntity.ok().body("Tarefa FInalizada com sucesso");
     }
+
     @GetMapping("/get")
     public ResponseEntity<List<Tarefas>> listarTarefas() {
         List<Tarefas> tarefas = repository.findAll();

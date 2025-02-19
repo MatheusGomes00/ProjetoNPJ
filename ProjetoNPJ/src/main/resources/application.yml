@@ -3,9 +3,6 @@ spring:
     name: ProjetoNPJ
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: ProjetoNPJ
       uri: mongodb://localhost:27017/ProjetoNPJ
 jwt:
   secret: JvrdrGOKDYhaEyHycTLSM2dpR+dxTk1MbPy6o6e6M1dmc3PFbiJYTVqYIl0siuNoxzLXw7HwgnVzVNAt/xaTpQ==
