@@ -21,14 +21,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody AuthRequest authRequest) {
-        try {
-            Map<String, String> tokens = authenticationService
-                    .authenticate(authRequest.getUsername(), authRequest.getPassword());
-            return ResponseEntity.ok(tokens);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Credenciais inválidas!"));
-        }
+
+        Map<String, String> tokens = authenticationService
+                .authenticate(authRequest.getUsername(), authRequest.getPassword());
+        return ResponseEntity.ok(tokens);
     }
 
     @PostMapping("/refresh-token")
