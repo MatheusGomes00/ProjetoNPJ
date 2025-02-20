@@ -1,27 +1,43 @@
-import { Routes, Route } from 'react-router-dom'; // Importando Routes e Route
-import Sidebar from './components/ComponentesPadroes/Sidebar'; // Sidebar é renderizada apenas uma vez
-import AreaDeTrabalho from './components/AreaDeTrabalho/AreaDeTrabalho';
-import AdvogadosTela from './components/Advogados/AdvogadosTela';
-import TarefasMain from './components/Tarefas/TarefasMain';
-import AdvogadoDetails from './components/Advogados/AdvogadoDetails';
-import SearchBar from './components/Advogados/Searchbar';
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./components/Login/Login";
+import Sidebar from "./components/ComponentesPadroes/Sidebar";
+import AreaDeTrabalho from "./components/AreaDeTrabalho/AreaDeTrabalho";
+import TarefasMain from "./components/Tarefas/TarefasMain";
+import AdvogadosTela from "./components/Advogados/AdvogadosTela";
+import AdvogadoDetails from "./components/Advogados/AdvogadoDetails";
+import SearchBar from "./components/Advogados/Searchbar";
+
+const isAuthenticated = () => !!localStorage.getItem("token"); // Verifica se o usuário está logado
 
 function App() {
   return (
     <div className="app-container">
-      
-      <Sidebar />
-      <div className="main-content">
-        <Routes>
-          
-          <Route path="/" element={<AreaDeTrabalho />} />
+      <Routes>
+        {/* Página de Login */}
+        <Route path="/login" element={<Login />} />
 
-          <Route path="/tarefas" element={<TarefasMain />} /> {/* Nova rota adicionada */}
-          <Route path="/advogados" element={<AdvogadosTela />} />
-          <Route path="/" element={<SearchBar />} />
-        <Route path="/detalhes/:id" element={<AdvogadoDetails />} /> {/* Rota para detalhes */}
-        </Routes>
-      </div>
+        {/* Rotas Protegidas */}
+        <Route
+          path="/"
+          element={isAuthenticated() ? <AreaDeTrabalho /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/tarefas"
+          element={isAuthenticated() ? <TarefasMain /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/advogados"
+          element={isAuthenticated() ? <AdvogadosTela /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/detalhes/:id"
+          element={isAuthenticated() ? <AdvogadoDetails /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/search"
+          element={isAuthenticated() ? <SearchBar /> : <Navigate to="/login" />}
+        />
+      </Routes>
     </div>
   );
 }

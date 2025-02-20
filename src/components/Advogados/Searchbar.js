@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import ResultsList from "./ResultsList"; // Importa o novo componente de lista de resultados
+import ResultsList from "./ResultsList";
 
 const SearchContainer = styled.div`
   position: absolute;
@@ -10,7 +10,7 @@ const SearchContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 50px;  /* Adiciona um espaçamento inferior */
+  margin-bottom: 50px;
 `;
 
 const SearchBarWrapper = styled.div`
@@ -46,7 +46,7 @@ const Button = styled.button`
 
 const ResultsWrapper = styled.div`
   position: absolute;
-  top: 70%;  /* Ajusta a posição da lista de resultados */
+  top: 70%;
   left: 50%;
   transform: translateX(-50%);
 `;
@@ -56,7 +56,6 @@ function SearchBar() {
   const [results, setResults] = useState([]);
 
   const isCpf = (value) => {
-    // Verifica se a string tem 11 caracteres numéricos
     return /^\d{11}$/.test(value);
   };
 
@@ -65,19 +64,22 @@ function SearchBar() {
 
     try {
       const url = isCpf(query)
-        ? `http://localhost:8080/adv/buscacpf`  // Alterado para o endpoint de busca por CPF com POST
-        : `http://localhost:8080/adv/buscanome/${query}`; // Mantido como GET para buscar por nome
+        ? `http://localhost:8080/adv/buscacpf`
+        : `http://localhost:8080/adv/buscanome/${query}`;
       
       const requestBody = isCpf(query)
-        ? JSON.stringify({ cpf: query.toString() }) // Envia o CPF como string para garantir que o backend entenda
+        ? JSON.stringify({ cpf: query.toString() })
         : null;
 
+      const token = localStorage.getItem("token"); // Obtém o token do localStorage
+
       const response = await fetch(url, {
-        method: isCpf(query) ? "POST" : "GET",  // Se CPF, usa POST, caso contrário usa GET
+        method: isCpf(query) ? "POST" : "GET",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // Adiciona o token no cabeçalho da requisição
         },
-        body: requestBody, // Corpo com o CPF, caso seja CPF
+        body: requestBody,
       });
 
       if (!response.ok) {
@@ -106,7 +108,6 @@ function SearchBar() {
         </SearchBarWrapper>
       </SearchContainer>
 
-      {/* Lista de resultados agora aparece separada */}
       <ResultsWrapper>
         <ResultsList results={results} />
       </ResultsWrapper>

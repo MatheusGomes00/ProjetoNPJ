@@ -129,8 +129,8 @@ const ModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   transition: all 0.3s ease-in-out;
-  
 `;
+
 const ModalContent = styled.div`
   background: #fff;
   padding: 30px;
@@ -175,6 +175,7 @@ const BotaoFechar = styled.button`
     background: #f0f0f0;
   }
 `;
+
 const SelectPrioridade = styled.select`
   padding: 10px;
   border-radius: 5px;
@@ -229,10 +230,52 @@ function Tarefas() {
 
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
 
+  // Função para obter o token
+  const getToken = () => {
+    return localStorage.getItem("token"); // Certifique-se de que o token está salvo corretamente
+  };
+
   const buscarTarefas = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/task/get");
-      setTarefas(response.data);
+      const token = getToken();
+      const response = await axios.get("http://localhost:8080/task/get", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const tarefasComResponsavel = await Promise.all(
+        response.data.map(async (tarefa) => {
+          if (tarefa.responsavelId) {
+            try {
+              const responsavelResponse = await axios.get(
+                `http://localhost:8080/adv/buscar/${tarefa.responsavelId}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+              return {
+                ...tarefa,
+                responsavelNome: responsavelResponse.data.nome,
+              };
+            } catch (error) {
+              console.error("Erro ao buscar responsável:", error);
+              return {
+                ...tarefa,
+                responsavelNome: "Desconhecido",
+              };
+            }
+          } else {
+            return {
+              ...tarefa,
+              responsavelNome: "Não atribuído",
+            };
+          }
+        })
+      );
+      setTarefas(tarefasComResponsavel);
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
     }
@@ -240,26 +283,44 @@ function Tarefas() {
 
   const buscarAdvogados = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/adv/buscarTodos");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("Token não encontrado!");
+        return;
+      }
+  
+      const response = await axios.get("http://localhost:8080/adv/buscarTodos", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setAdvogados(response.data);
     } catch (error) {
-      console.error("Erro ao buscar advogados:", error);
+      console.error("Erro ao buscar advogados:", error.response ? error.response.data : error.message);
     }
   };
 
   const handleSubmit = async () => {
     try {
-      const prazoLimiteFormatado = novaTarefa.prazoLimite ? novaTarefa.prazoLimite.split('T')[0] : null;
+      const token = getToken();
+      const prazoLimiteFormatado = novaTarefa.prazoLimite
+        ? novaTarefa.prazoLimite.split("T")[0]
+        : null;
       const novaTarefaComData = {
         ...novaTarefa,
         prazoLimite: prazoLimiteFormatado,
         dataCriacao: new Date().toISOString(),
         responsavel: {
-          "$ref": "cadastroAdvogado",
-          "$id": novaTarefa.responsavelId
-        }
+          $ref: "cadastroAdvogado",
+          $id: novaTarefa.responsavelId,
+        },
       };
-      await axios.post("http://localhost:8080/task/create", novaTarefaComData);
+      await axios.post("http://localhost:8080/task/create", novaTarefaComData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       setShowModal(false);
       setNovaTarefa({
         nomeTarefa: "",
@@ -269,7 +330,7 @@ function Tarefas() {
         prazoLimite: "",
         dataCriacao: new Date().toISOString(),
         responsavelId: "",
-        responsavelNome: ""
+        responsavelNome: "",
       });
       setMensagemSucesso("Tarefa cadastrada!");
       buscarTarefas();
@@ -290,74 +351,79 @@ function Tarefas() {
 
   const fecharDetalhesModal = () => setShowDetalhesModal(false);
 
-  const handlePrazoLimiteChange = (e) => {
-    setNovaTarefa({
-      ...novaTarefa,
-      prazoLimite: e.target.value,
-    });
-  };
-
   useEffect(() => {
     buscarTarefas();
     buscarAdvogados();
   }, []);
 
   return (
-    <TarefasContainer>
-      <TituloTarefas>Suas tarefas e Prazos</TituloTarefas>
-      <ListaTarefas>
-        {tarefas.length === 0 ? <p>Nenhuma tarefa encontrada</p> : tarefas.map((tarefa) => (
-          <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
-            <h2>{tarefa.nomeTarefa}</h2>
-            <p>{tarefa.descricao}</p>
-            <StatusTag prioridade={tarefa.prioridade} />
-          </TarefaCard>
-        ))}
-      </ListaTarefas>
-      <LegendaPrioridades>
-        <TagLegenda>
-          <CorTag cor="green" />
-          <span>Baixa</span>
-        </TagLegenda>
-        <TagLegenda>
-          <CorTag cor="yellow" />
-          <span>Média</span>
-        </TagLegenda>
-        <TagLegenda>
-          <CorTag cor="red" />
-          <span>Alta</span>
-        </TagLegenda>
-      </LegendaPrioridades>
-      {mensagemSucesso && <MensagemSucesso>{mensagemSucesso}</MensagemSucesso>}
-      <BotaoAdicionar onClick={abrirModal}>Adicionar Tarefa</BotaoAdicionar>
+    <div>
+      <TarefasContainer>
+        <TituloTarefas>Lista de Tarefas</TituloTarefas>
+        <ListaTarefas>
+          {tarefas.map((tarefa) => (
+            <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
+              <StatusTag prioridade={tarefa.prioridade} />
+              <p><strong>{tarefa.nomeTarefa}</strong></p>
+              <p>{tarefa.responsavelNome}</p>
+            </TarefaCard>
+          ))}
+        </ListaTarefas>
+        <LegendaPrioridades>
+          <TagLegenda>
+            <CorTag cor="green" />
+            <span>Baixa</span>
+          </TagLegenda>
+          <TagLegenda>
+            <CorTag cor="yellow" />
+            <span>Média</span>
+          </TagLegenda>
+          <TagLegenda>
+            <CorTag cor="red" />
+            <span>Alta</span>
+          </TagLegenda>
+        </LegendaPrioridades>
+        <BotaoAdicionar onClick={abrirModal}>Adicionar Tarefa</BotaoAdicionar>
+        {mensagemSucesso && <MensagemSucesso>{mensagemSucesso}</MensagemSucesso>}
+      </TarefasContainer>
 
-      <ModalOverlay show={showModal ? "flex" : undefined}>
+      <ModalOverlay show={showModal}>
         <ModalContent>
-          <BotaoFechar onClick={fecharModal}>X</BotaoFechar>
-          <input 
-            type="text" 
-            placeholder="Nome da Tarefa" 
+          <BotaoFechar onClick={fecharModal}>&times;</BotaoFechar>
+          <h3>Cadastrar Nova Tarefa</h3>
+          <input
+            type="text"
+            placeholder="Nome da Tarefa"
             value={novaTarefa.nomeTarefa}
-            onChange={(e) => setNovaTarefa({ ...novaTarefa, nomeTarefa: e.target.value })} 
+            onChange={(e) => setNovaTarefa({ ...novaTarefa, nomeTarefa: e.target.value })}
           />
-          <textarea 
-            placeholder="Descrição" 
+          <textarea
+            placeholder="Descrição"
             value={novaTarefa.descricao}
-            onChange={(e) => setNovaTarefa({ ...novaTarefa, descricao: e.target.value })} 
+            onChange={(e) => setNovaTarefa({ ...novaTarefa, descricao: e.target.value })}
           />
-          <label htmlFor="prazoLimite">Prazo Limite</label>
-          <input 
-            type="date" 
-            id="prazoLimite"
-            value={novaTarefa.prazoLimite || ""} 
-            onChange={handlePrazoLimiteChange} 
+          <input
+            type="date"
+            value={novaTarefa.prazoLimite}
+            onChange={(e) => setNovaTarefa({ ...novaTarefa, prazoLimite: e.target.value })}
           />
+          <SelectPrioridade
+            value={novaTarefa.prioridade}
+            onChange={(e) => setNovaTarefa({ ...novaTarefa, prioridade: e.target.value })}
+          >
+            <option value="baixa">Baixa</option>
+            <option value="media">Média</option>
+            <option value="alta">Alta</option>
+          </SelectPrioridade>
           <select
-            onChange={(e) => {
-              const advogadoSelecionado = advogados.find(adv => adv.id === e.target.value);
-              setNovaTarefa({ ...novaTarefa, responsavelId: e.target.value, responsavelNome: advogadoSelecionado ? advogadoSelecionado.nome : "" });
-            }}
             value={novaTarefa.responsavelId}
+            onChange={(e) =>
+              setNovaTarefa({
+                ...novaTarefa,
+                responsavelId: e.target.value,
+                responsavelNome: advogados.find((adv) => adv.id === e.target.value)?.nome || "",
+              })
+            }
           >
             <option value="">Selecione o Responsável</option>
             {advogados.map((advogado) => (
@@ -366,30 +432,23 @@ function Tarefas() {
               </option>
             ))}
           </select>
-          <SelectPrioridade onChange={(e) => setNovaTarefa({ ...novaTarefa, prioridade: e.target.value })}>
-            <option value="baixa">Baixa</option>
-            <option value="media">Média</option>
-            <option value="alta">Alta</option>
-          </SelectPrioridade>
-          <button onClick={handleSubmit}>Cadastrar Tarefa</button>
+          <BotaoEditar onClick={handleSubmit}>Salvar Tarefa</BotaoEditar>
         </ModalContent>
       </ModalOverlay>
 
       {tarefaSelecionada && (
-        <ModalOverlay show={showDetalhesModal ? "flex" : undefined}>
+        <ModalOverlay show={showDetalhesModal}>
           <TarefaDetalhesModal>
-            <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
-            <h2>{tarefaSelecionada.nomeTarefa}</h2>
+            <BotaoFechar onClick={fecharDetalhesModal}>&times;</BotaoFechar>
+            <h3>{tarefaSelecionada.nomeTarefa}</h3>
             <p><strong>Descrição:</strong> {tarefaSelecionada.descricao}</p>
-            <p><strong>Data de criação:</strong> {new Date(tarefaSelecionada.dataCriacao).toLocaleDateString()}</p>
+            <p><strong>Responsável:</strong> {tarefaSelecionada.responsavelNome}</p>
             <p><strong>Prioridade:</strong> {tarefaSelecionada.prioridade}</p>
-            <p><strong>Status:</strong> {tarefaSelecionada.status ? "Ativa" : "Inativa"}</p>
-            <p><strong>Prazo Limite:</strong> {tarefaSelecionada.prazoLimite}</p>
-            <BotaoEditar>Editar Tarefa</BotaoEditar>
+            <p><strong>Prazo:</strong> {tarefaSelecionada.prazoLimite}</p>
           </TarefaDetalhesModal>
         </ModalOverlay>
       )}
-    </TarefasContainer>
+    </div>
   );
 }
 
