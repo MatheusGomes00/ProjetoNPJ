@@ -99,8 +99,8 @@ public class JwtService {
 
         Claims claims = jwtParser.parseSignedClaims(token).getPayload();
 
-        // Obtém a Role do payload
-        String role = (String) claims.get("role");
+
+        String role = (String) claims.get("role"); // pega um Map<String, Object>, faz o cast para string
 
         if (role != null) {
             return List.of(new SimpleGrantedAuthority(role));
@@ -108,8 +108,7 @@ public class JwtService {
 
         return Collections.emptyList();
     }
-
-
+    
     private Claims extractAllClaims(String token) {
         return getJwtParser()
                 .parseSignedClaims(token)
