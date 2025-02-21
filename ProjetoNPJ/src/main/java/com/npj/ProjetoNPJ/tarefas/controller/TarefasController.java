@@ -37,6 +37,12 @@ public class TarefasController {
         return ResponseEntity.ok().body(tarefa);
     }
 
+    @GetMapping("/{tarefaId}/responsavel")
+    public ResponseEntity<String> getNomeAdvogadoPorTarefa(@PathVariable String tarefaId) {
+        String nomeAdvogado = service.getNomeAdvogadoPorTarefa(tarefaId);
+        return ResponseEntity.ok(nomeAdvogado);
+    }
+
     @PutMapping(value = "/upd")
     public ResponseEntity<Void> update(DtoTarefas dto, String id){
 

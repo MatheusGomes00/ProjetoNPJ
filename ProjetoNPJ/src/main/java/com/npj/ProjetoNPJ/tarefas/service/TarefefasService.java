@@ -28,9 +28,9 @@ public class TarefefasService {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername(); // username do usuário autenticado
+            return ((UserDetails) principal).getUsername();
         } else {
-            return principal.toString(); // Caso seja um token simples
+            return principal.toString();
         }
     }
 
@@ -52,6 +52,9 @@ public class TarefefasService {
 
         Tarefas tarefa = repository.findById(tarefaId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada"));
+        if (tarefa.getResponsavel() == null) {
+            throw new RecursoNaoEncontradoException("A tarefa não possui um responsável atribuído.");
+        }
         return tarefa.getResponsavel().getNome();
     }
 
@@ -76,6 +79,5 @@ public class TarefefasService {
         task.setStatus(false);
         repository.save(task);
     }
-
 
 }
