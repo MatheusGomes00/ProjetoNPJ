@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TarefefasService {
 
@@ -80,4 +82,12 @@ public class TarefefasService {
         repository.save(task);
     }
 
+    public List<DtoTarefas> getTarefasAutenticado() {
+
+        Advogado advogado = advogadoRepository.findByCpf(getAuthenticatedUsername())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
+
+        List<Tarefas> tarefa = repository.findByAdvogado(advogado.getId());
+        return TarefasMapper.toListDto(tarefa);
+    }
 }

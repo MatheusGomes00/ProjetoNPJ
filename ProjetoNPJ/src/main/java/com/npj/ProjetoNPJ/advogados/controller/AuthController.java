@@ -5,6 +5,7 @@ import com.npj.ProjetoNPJ.advogados.dtos.RefreshTokenRequest;
 import com.npj.ProjetoNPJ.security.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -21,10 +22,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody AuthRequest authRequest) {
-
-        Map<String, String> tokens = authenticationService
-                .authenticate(authRequest.getUsername(), authRequest.getPassword());
-        return ResponseEntity.ok(tokens);
+        try {
+            Map<String, String> tokens = authenticationService
+                    .authenticate(authRequest.getUsername(), authRequest.getPassword());
+            return ResponseEntity.ok(tokens);
+        } catch (InternalAuthenticationServiceException ex) {
+            return ResponseEntity.status(HttpStatus
+                    .INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Verifique as credenciais!!"));
+        }
     }
 
     @PostMapping("/refresh-token")

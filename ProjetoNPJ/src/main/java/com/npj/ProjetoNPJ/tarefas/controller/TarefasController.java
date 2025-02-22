@@ -57,12 +57,15 @@ public class TarefasController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<List<Tarefas>> listarTarefas() {
-        List<Tarefas> tarefas = repository.findAll();
-        if (tarefas.isEmpty()) {
+    public ResponseEntity<List<DtoTarefas>> listarTarefas() {
+
+        List<DtoTarefas> dto = service.getTarefasAutenticado();
+
+        //List<Tarefas> tarefas = repository.findAll();
+        if (dto.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(tarefas);
+        return ResponseEntity.ok(dto);
     }
 
 
