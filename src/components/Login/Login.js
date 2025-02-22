@@ -23,7 +23,7 @@ const Login = () => {
 
       const data = await response.json();
       localStorage.setItem("token", data.accessToken); // Salva o token no localStorage
-      navigate("/"); // Redireciona para a página inicial
+      navigate("/workspace"); // Redireciona para a página inicial
     } catch (error) {
       setError(error.message);
     }

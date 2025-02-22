@@ -235,53 +235,65 @@ function Tarefas() {
     return localStorage.getItem("token"); // Certifique-se de que o token está salvo corretamente
   };
 
- const buscarTarefas = async () => {
-  try {
-    const token = getToken();
-    const response = await axios.get("http://localhost:8080/task/get", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const [mensagemErro, setMensagemErro] = useState("");
 
-    // Obter o nome do responsável para cada tarefa utilizando o novo endpoint
-    const tarefasComResponsavel = await Promise.all(
-      response.data.map(async (tarefa) => {
-        if (tarefa.id) {
-          try {
-            const responsavelResponse = await axios.get(
-              `http://localhost:8080/task/${tarefa.id}/responsavel`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
+  const buscarTarefas = async () => {
+    try {
+      const token = getToken();
+      const response = await axios.get("http://localhost:8080/task/get", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      // Verifica se não há tarefas cadastradas
+      if (!response.data || response.data.length === 0) {
+        setMensagemErro("Nenhuma tarefa cadastrada.");
+        setTarefas([]); // Garante que a lista de tarefas fica vazia
+        return;
+      }
+  
+      // Obter o nome do responsável para cada tarefa
+      const tarefasComResponsavel = await Promise.all(
+        response.data.map(async (tarefa) => {
+          if (tarefa.id) {
+            try {
+              const responsavelResponse = await axios.get(
+                `http://localhost:8080/task/${tarefa.id}/responsavel`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+              return {
+                ...tarefa,
+                responsavelNome: responsavelResponse.data,
+              };
+            } catch (error) {
+              console.error("Erro ao buscar responsável:", error);
+              return {
+                ...tarefa,
+                responsavelNome: "Desconhecido",
+              };
+            }
+          } else {
             return {
               ...tarefa,
-              responsavelNome: responsavelResponse.data, // Aqui está o nome do responsável
-            };
-          } catch (error) {
-            console.error("Erro ao buscar responsável:", error);
-            return {
-              ...tarefa,
-              responsavelNome: "Desconhecido",
+              responsavelNome: "Não atribuído",
             };
           }
-        } else {
-          return {
-            ...tarefa,
-            responsavelNome: "Não atribuído",
-          };
-        }
-      })
-    );
-
-    setTarefas(tarefasComResponsavel);
-  } catch (error) {
-    console.error("Erro ao buscar tarefas:", error);
-  }
-};
+        })
+      );
+  
+      setTarefas(tarefasComResponsavel);
+      setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
+    } catch (error) {
+      console.error("Erro ao buscar tarefas:", error);
+      setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
+      setTarefas([]); // Evita carregar tarefas inválidas
+    }
+  };
 
   const buscarAdvogados = async () => {
     try {
@@ -297,7 +309,7 @@ function Tarefas() {
         },
       });
   
-      console.log("Advogados recebidos:", response.data); // <-- LOG DOS DADOS
+      //console.log("Advogados recebidos:", response.data); // <-- LOG DOS DADOS
       setAdvogados(response.data);
     } catch (error) {
       console.error("Erro ao buscar advogados:", error.response ? error.response.data : error.message);

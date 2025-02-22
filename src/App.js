@@ -14,11 +14,13 @@ function App() {
     <div className="app-container">
       <Routes>
         {/* Página de Login */}
+        <Route path="/" element={<Navigate to="/login" />} />
+
         <Route path="/login" element={<Login />} />
 
         {/* Rotas Protegidas */}
         <Route
-          path="/"
+          path="/workspace"
           element={isAuthenticated() ? <AreaDeTrabalho /> : <Navigate to="/login" />}
         />
         <Route
