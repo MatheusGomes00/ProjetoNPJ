@@ -120,6 +120,10 @@ const TarefaResponsavel = styled.span`
   color: #333;
 `;
 
+const getToken = () => {
+  return localStorage.getItem("token"); // Certifique-se de que o token está salvo corretamente
+};
+
 function TarefasMain() {
   const [tarefas, setTarefas] = useState([]);
 
@@ -127,7 +131,12 @@ function TarefasMain() {
     // Busca as tarefas ao carregar o componente
     const fetchTarefas = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/task/get");
+        const token = getToken();
+        const response = await axios.get("http://localhost:8080/task/get", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setTarefas(response.data);
       } catch (error) {
         console.error("Erro ao buscar tarefas:", error);
