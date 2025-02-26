@@ -157,7 +157,7 @@ function TarefasMain() {
           <IconeNovaTarefa />
         </div>
 
-        {/* Exibe as tarefas como uma lista moderna */}
+        {/* Exibe as tarefas como uma lista*/}
         <ListaTarefas>
           {tarefas.map((tarefa) => (
             <TarefaItem key={tarefa.nomeTarefa}>

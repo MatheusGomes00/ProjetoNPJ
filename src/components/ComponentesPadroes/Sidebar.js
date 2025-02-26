@@ -74,7 +74,7 @@ function Sidebar({ onAdvogadosClick }) {
       <Title>Atalhos</Title>
       <SidebarList>
         <SidebarItem>
-          <Link to="/">
+          <Link to="/workspace">
             <SidebarButton>
               <FaHome /> Área de Trabalho
             </SidebarButton>

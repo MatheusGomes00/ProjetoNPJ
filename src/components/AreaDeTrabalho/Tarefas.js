@@ -253,40 +253,7 @@ function Tarefas() {
         return;
       }
   
-      // Obter o nome do responsável para cada tarefa
-      const tarefasComResponsavel = await Promise.all(
-        response.data.map(async (tarefa) => {
-          if (tarefa.id) {
-            try {
-              const responsavelResponse = await axios.get(
-                `http://localhost:8080/task/${tarefa.id}/responsavel`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              );
-              return {
-                ...tarefa,
-                responsavelNome: responsavelResponse.data,
-              };
-            } catch (error) {
-              console.error("Erro ao buscar responsável:", error);
-              return {
-                ...tarefa,
-                responsavelNome: "Desconhecido",
-              };
-            }
-          } else {
-            return {
-              ...tarefa,
-              responsavelNome: "Não atribuído",
-            };
-          }
-        })
-      );
-  
-      setTarefas(tarefasComResponsavel);
+      setTarefas(response.data);
       setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
