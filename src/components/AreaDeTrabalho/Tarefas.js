@@ -245,6 +245,7 @@ function Tarefas() {
           Authorization: `Bearer ${token}`,
         },
       });
+
   
       // Verifica se não há tarefas cadastradas
       if (!response.data || response.data.length === 0) {
@@ -255,10 +256,12 @@ function Tarefas() {
   
       setTarefas(response.data);
       setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
+
+
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
       setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
-      setTarefas([]); // Evita carregar tarefas inválidas
+      setTarefas([]); 
     }
   };
 

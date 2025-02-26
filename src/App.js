@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login/Login";
-import Sidebar from "./components/ComponentesPadroes/Sidebar";
 import AreaDeTrabalho from "./components/AreaDeTrabalho/AreaDeTrabalho";
 import TarefasMain from "./components/Tarefas/TarefasMain";
 import AdvogadosTela from "./components/Advogados/AdvogadosTela";
