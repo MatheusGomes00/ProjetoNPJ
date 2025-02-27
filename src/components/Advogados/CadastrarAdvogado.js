@@ -45,11 +45,11 @@ const CadastrarAdvogado = ({ onClose }) => {
           setMessage("O advogado já está cadastrado! Verifique os dados.");
         } else if (status === 400) {
           setMessage("Dados inválidos! Preencha os campos corretamente.");
-        } else {
-          setMessage("Erro inesperado! Tente novamente mais tarde.");
+        } else if (status === 403) {
+          setMessage("Permissão insuficiente! Recurso disponível apenas para supervisores.");
         }
       } else {
-        setMessage("Falha na conexão! Verifique sua internet.");
+        setMessage("Erro inesperado! Contate o administrador.");
       }
       setErrorPopup(true);
     }

@@ -3,14 +3,11 @@ import styled from "styled-components";
 import ResultsList from "./ResultsList";
 
 const SearchContainer = styled.div`
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 10px;
   margin-bottom: 50px;
+  width: 100%
 `;
 
 const SearchBarWrapper = styled.div`
@@ -21,6 +18,7 @@ const SearchBarWrapper = styled.div`
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
 `;
 
 const Input = styled.input`
