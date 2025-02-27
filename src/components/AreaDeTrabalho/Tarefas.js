@@ -305,7 +305,19 @@ function Tarefas() {
     }
   };
 
-  const abrirModal = () => setShowModal(true);
+  const abrirModal = () => {
+    setNovaTarefa({
+      nomeTarefa: "",
+      descricao: "",
+      status: true,
+      prioridade: "baixa",
+      prazoLimite: "",
+      dataCriacao: new Date().toISOString(),
+      responsavelId: "",
+      responsavelNome: "",
+    });
+    setShowModal(true);
+  };
 
   const fecharModal = () => setShowModal(false);
 
