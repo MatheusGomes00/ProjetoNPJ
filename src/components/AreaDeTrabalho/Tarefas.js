@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import axios from "axios";
 
@@ -78,28 +78,6 @@ const StatusTag = styled.div`
       : "red"};
   border-radius: 30%;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-`;
-
-const LegendaPrioridades = styled.div`
-  display: flex;
-  justify-content: space-around;
-  margin-top: 15px;
-  width: 100%;
-  font-size: 14px;
-  color: #666;
-`;
-
-const TagLegenda = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-`;
-
-const CorTag = styled.div`
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: ${({ cor }) => cor};
 `;
 
 const BotaoAdicionar = styled.button`
