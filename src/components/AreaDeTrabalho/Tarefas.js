@@ -134,6 +134,27 @@ const ModalContent = styled.div`
     }
   }
 `;
+const BotaoFinalizar = styled.button`
+  background-color: #dc3545; /* Cor vermelha para indicar uma ação de finalização */
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #c82333; /* Tom mais escuro de vermelho ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de elevação */
+  }
+
+  &:active {
+    background-color: #bd2130; /* Tom ainda mais escuro ao clicar */
+  }
+`;
+
 
 const BotaoFechar = styled.button`
   position: absolute;
@@ -225,14 +246,17 @@ function Tarefas() {
       });
 
   
-      // Verifica se não há tarefas cadastradas
       if (!response.data || response.data.length === 0) {
         setMensagemErro("Nenhuma tarefa cadastrada.");
         setTarefas([]); // Garante que a lista de tarefas fica vazia
         return;
       }
   
-      setTarefas(response.data);
+      // Filtra apenas as tarefas com status true
+      const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
+  
+      console.log("Tarefas ativas:", tarefasAtivas);
+      setTarefas(tarefasAtivas);
       setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
 
 
@@ -264,6 +288,29 @@ function Tarefas() {
     }
   };
   
+  
+  const finalizarTarefa = async (id) => {
+    try {
+      const token = getToken();
+      const response = await axios.put(`http://localhost:8080/task/end/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.status === 200) {
+        console.log("Tarefa finalizada com sucesso");
+  
+        // Atualiza o estado, removendo a tarefa da lista
+        setTarefas((tarefasAntigas) => tarefasAntigas.filter((tarefa) => tarefa.id !== id));
+  
+        setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
+      }
+    } catch (error) {
+      console.error("Erro ao finalizar a tarefa:", error);
+      setMensagemErro("Erro ao finalizar a tarefa. Tente novamente mais tarde.");
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -306,24 +353,25 @@ function Tarefas() {
   };
 
   const abrirModal = () => {
-    setNovaTarefa({
-      nomeTarefa: "",
-      descricao: "",
-      status: true,
-      prioridade: "baixa",
-      prazoLimite: "",
-      dataCriacao: new Date().toISOString(),
-      responsavelId: "",
-      responsavelNome: "",
-    });
-    setShowModal(true);
-  };
+  setNovaTarefa({
+    nomeTarefa: "",
+    descricao: "",
+    status: true,
+    prioridade: "baixa",
+    prazoLimite: "",
+    dataCriacao: new Date().toISOString(),
+    responsavelId: "",
+    responsavelNome: "",
+  });
+  setShowModal(true);
+};
 
   const fecharModal = () => setShowModal(false);
 
   const abrirDetalhesModal = (tarefa) => {
-    setTarefaSelecionada(tarefa);
-    setShowDetalhesModal(true);
+    console.log("Abrindo detalhes da tarefa:", tarefa); // Verifique o que está sendo passado
+    setTarefaSelecionada(tarefa); // Aqui você define a tarefa que será exibida no modal
+    setShowDetalhesModal(true); // Abre o modal
   };
 
   const fecharDetalhesModal = () => setShowDetalhesModal(false);
@@ -335,6 +383,9 @@ function Tarefas() {
     });
   };
 
+  useEffect(() => {
+    console.log("Tarefa Selecionada:", tarefaSelecionada);
+  }, [tarefaSelecionada]);
   useEffect(() => {
     buscarTarefas();
     buscarAdvogados();
@@ -425,18 +476,24 @@ function Tarefas() {
       </ModalOverlay>
 
       {/* Modal de detalhes */}
+      
       <ModalOverlay show={showDetalhesModal}>
-        <TarefaDetalhesModal>
-          <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
-          <h3>{tarefaSelecionada?.nomeTarefa}</h3>
-          <div>Descrição: {tarefaSelecionada?.descricao}</div>
-          <div>Prioridade: {tarefaSelecionada?.prioridade}</div>
-          <div>Prazos: {tarefaSelecionada?.prazoLimite}</div>
-          <div>Responsável: {tarefaSelecionada?.responsavelNome}</div>
+  <TarefaDetalhesModal>
+    <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
+    <h3>{tarefaSelecionada?.nomeTarefa}</h3>
+    <div>Descrição: {tarefaSelecionada?.descricao}</div>
+    <div>Prioridade: {tarefaSelecionada?.prioridade}</div>
+    <div>Prazos: {tarefaSelecionada?.prazoLimite}</div>
+    <div>Status: </div>
+    <div>Responsável: {tarefaSelecionada?.responsavelNome}</div>
 
-          <BotaoEditar>Editar</BotaoEditar>
-        </TarefaDetalhesModal>
-      </ModalOverlay>
+    <BotaoEditar>Editar</BotaoEditar>
+    {/* Botão para finalizar a tarefa com o novo estilo */}
+    <BotaoFinalizar onClick={() => finalizarTarefa(tarefaSelecionada?.id)}>
+      Finalizar Tarefa
+    </BotaoFinalizar>
+  </TarefaDetalhesModal>
+</ModalOverlay>
     </TarefasContainer>
   );
 }
