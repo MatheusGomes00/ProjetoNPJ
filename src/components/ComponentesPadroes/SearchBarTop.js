@@ -3,18 +3,20 @@ import styled from "styled-components";
 
 /* Grid que vai de ponta a ponta */
 const GridContainer = styled.div`
-  position: absolute;
+  position: fixed;  /* Fixa no topo */
   top: 0;
   left: 0;
   width: 100%;
-  height: 100px; /* Ajuste a altura conforme necessário */
-  background-color: #f8f9fa; /* Cor de fundo opcional */
-  border-bottom: 2px solid black; /* Linha preta para separação */
+  height: 100px;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid black;
   display: flex;
   align-items: center;
   justify-content: center;
-`;
+  z-index: 0; /* Menor que o z-index do pop-up */
+  
 
+`;
 /* Mantém a barra de pesquisa no mesmo lugar */
 const SearchBarContainer = styled.div`
   position: absolute;

@@ -134,44 +134,92 @@ const ModalContent = styled.div`
     }
   }
 `;
-const BotaoFinalizar = styled.button`
-  background-color: #dc3545; /* Cor vermelha para indicar uma ação de finalização */
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: all 0.3s ease;
 
-  &:hover {
-    background-color: #c82333; /* Tom mais escuro de vermelho ao passar o mouse */
-    transform: translateY(-2px); /* Efeito de elevação */
-  }
-
-  &:active {
-    background-color: #bd2130; /* Tom ainda mais escuro ao clicar */
-  }
-`;
 
 
 const BotaoFechar = styled.button`
   position: absolute;
-  top: 10px;
-  right: 10px;
-  border: none;
+  top: 15px;
+  right: 15px;
   background: transparent;
-  color: #333;
+  border: none;
   font-size: 18px;
   cursor: pointer;
+  color: #666;
+`;
+const NomeTarefa = styled.h3`
+  font-size: 22px;
   font-weight: bold;
-  border-radius: 50%;
-  padding: 5px;
-  transition: background 0.3s ease;
+  color: #333;
+  text-align: center;
+  margin-bottom: 10px;
+`;
+
+const DetalheItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+   max-height: 120px; /* Limite de altura para evitar campos gigantes */
+  overflow-y: auto; /* Adiciona rolagem interna quando necessário */
+  word-wrap: break-word;
+`;
+
+const Label = styled.span`
+  font-weight: bold;
+  font-size: 14px;
+  color: #666;
+`;
+
+const Valor = styled.span`
+  font-size: 16px;
+  color: #222;
+`;
+
+const Status = styled.span`
+  font-weight: bold;
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background: ${(props) => (props.ativo ? "#d4edda" : "#f8d7da")};
+  color: ${(props) => (props.ativo ? "#155724" : "#721c24")};
+  display: inline-block;
+`;
+
+const BotaoEditar = styled.button`
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+  width: 100%;
+  text-align: center;
 
   &:hover {
-    background: #f0f0f0;
+    background: #0056b3;
+  }
+`;
+
+const BotaoFinalizar = styled.button`
+  background: #dc3545;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+  width: 100%;
+  text-align: center;
+
+  &:hover {
+    background: #a71d2a;
   }
 `;
 
@@ -190,24 +238,15 @@ const MensagemSucesso = styled.p`
 
 const TarefaDetalhesModal = styled(ModalContent)`
   width: 520px;
+  max-height: 90vh;
   padding: 25px;
-`;
-
-const BotaoEditar = styled.button`
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background-color: #218838;
-    transform: translateY(-2px);
-  }
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
 `;
 
 function Tarefas() {
@@ -227,7 +266,7 @@ function Tarefas() {
     responsavelNome: ""
   });
 
-  const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
+  const [tarefaSelecionada, setTarefaSelecionada] = useState(false);
 
   // Função para obter o token
   const getToken = () => {
@@ -236,6 +275,7 @@ function Tarefas() {
 
   const [mensagemErro, setMensagemErro] = useState("");
 
+  
   const buscarTarefas = async () => {
     try {
       const token = getToken();
@@ -290,28 +330,35 @@ function Tarefas() {
   
   
   const finalizarTarefa = async (id) => {
-    try {
-      const token = getToken();
-      const response = await axios.put(`http://localhost:8080/task/end/${id}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    // Exibe uma janela de confirmação
+    const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
   
-      if (response.status === 200) {
-        console.log("Tarefa finalizada com sucesso");
+    // Se o usuário confirmar, executa o código abaixo
+    if (confirmacao) {
+      try {
+        const token = getToken();
+        const response = await axios.put(`http://localhost:8080/task/end/${id}`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
   
-        // Atualiza o estado, removendo a tarefa da lista
-        setTarefas((tarefasAntigas) => tarefasAntigas.filter((tarefa) => tarefa.id !== id));
+        if (response.status === 200) {
+          console.log("Tarefa finalizada com sucesso");
   
-        setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
+          // Atualiza o estado, removendo a tarefa da lista
+          setTarefas((tarefasAntigas) => tarefasAntigas.filter((tarefa) => tarefa.id !== id));
+  
+          setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
+        }
+      } catch (error) {
+        console.error("Erro ao finalizar a tarefa:", error);
+        setMensagemErro("Erro ao finalizar a tarefa. Tente novamente mais tarde.");
       }
-    } catch (error) {
-      console.error("Erro ao finalizar a tarefa:", error);
-      setMensagemErro("Erro ao finalizar a tarefa. Tente novamente mais tarde.");
+    } else {
+      console.log("Ação de finalização cancelada.");
     }
   };
-
   const handleSubmit = async () => {
     try {
       const token = getToken();
@@ -393,6 +440,7 @@ function Tarefas() {
 
   return (
     <TarefasContainer>
+      
       <TituloTarefas>Suas tarefas e Prazos</TituloTarefas>
       {mensagemSucesso && <MensagemSucesso>{mensagemSucesso}</MensagemSucesso>}
       <ListaTarefas>
@@ -403,10 +451,25 @@ function Tarefas() {
           >
             <StatusTag prioridade={tarefa.prioridade} />
             <div>{tarefa.nomeTarefa}</div>
-            <div>{tarefa.descricao}</div>
+            
+            <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
           </TarefaCard>
         ))}
       </ListaTarefas>
+      <LegendaPrioridades>
+        <TagLegenda>
+          <CorTag cor="red" />
+          <span>Alta</span>
+        </TagLegenda>
+        <TagLegenda>
+          <CorTag cor="yellow" />
+          <span>Média</span>                              
+        </TagLegenda>
+        <TagLegenda>
+          <CorTag cor="green" />
+          <span>Baixa</span>
+        </TagLegenda>
+      </LegendaPrioridades>
       <BotaoAdicionar onClick={abrirModal}>Adicionar Tarefa</BotaoAdicionar>
 
       {/* Modal para adicionar tarefa */}
@@ -478,21 +541,43 @@ function Tarefas() {
       {/* Modal de detalhes */}
       
       <ModalOverlay show={showDetalhesModal}>
-  <TarefaDetalhesModal>
-    <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
-    <h3>{tarefaSelecionada?.nomeTarefa}</h3>
-    <div>Descrição: {tarefaSelecionada?.descricao}</div>
-    <div>Prioridade: {tarefaSelecionada?.prioridade}</div>
-    <div>Prazos: {tarefaSelecionada?.prazoLimite}</div>
-    <div>Status: </div>
-    <div>Responsável: {tarefaSelecionada?.responsavelNome}</div>
+      <TarefaDetalhesModal>
+  <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
+  
+  <NomeTarefa>{tarefaSelecionada?.nomeTarefa}</NomeTarefa>
 
-    <BotaoEditar>Editar</BotaoEditar>
-    {/* Botão para finalizar a tarefa com o novo estilo */}
-    <BotaoFinalizar onClick={() => finalizarTarefa(tarefaSelecionada?.id)}>
-      Finalizar Tarefa
-    </BotaoFinalizar>
-  </TarefaDetalhesModal>
+  <DetalheItem>
+    <Label>Descrição:</Label>
+    <Valor>{tarefaSelecionada?.descricao}</Valor>
+  </DetalheItem>
+
+  <DetalheItem>
+    <Label>Prioridade:</Label>
+    <Valor>{tarefaSelecionada?.prioridade}</Valor>
+  </DetalheItem>
+
+  <DetalheItem>
+    <Label>Prazos:</Label>
+    <Valor>{tarefaSelecionada?.prazoLimite}</Valor>
+  </DetalheItem>
+
+  <DetalheItem>
+    <Label>Responsável:</Label>
+    <Valor>{tarefaSelecionada?.responsavelNome}</Valor>
+  </DetalheItem>
+
+  <DetalheItem>
+    <Label>Status:</Label>
+    <Status ativo={tarefaSelecionada.status}>
+      {tarefaSelecionada.status ? "Ativa" : "Finalizada"}
+    </Status>
+  </DetalheItem>
+
+  <BotaoEditar>Editar</BotaoEditar>
+  <BotaoFinalizar onClick={() => finalizarTarefa(tarefaSelecionada?.id)}>
+    Finalizar Tarefa
+  </BotaoFinalizar>
+</TarefaDetalhesModal>
 </ModalOverlay>
     </TarefasContainer>
   );
