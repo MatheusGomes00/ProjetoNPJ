@@ -135,7 +135,27 @@ const ModalContent = styled.div`
   }
 `;
 
+const LegendaPrioridades = styled.div`
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+  width: 100%;
+  font-size: 14px;
+  color: #666;
+`;
 
+const TagLegenda = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const CorTag = styled.div`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: ${({ cor }) => cor};
+`;
 
 const BotaoFechar = styled.button`
   position: absolute;
@@ -299,7 +319,7 @@ function Tarefas() {
       // Filtra apenas as tarefas com status true
       const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
   
-      console.log("Tarefas ativas:", tarefasAtivas);
+      //console.log("Tarefas ativas:", tarefasAtivas);
       setTarefas(tarefasAtivas);
       setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
 
@@ -411,7 +431,7 @@ function Tarefas() {
   const fecharModal = () => setShowModal(false);
 
   const abrirDetalhesModal = (tarefa) => {
-    console.log("Abrindo detalhes da tarefa:", tarefa);
+    // console.log("Abrindo detalhes da tarefa:", tarefa);
     setTarefaSelecionada(tarefa);
     setShowDetalhesModal(true);
   };
@@ -426,7 +446,7 @@ function Tarefas() {
   };
 
   useEffect(() => {
-    console.log("Tarefa Selecionada:", tarefaSelecionada);
+    // console.log("Tarefa Selecionada:", tarefaSelecionada);
   }, [tarefaSelecionada]);
   useEffect(() => {
     buscarTarefas();

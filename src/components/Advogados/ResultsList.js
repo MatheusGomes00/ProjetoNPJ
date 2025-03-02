@@ -4,16 +4,15 @@ import styled from 'styled-components';
 
 // Estilos do componente
 const ResultsContainer = styled.div`
-  margin-top: -200px;  /* Adiciona um espaçamento superior */
   background: #fff;
   padding: 12px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   max-height: 250px;
   overflow-y: auto;
-  width: 900px;
+  flex-grow: 1;
+  max-width: 100%;
 `;
-
 const ResultInfo = styled.div`
   font-size: 14px;
   color: #555;
@@ -34,13 +33,13 @@ const ResultItem = styled.div`
 `;
 
 const ResultsList = ({ results }) => {
-  const navigate = useNavigate();  // Usando useNavigate ao invés de useHistory
+  const navigate = useNavigate();  
 
   const handleClick = (id) => {
-    navigate(`/detalhes/${id}`); // Redireciona para a página de detalhes do advogado
+    navigate(`/buscar/${id}`);
   };
 
-  if (!results.length) return null; // Retorna nada se não houver resultados
+  if (!results.length) return null;
 
   return (
     <ResultsContainer>

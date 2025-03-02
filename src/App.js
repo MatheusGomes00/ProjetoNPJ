@@ -31,7 +31,7 @@ function App() {
           element={isAuthenticated() ? <AdvogadosTela /> : <Navigate to="/login" />}
         />
         <Route
-          path="/detalhes/:id"
+          path="/buscar/:id"
           element={isAuthenticated() ? <AdvogadoDetails /> : <Navigate to="/login" />}
         />
         <Route

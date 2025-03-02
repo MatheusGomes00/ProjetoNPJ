@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import ResultsList from "./ResultsList";
 
 const SearchContainer = styled.div`
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
-  margin-bottom: 50px;
-  width: 100%
+  margin-bottom: 10px;
+  width: 90%
 `;
 
 const SearchBarWrapper = styled.div`
@@ -37,21 +36,16 @@ const Button = styled.button`
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
+  min-width: 100px;
   &:hover {
     background: #0056b3;
   }
 `;
 
-const ResultsWrapper = styled.div`
-  position: absolute;
-  top: 70%;
-  left: 50%;
-  transform: translateX(-50%);
-`;
-
-function SearchBar() {
+function SearchBar({ onSearch }) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [searchPerformed, setSearchPerformed] = useState(false);
 
   const isCpf = (value) => {
     return /^\d{11}$/.test(value);
@@ -59,6 +53,8 @@ function SearchBar() {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
+
+    setSearchPerformed(true);
 
     try {
       const url = isCpf(query)
@@ -69,27 +65,50 @@ function SearchBar() {
         ? JSON.stringify({ cpf: query.toString() })
         : null;
 
-      const token = localStorage.getItem("token"); // Obtém o token do localStorage
+      const token = localStorage.getItem("token"); 
 
       const response = await fetch(url, {
         method: isCpf(query) ? "POST" : "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` // Adiciona o token no cabeçalho da requisição
+          "Authorization": `Bearer ${token}` 
         },
         body: requestBody,
       });
 
+      if (response.status === 404) {
+        setErrorMessage("Nenhum registro localizado.");
+        return;
+      }
+
       if (!response.ok) {
         throw new Error("Erro ao buscar dados");
       }
+
       const data = await response.json();
-      setResults(data);
+      onSearch(data);
     } catch (error) {
       console.error("Erro na busca:", error);
-      setResults([]);
+      setErrorMessage("Erro ao buscar dados. Tente novamente mais tarde.");
     }
   };
+
+  const handleClearSearch = () => {
+    setQuery("");
+    setErrorMessage("");
+    setSearchPerformed(false); // Limpa a busca e esconde o botão de limpar
+    onSearch([]); // Reseta os resultados da busca
+  };
+
+  const handleErrorClick = () => {
+    setErrorMessage("");
+  };
+
+  if (errorMessage) {
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 5000);
+  }
 
   return (
     <>
@@ -103,12 +122,19 @@ function SearchBar() {
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <Button onClick={handleSearch}>Pesquisar</Button>
+          {searchPerformed && (
+            <Button onClick={handleClearSearch}>Limpar busca</Button>
+          )}
         </SearchBarWrapper>
+      
+        {errorMessage && 
+          <div 
+            onClick={handleErrorClick}
+            style={{ color: "red", marginTop: "10px" }}
+          >
+            {errorMessage}
+          </div>}
       </SearchContainer>
-
-      <ResultsWrapper>
-        <ResultsList results={results} />
-      </ResultsWrapper>
     </>
   );
 }

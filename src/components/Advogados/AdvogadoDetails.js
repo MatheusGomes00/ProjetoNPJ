@@ -68,7 +68,7 @@ const BackButton = styled.button`
 function AdvogadoDetails() {
   const { id } = useParams();
   const [advogado, setAdvogado] = useState(null);
-  const navigate = useNavigate(); // Usando o useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAdvogado = async () => {
