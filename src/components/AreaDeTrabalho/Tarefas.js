@@ -207,19 +207,23 @@ const BotaoEditar = styled.button`
 `;
 
 const BotaoFinalizar = styled.button`
-  background: #dc3545;
+  background-color: #dc3545; /* Cor vermelha para indicar uma ação de finalização */
   color: white;
-  padding: 12px;
   border: none;
-  border-radius: 8px;
+  padding: 12px 20px;
+  border-radius: 30px;
   cursor: pointer;
+  font-size: 16px;
   font-weight: bold;
-  transition: 0.3s;
-  width: 100%;
-  text-align: center;
+  transition: all 0.3s ease;
 
   &:hover {
-    background: #a71d2a;
+    background-color: #c82333; /* Tom mais escuro de vermelho ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de elevação */
+  }
+
+  &:active {
+    background-color: #bd2130; /* Tom ainda mais escuro ao clicar */
   }
 `;
 
@@ -299,7 +303,6 @@ function Tarefas() {
       setTarefas(tarefasAtivas);
       setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
 
-
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
       setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
@@ -328,37 +331,29 @@ function Tarefas() {
     }
   };
   
-  
   const finalizarTarefa = async (id) => {
-    // Exibe uma janela de confirmação
-    const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
+    try {
+      const token = getToken();
+      const response = await axios.put(`http://localhost:8080/task/end/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
   
-    // Se o usuário confirmar, executa o código abaixo
-    if (confirmacao) {
-      try {
-        const token = getToken();
-        const response = await axios.put(`http://localhost:8080/task/end/${id}`, {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      if (response.status === 200) {
+        console.log("Tarefa finalizada com sucesso");
   
-        if (response.status === 200) {
-          console.log("Tarefa finalizada com sucesso");
+        // Atualiza o estado, removendo a tarefa da lista
+        setTarefas((tarefasAntigas) => tarefasAntigas.filter((tarefa) => tarefa.id !== id));
   
-          // Atualiza o estado, removendo a tarefa da lista
-          setTarefas((tarefasAntigas) => tarefasAntigas.filter((tarefa) => tarefa.id !== id));
-  
-          setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
-        }
-      } catch (error) {
-        console.error("Erro ao finalizar a tarefa:", error);
-        setMensagemErro("Erro ao finalizar a tarefa. Tente novamente mais tarde.");
+        setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
       }
-    } else {
-      console.log("Ação de finalização cancelada.");
+    } catch (error) {
+      console.error("Erro ao finalizar a tarefa:", error);
+      setMensagemErro("Erro ao finalizar a tarefa. Tente novamente mais tarde.");
     }
   };
+
   const handleSubmit = async () => {
     try {
       const token = getToken();
@@ -400,25 +395,25 @@ function Tarefas() {
   };
 
   const abrirModal = () => {
-  setNovaTarefa({
-    nomeTarefa: "",
-    descricao: "",
-    status: true,
-    prioridade: "baixa",
-    prazoLimite: "",
-    dataCriacao: new Date().toISOString(),
-    responsavelId: "",
-    responsavelNome: "",
-  });
-  setShowModal(true);
-};
+    setNovaTarefa({
+      nomeTarefa: "",
+      descricao: "",
+      status: true,
+      prioridade: "baixa",
+      prazoLimite: "",
+      dataCriacao: new Date().toISOString(),
+      responsavelId: "",
+      responsavelNome: "",
+    });
+    setShowModal(true);
+  };
 
   const fecharModal = () => setShowModal(false);
 
   const abrirDetalhesModal = (tarefa) => {
-    console.log("Abrindo detalhes da tarefa:", tarefa); // Verifique o que está sendo passado
-    setTarefaSelecionada(tarefa); // Aqui você define a tarefa que será exibida no modal
-    setShowDetalhesModal(true); // Abre o modal
+    console.log("Abrindo detalhes da tarefa:", tarefa);
+    setTarefaSelecionada(tarefa);
+    setShowDetalhesModal(true);
   };
 
   const fecharDetalhesModal = () => setShowDetalhesModal(false);
