@@ -15,7 +15,7 @@ function AdvogadosTela() {
   const transformAdvogadosData = (data) => {
     return data.map((advogado) => {
       // Remover o campo 'id' e alterar o status
-      const { id, status, ...rest } = advogado;
+      const { status, ...rest } = advogado;
       return {
         ...rest,
         status: status ? "ATIVO" : "DESATIVADO", // Converte o status

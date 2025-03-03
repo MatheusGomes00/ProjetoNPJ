@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import styled from "styled-components";
 
 const SearchContainer = styled.div`
@@ -7,6 +8,7 @@ const SearchContainer = styled.div`
   gap: 10px;
   margin-bottom: 10px;
   width: 90%
+  position: relative;
 `;
 
 const SearchBarWrapper = styled.div`
@@ -41,6 +43,25 @@ const Button = styled.button`
     background: #0056b3;
   }
 `;
+
+const ErrorCard = styled(motion.div)`
+  position: absolute;
+  left: 35%;
+  transform: translate(-50%, -10%);
+  background: #ff4d4d;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  text-align: center;
+  max-width: 300px;
+  width: auto;
+  white-space: nowrap;
+`;
+
 
 function SearchBar({ onSearch }) {
   const [query, setQuery] = useState("");
@@ -93,6 +114,18 @@ function SearchBar({ onSearch }) {
     }
   };
 
+  useEffect(() => {
+    if (errorMessage) {
+      console.log("Erro definido:", errorMessage);
+      const timer = setTimeout(() => {
+        setErrorMessage("");
+        console.log("Erro apagado.");
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
   const handleClearSearch = () => {
     setQuery("");
     setErrorMessage("");
@@ -100,19 +133,22 @@ function SearchBar({ onSearch }) {
     onSearch([]); // Reseta os resultados da busca
   };
 
-  const handleErrorClick = () => {
-    setErrorMessage("");
-  };
-
-  if (errorMessage) {
-    setTimeout(() => {
-      setErrorMessage("");
-    }, 5000);
-  }
 
   return (
     <>
       <SearchContainer>
+        <AnimatePresence>
+          {errorMessage && (
+            <ErrorCard
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              {errorMessage}
+            </ErrorCard>
+          )}
+        </AnimatePresence>
         <SearchBarWrapper>
           <Input
             type="text"
@@ -122,18 +158,8 @@ function SearchBar({ onSearch }) {
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <Button onClick={handleSearch}>Pesquisar</Button>
-          {searchPerformed && (
-            <Button onClick={handleClearSearch}>Limpar busca</Button>
-          )}
+          {searchPerformed && (<Button onClick={handleClearSearch}>Limpar busca</Button>)}
         </SearchBarWrapper>
-      
-        {errorMessage && 
-          <div 
-            onClick={handleErrorClick}
-            style={{ color: "red", marginTop: "10px" }}
-          >
-            {errorMessage}
-          </div>}
       </SearchContainer>
     </>
   );

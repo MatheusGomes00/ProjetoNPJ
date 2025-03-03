@@ -73,7 +73,12 @@ function AdvogadoDetails() {
   useEffect(() => {
     const fetchAdvogado = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/adv/buscar/${id}`);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`http://localhost:8080/adv/buscar/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("Erro ao carregar dados do advogado");
         }
