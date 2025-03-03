@@ -37,6 +37,7 @@ public class TarefefasService {
     }
 
     public DtoTarefas insert(DtoTarefas dto) {
+
         dto.setStatus(true);
         Advogado advogado = advogadoRepository.findById(dto.getResponsavelId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
@@ -63,17 +64,17 @@ public class TarefefasService {
     public void update(DtoTarefas dto, String id){
 
         Tarefas tarefa = repository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada."));
         updateData(tarefa, dto);
         repository.save(tarefa);
     }
 
     public void updateData(Tarefas tarefa, DtoTarefas dto) {
-        tarefa.setNomeTarefa(dto.getNomeTarefa());
-        tarefa.setDataCriacao(dto.getDataCriacao());
-        tarefa.setDescricao(dto.getDescricao());
-        tarefa.setPrioridade(dto.getPrioridade());
-        tarefa.setPrazoLimite(dto.getPrazoLimite());
+        if (dto.getNomeTarefa() != null) tarefa.setNomeTarefa(dto.getNomeTarefa());
+        if (dto.getDataCriacao() != null) tarefa.setDataCriacao(dto.getDataCriacao());
+        if (dto.getDescricao() != null) tarefa.setDescricao(dto.getDescricao());
+        if (dto.getPrioridade() != null) tarefa.setPrioridade(dto.getPrioridade());
+        if (dto.getPrazoLimite() != null) tarefa.setPrazoLimite(dto.getPrazoLimite());
     }
 
     public void finalizar(String id){

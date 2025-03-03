@@ -43,9 +43,11 @@ public class TarefasController {
         return ResponseEntity.ok(nomeAdvogado);
     }
 
-    @PutMapping(value = "/upd")
-    public ResponseEntity<Void> update(DtoTarefas dto, String id){
-
+    @PutMapping(value = "/upd/{id}")
+    public ResponseEntity<Void> update(@PathVariable String id, @RequestBody DtoTarefas dto) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("O ID da tarefa não pode ser nulo ou vazio.");
+        }
         service.update(dto, id);
         return ResponseEntity.noContent().build();
     }

@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @ToString
 public class DtoTarefas {
 
+    private String id;
+
     @NotBlank
     private String nomeTarefa;
 
