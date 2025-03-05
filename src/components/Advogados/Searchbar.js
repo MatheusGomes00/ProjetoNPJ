@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styled from "styled-components";
 
+
 const SearchContainer = styled.div`
   display: flex;
   flex-direction: column;
