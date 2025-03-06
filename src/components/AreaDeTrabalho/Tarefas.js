@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import BotaoEditar from "./BotaoEditar";
+
 const TarefasContainer = styled.div`
   position: absolute;
   flex-direction: column;
@@ -277,11 +278,44 @@ function Tarefas() {
     responsavelNome: ""
   });
 
+  const carregarTarefas = async () => {
+    try {
+      const token = getToken(); // Obtém o token de autenticação
+      const response = await axios.get("http://localhost:8080/task/get", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
+        },
+      });
+  
+      if (!response.data || response.data.length === 0) {
+        setMensagemErro("Nenhuma tarefa cadastrada.");
+        setTarefas([]); // Garante que a lista de tarefas fica vazia
+        return;
+      }
+  
+      // Filtra apenas as tarefas com status true
+      const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
+  
+      //console.log("Tarefas ativas:", tarefasAtivas);
+      setTarefas(tarefasAtivas);
+      setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
+
+    } catch (error) {
+      console.error("Erro ao buscar tarefas:", error);
+      setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
+      setTarefas([]); 
+    }
+  };
+  // Chamar ao carregar o componente
+  useEffect(() => {
+    carregarTarefas();
+  }, []);
+  
   const [tarefaSelecionada, setTarefaSelecionada] = useState(false);
 
   // Função para obter o token
   const getToken = () => {
-    return localStorage.getItem("token"); // Certifique-se de que o token está salvo corretamente
+    return localStorage.getItem("token");
   };
 
   const [mensagemErro, setMensagemErro] = useState("");
@@ -334,13 +368,15 @@ function Tarefas() {
         },
       });
   
-      //console.log("Advogados recebidos:", response.data); // <-- LOG DOS DADOS
+    
       setAdvogados(response.data);
     } catch (error) {
       console.error("Erro ao buscar advogados:", error.response ? error.response.data : error.message);
     }
   };
   
+  
+
   
   const finalizarTarefa = async (id) => {
     const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
@@ -448,6 +484,7 @@ function Tarefas() {
   useEffect(() => {
     buscarTarefas();
     buscarAdvogados();
+    carregarTarefas();    
   }, []);
 
   return (
@@ -584,8 +621,9 @@ function Tarefas() {
       {tarefaSelecionada.status ? "Ativa" : "Finalizada"}
     </Status>
   </DetalheItem>
+  <BotaoEditar tarefaSelecionada={tarefaSelecionada} carregarTarefas={carregarTarefas} />
 
-  <BotaoEditar>Editar</BotaoEditar>
+  
   <BotaoFinalizar onClick={() => finalizarTarefa(tarefaSelecionada?.id)}>
     Finalizar Tarefa
   </BotaoFinalizar>
