@@ -130,7 +130,9 @@ const BotaoSalvar = styled.button`
   }
 `;
 
-const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
+
+
+const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, setTarefas }) => {
   const [modalAberto, setModalAberto] = useState(false);
   const [tarefa, setTarefa] = useState({
     nomeTarefa: '',
@@ -139,6 +141,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
     prazoLimite: '',
     responsavelNome: '',
     status: false,
+    
   });
   const [advogados, setAdvogados] = useState([]); // Estado para armazenar advogados
 
@@ -216,10 +219,11 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
           },
         }
       );
-  
+      
       alert("Tarefa atualizada com sucesso!");
       fecharModal();
-  
+      
+     
       // Recarregar as tarefas para refletir as mudanças
       carregarTarefas();  // Aqui recarrega as tarefas e a cor da tag será atualizada
     } catch (error) {

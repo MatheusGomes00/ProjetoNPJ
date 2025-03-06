@@ -71,12 +71,14 @@ const StatusTag = styled.div`
   right: 5px;
   width: 10px;
   height: 20px;
-  background-color: ${({ prioridade }) =>
-    prioridade === "baixa"
+  background-color: ${({ prioridade }) => {
+    const prioridadeLower = prioridade.toLowerCase(); // 🔥 Converte para minúsculas
+    return prioridadeLower === "baixa"
       ? "green"
-      : prioridade === "media"
-      ? "yellow" 
-      : "red"};
+      : prioridadeLower === "média" || prioridadeLower === "media"
+      ? "yellow"
+      : "red";
+  }};
   border-radius: 30%;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 `;
@@ -259,8 +261,6 @@ const TarefaDetalhesModal = styled(ModalContent)`
 `;
 
 
-
-
 function Tarefas() {
   const [tarefas, setTarefas] = useState([]);
   const [advogados, setAdvogados] = useState([]);
@@ -280,25 +280,25 @@ function Tarefas() {
 
   const carregarTarefas = async () => {
     try {
-      const token = getToken(); // Obtém o token de autenticação
+      const token = getToken(); 
       const response = await axios.get("http://localhost:8080/task/get", {
         headers: {
-          Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
+          Authorization: `Bearer ${token}`, 
         },
       });
   
       if (!response.data || response.data.length === 0) {
         setMensagemErro("Nenhuma tarefa cadastrada.");
-        setTarefas([]); // Garante que a lista de tarefas fica vazia
+        setTarefas([]); 
         return;
       }
   
-      // Filtra apenas as tarefas com status true
+      
       const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
   
-      //console.log("Tarefas ativas:", tarefasAtivas);
+      
       setTarefas(tarefasAtivas);
-      setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
+      setMensagemErro("");
 
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
@@ -306,7 +306,7 @@ function Tarefas() {
       setTarefas([]); 
     }
   };
-  // Chamar ao carregar o componente
+ 
   useEffect(() => {
     carregarTarefas();
   }, []);
