@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import axios from "axios";
-
-//teste
+import BotaoEditar from "./BotaoEditar";
 const TarefasContainer = styled.div`
   position: absolute;
   flex-direction: column;
@@ -210,22 +209,6 @@ const Status = styled.span`
   display: inline-block;
 `;
 
-const BotaoEditar = styled.button`
-  background: #007bff;
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
-  width: 100%;
-  text-align: center;
-
-  &:hover {
-    background: #0056b3;
-  }
-`;
 
 const BotaoFinalizar = styled.button`
   background-color: #dc3545; /* Cor vermelha para indicar uma ação de finalização */
@@ -274,6 +257,9 @@ const TarefaDetalhesModal = styled(ModalContent)`
   position: relative;
 `;
 
+
+
+
 function Tarefas() {
   const [tarefas, setTarefas] = useState([]);
   const [advogados, setAdvogados] = useState([]);
@@ -300,6 +286,7 @@ function Tarefas() {
 
   const [mensagemErro, setMensagemErro] = useState("");
 
+  
   
   const buscarTarefas = async () => {
     try {
@@ -331,6 +318,8 @@ function Tarefas() {
     }
   };
 
+  
+
   const buscarAdvogados = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -352,7 +341,12 @@ function Tarefas() {
     }
   };
   
+  
   const finalizarTarefa = async (id) => {
+    const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
+    
+    if (!confirmacao) return;
+  
     try {
       const token = getToken();
       const response = await axios.put(`http://localhost:8080/task/end/${id}`, {}, {
@@ -364,10 +358,10 @@ function Tarefas() {
       if (response.status === 200) {
         console.log("Tarefa finalizada com sucesso");
   
-        // Atualiza o estado, removendo a tarefa da lista
+        
         setTarefas((tarefasAntigas) => tarefasAntigas.filter((tarefa) => tarefa.id !== id));
   
-        setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
+        setMensagemErro("");
       }
     } catch (error) {
       console.error("Erro ao finalizar a tarefa:", error);
@@ -415,6 +409,7 @@ function Tarefas() {
     }
   };
 
+  
   const abrirModal = () => {
     setNovaTarefa({
       nomeTarefa: "",
@@ -431,6 +426,7 @@ function Tarefas() {
 
   const fecharModal = () => setShowModal(false);
 
+  
   const abrirDetalhesModal = (tarefa) => {
     // console.log("Abrindo detalhes da tarefa:", tarefa);
     setTarefaSelecionada(tarefa);
@@ -467,8 +463,8 @@ function Tarefas() {
           >
             <StatusTag prioridade={tarefa.prioridade} />
             <div>{tarefa.nomeTarefa}</div>
-            
             <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
+            <div>{tarefa.prazoLimite}</div>
           </TarefaCard>
         ))}
       </ListaTarefas>
