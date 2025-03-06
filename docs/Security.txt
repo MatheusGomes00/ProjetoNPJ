@@ -1,0 +1,131 @@
+### **Roteiro de Implementação para a Arquitetura Zero Trust (ZTA)**
+
+Abaixo está um cronograma detalhado com as etapas para implementar a arquitetura ZTA no sistema jurídico, usando Spring Security como base.
+
+---
+
+### **1. Adicionar Dependências**
+#### **Objetivo**:
+Configurar as bibliotecas necessárias para a segurança e gerenciamento de autenticação/autorização.
+
+#### **Tarefas**:
+1. Atualizar o arquivo `pom.xml` (Maven) ou `build.gradle` (Gradle) com as seguintes dependências:
+   - **Spring Security**: Para autenticação e autorização.
+   - **JWT (JSON Web Token)**: Para gerenciar tokens de autenticação.
+   - **Password Encoder**: Para criptografar e verificar senhas.
+   - **Validation API**: Para validar entradas do usuário.
+   
+#### **Entrega**:
+O projeto deve estar com as dependências instaladas e configuradas.
+
+---
+
+### **2. Implementar a Interface `UserDetails`**
+#### **Objetivo**:
+Criar uma estrutura para representar os dados do usuário autenticado.
+
+#### **Tarefas**:
+1. Criar a classe `CustomUserDetails` que implementa `org.springframework.security.core.userdetails.UserDetails`.
+   - Campos sugeridos:
+     - `id`
+     - `username` (ou email)
+     - `password`
+     - `roles` (lista de permissões)
+     - Qualquer outro atributo relevante (ex.: status, nome completo).
+   - Métodos obrigatórios:
+     - `getUsername()`
+     - `getPassword()`
+     - `getAuthorities()`
+     - Outros métodos da interface.
+
+2. Garantir que as permissões do usuário (roles) sejam convertidas para objetos da classe `GrantedAuthority`.
+
+#### **Entrega**:
+Classe `CustomUserDetails` implementada e retornando os dados necessários para autenticação.
+
+---
+
+### **3. Implementar a Interface `UserDetailsService`**
+#### **Objetivo**:
+Configurar o serviço responsável por carregar os detalhes do usuário com base no username (ou email).
+
+#### **Tarefas**:
+1. Criar uma classe `CustomUserDetailsService` que implementa `UserDetailsService`.
+2. Configurar o método `loadUserByUsername(String username)`:
+   - Buscar o usuário no banco de dados ou repositório (ex.: via JPA).
+   - Retornar uma instância de `CustomUserDetails` preenchida.
+   - Lançar uma exceção personalizada caso o usuário não seja encontrado.
+
+#### **Entrega**:
+Serviço funcional que retorna os dados do usuário com base no username.
+
+---
+
+### **4. Configurar `SecurityConfig`**
+#### **Objetivo**:
+Definir as configurações centrais de segurança, incluindo filtros, codificadores de senha e JWT.
+
+#### **Tarefas**:
+1. Criar a classe `SecurityConfig` com a anotação `@Configuration`.
+2. Configurar:
+   - **Password Encoder**: Utilizar `BCryptPasswordEncoder`.
+   - **JWT**:
+     - Configurar geração e validação de tokens.
+     - Criar métodos utilitários para extrair informações do token.
+   - **Authentication Manager**: Configurar para usar o `CustomUserDetailsService`.
+3. Configurar o filtro de segurança:
+   - Criar um filtro personalizado que valide o JWT em cada requisição.
+   - Garantir que endpoints específicos estejam protegidos ou abertos conforme necessário.
+4. Definir políticas de segurança:
+   - Exigir autenticação em todas as rotas sensíveis.
+   - Permitir acesso anônimo apenas para endpoints públicos (ex.: login e registro).
+5. Configurar CORS (se o sistema tiver frontend separado).
+6. Adicionar suporte a MFA (opcional).
+
+#### **Entrega**:
+Configuração de segurança completa com suporte a JWT e criptografia.
+
+---
+
+### **5. Testar a Implementação**
+#### **Objetivo**:
+Garantir que o sistema de autenticação e autorização esteja funcionando conforme esperado.
+
+#### **Tarefas**:
+1. **Testes Unitários**:
+   - Testar o método `loadUserByUsername` para diferentes cenários (usuário existente, não existente).
+   - Verificar a geração e validação de tokens JWT.
+2. **Testes de Integração**:
+   - Validar o fluxo completo de autenticação (login) e autorização (acesso a endpoints protegidos).
+3. **Casos de Teste**:
+   - Usuário com credenciais válidas pode autenticar.
+   - Usuário com credenciais inválidas é bloqueado.
+   - JWT expirado não é aceito.
+   - Endpoints públicos estão acessíveis sem autenticação.
+4. Ferramentas:
+   - Use o **Postman** ou **cURL** para testar manualmente os endpoints.
+   - Configure testes automatizados com **Spring Boot Test** e **Mockito**.
+
+#### **Entrega**:
+Testes completos garantindo que a segurança básica esteja funcional e o sistema seja seguro para o próximo desenvolvimento.
+
+---
+
+### **Cronograma Sugerido**
+| **Etapa**                  | **Prazo Estimado** | 
+|----------------------------|--------------------|
+| 1. Adicionar Dependências  | 1 dia             |
+| 2. Implementar UserDetails | 1 dia             |
+| 3. Implementar UserDetailsService | 2 dias     |
+| 4. Configurar SecurityConfig | 3 dias           |
+| 5. Testar a Implementação  | 2 dias            |
+
+---
+
+### **Próximos Passos Após o Cronograma**
+1. Expandir o modelo com Multi-Factor Authentication (MFA).
+2. Adicionar logs de auditoria para rastrear acessos e ações.
+3. Implementar ABAC (Atributos) para controle de acesso mais granular, se necessário.
+4. Integrar com o frontend e validar o fluxo completo.
+
+Se precisar de detalhes para alguma dessas etapas, posso te ajudar a desenvolver o código ou expandir os conceitos. 😊

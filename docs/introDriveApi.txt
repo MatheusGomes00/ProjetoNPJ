@@ -1,0 +1,54 @@
+Roteiro Inicial para Teste de Integração com a API do Google Drive
+Configuração do Projeto no Google Cloud Console
+
+Crie um projeto no Google Cloud Console.
+Ative a Google Drive API no projeto.
+Configure uma credencial do tipo Conta de Serviço
+Selecionar a função Básico>Editor
+Baixar o Arquivo de Credenciais
+
+Após configurar as credenciais, baixe o arquivo JSON fornecido pelo Google.
+Mantenha este arquivo seguro, pois ele contém informações sensíveis.
+
+Dependências no Projeto Backend
+
+Certifique-se de que seu projeto backend em Java está configurado com as dependências necessárias para a integração.
+Adicione as bibliotecas para autenticação OAuth 2.0 e integração com a API do Google Drive.
+Por exemplo, inclua as dependências do google-api-client, google-oauth-client, e google-drive-api.
+
+Autenticação e Autorização
+Implemente o fluxo OAuth 2.0 para autenticar o sistema na API.
+Para o teste, será necessário autenticar manualmente via navegador, utilizando as credenciais configuradas.
+Salve o Token de Acesso retornado após a autenticação para reutilização em chamadas subsequentes.
+
+Funcionalidades para Teste
+Abaixo estão as ações que você deve implementar e testar:
+
+Upload de Arquivos: Enviar um arquivo local para o Google Drive.
+Download de Arquivos: Baixar um arquivo existente do Google Drive.
+Criar Pastas: Organizar os arquivos em diretórios no Drive.
+Excluir Arquivos/Pastas: Remover itens do Drive.
+
+Estruturação no Backend
+
+Crie serviços no backend para lidar com as operações acima:
+Um serviço para autenticação e renovação do token OAuth.
+Um serviço para cada funcionalidade (upload, download, criar pastas, excluir).
+Centralize as interações com a API em uma camada específica para facilitar a manutenção e testes.
+
+Testes Locais
+
+Implemente um ambiente de testes para simular as operações.
+Certifique-se de que os endpoints de teste podem:
+Ler as credenciais do arquivo JSON.
+Realizar cada operação sem erros (verificando as respostas da API).
+
+Validação e Ajustes
+
+Monitore o uso de cotas da API para evitar bloqueios inesperados durante os testes.
+Certifique-se de que todos os diretórios e arquivos criados durante os testes sejam organizados ou removidos.
+
+Preparação para Produção
+
+Defina um ambiente seguro para armazenar as credenciais e os tokens (ex.: variáveis de ambiente ou serviços como AWS Secrets Manager).
+Ajuste as permissões do OAuth para o escopo mínimo necessário à funcionalidade do sistema.

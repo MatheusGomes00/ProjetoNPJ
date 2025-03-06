@@ -1,0 +1,42 @@
+[{
+  "_id": {
+    "$oid": "679bf92640408f10158a63f8"
+  },
+  "nome": "Sandy",
+  "datanasc": "1998-02-02",
+  "cpf": "44433333333",
+  "registroOab": "OAB444444",
+  "secaoOab": "SP",
+  "status": true,
+  "_class": "com.npj.ProjetoNPJ.advogados.entity.Advogado",
+  "senha": "$2b$12$jFIAdCuK8UM4r0hX8uS5nupYzuZMRmiobNWwE0937GOdlH0Ia9ysC",
+  "role": "ADVOGADO"
+},
+{
+  "_id": {
+    "$oid": "67b341ee25720d0d40b9f5d9"
+  },
+  "cpf": "44455512355",
+  "senha": "$2a$10$T0.6iXjzqoZ7bW0rc6bSzusC/9Ks.kvg56mLfQ.rKXEW055EkrGuq",
+  "role": "ESTAGIARIO",
+  "nome": "Sr Sirigueijo",
+  "datanasc": "1972-05-05",
+  "registroOab": "OAB91111111",
+  "secaoOab": "RJ",
+  "status": true,
+  "_class": "com.npj.ProjetoNPJ.advogados.entity.Advogado"
+},
+{
+  "_id": {
+    "$oid": "67b62a6fec13744183464f74"
+  },
+  "nome": "Teste",
+  "datanasc": "1998-02-02",
+  "cpf": "12345678900",
+  "registroOab": "OAB000000",
+  "secaoOab": "RJ",
+  "status": true,
+  "_class": "com.npj.ProjetoNPJ.advogados.entity.Advogado",
+  "senha": "$2b$12$jFIAdCuK8UM4r0hX8uS5nupYzuZMRmiobNWwE0937GOdlH0Ia9ysC",
+  "role": "ADVOGADO"
+}]

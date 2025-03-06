@@ -1,0 +1,84 @@
+[{
+  "_id": {
+    "$oid": "679b891d67f7a476f1075b4d"
+  },
+  "status": true,
+  "cliente": {
+    "nome": "João",
+    "endereco": {
+      "rua": "Rua das Gatinhas",
+      "numero": "1234",
+      "complemento": "Apartamento 2",
+      "bairro": "Centro",
+      "cidade": "São Madruga",
+      "cep": "01000-000"
+    },
+    "cpf": "33333333322",
+    "rg": "12.345.622-0",
+    "ssp": "SSP-SP",
+    "nascimento": "1985-06-15",
+    "contato": {
+      "telefone": "+55 11 98765-4321",
+      "celular": "+55 11 12345-6789",
+      "email": "clau@teste.com"
+    },
+    "casaPropria": true
+  },
+  "_class": "com.npj.ProjetoNPJ.triagem.entitie.Cadastro"
+},
+{
+  "_id": {
+    "$oid": "679b89a067f7a476f1075b4e"
+  },
+  "status": true,
+  "cliente": {
+    "nome": "Pantera dos Mestres",
+    "endereco": {
+      "rua": "Rua das Gatinhas",
+      "numero": "1234",
+      "complemento": "Apartamento 12",
+      "bairro": "Centro",
+      "cidade": "São Madruga",
+      "cep": "01000-000"
+    },
+    "cpf": "11111111122",
+    "rg": "12.345.622-0",
+    "ssp": "SSP-SP",
+    "nascimento": "1985-06-15",
+    "contato": {
+      "telefone": "+55 11 98765-4321",
+      "celular": "+55 11 12345-6789",
+      "email": "pantera@teste.com"
+    },
+    "casaPropria": false
+  },
+  "_class": "com.npj.ProjetoNPJ.triagem.entitie.Cadastro"
+},
+{
+  "_id": {
+    "$oid": "67a0be30b9a703376a8fd90f"
+  },
+  "status": true,
+  "cliente": {
+    "nome": "Pantera",
+    "endereco": {
+      "rua": "Rua das Gatinhas",
+      "numero": "1234",
+      "complemento": "Apartamento 2",
+      "bairro": "Centro",
+      "cidade": "São Madruga",
+      "cep": "01000-000"
+    },
+    "cpf": "22211111122",
+    "rg": "12.345.622-0",
+    "ssp": "SSP-SP",
+    "nascimento": "1985-06-15",
+    "contato": {
+      "telefone": "+55 11 98765-4321",
+      "celular": "+55 11 12345-6789",
+      "email": "pedro@teste.com"
+    },
+    "casaPropria": true
+  },
+  "_class": "com.npj.ProjetoNPJ.triagem.entitie.Cadastro"
+}]

@@ -1,0 +1,34 @@
+
+Análise Inicial
+- Proposta
+- Protótipos
+- Funcionalidades
+
+Requisitos
+- Requisitos funcionais e não funcionais
+- Desafios técnicos e regulatórios (emails?)
+
+Estimativa de Esforço e Tempo
+- Módulos do projeto
+- Margem para aprendizado
+
+Análise de Recursos
+- Tempo disponível da equipe
+- Necessidades de infraestrutura (servidores, licenças, ferramentas de desenvolvimento)
+
+Custo e Sustentabilidade
+- Custo com servidores, bancos de dados, APIs pagas, licenças, hospedagem...
+- Investimento inicial ou necessidade de financiamento
+
+Validação com Stakeholders
+- Apresentar um esboço do plano para os clientes ou parceiros
+- Confirme se as expectativas deles estão alinhadas com o que podemos entregar
+
+Plano de Expansão da Equipe
+- Quais perfis adicionais seriam necessários
+- Planejar integração de novos mebros
+
+Definir Metodologia
+- Abordagem ágil para organizar tarefas e entregas
+- Ciclos curtos para ajustar o desenvolvimento
+
