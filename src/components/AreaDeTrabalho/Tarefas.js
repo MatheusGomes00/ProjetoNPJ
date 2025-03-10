@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import styled from "styled-components";
+//import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import axios from "axios";
 import BotaoEditar from "./BotaoEditar";
 
@@ -72,7 +73,7 @@ const StatusTag = styled.div`
   width: 10px;
   height: 20px;
   background-color: ${({ prioridade }) => {
-    const prioridadeLower = prioridade.toLowerCase(); // 🔥 Converte para minúsculas
+    const prioridadeLower = prioridade.toLowerCase(); 
     return prioridadeLower === "baixa"
       ? "green"
       : prioridadeLower === "média" || prioridadeLower === "media"
@@ -260,6 +261,22 @@ const TarefaDetalhesModal = styled(ModalContent)`
   position: relative;
 `;
 
+const piscar = keyframes`
+  0% { border-color: red; }
+  50% { border-color: transparent; }
+  100% { border-color: red; }
+`;
+
+const InputErro = styled.input`
+  border: 2px solid red;
+  animation: ${piscar} 0.5s infinite;
+`;
+
+const MensagemErro = styled.span`
+  color: red;
+  font-size: 12px;
+  margin-left: 5px;
+`;
 
 function Tarefas() {
   const [tarefas, setTarefas] = useState([]);
@@ -406,11 +423,24 @@ function Tarefas() {
   };
 
   const handleSubmit = async () => {
+    // Verifica se todos os campos obrigatórios foram preenchidos
+    if (
+      !novaTarefa.nomeTarefa.trim() ||
+      !novaTarefa.descricao.trim() ||
+      !novaTarefa.prioridade ||
+      !novaTarefa.prazoLimite ||
+      !novaTarefa.responsavelId
+    ) {
+      alert("Por favor, preencha todos os campos antes de cadastrar a tarefa.");
+      return;
+    }
+  
     try {
       const token = getToken();
       const prazoLimiteFormatado = novaTarefa.prazoLimite
         ? novaTarefa.prazoLimite.split("T")[0]
         : null;
+  
       const novaTarefaComData = {
         ...novaTarefa,
         prazoLimite: prazoLimiteFormatado,
@@ -420,12 +450,14 @@ function Tarefas() {
           $id: novaTarefa.responsavelId,
         },
       };
+  
       await axios.post("http://localhost:8080/task/create", novaTarefaComData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
+  
       setShowModal(false);
       setNovaTarefa({
         nomeTarefa: "",
@@ -437,6 +469,7 @@ function Tarefas() {
         responsavelId: "",
         responsavelNome: "",
       });
+  
       setMensagemSucesso("Tarefa cadastrada!");
       buscarTarefas();
       setTimeout(() => setMensagemSucesso(""), 3000);
@@ -486,6 +519,7 @@ function Tarefas() {
     buscarAdvogados();
     carregarTarefas();    
   }, []);
+  
 
   return (
     <TarefasContainer>
