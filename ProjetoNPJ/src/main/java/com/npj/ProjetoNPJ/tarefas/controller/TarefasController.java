@@ -37,11 +37,11 @@ public class TarefasController {
         return ResponseEntity.ok().body(tarefa);
     }
 
-    @GetMapping("/{tarefaId}/responsavel")
-    public ResponseEntity<String> getNomeAdvogadoPorTarefa(@PathVariable String tarefaId) {
-        String nomeAdvogado = service.getNomeAdvogadoPorTarefa(tarefaId);
-        return ResponseEntity.ok(nomeAdvogado);
-    }
+    //@GetMapping("/{tarefaId}/responsavel")
+    //public ResponseEntity<String> getNomeAdvogadoPorTarefa(@PathVariable String tarefaId) {
+      //  String nomeAdvogado = service.getNomeAdvogadoPorTarefa(tarefaId);
+       // return ResponseEntity.ok(nomeAdvogado);
+   // }
 
     @PutMapping(value = "/upd/{id}")
     public ResponseEntity<Void> update(@PathVariable String id, @RequestBody DtoTarefas dto) {

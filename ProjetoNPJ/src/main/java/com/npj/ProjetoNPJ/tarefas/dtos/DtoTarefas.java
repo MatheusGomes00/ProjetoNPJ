@@ -2,12 +2,14 @@ package com.npj.ProjetoNPJ.tarefas.dtos;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,11 +37,11 @@ public class DtoTarefas {
 
     private LocalDate dataCriacao;
 
-    @NotBlank
-    private String responsavelId;
+    @NotEmpty
+    private List<String> responsaveisId;
 
-    @NotBlank
-    private String responsavelNome;
+    @NotEmpty
+    private List<String> responsaveisNome;
 
     private String criador;
 

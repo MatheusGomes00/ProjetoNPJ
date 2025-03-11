@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TarefefasService {
@@ -37,29 +38,33 @@ public class TarefefasService {
     }
 
     public DtoTarefas insert(DtoTarefas dto) {
-
         dto.setStatus(true);
-        Advogado advogado = advogadoRepository.findById(dto.getResponsavelId())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
-        if (!advogado.getNome().equals(dto.getResponsavelNome())) {
-            throw new IllegalArgumentException("O nome do advogado não corresponde ao ID informado.");
-        }
-        Tarefas newTask = TarefasMapper.toEntity(dto);
-        newTask.setResponsavel(advogado);
+
+        // Buscar os advogados pelo ID
+        List<Advogado> advogados = dto.getResponsaveisId().stream()
+                .map(id -> advogadoRepository.findById(id)
+                        .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
+                .collect(Collectors.toList());
+
+        System.out.println(advogados);
+
+
+        Tarefas newTask = TarefasMapper.toEntity(dto, advogados);
         newTask.setCriador(getAuthenticatedUsername());
+
         repository.save(newTask);
         return TarefasMapper.toDto(newTask);
     }
 
-    public String getNomeAdvogadoPorTarefa(String tarefaId) {
+  //  public String getNomeAdvogadoPorTarefa(String tarefaId) {
 
-        Tarefas tarefa = repository.findById(tarefaId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada"));
-        if (tarefa.getResponsavel() == null) {
-            throw new RecursoNaoEncontradoException("A tarefa não possui um responsável atribuído.");
-        }
-        return tarefa.getResponsavel().getNome();
-    }
+     //   Tarefas tarefa = repository.findById(tarefaId)
+         //       .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada"));
+      //  if (tarefa.getResponsaveis() == null) {
+       //     throw new RecursoNaoEncontradoException("A tarefa não possui um responsável atribuído.");
+      //  }
+       // return tarefa.getResponsavel().getNome();
+    //}
 
     public void update(DtoTarefas dto, String id){
 

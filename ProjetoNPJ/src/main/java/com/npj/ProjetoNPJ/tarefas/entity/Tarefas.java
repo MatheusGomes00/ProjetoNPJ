@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,7 +36,9 @@ public class Tarefas {
     private LocalDate dataCriacao;
 
     @DBRef
-    private Advogado responsavel;
+    private List<Advogado> responsaveis;
 
     private String criador;
+
+
 }
