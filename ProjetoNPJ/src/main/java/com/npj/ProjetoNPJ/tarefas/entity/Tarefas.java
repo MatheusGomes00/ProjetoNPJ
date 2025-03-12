@@ -35,7 +35,7 @@ public class Tarefas {
 
     private LocalDate dataCriacao;
 
-    @DBRef
+    @DBRef(lazy = false)
     private List<Advogado> responsaveis;
 
     private String criador;

@@ -63,7 +63,7 @@ public class TarefasController {
 
         List<DtoTarefas> dto = service.getTarefasAutenticado();
 
-        //List<Tarefas> tarefas = repository.findAll();
+        List<Tarefas> tarefas = repository.findAll();
         if (dto.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

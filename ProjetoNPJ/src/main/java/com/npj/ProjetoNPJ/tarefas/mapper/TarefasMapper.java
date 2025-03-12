@@ -19,7 +19,13 @@ public class TarefasMapper {
         tarefas.setPrazoLimite(dtoTarefas.getPrazoLimite());
         tarefas.setDataCriacao(dtoTarefas.getDataCriacao());
         tarefas.setCriador(dtoTarefas.getCriador());
-        tarefas.setResponsaveis(advogados); // Lista de Advogados já resolvida
+
+        // Agora lidamos com uma lista de advogados (responsáveis)
+        List<Advogado> responsaveis = advogados.stream()
+                .filter(advogado -> dtoTarefas.getResponsaveisId().contains(advogado.getId()))
+                .collect(Collectors.toList());
+        tarefas.setResponsaveis(responsaveis);
+
         return tarefas;
     }
 
@@ -34,14 +40,13 @@ public class TarefasMapper {
         dtoTarefas.setDataCriacao(tarefas.getDataCriacao());
         dtoTarefas.setCriador(tarefas.getCriador());
 
-        // Obs para verificações futuras: Converte lista de Advogados para lista de IDs e Nomes
-        if (tarefas.getResponsaveis() != null) {
+        // Converte a lista de advogados para listas de IDs e Nomes
+        if (tarefas.getResponsaveis() != null && !tarefas.getResponsaveis().isEmpty()) {
             List<String> ids = tarefas.getResponsaveis().stream()
                     .map(Advogado::getId)
                     .collect(Collectors.toList());
             dtoTarefas.setResponsaveisId(ids);
 
-            // Obs para verificações futuras: Adicionando os nomes dos advogados ao DTO
             List<String> nomes = tarefas.getResponsaveis().stream()
                     .map(Advogado::getNome)
                     .collect(Collectors.toList());

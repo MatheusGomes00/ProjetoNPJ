@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface TarefasRepository extends MongoRepository<Tarefas, String> {
 
-    @Query("{'responsavel.id': ?0 }")
+    @Query("{'responsaveis.id': ?0 }")
     List<Tarefas> findByAdvogado(String advogadoId);
 
 
