@@ -283,6 +283,38 @@ function Tarefas() {
   const [advogados, setAdvogados] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showDetalhesModal, setShowDetalhesModal] = useState(false);
+  const adicionarResponsavel = (advogado) => {
+  setNovaTarefa({
+    ...novaTarefa,
+    responsaveisId: [...novaTarefa.responsaveisId, advogado.id],
+    responsaveisNome: [...novaTarefa.responsaveisNome, advogado.nome],
+  });
+};
+  const toggleSelecionarAdvogado = (advogado) => {
+    if (novaTarefa.responsaveisId.includes(advogado.id)) {
+      removerResponsavel(advogado.id);
+    } else {
+      adicionarResponsavel(advogado);
+    }
+  };
+  const removerResponsavel = (id) => {
+    const index = novaTarefa.responsaveisId.indexOf(id);
+    if (index !== -1) {
+      const novosIds = [...novaTarefa.responsaveisId];
+      const novosNomes = [...novaTarefa.responsaveisNome];
+  
+      novosIds.splice(index, 1);
+      novosNomes.splice(index, 1);
+  
+      setNovaTarefa({
+        ...novaTarefa,
+        responsaveisId: novosIds,
+        responsaveisNome: novosNomes,
+      });
+    }
+  };
+  const [dropdownAberto, setDropdownAberto] = useState(false);
+
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [novaTarefa, setNovaTarefa] = useState({
     nomeTarefa: "",
@@ -291,42 +323,41 @@ function Tarefas() {
     prioridade: "baixa",
     prazoLimite: "",
     dataCriacao: new Date().toISOString(),
-    responsavelId: "",
-    responsavelNome: ""
+    responsaveisId: [], // Alterei aqui para aceitar listas
+    responsaveisNome: [] // Alterei aqui para aceitar listas
   });
 
-  const carregarTarefas = async () => {
+  const carregarTarefas = useCallback(async () => {
     try {
-      const token = getToken(); 
+      const token = getToken();
       const response = await axios.get("http://localhost:8080/task/get", {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       });
   
+      console.log("Dados recebidos da API:", response.data);
+  
       if (!response.data || response.data.length === 0) {
         setMensagemErro("Nenhuma tarefa cadastrada.");
-        setTarefas([]); 
+        setTarefas([]);
         return;
       }
   
-      
       const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
-  
-      
       setTarefas(tarefasAtivas);
       setMensagemErro("");
-
+  
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
       setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
-      setTarefas([]); 
+      setTarefas([]);
     }
-  };
- 
+  }, []); // <-- Array de dependências vazio garante que a função não será recriada
+  
   useEffect(() => {
     carregarTarefas();
-  }, []);
+  }, [carregarTarefas]);
   
   const [tarefaSelecionada, setTarefaSelecionada] = useState(false);
 
@@ -338,36 +369,38 @@ function Tarefas() {
   const [mensagemErro, setMensagemErro] = useState("");
 
   
-  
-  const buscarTarefas = async () => {
-    try {
-      const token = getToken();
-      const response = await axios.get("http://localhost:8080/task/get", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const [isLoading, setIsLoading] = useState(false);
 
-  
-      if (!response.data || response.data.length === 0) {
-        setMensagemErro("Nenhuma tarefa cadastrada.");
-        setTarefas([]); // Garante que a lista de tarefas fica vazia
-        return;
-      }
-  
+const buscarTarefas = async () => {
+  setIsLoading(true); // Inicia o carregamento
+
+  try {
+    const token = getToken();
+    const response = await axios.get("http://localhost:8080/task/get", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("Tarefas ativas:", tarefas);
+
+    if (!response.data || response.data.length === 0) {
+      setMensagemErro("Nenhuma tarefa cadastrada.");
+      setTarefas([]); // Garante que a lista de tarefas fica vazia
+    } else {
       // Filtra apenas as tarefas com status true
       const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
-  
-      //console.log("Tarefas ativas:", tarefasAtivas);
       setTarefas(tarefasAtivas);
       setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
-
-    } catch (error) {
-      console.error("Erro ao buscar tarefas:", error);
-      setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
-      setTarefas([]); 
     }
-  };
+
+  } catch (error) {
+    console.error("Erro ao buscar tarefas:", error);
+    setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
+    setTarefas([]);
+  } finally {
+    setIsLoading(false); // Finaliza o carregamento
+  }
+};
 
   
 
@@ -429,7 +462,7 @@ function Tarefas() {
       !novaTarefa.descricao.trim() ||
       !novaTarefa.prioridade ||
       !novaTarefa.prazoLimite ||
-      !novaTarefa.responsavelId
+      novaTarefa.responsaveisId.length === 0 // Agora verifica se há pelo menos um responsável
     ) {
       alert("Por favor, preencha todos os campos antes de cadastrar a tarefa.");
       return;
@@ -441,15 +474,11 @@ function Tarefas() {
         ? novaTarefa.prazoLimite.split("T")[0]
         : null;
   
-      const novaTarefaComData = {
-        ...novaTarefa,
-        prazoLimite: prazoLimiteFormatado,
-        dataCriacao: new Date().toISOString(),
-        responsavel: {
-          $ref: "cadastroAdvogado",
-          $id: novaTarefa.responsavelId,
-        },
-      };
+        const novaTarefaComData = {
+          ...novaTarefa,
+          prazoLimite: prazoLimiteFormatado,
+          dataCriacao: new Date().toISOString(),
+        };
   
       await axios.post("http://localhost:8080/task/create", novaTarefaComData, {
         headers: {
@@ -466,8 +495,8 @@ function Tarefas() {
         prioridade: "baixa",
         prazoLimite: "",
         dataCriacao: new Date().toISOString(),
-        responsavelId: "",
-        responsavelNome: "",
+        responsaveisId: [], // Agora reseta como lista vazia
+        responsaveisNome: [],
       });
   
       setMensagemSucesso("Tarefa cadastrada!");
@@ -487,8 +516,8 @@ function Tarefas() {
       prioridade: "baixa",
       prazoLimite: "",
       dataCriacao: new Date().toISOString(),
-      responsavelId: "",
-      responsavelNome: "",
+      responsaveisId: [], // Agora é uma lista
+      responsaveisNome: [],
     });
     setShowModal(true);
   };
@@ -558,6 +587,7 @@ function Tarefas() {
       {/* Modal para adicionar tarefa */}
       <ModalOverlay show={showModal}>
         <ModalContent>
+          
           <BotaoFechar onClick={fecharModal}>X</BotaoFechar>
           <h3>Cadastrar Nova Tarefa</h3>
           <label>Nome da Tarefa:</label>
@@ -593,30 +623,86 @@ function Tarefas() {
             value={novaTarefa.prazoLimite}
             onChange={handlePrazoLimiteChange}
           />
-          <label>Responsável:</label>
-          <select
-  value={novaTarefa.responsavelId}
-  onChange={(e) => {
-    const responsavelId = e.target.value;
-    const responsavelNome = advogados.find(advogado => advogado.id === responsavelId)?.nome || '';
-    setNovaTarefa({
-      ...novaTarefa,
-      responsavelId,
-      responsavelNome
-    });
-  }}
->
-  <option value="">Selecione um responsável</option>
-  {advogados.length > 0 ? (
-    advogados.map((advogado) => (
-      <option key={advogado.id} value={advogado.id}>
-        {advogado.nome}
-      </option>
-    ))
-  ) : (
-    <option disabled>Carregando advogados...</option>
+         
+         <div>
+  <h3>Selecionar Responsáveis:</h3>
+  <div className="custom-dropdown">
+  <button className="dropdown-btn" onClick={() => setDropdownAberto(!dropdownAberto)}>
+    Selecione Advogados ▼
+  </button>
+
+  {dropdownAberto && (
+    <div className="dropdown-content">
+      {advogados.length > 0 ? (
+        advogados.map((advogado) => (
+          <label key={advogado.id} className="dropdown-item">
+            <input
+              type="checkbox"
+              checked={novaTarefa.responsaveisId.includes(advogado.id)}
+              onChange={() => toggleSelecionarAdvogado(advogado)}
+            />
+            {advogado.nome}
+          </label>
+        ))
+      ) : (
+        <p className="dropdown-empty">Nenhum advogado cadastrado</p>
+      )}
+    </div>
   )}
-</select>
+</div>
+
+ 
+</div>
+
+{/* Lista de advogados selecionados */}
+<div style={{ marginTop: '12px' }}>
+  <h4 style={{ fontSize: '16px', fontWeight: 'bold' }}>Responsáveis Selecionados:</h4>
+
+  {novaTarefa.responsaveisNome.length > 0 ? (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+      {novaTarefa.responsaveisNome.map((nome, index) => (
+        <div key={novaTarefa.responsaveisId[index]} style={{
+          display: 'flex',
+          alignItems: 'center',
+          backgroundColor: '#f0f0f0',
+          padding: '8px 12px',
+          borderRadius: '20px',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+        }}>
+          <span style={{ marginRight: '10px', fontSize: '14px' }}>{nome}</span>
+          <button
+            type="button"
+            onClick={() => {
+              setNovaTarefa(prevState => ({
+                ...prevState,
+                responsaveisId: prevState.responsaveisId.filter(id => id !== prevState.responsaveisId[index]),
+                responsaveisNome: prevState.responsaveisNome.filter((_, i) => i !== index),
+              }));
+            }}
+            style={{
+              backgroundColor: 'red',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: '24px',
+              height: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold',
+            }}
+          >
+            ✖
+          </button>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p style={{ color: '#666', fontSize: '14px' }}>Nenhum responsável selecionado.</p>
+  )}
+</div>
           <BotaoAdicionar onClick={handleSubmit}>Cadastrar</BotaoAdicionar>
         </ModalContent>
       </ModalOverlay>
@@ -646,7 +732,9 @@ function Tarefas() {
 
   <DetalheItem>
     <Label>Responsável:</Label>
-    <Valor>{tarefaSelecionada?.responsavelNome}</Valor>
+      <Valor>
+    {tarefaSelecionada?.responsaveisNome?.join(", ") || "Nenhum responsável"}
+      </Valor>
   </DetalheItem>
 
   <DetalheItem>
