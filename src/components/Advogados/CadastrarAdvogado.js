@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef  } from 'react';
-import axios from 'axios';
+import useAuth from "../Seguranca/UseAuth"; 
 
 const CadastrarAdvogado = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -16,24 +16,22 @@ const CadastrarAdvogado = ({ onClose }) => {
   const [errorPopup, setErrorPopup] = useState(false);
   const errorRef = useRef(null);
   const [errors, setErrors] = useState({});
+  const { fetchAuthenticated } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: false });
   };
-
-  const getToken = () => {
-    return localStorage.getItem("token"); // Certifique-se de que o token está salvo corretamente
-  };
   
   const handleSubmit = async () => {
     try {
-      const token = getToken();
-      await axios.post('http://localhost:8080/adv/ins', formData, {
+      await fetchAuthenticated('http://localhost:8080/adv/ins', {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
-        }
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
       });
       setMessage('Advogado cadastrado!');
       setErrorPopup(false);

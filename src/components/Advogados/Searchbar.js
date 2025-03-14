@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styled from "styled-components";
-
+import useAuth from "../Seguranca/UseAuth"; 
 
 const SearchContainer = styled.div`
   display: flex;
@@ -68,6 +68,7 @@ function SearchBar({ onSearch }) {
   const [query, setQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const { fetchAuthenticated } = useAuth();
 
   const isCpf = (value) => {
     return /^\d{11}$/.test(value);
@@ -87,13 +88,10 @@ function SearchBar({ onSearch }) {
         ? JSON.stringify({ cpf: query.toString() })
         : null;
 
-      const token = localStorage.getItem("token"); 
-
-      const response = await fetch(url, {
+      const response = await fetchAuthenticated(url, {
         method: isCpf(query) ? "POST" : "GET",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
+          "Content-Type": "application/json" 
         },
         body: requestBody,
       });

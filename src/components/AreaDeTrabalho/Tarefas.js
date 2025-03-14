@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 //import styled from "styled-components";
 import styled, { keyframes } from "styled-components";
-import axios from "axios";
 import BotaoEditar from "./BotaoEditar";
+import useAuth from "../Seguranca/UseAuth"; 
+
 
 const TarefasContainer = styled.div`
   position: absolute;
@@ -283,6 +284,8 @@ function Tarefas() {
   const [advogados, setAdvogados] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showDetalhesModal, setShowDetalhesModal] = useState(false);
+  const { fetchAuthenticated } = useAuth();
+
   const adicionarResponsavel = (advogado) => {
   setNovaTarefa({
     ...novaTarefa,
@@ -329,11 +332,8 @@ function Tarefas() {
 
   const carregarTarefas = useCallback(async () => {
     try {
-      const token = getToken();
-      const response = await axios.get("http://localhost:8080/task/get", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetchAuthenticated("http://localhost:8080/task/get", {
+        method: "GET"
       });
   
       console.log("Dados recebidos da API:", response.data);
@@ -360,26 +360,16 @@ function Tarefas() {
   }, [carregarTarefas]);
   
   const [tarefaSelecionada, setTarefaSelecionada] = useState(false);
-
-  // Função para obter o token
-  const getToken = () => {
-    return localStorage.getItem("token");
-  };
-
   const [mensagemErro, setMensagemErro] = useState("");
-
-  
   const [isLoading, setIsLoading] = useState(false);
 
 const buscarTarefas = async () => {
   setIsLoading(true); // Inicia o carregamento
 
   try {
-    const token = getToken();
-    const response = await axios.get("http://localhost:8080/task/get", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    
+    const response = await fetchAuthenticated("http://localhost:8080/task/get", {
+      method: "GET"
     });
     console.log("Tarefas ativas:", tarefas);
 
@@ -402,31 +392,18 @@ const buscarTarefas = async () => {
   }
 };
 
-  
-
   const buscarAdvogados = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("Token não encontrado!");
-        return;
-      }
   
-      const response = await axios.get("http://localhost:8080/adv/buscarTodos", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
+        method: "GET"
       });
   
-    
       setAdvogados(response.data);
     } catch (error) {
       console.error("Erro ao buscar advogados:", error.response ? error.response.data : error.message);
     }
   };
-  
-  
-
   
   const finalizarTarefa = async (id) => {
     const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
@@ -434,11 +411,9 @@ const buscarTarefas = async () => {
     if (!confirmacao) return;
   
     try {
-      const token = getToken();
-      const response = await axios.put(`http://localhost:8080/task/end/${id}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      
+      const response = await fetchAuthenticated(`http://localhost:8080/task/end/${id}`, {}, {
+        method: "PUT"
       });
   
       if (response.status === 200) {
@@ -469,7 +444,6 @@ const buscarTarefas = async () => {
     }
   
     try {
-      const token = getToken();
       const prazoLimiteFormatado = novaTarefa.prazoLimite
         ? novaTarefa.prazoLimite.split("T")[0]
         : null;
@@ -480,24 +454,24 @@ const buscarTarefas = async () => {
           dataCriacao: new Date().toISOString(),
         };
   
-      await axios.post("http://localhost:8080/task/create", novaTarefaComData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+        await fetchAuthenticated("http://localhost:8080/task/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(novaTarefaComData)});
   
-      setShowModal(false);
-      setNovaTarefa({
-        nomeTarefa: "",
-        descricao: "",
-        status: true,
-        prioridade: "baixa",
-        prazoLimite: "",
-        dataCriacao: new Date().toISOString(),
-        responsaveisId: [], // Agora reseta como lista vazia
-        responsaveisNome: [],
-      });
+        setShowModal(false);
+        setNovaTarefa({
+          nomeTarefa: "",
+          descricao: "",
+          status: true,
+          prioridade: "baixa",
+          prazoLimite: "",
+          dataCriacao: new Date().toISOString(),
+          responsaveisId: [], // Agora reseta como lista vazia
+          responsaveisNome: [],
+        });
   
       setMensagemSucesso("Tarefa cadastrada!");
       buscarTarefas();

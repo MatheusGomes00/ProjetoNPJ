@@ -3,18 +3,17 @@ import SearchBar from "../Advogados/Searchbar";
 import CadastrarAdvogado from "./CadastrarAdvogado";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import ResultsList from "../Advogados/ResultsList";
-import axios from "axios"
-
+import useAuth from "../Seguranca/UseAuth";
 
 function AdvogadosTela() {
   const [results, setResults] = useState([]); 
   const [showCadastro, setShowCadastro] = useState(false);
   const [defaultResults, setDefaultResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const { fetchAuthenticated } = useAuth();
 
   const transformAdvogadosData = (data) => {
     return data.map((advogado) => {
-      // Remover o campo 'id' e alterar o status
       const { status, ...rest } = advogado;
       return {
         ...rest,
@@ -23,19 +22,14 @@ function AdvogadosTela() {
     });
   };
 
-  const getToken = () => {
-    return localStorage.getItem("token"); // Certifique-se de que o token está salvo corretamente
-  };
-
   const fetchAdvogados = useCallback(async () => {
     try {
-      const token = getToken();
-      const response = await axios.get('http://localhost:8080/adv/buscarTodos', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetchAuthenticated('http://localhost:8080/adv/buscarTodos', {
+        method: "GET"
       });
-      const transformedData = transformAdvogadosData(response.data);
+
+      const data = await response.json();
+      const transformedData = transformAdvogadosData(data);
       setResults(transformedData); 
       setDefaultResults(transformedData)
     } catch (error) {

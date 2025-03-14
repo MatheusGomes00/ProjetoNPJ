@@ -6,6 +6,7 @@ import SearchBarTop from "../ComponentesPadroes/SearchBarTop";
 import IconeLogOut from "../botoesTelaImovel/IconeLogOut";
 import IconeNotificacoes from "../botoesTelaImovel/IconeNotificacoes";
 import IconeNovaTarefa from "../botoesTelaImovel/IconeNovaTarefa";
+import useAuth from "../Seguranca/UseAuth";
 
 const Container = styled.div`
   display: flex;
@@ -69,16 +70,15 @@ function AdvogadoDetails() {
   const { id } = useParams();
   const [advogado, setAdvogado] = useState(null);
   const navigate = useNavigate();
+  const { fetchAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchAdvogado = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:8080/adv/buscar/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        
+        const response = await fetchAuthenticated(`http://localhost:8080/adv/buscar/${id}`, {
+            method: "GET"});
+
         if (!response.ok) {
           throw new Error("Erro ao carregar dados do advogado");
         }
@@ -101,7 +101,7 @@ function AdvogadoDetails() {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/adv/upd/${id}`, {
+      const response = await fetchAuthenticated(`http://localhost:8080/adv/upd/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

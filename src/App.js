@@ -5,8 +5,8 @@ import TarefasMain from "./components/Tarefas/TarefasMain";
 import AdvogadosTela from "./components/Advogados/AdvogadosTela";
 import AdvogadoDetails from "./components/Advogados/AdvogadoDetails";
 import SearchBar from "./components/Advogados/Searchbar";
+import { isAuthenticated } from "./components/Seguranca/GerenciaToken";
 
-const isAuthenticated = () => !!localStorage.getItem("token"); // Verifica se o usuário está logado
 
 function App() {
   return (

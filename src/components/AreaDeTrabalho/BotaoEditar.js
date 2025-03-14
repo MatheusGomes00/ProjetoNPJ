@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import useAuth from "../Seguranca/UseAuth"; 
 
 const BotaoEditar = styled.button`
   background: #007bff;
@@ -131,7 +131,6 @@ const BotaoSalvar = styled.button`
 `;
 
 
-
 const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, setTarefas }) => {
   const [modalAberto, setModalAberto] = useState(false);
   const [tarefa, setTarefa] = useState({
@@ -144,18 +143,14 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, setTarefas }
     
   });
   const [advogados, setAdvogados] = useState([]); // Estado para armazenar advogados
-
-  
+  const { fetchAuthenticated } = useAuth();
 
   useEffect(() => {
     // Buscar advogados quando o modal for aberto
     const fetchAdvogados = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8080/adv/buscarTodos", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
+          method: "GET"
         });
         setAdvogados(response.data); // Armazenando advogados na variável de estado
       } catch (error) {
@@ -208,17 +203,15 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, setTarefas }
     }
   
     try {
-      const token = localStorage.getItem("token");
   
-      await axios.put(
-        `http://localhost:8080/task/upd/${tarefaSelecionada.id}`,
-        tarefa,
-        {
+      await fetchAuthenticated(
+        `http://localhost:8080/task/upd/${tarefaSelecionada.id}`, {
+          method: "PUT",
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
           },
-        }
-      );
+          body: JSON.stringify(tarefa)
+        } );
       
       alert("Tarefa atualizada com sucesso!");
       fecharModal();
