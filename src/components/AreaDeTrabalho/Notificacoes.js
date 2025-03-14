@@ -30,7 +30,7 @@ const Notificacoes = () => {
         backgroundColor: "#fff",
         borderRadius: "10px",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        zIndex: 20,
+        zIndex: 1,
         display: "grid",
         gridTemplateColumns: "repeat(2, 1fr)",
         gap: "10px",

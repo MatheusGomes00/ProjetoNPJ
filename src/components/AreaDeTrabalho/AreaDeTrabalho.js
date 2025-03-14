@@ -6,7 +6,7 @@ import IconeNotificacoes from "../botoesTelaImovel/IconeNotificacoes";
 import IconeNovaTarefa from "../botoesTelaImovel/IconeNovaTarefa";
 import Tarefas from "./Tarefas";
 import Notificacoes from "./Notificacoes";
-
+import ProcessosAreaDeTrabalho from "./ProcessosAreaDeTrabalho";
 
 function AreaDeTrabalho() {
   
@@ -37,6 +37,8 @@ function AreaDeTrabalho() {
           <div className="grid-item">
             {/* Adicionando o componente de Tarefas no grid */}
             <Tarefas />
+            <Notificacoes/>
+      <ProcessosAreaDeTrabalho />
           </div>
         </div>
       </div>
@@ -48,7 +50,7 @@ function AreaDeTrabalho() {
         <br />
         <span className="corner-label-anhanguera">ANHANGUERA</span>
       </div>
-      <Notificacoes/>
+      
     </div>
     
   );

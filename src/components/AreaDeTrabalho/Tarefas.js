@@ -105,6 +105,7 @@ const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 10000;
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.4);
@@ -121,7 +122,7 @@ const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  z-index: 1000;
+   z-index: 10000;
   position: relative;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
   transform: translateY(30px);
@@ -253,6 +254,7 @@ const TarefaDetalhesModal = styled(ModalContent)`
   width: 520px;
   max-height: 90vh;
   padding: 25px;
+   z-index: 10000;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
