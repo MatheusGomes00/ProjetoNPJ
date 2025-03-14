@@ -92,7 +92,6 @@ public class TarefefasService {
 
         Advogado advogado = advogadoRepository.findByCpf(getAuthenticatedUsername())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
-
         List<Tarefas> tarefa = repository.findByAdvogado(advogado.getId());
         return TarefasMapper.toListDto(tarefa);
     }

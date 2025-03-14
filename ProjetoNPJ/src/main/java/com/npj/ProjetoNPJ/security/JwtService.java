@@ -1,17 +1,20 @@
 package com.npj.ProjetoNPJ.security;
 
+import com.npj.ProjetoNPJ.exceptions.CustomAuthenticationException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 
@@ -36,7 +39,6 @@ public class JwtService {
 
 
     public String generateAccessToken(String username) {
-
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
         Map<String, Object> claims = new HashMap<>();
@@ -84,7 +86,15 @@ public class JwtService {
     }
 
     public Date extractExpiration(String token) {
+
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    public LocalDateTime extractExpirationAsLocalDateTime(String token) {
+        Date expiration = extractExpiration(token);
+        return expiration.toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

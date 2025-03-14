@@ -1,10 +1,7 @@
 package com.npj.ProjetoNPJ.tarefas.entity;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,6 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Document(collection = "cadastroTarefas")
 public class Tarefas {
 

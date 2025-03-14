@@ -8,3 +8,10 @@ jwt:
   secret: JvrdrGOKDYhaEyHycTLSM2dpR+dxTk1MbPy6o6e6M1dmc3PFbiJYTVqYIl0siuNoxzLXw7HwgnVzVNAt/xaTpQ==
   accessTokenExpiration: 3600000 # = 1 hora em milissegundos
   refreshTokenExpiration: 28800000 # = 8 horas em milissegundos
+
+logging:
+  level:
+    root: INFO # Nível padrão para todos os pacotes
+    com.npj.ProjetoNPJ: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

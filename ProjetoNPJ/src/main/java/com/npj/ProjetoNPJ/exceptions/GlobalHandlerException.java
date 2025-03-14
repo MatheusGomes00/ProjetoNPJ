@@ -4,6 +4,8 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +22,14 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 @RestControllerAdvice
 public class GlobalHandlerException {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalHandlerException.class);
+
+    public void errorLog(Exception ex) {
+        log.error("Error on API - {}", ex.getMessage());
+    }
 
     @ExceptionHandler({ExpiredJwtException.class, JwtException.class})
     public ResponseEntity<Map<String, String>> handleJwtException(Exception ex) {
@@ -53,15 +60,32 @@ public class GlobalHandlerException {
     }
 
     @ExceptionHandler(InternalAuthenticationServiceException.class)
-    public ResponseEntity<Map<String, String>> handleInternalAuthException(InternalAuthenticationServiceException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "Erro interno na autenticação. Verifique suas credenciais."));
+    public ResponseEntity<ErrorMessage> handleInternalAuthException(InternalAuthenticationServiceException ex,
+                                                                           HttpServletRequest request) {
+        errorLog(ex);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(
+                        request,
+                        HttpStatus.UNAUTHORIZED,
+                        "Erro interno na autenticação. Verifique suas credenciais."
+                ));
     }
 
     @ExceptionHandler(CustomAuthenticationException.class)
-    public ResponseEntity<Map<String, String>> handleAuthenticationException(CustomAuthenticationException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "Unauthorized", "message", ex.getMessage()));
+    public ResponseEntity<ErrorMessage> handleAuthenticationException(CustomAuthenticationException ex,
+                                                                             HttpServletRequest request) {
+        errorLog(ex);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(
+                        request,
+                        HttpStatus.UNAUTHORIZED,
+                        ex.getMessage()
+                ));
+                //.body(Map.of("error", "Unauthorized", "message", ex.getMessage()));
     }
 
     // exceção lançada pela validação dos campos incorretos do DTO
@@ -69,7 +93,7 @@ public class GlobalHandlerException {
     public ResponseEntity<ErrorMessage> methodArgumentNotValidException(MethodArgumentNotValidException ex,
                                                                         HttpServletRequest request,
                                                                         BindingResult result) {
-        log.error("Error on API - {}", ex.getMessage());
+        errorLog(ex);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
