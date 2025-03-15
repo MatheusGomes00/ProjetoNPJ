@@ -216,7 +216,6 @@ const Status = styled.span`
   display: inline-block;
 `;
 
-
 const BotaoFinalizar = styled.button`
   background-color: #dc3545; /* Cor vermelha para indicar uma ação de finalização */
   color: white;
@@ -288,38 +287,6 @@ function Tarefas() {
   const [showModal, setShowModal] = useState(false);
   const [showDetalhesModal, setShowDetalhesModal] = useState(false);
   const { fetchAuthenticated } = useAuth();
-
-  const adicionarResponsavel = (advogado) => {
-  setNovaTarefa({
-    ...novaTarefa,
-    responsaveisId: [...novaTarefa.responsaveisId, advogado.id],
-    responsaveisNome: [...novaTarefa.responsaveisNome, advogado.nome],
-  });
-};
-  const toggleSelecionarAdvogado = (advogado) => {
-    if (novaTarefa.responsaveisId.includes(advogado.id)) {
-      removerResponsavel(advogado.id);
-    } else {
-      adicionarResponsavel(advogado);
-    }
-  };
-  const removerResponsavel = (id) => {
-    const index = novaTarefa.responsaveisId.indexOf(id);
-    if (index !== -1) {
-      const novosIds = [...novaTarefa.responsaveisId];
-      const novosNomes = [...novaTarefa.responsaveisNome];
-  
-      novosIds.splice(index, 1);
-      novosNomes.splice(index, 1);
-  
-      setNovaTarefa({
-        ...novaTarefa,
-        responsaveisId: novosIds,
-        responsaveisNome: novosNomes,
-      });
-    }
-  };
-  const [dropdownAberto, setDropdownAberto] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [novaTarefa, setNovaTarefa] = useState({
     nomeTarefa: "",
@@ -344,10 +311,8 @@ function Tarefas() {
         return;
       }
   
-      
       const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
   
-      
       setTarefas(tarefasAtivas);
       setMensagemErro("");
 
@@ -364,35 +329,31 @@ function Tarefas() {
   
   const [tarefaSelecionada, setTarefaSelecionada] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-const buscarTarefas = async () => {
-  setIsLoading(true); // Inicia o carregamento
+  const buscarTarefas = async () => {
+    try {
+      const response = await fetchAuthenticated("http://localhost:8080/task/get", {
+        method: "GET"
+      });
 
-  try {
-    const response = await fetchAuthenticated("http://localhost:8080/task/get", {
-      method: "GET"
-    });
-    console.log("Tarefas ativas:", tarefas);
-
-    if (!response.data || response.data.length === 0) {
-      setMensagemErro("Nenhuma tarefa cadastrada.");
-      setTarefas([]); // Garante que a lista de tarefas fica vazia
-    } else {
-
+      if (!response.data || response.data.length === 0) {
+        setMensagemErro("Nenhuma tarefa cadastrada.");
+        setTarefas([]); // Garante que a lista de tarefas fica vazia
+        return;
+      }
+      
       // Filtra apenas as tarefas com status true
       const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
-  
-      //console.log("Tarefas ativas:", tarefasAtivas);
+    
       setTarefas(tarefasAtivas);
       setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
 
-    } 
-  }catch (error) {
-    console.error("Erro ao buscar tarefas:", error);
-    setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
-    setTarefas([]); 
-  }
+    }catch (error) {
+      console.error("Erro ao buscar tarefas:", error);
+      setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
+      setTarefas([]); 
+    }
+  };
 
   const buscarAdvogados = async () => {
     try {
@@ -400,8 +361,8 @@ const buscarTarefas = async () => {
       const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
         method: "GET"
       });
-  
-      setAdvogados(response.data);
+      const data = await response.json();
+      setAdvogados(data);
     } catch (error) {
       console.error("Erro ao buscar advogados:", error.response ? error.response.data : error.message);
     }
@@ -409,23 +370,21 @@ const buscarTarefas = async () => {
   
   const finalizarTarefa = async (id) => {
     const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
-    
     if (!confirmacao) return;
   
     try {
-      
-      const response = await fetchAuthenticated(`http://localhost:8080/task/end/${id}`, {}, {
+      const response = await fetchAuthenticated(`http://localhost:8080/task/end/${id}`, {
         method: "PUT"
       });
   
-      if (response.status === 200) {
-        console.log("Tarefa finalizada com sucesso");
-  
-        
-        setTarefas((tarefasAntigas) => tarefasAntigas.filter((tarefa) => tarefa.id !== id));
-  
-        setMensagemErro("");
+      if (!response.ok) {
+        throw new Error(`Erro ao finalizar tarefa: ${response.status}`);
       }
+
+      console.log("Tarefa finalizada com sucesso");
+      setTarefas((tarefasAntigas) => tarefasAntigas.filter((tarefa) => tarefa.id !== id));
+      setMensagemErro("");
+
     } catch (error) {
       console.error("Erro ao finalizar a tarefa:", error);
       setMensagemErro("Erro ao finalizar a tarefa. Tente novamente mais tarde.");
@@ -460,13 +419,13 @@ const buscarTarefas = async () => {
         },
       };
   
-        await fetchAuthenticated("http://localhost:8080/task/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(novaTarefaComData)});
-  
+      await fetchAuthenticated("http://localhost:8080/task/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(novaTarefaComData)});
+
 
       setShowModal(false);
       setNovaTarefa({
@@ -533,7 +492,6 @@ const buscarTarefas = async () => {
 
   return (
     <TarefasContainer>
-      
       <TituloTarefas>Suas tarefas e Prazos</TituloTarefas>
       {mensagemSucesso && <MensagemSucesso>{mensagemSucesso}</MensagemSucesso>}
       <ListaTarefas>
@@ -605,76 +563,75 @@ const buscarTarefas = async () => {
           />
           <label>Responsável:</label>
           <select
-  value={novaTarefa.responsavelId}
-  onChange={(e) => {
-    const responsavelId = e.target.value;
-    const responsavelNome = advogados.find(advogado => advogado.id === responsavelId)?.nome || '';
-    setNovaTarefa({
-      ...novaTarefa,
-      responsavelId,
-      responsavelNome
-    });
-  }}
->
-  <option value="">Selecione um responsável</option>
-  {advogados.length > 0 ? (
-    advogados.map((advogado) => (
-      <option key={advogado.id} value={advogado.id}>
-        {advogado.nome}
-      </option>
-    ))
-  ) : (
-    <option disabled>Carregando advogados...</option>
-  )}
-</select>
+            value={novaTarefa.responsavelId}
+            onChange={(e) => {
+              const responsavelId = e.target.value;
+              const responsavelNome = advogados.find(advogado => advogado.id === responsavelId)?.nome || '';
+              setNovaTarefa({
+                ...novaTarefa,
+                responsavelId,
+                responsavelNome
+              });
+            }}
+          >
+            <option value="">Selecione um responsável</option>
+            {advogados.length > 0 ? (
+              advogados.map((advogado) => (
+                <option key={advogado.id} value={advogado.id}>
+                  {advogado.nome}
+                </option>
+              ))
+            ) : (
+              <option disabled>Carregando advogados...</option>
+            )}
+          </select>
           <BotaoAdicionar onClick={handleSubmit}>Cadastrar</BotaoAdicionar>
         </ModalContent>
       </ModalOverlay>
 
       {/* Modal de detalhes */}
-      
+    
       <ModalOverlay show={showDetalhesModal}>
-      <TarefaDetalhesModal>
-  <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
-  
-  <NomeTarefa>{tarefaSelecionada?.nomeTarefa}</NomeTarefa>
+        <TarefaDetalhesModal>
+          <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
+    
+          <NomeTarefa>{tarefaSelecionada?.nomeTarefa}</NomeTarefa>
 
-  <DetalheItem>
-    <Label>Descrição:</Label>
-    <Valor>{tarefaSelecionada?.descricao}</Valor>
-  </DetalheItem>
+          <DetalheItem>
+            <Label>Descrição:</Label>
+            <Valor>{tarefaSelecionada?.descricao}</Valor>
+          </DetalheItem>
 
-  <DetalheItem>
-    <Label>Prioridade:</Label>
-    <Valor>{tarefaSelecionada?.prioridade}</Valor>
-  </DetalheItem>
+          <DetalheItem>
+            <Label>Prioridade:</Label>
+            <Valor>{tarefaSelecionada?.prioridade}</Valor>
+          </DetalheItem>
 
-  <DetalheItem>
-    <Label>Prazos:</Label>
-    <Valor>{tarefaSelecionada?.prazoLimite}</Valor>
-  </DetalheItem>
+          <DetalheItem>
+            <Label>Prazos:</Label>
+            <Valor>{tarefaSelecionada?.prazoLimite}</Valor>
+          </DetalheItem>
 
-  <DetalheItem>
-    <Label>Responsável:</Label>
-    <Valor>{tarefaSelecionada?.responsavelNome}</Valor>
-  </DetalheItem>
+          <DetalheItem>
+            <Label>Responsável:</Label>
+            <Valor>{tarefaSelecionada?.responsavelNome}</Valor>
+          </DetalheItem>
 
-  <DetalheItem>
-    <Label>Status:</Label>
-    <Status ativo={tarefaSelecionada.status}>
-      {tarefaSelecionada.status ? "Ativa" : "Finalizada"}
-    </Status>
-  </DetalheItem>
-  <BotaoEditar tarefaSelecionada={tarefaSelecionada} carregarTarefas={carregarTarefas} />
-
-  
-  <BotaoFinalizar onClick={() => finalizarTarefa(tarefaSelecionada?.id)}>
-    Finalizar Tarefa
-  </BotaoFinalizar>
-</TarefaDetalhesModal>
-</ModalOverlay>
+          <DetalheItem>
+            <Label>Status:</Label>
+            <Status ativo={tarefaSelecionada.status}>
+              {tarefaSelecionada.status ? "Ativa" : "Finalizada"}
+            </Status>
+          </DetalheItem>
+          <BotaoEditar tarefaSelecionada={tarefaSelecionada} carregarTarefas={carregarTarefas} />
+    
+          <BotaoFinalizar onClick={() => finalizarTarefa(tarefaSelecionada?.id)}>
+            Finalizar Tarefa
+          </BotaoFinalizar>
+        </TarefaDetalhesModal>
+      </ModalOverlay>
     </TarefasContainer>
   );
 }
-}
+
 export default Tarefas;
