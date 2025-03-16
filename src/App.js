@@ -7,7 +7,6 @@ import AdvogadoDetails from "./components/Advogados/AdvogadoDetails";
 import SearchBar from "./components/Advogados/Searchbar";
 import { isAuthenticated } from "./components/Seguranca/GerenciaToken";
 
-
 function App() {
   return (
     <div className="app-container">

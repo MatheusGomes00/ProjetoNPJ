@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
-//import styled from "styled-components";
 import styled, { keyframes } from "styled-components";
 import BotaoEditar from "./BotaoEditar";
-import useAuth from "../Seguranca/UseAuth"; 
+import useAuth from "../Seguranca/UseAuth";
 
 
 const TarefasContainer = styled.div`
@@ -287,7 +286,45 @@ function Tarefas() {
   const [showModal, setShowModal] = useState(false);
   const [showDetalhesModal, setShowDetalhesModal] = useState(false);
   const { fetchAuthenticated } = useAuth();
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [lastFetchTime, setLastFetchTime] = useState(0);  // Timestamp da última requisição
+
+  const adicionarResponsavel = (advogado) => {
+    setNovaTarefa({
+      ...novaTarefa,
+      responsaveisId: [...novaTarefa.responsaveisId, advogado.id],
+      responsaveisNome: [...novaTarefa.responsaveisNome, advogado.nome],
+    });
+  };
+
+  const toggleSelecionarAdvogado = (advogado) => {
+    if (novaTarefa.responsaveisId.includes(advogado.id)) {
+      removerResponsavel(advogado.id);
+    } else {
+      adicionarResponsavel(advogado);
+    }
+  };
+
+  const removerResponsavel = (id) => {
+    const index = novaTarefa.responsaveisId.indexOf(id);
+    if (index !== -1) {
+      const novosIds = [...novaTarefa.responsaveisId];
+      const novosNomes = [...novaTarefa.responsaveisNome];
+  
+      novosIds.splice(index, 1);
+      novosNomes.splice(index, 1);
+  
+      setNovaTarefa({
+        ...novaTarefa,
+        responsaveisId: novosIds,
+        responsaveisNome: novosNomes,
+      });
+    }
+  };
+
+  const [dropdownAberto, setDropdownAberto] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
+
   const [novaTarefa, setNovaTarefa] = useState({
     nomeTarefa: "",
     descricao: "",
@@ -295,55 +332,78 @@ function Tarefas() {
     prioridade: "baixa",
     prazoLimite: "",
     dataCriacao: new Date().toISOString(),
-    responsavelId: "",
-    responsavelNome: ""
+    responsaveisId: [],
+     responsaveisNome: []
   });
 
-  const carregarTarefas = async () => {
+  const carregarTarefas = useCallback(async (forceRefresh = false) => {
+    const now = Date.now();
+    const minInterval = 5000;  // Intervalo mínimo de 5 segundos entre requisições
+    
+    // Evita requisições se os dados foram buscados recentemente, a menos que forceRefresh seja true
+    if (!forceRefresh && now - lastFetchTime < minInterval && tarefas.length > 0) {
+      console.log("Usando dados em memória, evitando requisição desnecessária.");
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
       const response = await fetchAuthenticated("http://localhost:8080/task/get", {
         method: "GET"
       });
   
-      if (!response.data || response.data.length === 0) {
+      if (!response.ok) {
+        throw new Error("Erro ao buscar tarefas");
+      }
+
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
         setMensagemErro("Nenhuma tarefa cadastrada.");
         setTarefas([]); 
         return;
       }
-  
-      const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
+
+      console.log("Dados recebidos da API:", data);
+
+      const tarefasAtivas = data.filter((tarefa) => tarefa.status === true);
   
       setTarefas(tarefasAtivas);
       setMensagemErro("");
+      setLastFetchTime(now);
 
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
       setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
       setTarefas([]); 
     }
-  };
- 
-  useEffect(() => {
-    carregarTarefas();
-  }, []);
+  }, [fetchAuthenticated, tarefas.length, lastFetchTime]);
   
   const [tarefaSelecionada, setTarefaSelecionada] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const buscarTarefas = async () => {
+  const buscarTarefas = useCallback(async () => {
+    setIsLoading(true);
     try {
       const response = await fetchAuthenticated("http://localhost:8080/task/get", {
         method: "GET"
       });
+
+      if (!response.ok) {
+        throw new Error("Erro ao buscar tarefas");
+      }
+
+      const data = await response.json();
 
       if (!response.data || response.data.length === 0) {
         setMensagemErro("Nenhuma tarefa cadastrada.");
         setTarefas([]); // Garante que a lista de tarefas fica vazia
         return;
       }
-      
-      // Filtra apenas as tarefas com status true
-      const tarefasAtivas = response.data.filter((tarefa) => tarefa.status === true);
+
+      const tarefasAtivas = data.filter((tarefa) => tarefa.status === true);
     
       setTarefas(tarefasAtivas);
       setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
@@ -352,10 +412,21 @@ function Tarefas() {
       console.error("Erro ao buscar tarefas:", error);
       setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
       setTarefas([]); 
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [fetchAuthenticated]);
 
-  const buscarAdvogados = async () => {
+  const buscarAdvogados = useCallback(async (forceRefresh = false) => {
+    const now = Date.now();
+    const minInterval = 5000; // Intervalo mínimo de 5 segundos
+    
+    // Evita requisições se os dados já existem e foram buscados recentemente
+    if (!forceRefresh && now - lastFetchTime < minInterval && advogados.length > 0) {
+      console.log("Usando advogados em memória, evitando requisição desnecessária.");
+      return;
+    }
+    
     try {
   
       const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
@@ -363,11 +434,12 @@ function Tarefas() {
       });
       const data = await response.json();
       setAdvogados(data);
+      setLastFetchTime(now); // Atualiza o timestamp
     } catch (error) {
       console.error("Erro ao buscar advogados:", error.response ? error.response.data : error.message);
     }
-  };
-  
+  }, [fetchAuthenticated, advogados.length, lastFetchTime]);
+
   const finalizarTarefa = async (id) => {
     const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
     if (!confirmacao) return;
@@ -398,7 +470,7 @@ function Tarefas() {
       !novaTarefa.descricao.trim() ||
       !novaTarefa.prioridade ||
       !novaTarefa.prazoLimite ||
-      !novaTarefa.responsavelId
+      !novaTarefa.responsaveisId.length === 0
     ) {
       alert("Por favor, preencha todos os campos antes de cadastrar a tarefa.");
       return;
@@ -413,10 +485,6 @@ function Tarefas() {
         ...novaTarefa,
         prazoLimite: prazoLimiteFormatado,
         dataCriacao: new Date().toISOString(),
-        responsavel: {
-          $ref: "cadastroAdvogado",
-          $id: novaTarefa.responsavelId,
-        },
       };
   
       await fetchAuthenticated("http://localhost:8080/task/create", {
@@ -435,19 +503,18 @@ function Tarefas() {
         prioridade: "baixa",
         prazoLimite: "",
         dataCriacao: new Date().toISOString(),
-        responsavelId: "",
-        responsavelNome: "",
+        responsaveisId: [],
+        responsaveisNome: [],
       });
   
       setMensagemSucesso("Tarefa cadastrada!");
-      buscarTarefas();
+      await carregarTarefas(true); // Força atualização após criar tarefa
       setTimeout(() => setMensagemSucesso(""), 3000);
     } catch (error) {
       console.error("Erro ao adicionar tarefa:", error);
     }
   };
 
-  
   const abrirModal = () => {
     setNovaTarefa({
       nomeTarefa: "",
@@ -456,8 +523,8 @@ function Tarefas() {
       prioridade: "baixa",
       prazoLimite: "",
       dataCriacao: new Date().toISOString(),
-      responsavelId: "",
-      responsavelNome: "",
+      responsaveisId: [],
+      responsaveisNome: [],
     });
     setShowModal(true);
   };
@@ -480,16 +547,25 @@ function Tarefas() {
     });
   };
 
-  useEffect(() => {
-    // console.log("Tarefa Selecionada:", tarefaSelecionada);
-  }, [tarefaSelecionada]);
-  useEffect(() => {
-    buscarTarefas();
-    buscarAdvogados();
-    carregarTarefas();    
-  }, []);
+  useEffect(() => {}, [tarefaSelecionada]);
   
-
+  useEffect(() => {
+    const loadData = async () => {
+      if (!isInitialLoad) return;
+      setIsLoading(true);
+      try {
+        await carregarTarefas();
+        await buscarAdvogados();
+        setIsInitialLoad(false);
+      } catch (error) {
+        console.error("Erro no carregamento inicial:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [isInitialLoad, carregarTarefas, buscarAdvogados]);
+  
   return (
     <TarefasContainer>
       <TituloTarefas>Suas tarefas e Prazos</TituloTarefas>
@@ -561,30 +637,85 @@ function Tarefas() {
             value={novaTarefa.prazoLimite}
             onChange={handlePrazoLimiteChange}
           />
-          <label>Responsável:</label>
-          <select
-            value={novaTarefa.responsavelId}
-            onChange={(e) => {
-              const responsavelId = e.target.value;
-              const responsavelNome = advogados.find(advogado => advogado.id === responsavelId)?.nome || '';
-              setNovaTarefa({
-                ...novaTarefa,
-                responsavelId,
-                responsavelNome
-              });
-            }}
-          >
-            <option value="">Selecione um responsável</option>
-            {advogados.length > 0 ? (
-              advogados.map((advogado) => (
-                <option key={advogado.id} value={advogado.id}>
-                  {advogado.nome}
-                </option>
-              ))
+          <div>
+          <h3>Selecionar Responsáveis:</h3>
+          <div className="custom-dropdown">
+          <button className="dropdown-btn" onClick={() => setDropdownAberto(!dropdownAberto)}>
+            Selecione Advogados ▼
+          </button>
+        
+          {dropdownAberto && (
+            <div className="dropdown-content">
+              {advogados.length > 0 ? (
+                advogados.map((advogado) => (
+                  <label key={advogado.id} className="dropdown-item">
+                    <input
+                      type="checkbox"
+                      checked={novaTarefa.responsaveisId.includes(advogado.id)}
+                      onChange={() => toggleSelecionarAdvogado(advogado)}
+                    />
+                    {advogado.nome}
+                  </label>
+                ))
+              ) : (
+                <p className="dropdown-empty">Nenhum advogado cadastrado</p>
+              )}
+            </div>
+          )}
+        </div>
+        
+          
+        </div>
+        
+        {/* Lista de advogados selecionados */}
+        <div style={{ marginTop: '12px' }}>
+          <h4 style={{ fontSize: '16px', fontWeight: 'bold' }}>Responsáveis Selecionados:</h4>
+        
+          {novaTarefa.responsaveisNome.length > 0 ? (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+              {novaTarefa.responsaveisNome.map((nome, index) => (
+                <div key={novaTarefa.responsaveisId[index]} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: '#f0f0f0',
+                  padding: '8px 12px',
+                  borderRadius: '20px',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                }}>
+                  <span style={{ marginRight: '10px', fontSize: '14px' }}>{nome}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNovaTarefa(prevState => ({
+                        ...prevState,
+                        responsaveisId: prevState.responsaveisId.filter(id => id !== prevState.responsaveisId[index]),
+                        responsaveisNome: prevState.responsaveisNome.filter((_, i) => i !== index),
+                      }));
+                    }}
+                    style={{
+                      backgroundColor: 'red',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '24px',
+                      height: '24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    ✖
+                  </button>
+                </div>
+              ))}
+            </div>
             ) : (
-              <option disabled>Carregando advogados...</option>
+              <p style={{ color: '#666', fontSize: '14px' }}>Nenhum responsável selecionado.</p>
             )}
-          </select>
+          </div>
           <BotaoAdicionar onClick={handleSubmit}>Cadastrar</BotaoAdicionar>
         </ModalContent>
       </ModalOverlay>
@@ -614,7 +745,9 @@ function Tarefas() {
 
           <DetalheItem>
             <Label>Responsável:</Label>
-            <Valor>{tarefaSelecionada?.responsavelNome}</Valor>
+            <Valor>
+              {tarefaSelecionada?.responsaveisNome?.join(", ") || "Nenhum responsável"}
+            </Valor>
           </DetalheItem>
 
           <DetalheItem>

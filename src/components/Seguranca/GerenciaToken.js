@@ -96,43 +96,32 @@ export const logout = async () => {
 };
 
 export const isAuthenticated = () => {
-  const token = getAccessToken();
-  return !!token; 
+  return !!sessionStorage.getItem("accessToken");
 };
 
 
 export const fetchWithToken = async (url, options = {}) => {
-
-    const headers = { ...options.headers } || {};
-    
-    const accessToken = getAccessToken();
-    if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-
-    let response = await fetch(url, {
+    const token = getAccessToken();
+    console.log("Fazendo requisição com token:", token ? "Presente" : "Ausente");
+  
+    const headers = {
+      ...options.headers,
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+    };
+  
+    try {
+      const response = await fetch(url, {
         ...options,
         headers,
-    });
-
-    // token expirado
-    if (response.status === 401) {
-        try {
-            const newAccessToken = await refreshToken();
-
-            headers['Authorization'] = `Bearer ${newAccessToken}`;
-
-            response = await fetch(url, {
-                ...options,
-                headers,
-            });
-        } catch (refreshError) {
-            console.error('Erro ao renovar token durante fetch:', refreshError.message);
-            throw refreshError; 
-        }
+      });
+      console.log(`Resposta da requisição ${url}: ${response.status}`);
+      return response;
+    } catch (error) {
+      console.error(`Erro na requisição ${url}:`, error.message);
+      throw error;
     }
-    return response;
-};
+  };
 
 const tokenManager = {
     login, logout, isAuthenticated, fetchWithToken

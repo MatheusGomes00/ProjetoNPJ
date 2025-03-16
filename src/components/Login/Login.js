@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from 'styled-components';
-import { login } from "../Seguranca/GerenciaToken";
+import { login, isAuthenticated } from "../Seguranca/GerenciaToken";
 import { motion } from 'framer-motion';
 
 // Container principal que centraliza o conteúdo
@@ -104,14 +104,32 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+
+    e.preventDefault();
+
     setLoading(true);
     setError(null);
     try {
+      
       await login(username, password);
-      navigate("/workspace");
+      console.log("Login bem-sucedido, token salvo: ", sessionStorage.getItem("accessToken"));
+      
+      if (isAuthenticated()) {
+        console.log("Login bem-sucedido, redirecionando para /workspace");
+        navigate("/workspace", {replace: true});
+        setTimeout(() => {
+          if (window.location.pathname !== "/workspace") {
+            console.log("navigate falhou, usando window.location");
+            window.location.href = "/workspace";
+          }
+        }, 100);
+      } else {
+        throw new Error("Credenciais inválidas ou falha na autenticação.");
+      }
+      setLoading(false);
     } catch (error) {
-      setError(error.message);
+      console.error("Erro no login:", error.message);
     } finally {
       setLoading(false);
     }
@@ -126,11 +144,6 @@ const Login = () => {
     }
   }, [error]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleLogin();
-  };
-
   return (
     <LoginContainer>
       <Title>NPJ ANHANGUERA</Title>
@@ -144,10 +157,10 @@ const Login = () => {
             {error}
           </ErrorMessage>
         )}
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleLogin}>
           <Input
               type="text"
-              placeholder="Usuário"
+              placeholder="CPF"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={loading}

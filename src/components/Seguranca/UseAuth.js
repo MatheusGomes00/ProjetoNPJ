@@ -22,17 +22,26 @@ const useAuth = () => {
     // Wrapper para fetchWithToken com tratamento de autenticação
     const fetchAuthenticated = async (url, options = {}) => {
         try {
-        const response = await fetchWithToken(url, options);
-        if (!response.ok && response.status === 401) {
-            await logoutWithRedirect(); // Logout e redireciona se não autorizado
-        }
-        return response;
-        } catch (error) {
-        console.error('Erro na requisição autenticada:', error.message);
-        await logoutWithRedirect(); // Redireciona em caso de falha crítica
-        throw error;
-        }
-    };
+            const response = await fetchWithToken(url, options);
+            
+            if (!response.ok) {
+                if (response.status === 401) {
+                  console.warn("Token inválido ou expirado, fazendo logout...");
+                  await logoutWithRedirect();
+                }
+                throw new Error(`Erro na requisição: ${response.status}`);
+              }
+              return response;
+            } catch (error) {
+              console.error('Erro na requisição autenticada:', error.message);
+              if (error.message.includes("401")) {
+                await logoutWithRedirect(); // Logout apenas em 401 explícito
+              }
+              throw error; // Propaga o erro para o chamador tratar
+            }
+        };
+
+
     return {
         checkAuth,          // Verifica se o usuário está autenticado
         logoutWithRedirect, // Faz logout e redireciona
