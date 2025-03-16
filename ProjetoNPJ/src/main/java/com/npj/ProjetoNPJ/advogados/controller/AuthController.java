@@ -48,7 +48,13 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> refreshToken(@RequestBody RefreshTokenRequest refreshToken) {
         try {
             Map<String, String> tokens = authenticationService.refreshAccessToken(refreshToken.getRefreshToken());
-            return ResponseEntity.ok(tokens);
+            return ResponseEntity.ok()
+                    .header(
+                            "Set-Cookie",
+                            "refreshToken="
+                                    + tokens.get("refreshToken")
+                                    + "; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=21600")
+                    .body(Map.of("accessToken", tokens.get("accessToken")));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("message", "Refresh token inválido ou expirado!"));

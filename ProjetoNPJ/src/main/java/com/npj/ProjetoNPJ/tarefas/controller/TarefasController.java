@@ -69,6 +69,4 @@ public class TarefasController {
         }
         return ResponseEntity.ok(dto);
     }
-
-
 }
