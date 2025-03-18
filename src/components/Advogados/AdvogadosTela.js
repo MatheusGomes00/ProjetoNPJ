@@ -6,7 +6,7 @@ import ResultsList from "../Advogados/ResultsList";
 import useAuth from "../Seguranca/UseAuth";
 
 function AdvogadosTela() {
-  const [results, setResults] = useState([]); 
+  const [results, setResults] = useState([]);
   const [showCadastro, setShowCadastro] = useState(false);
   const [defaultResults, setDefaultResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -17,25 +17,25 @@ function AdvogadosTela() {
       const { status, ...rest } = advogado;
       return {
         ...rest,
-        status: status ? "ATIVO" : "DESATIVADO", // Converte o status
+        status: status ? "ATIVO" : "DESATIVADO",
       };
     });
   };
 
   const fetchAdvogados = useCallback(async () => {
     try {
-      const response = await fetchAuthenticated('http://localhost:8080/adv/buscarTodos', {
-        method: "GET"
+      const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
+        method: "GET",
       });
 
       const data = await response.json();
       const transformedData = transformAdvogadosData(data);
-      setResults(transformedData); 
-      setDefaultResults(transformedData)
+      setResults(transformedData);
+      setDefaultResults(transformedData);
     } catch (error) {
       console.error("Erro ao buscar advogados:", error);
     }
-  }, []);
+  }, [fetchAuthenticated]);
 
   useEffect(() => {
     fetchAdvogados();
@@ -46,20 +46,22 @@ function AdvogadosTela() {
       setResults(searchResults);
       setIsSearching(true);
     } else {
-      setResults(defaultResults); // Se não houver resultados, volta para a lista original
+      setResults(defaultResults);
       setIsSearching(false);
     }
   };
 
   return (
-    <div className="app-container">
-      <ComponentesFixos />
-      
+    <ComponentesFixos>
       <div style={styles.quadroContainer}>
-        
         <div style={styles.searchSection}>
           <SearchBar onSearch={handleSearch} />
-          <button onClick={() => setShowCadastro(true)} style={styles.cadastrarBtn} > + </button>
+          <button
+            onClick={() => setShowCadastro(true)}
+            style={styles.cadastrarBtn}
+          >
+            +
+          </button>
         </div>
 
         <div style={styles.resultsContainer}>
@@ -68,15 +70,15 @@ function AdvogadosTela() {
       </div>
 
       {showCadastro && <CadastrarAdvogado onClose={() => setShowCadastro(false)} />}
-    </div>
-    );
-  }
+    </ComponentesFixos>
+  );
+}
 
 const styles = {
   quadroContainer: {
     width: "90%",
-    maxWidth: "900px", // Ajuste conforme necessário
-    margin: "20px auto",
+    maxWidth: "900px",
+    margin: "20px auto", // Centraliza horizontalmente
     backgroundColor: "#fff",
     borderRadius: "8px",
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
@@ -84,6 +86,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
+    position: "relative", // Garante que fique dentro do MainContent
   },
   searchSection: {
     width: "100%",
@@ -91,27 +94,27 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-between",
     paddingBottom: "10px",
-    borderBottom: "2px solid #eee", // Linha separadora
+    borderBottom: "2px solid #eee",
     gap: "30px",
   },
   cadastrarBtn: {
-    width: '80px',
-    height: '50px',
-    borderRadius: '50%',
-    backgroundColor: '#007bff', // Cor de fundo do botão
-    color: 'white',
-    fontSize: '30px',
-    fontWeight: 'bold',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    border: 'none',
-    cursor: 'pointer',
-    marginLeft: '10px',
+    width: "80px",
+    height: "50px",
+    borderRadius: "50%",
+    backgroundColor: "#007bff",
+    color: "white",
+    fontSize: "30px",
+    fontWeight: "bold",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    border: "none",
+    cursor: "pointer",
+    marginLeft: "10px",
   },
   resultsContainer: {
     width: "100%",
-    marginTop: "20px", // Garante espaçamento abaixo da barra de pesquisa
+    marginTop: "20px",
   },
 };
 
