@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React, { useState, useEffect } from "react";
-import useAuth from "../Seguranca/UseAuth"; 
+import useAuth from "../Seguranca/UseAuth";
 
 const BotaoEditar = styled.button`
   background: #007bff;
@@ -44,8 +44,9 @@ const ModalContainer = styled.div`
   border-radius: 12px;
   width: 100%;
   max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
 `;
 
 const BotaoFechar = styled.button`
@@ -130,47 +131,46 @@ const BotaoSalvar = styled.button`
   }
 `;
 
-
-const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, setTarefas }) => {
+const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
   const [modalAberto, setModalAberto] = useState(false);
   const [tarefa, setTarefa] = useState({
-    nomeTarefa: '',
-    descricao: '',
-    prioridade: '',
-    prazoLimite: '',
-    responsavelNome: '',
+    nomeTarefa: "",
+    descricao: "",
+    prioridade: "",
+    prazoLimite: "",
+    responsaveisNome: [], // Ajustado para array
     status: false,
-    
   });
-  const [advogados, setAdvogados] = useState([]); // Estado para armazenar advogados
+  const [advogados, setAdvogados] = useState([]); // Sempre um array
   const { fetchAuthenticated } = useAuth();
 
   useEffect(() => {
-    // Buscar advogados quando o modal for aberto
     const fetchAdvogados = async () => {
       try {
         const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
-          method: "GET"
+          method: "GET",
         });
-        setAdvogados(response.data); // Armazenando advogados na variável de estado
+        const data = await response.json(); // Corrigido para usar json()
+        setAdvogados(Array.isArray(data) ? data : []); // Garante que seja um array
       } catch (error) {
         console.error("Erro ao buscar advogados:", error);
+        setAdvogados([]); // Em caso de erro, mantém como array vazio
       }
     };
 
     if (modalAberto) {
       fetchAdvogados();
     }
-  }, [modalAberto]);
+  }, [modalAberto, fetchAuthenticated]);
 
   useEffect(() => {
     if (tarefaSelecionada) {
       setTarefa({
-        nomeTarefa: tarefaSelecionada.nomeTarefa || '',
-        descricao: tarefaSelecionada.descricao || '',
-        prioridade: tarefaSelecionada.prioridade || '',
-        prazoLimite: tarefaSelecionada.prazoLimite || '',
-        responsavelNome: tarefaSelecionada.responsavelNome || '',
+        nomeTarefa: tarefaSelecionada.nomeTarefa || "",
+        descricao: tarefaSelecionada.descricao || "",
+        prioridade: tarefaSelecionada.prioridade || "",
+        prazoLimite: tarefaSelecionada.prazoLimite || "",
+        responsaveisNome: tarefaSelecionada.responsaveisNome || [], // Ajustado para array
         status: tarefaSelecionada.status || false,
       });
     }
@@ -196,29 +196,45 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, setTarefas }
     }));
   };
 
+  const handleResponsaveisChange = (e) => {
+    const options = e.target.options;
+    const selected = [];
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected) {
+        selected.push(options[i].value);
+      }
+    }
+    setTarefa((prevTarefa) => ({
+      ...prevTarefa,
+      responsaveisNome: selected,
+    }));
+  };
+
   const salvarTarefa = async () => {
     if (!tarefaSelecionada) {
       alert("Nenhuma tarefa selecionada.");
       return;
     }
-  
+
     try {
-  
-      await fetchAuthenticated(
-        `http://localhost:8080/task/upd/${tarefaSelecionada.id}`, {
+      const response = await fetchAuthenticated(
+        `http://localhost:8080/task/upd/${tarefaSelecionada.id}`,
+        {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(tarefa)
-        } );
-      
+          body: JSON.stringify(tarefa),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar tarefa");
+      }
+
       alert("Tarefa atualizada com sucesso!");
       fecharModal();
-      
-     
-      // Recarregar as tarefas para refletir as mudanças
-      carregarTarefas();  // Aqui recarrega as tarefas e a cor da tag será atualizada
+      carregarTarefas(); // Recarrega as tarefas
     } catch (error) {
       console.error("Erro ao salvar a tarefa:", error);
       alert("Erro ao salvar a tarefa.");
@@ -257,25 +273,16 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, setTarefas }
               </DetalheItem>
 
               <DetalheItem>
-              <Label>Prioridade:</Label>
-            <select
-                name="prioridade"
-                value={tarefa.prioridade}
-                onChange={handleChange}
-                style={{
-                padding: '10px',
-                borderRadius: '8px',
-                border: '1px solid #ddd',
-                width: '100%',
-                fontSize: '16px',
-                color: '#333',
-                transition: 'border-color 0.3s ease',
-                      }}
-            >
+                <Label>Prioridade:</Label>
+                <Select
+                  name="prioridade"
+                  value={tarefa.prioridade}
+                  onChange={handleChange}
+                >
                   <option value="Alta">Alta</option>
                   <option value="Média">Média</option>
                   <option value="Baixa">Baixa</option>
-                </select>
+                </Select>
               </DetalheItem>
 
               <DetalheItem>
@@ -289,13 +296,14 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, setTarefas }
               </DetalheItem>
 
               <DetalheItem>
-                <Label>Responsável:</Label>
+                <Label>Responsáveis:</Label>
                 <Select
-                  name="responsavelNome"
-                  value={tarefa.responsavelNome}
-                  onChange={handleChange}
+                  name="responsaveisNome"
+                  multiple // Permite seleção múltipla
+                  value={tarefa.responsaveisNome}
+                  onChange={handleResponsaveisChange}
                 >
-                  <option value="">Selecione um responsável</option>
+                  <option value="">Selecione responsáveis</option>
                   {advogados.map((advogado) => (
                     <option key={advogado.id} value={advogado.nome}>
                       {advogado.nome}
@@ -305,7 +313,6 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, setTarefas }
               </DetalheItem>
 
               <BotaoSalvar onClick={salvarTarefa}>Salvar</BotaoSalvar>
-              
             </TarefaDetalhesModal>
           </ModalContainer>
         </ModalOverlay>

@@ -3,20 +3,18 @@ import styled, { keyframes } from "styled-components";
 import BotaoEditar from "./BotaoEditar";
 import useAuth from "../Seguranca/UseAuth";
 
-
 const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 720px; /* Tamanho fixo original */
-  height: 400px; /* Tamanho fixo original */
+  width: 720px;
+  height: 400px;
   padding: 40px;
   border: 2px solid black;
   border-radius: 0px;
   background: #fff;
-  box-sizing: border-box; /* Padding não aumenta o tamanho total */
+  box-sizing: border-box;
 `;
-
 
 const TituloTarefas = styled.h2`
   font-size: 20px;
@@ -69,7 +67,7 @@ const StatusTag = styled.div`
   width: 10px;
   height: 20px;
   background-color: ${({ prioridade }) => {
-    const prioridadeLower = prioridade.toLowerCase(); 
+    const prioridadeLower = prioridade.toLowerCase();
     return prioridadeLower === "baixa"
       ? "green"
       : prioridadeLower === "média" || prioridadeLower === "media"
@@ -103,15 +101,14 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 10000; /* Garante que o modal fique acima de tudo */
-  background: rgba(0, 0, 0, 0.4); /* Fundo escurecido */
-  justify-content: center; /* Centraliza horizontalmente */
-  align-items: center; /* Centraliza verticalmente */
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
   backdrop-filter: blur(5px);
   transition: opacity 0.3s ease-in-out;
   opacity: ${({ show }) => (show ? "1" : "0")};
 `;
-
 
 const ModalContent = styled.div`
   background: #fff;
@@ -119,12 +116,12 @@ const ModalContent = styled.div`
   border-radius: 15px;
   width: 90%;
   max-width: 450px;
-  max-height: 80vh; /* Limita a altura para caber na tela */
-  overflow-y: auto; /* Rolagem interna se o conteúdo for grande */
+  max-height: 80vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  z-index: 10001; /* Acima do overlay */
+  z-index: 10001;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
   position: relative;
   animation: fadeInModal 0.3s forwards;
@@ -132,19 +129,30 @@ const ModalContent = styled.div`
   @keyframes fadeInModal {
     0% {
       opacity: 0;
-      transform: scale(0.9) translateY(-20px); /* Começa um pouco acima */
+      transform: scale(0.9) translateY(-20px);
     }
     100% {
       opacity: 1;
-      transform: scale(1) translateY(0); /* Termina centralizado */
+      transform: scale(1) translateY(0);
     }
   }
 
   @media (max-width: 480px) {
     padding: 20px;
   }
-`;      
+`;
 
+const TarefaDetalhesModal = styled(ModalContent)`
+  width: 520px;
+  max-height: 80vh;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+`;
 
 const LegendaPrioridades = styled.div`
   display: flex;
@@ -178,6 +186,7 @@ const BotaoFechar = styled.button`
   cursor: pointer;
   color: #666;
 `;
+
 const NomeTarefa = styled.h3`
   font-size: 22px;
   font-weight: bold;
@@ -194,8 +203,8 @@ const DetalheItem = styled.div`
   border-radius: 8px;
   font-size: 16px;
   color: #333;
-   max-height: 120px; /* Limite de altura para evitar campos gigantes */
-  overflow-y: auto; /* Adiciona rolagem interna quando necessário */
+  max-height: 120px;
+  overflow-y: auto;
   word-wrap: break-word;
 `;
 
@@ -221,7 +230,7 @@ const Status = styled.span`
 `;
 
 const BotaoFinalizar = styled.button`
-  background-color: #dc3545; /* Cor vermelha para indicar uma ação de finalização */
+  background-color: #dc3545;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -232,12 +241,12 @@ const BotaoFinalizar = styled.button`
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: #c82333; /* Tom mais escuro de vermelho ao passar o mouse */
-    transform: translateY(-2px); /* Efeito de elevação */
+    background-color: #c82333;
+    transform: translateY(-2px);
   }
 
   &:active {
-    background-color: #bd2130; /* Tom ainda mais escuro ao clicar */
+    background-color: #bd2130;
   }
 `;
 
@@ -254,17 +263,6 @@ const MensagemSucesso = styled.p`
   text-align: center;
 `;
 
-const TarefaDetalhesModal = styled(ModalContent)`
-  width: 520px;
-  max-height: 80vh; /* Limita a altura para caber na tela */
-  padding: 25px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-`;
 const piscar = keyframes`
   0% { border-color: red; }
   50% { border-color: transparent; }
@@ -289,7 +287,23 @@ function Tarefas() {
   const [showDetalhesModal, setShowDetalhesModal] = useState(false);
   const { fetchAuthenticated } = useAuth();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [lastFetchTime, setLastFetchTime] = useState(0);  // Timestamp da última requisição
+  const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const [mensagemErro, setMensagemErro] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
+  const [dropdownAberto, setDropdownAberto] = useState(false);
+
+  const [novaTarefa, setNovaTarefa] = useState({
+    nomeTarefa: "",
+    descricao: "",
+    status: true,
+    prioridade: "baixa",
+    prazoLimite: "",
+    dataCriacao: new Date().toISOString(),
+    responsaveisId: [],
+    responsaveisNome: [],
+  });
 
   const adicionarResponsavel = (advogado) => {
     setNovaTarefa({
@@ -312,10 +326,8 @@ function Tarefas() {
     if (index !== -1) {
       const novosIds = [...novaTarefa.responsaveisId];
       const novosNomes = [...novaTarefa.responsaveisNome];
-  
       novosIds.splice(index, 1);
       novosNomes.splice(index, 1);
-  
       setNovaTarefa({
         ...novaTarefa,
         responsaveisId: novosIds,
@@ -324,133 +336,85 @@ function Tarefas() {
     }
   };
 
-  const [dropdownAberto, setDropdownAberto] = useState(false);
-  const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const carregarTarefas = useCallback(
+    async (forceRefresh = false) => {
+      const now = Date.now();
+      const minInterval = 5000;
 
-  const [novaTarefa, setNovaTarefa] = useState({
-    nomeTarefa: "",
-    descricao: "",
-    status: true,
-    prioridade: "baixa",
-    prazoLimite: "",
-    dataCriacao: new Date().toISOString(),
-    responsaveisId: [],
-     responsaveisNome: []
-  });
-
-  const carregarTarefas = useCallback(async (forceRefresh = false) => {
-    const now = Date.now();
-    const minInterval = 5000;  // Intervalo mínimo de 5 segundos entre requisições
-    
-    // Evita requisições se os dados foram buscados recentemente, a menos que forceRefresh seja true
-    if (!forceRefresh && now - lastFetchTime < minInterval && tarefas.length > 0) {
-      console.log("Usando dados em memória, evitando requisição desnecessária.");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetchAuthenticated("http://localhost:8080/task/get", {
-        method: "GET"
-      });
-  
-      if (!response.ok) {
-        throw new Error("Erro ao buscar tarefas");
-      }
-
-      const data = await response.json();
-
-      if (!data || data.length === 0) {
-        setMensagemErro("Nenhuma tarefa cadastrada.");
-        setTarefas([]); 
+      if (!forceRefresh && now - lastFetchTime < minInterval && tarefas.length > 0) {
+        console.log("Usando dados em memória, evitando requisição desnecessária.");
         return;
       }
 
-      console.log("Dados recebidos da API:", data);
+      setIsLoading(true);
 
-      const tarefasAtivas = data.filter((tarefa) => tarefa.status === true);
-  
-      setTarefas(tarefasAtivas);
-      setMensagemErro("");
-      setLastFetchTime(now);
+      try {
+        const response = await fetchAuthenticated("http://localhost:8080/task/get", {
+          method: "GET",
+        });
 
-    } catch (error) {
-      console.error("Erro ao buscar tarefas:", error);
-      setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
-      setTarefas([]); 
-    }
-  }, [fetchAuthenticated, tarefas.length, lastFetchTime]);
-  
-  const [tarefaSelecionada, setTarefaSelecionada] = useState(false);
-  const [mensagemErro, setMensagemErro] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+        if (!response.ok) {
+          throw new Error("Erro ao buscar tarefas");
+        }
 
-  const buscarTarefas = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetchAuthenticated("http://localhost:8080/task/get", {
-        method: "GET"
-      });
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error("Erro ao buscar tarefas");
+        if (!data || data.length === 0) {
+          setMensagemErro("Nenhuma tarefa cadastrada.");
+          setTarefas([]);
+          return;
+        }
+
+        console.log("Dados recebidos da API:", data);
+
+        const tarefasAtivas = data.filter((tarefa) => tarefa.status === true);
+        setTarefas(tarefasAtivas);
+        setMensagemErro("");
+        setLastFetchTime(now);
+      } catch (error) {
+        console.error("Erro ao buscar tarefas:", error);
+        setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
+        setTarefas([]);
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [fetchAuthenticated, tarefas.length, lastFetchTime]
+  );
 
-      const data = await response.json();
+  const buscarAdvogados = useCallback(
+    async (forceRefresh = false) => {
+      const now = Date.now();
+      const minInterval = 5000;
 
-      if (!response.data || response.data.length === 0) {
-        setMensagemErro("Nenhuma tarefa cadastrada.");
-        setTarefas([]); // Garante que a lista de tarefas fica vazia
+      if (!forceRefresh && now - lastFetchTime < minInterval && advogados.length > 0) {
+        console.log("Usando advogados em memória, evitando requisição desnecessária.");
         return;
       }
 
-      const tarefasAtivas = data.filter((tarefa) => tarefa.status === true);
-    
-      setTarefas(tarefasAtivas);
-      setMensagemErro(""); // Reseta a mensagem de erro caso tenha sucesso
-
-    }catch (error) {
-      console.error("Erro ao buscar tarefas:", error);
-      setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
-      setTarefas([]); 
-    } finally {
-      setIsLoading(false);
-    }
-  }, [fetchAuthenticated]);
-
-  const buscarAdvogados = useCallback(async (forceRefresh = false) => {
-    const now = Date.now();
-    const minInterval = 5000; // Intervalo mínimo de 5 segundos
-    
-    // Evita requisições se os dados já existem e foram buscados recentemente
-    if (!forceRefresh && now - lastFetchTime < minInterval && advogados.length > 0) {
-      console.log("Usando advogados em memória, evitando requisição desnecessária.");
-      return;
-    }
-    
-    try {
-  
-      const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
-        method: "GET"
-      });
-      const data = await response.json();
-      setAdvogados(data);
-      setLastFetchTime(now); // Atualiza o timestamp
-    } catch (error) {
-      console.error("Erro ao buscar advogados:", error.response ? error.response.data : error.message);
-    }
-  }, [fetchAuthenticated, advogados.length, lastFetchTime]);
+      try {
+        const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
+          method: "GET",
+        });
+        const data = await response.json();
+        setAdvogados(data);
+        setLastFetchTime(now);
+      } catch (error) {
+        console.error("Erro ao buscar advogados:", error.response ? error.response.data : error.message);
+      }
+    },
+    [fetchAuthenticated, advogados.length, lastFetchTime]
+  );
 
   const finalizarTarefa = async (id) => {
     const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
     if (!confirmacao) return;
-  
+
     try {
       const response = await fetchAuthenticated(`http://localhost:8080/task/end/${id}`, {
-        method: "PUT"
+        method: "PUT",
       });
-  
+
       if (!response.ok) {
         throw new Error(`Erro ao finalizar tarefa: ${response.status}`);
       }
@@ -458,7 +422,6 @@ function Tarefas() {
       console.log("Tarefa finalizada com sucesso");
       setTarefas((tarefasAntigas) => tarefasAntigas.filter((tarefa) => tarefa.id !== id));
       setMensagemErro("");
-
     } catch (error) {
       console.error("Erro ao finalizar a tarefa:", error);
       setMensagemErro("Erro ao finalizar a tarefa. Tente novamente mais tarde.");
@@ -466,36 +429,35 @@ function Tarefas() {
   };
 
   const handleSubmit = async () => {
-    // Verifica se todos os campos obrigatórios foram preenchidos
     if (
       !novaTarefa.nomeTarefa.trim() ||
       !novaTarefa.descricao.trim() ||
       !novaTarefa.prioridade ||
       !novaTarefa.prazoLimite ||
-      !novaTarefa.responsaveisId.length === 0
+      novaTarefa.responsaveisId.length === 0
     ) {
       alert("Por favor, preencha todos os campos antes de cadastrar a tarefa.");
       return;
     }
-  
+
     try {
       const prazoLimiteFormatado = novaTarefa.prazoLimite
         ? novaTarefa.prazoLimite.split("T")[0]
         : null;
-  
+
       const novaTarefaComData = {
         ...novaTarefa,
         prazoLimite: prazoLimiteFormatado,
         dataCriacao: new Date().toISOString(),
       };
-  
+
       await fetchAuthenticated("http://localhost:8080/task/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(novaTarefaComData)});
-
+        body: JSON.stringify(novaTarefaComData),
+      });
 
       setShowModal(false);
       setNovaTarefa({
@@ -508,9 +470,9 @@ function Tarefas() {
         responsaveisId: [],
         responsaveisNome: [],
       });
-  
+
       setMensagemSucesso("Tarefa cadastrada!");
-      await carregarTarefas(true); // Força atualização após criar tarefa
+      await carregarTarefas(true);
       setTimeout(() => setMensagemSucesso(""), 3000);
     } catch (error) {
       console.error("Erro ao adicionar tarefa:", error);
@@ -533,14 +495,15 @@ function Tarefas() {
 
   const fecharModal = () => setShowModal(false);
 
-  
   const abrirDetalhesModal = (tarefa) => {
-    // console.log("Abrindo detalhes da tarefa:", tarefa);
     setTarefaSelecionada(tarefa);
     setShowDetalhesModal(true);
   };
 
-  const fecharDetalhesModal = () => setShowDetalhesModal(false);
+  const fecharDetalhesModal = () => {
+    setShowDetalhesModal(false);
+    setTarefaSelecionada(null);
+  };
 
   const handlePrazoLimiteChange = (e) => {
     setNovaTarefa({
@@ -549,8 +512,6 @@ function Tarefas() {
     });
   };
 
-  useEffect(() => {}, [tarefaSelecionada]);
-  
   useEffect(() => {
     const loadData = async () => {
       if (!isInitialLoad) return;
@@ -567,17 +528,14 @@ function Tarefas() {
     };
     loadData();
   }, [isInitialLoad, carregarTarefas, buscarAdvogados]);
-  
+
   return (
     <TarefasContainer>
       <TituloTarefas>Suas tarefas e Prazos</TituloTarefas>
       {mensagemSucesso && <MensagemSucesso>{mensagemSucesso}</MensagemSucesso>}
       <ListaTarefas>
         {tarefas.map((tarefa) => (
-          <TarefaCard
-            key={tarefa.id}
-            onClick={() => abrirDetalhesModal(tarefa)}
-          >
+          <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
             <StatusTag prioridade={tarefa.prioridade} />
             <div>{tarefa.nomeTarefa}</div>
             <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
@@ -592,7 +550,7 @@ function Tarefas() {
         </TagLegenda>
         <TagLegenda>
           <CorTag cor="yellow" />
-          <span>Média</span>                              
+          <span>Média</span>
         </TagLegenda>
         <TagLegenda>
           <CorTag cor="green" />
@@ -640,82 +598,76 @@ function Tarefas() {
             onChange={handlePrazoLimiteChange}
           />
           <div>
-          <h3>Selecionar Responsáveis:</h3>
-          <div className="custom-dropdown">
-          <button className="dropdown-btn" onClick={() => setDropdownAberto(!dropdownAberto)}>
-            Selecione Advogados ▼
-          </button>
-        
-          {dropdownAberto && (
-            <div className="dropdown-content">
-              {advogados.length > 0 ? (
-                advogados.map((advogado) => (
-                  <label key={advogado.id} className="dropdown-item">
-                    <input
-                      type="checkbox"
-                      checked={novaTarefa.responsaveisId.includes(advogado.id)}
-                      onChange={() => toggleSelecionarAdvogado(advogado)}
-                    />
-                    {advogado.nome}
-                  </label>
-                ))
-              ) : (
-                <p className="dropdown-empty">Nenhum advogado cadastrado</p>
+            <h3>Selecionar Responsáveis:</h3>
+            <div className="custom-dropdown">
+              <button
+                className="dropdown-btn"
+                onClick={() => setDropdownAberto(!dropdownAberto)}
+              >
+                Selecione Advogados ▼
+              </button>
+              {dropdownAberto && (
+                <div className="dropdown-content">
+                  {advogados.length > 0 ? (
+                    advogados.map((advogado) => (
+                      <label key={advogado.id} className="dropdown-item">
+                        <input
+                          type="checkbox"
+                          checked={novaTarefa.responsaveisId.includes(advogado.id)}
+                          onChange={() => toggleSelecionarAdvogado(advogado)}
+                        />
+                        {advogado.nome}
+                      </label>
+                    ))
+                  ) : (
+                    <p className="dropdown-empty">Nenhum advogado cadastrado</p>
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
-        
-          
-        </div>
-        
-        {/* Lista de advogados selecionados */}
-        <div style={{ marginTop: '12px' }}>
-          <h4 style={{ fontSize: '16px', fontWeight: 'bold' }}>Responsáveis Selecionados:</h4>
-        
-          {novaTarefa.responsaveisNome.length > 0 ? (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-              {novaTarefa.responsaveisNome.map((nome, index) => (
-                <div key={novaTarefa.responsaveisId[index]} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  backgroundColor: '#f0f0f0',
-                  padding: '8px 12px',
-                  borderRadius: '20px',
-                  boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                }}>
-                  <span style={{ marginRight: '10px', fontSize: '14px' }}>{nome}</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNovaTarefa(prevState => ({
-                        ...prevState,
-                        responsaveisId: prevState.responsaveisId.filter(id => id !== prevState.responsaveisId[index]),
-                        responsaveisNome: prevState.responsaveisNome.filter((_, i) => i !== index),
-                      }));
-                    }}
+          </div>
+          <div style={{ marginTop: "12px" }}>
+            <h4 style={{ fontSize: "16px", fontWeight: "bold" }}>Responsáveis Selecionados:</h4>
+            {novaTarefa.responsaveisNome.length > 0 ? (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
+                {novaTarefa.responsaveisNome.map((nome, index) => (
+                  <div
+                    key={novaTarefa.responsaveisId[index]}
                     style={{
-                      backgroundColor: 'red',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: '24px',
-                      height: '24px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
+                      display: "flex",
+                      alignItems: "center",
+                      backgroundColor: "#f0f0f0",
+                      padding: "8px 12px",
+                      borderRadius: "20px",
+                      boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
                     }}
                   >
-                    ✖
-                  </button>
-                </div>
-              ))}
-            </div>
+                    <span style={{ marginRight: "10px", fontSize: "14px" }}>{nome}</span>
+                    <button
+                      type="button"
+                      onClick={() => removerResponsavel(novaTarefa.responsaveisId[index])}
+                      style={{
+                        backgroundColor: "red",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "50%",
+                        width: "24px",
+                        height: "24px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      ✖
+                    </button>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <p style={{ color: '#666', fontSize: '14px' }}>Nenhum responsável selecionado.</p>
+              <p style={{ color: "#666", fontSize: "14px" }}>Nenhum responsável selecionado.</p>
             )}
           </div>
           <BotaoAdicionar onClick={handleSubmit}>Cadastrar</BotaoAdicionar>
@@ -723,46 +675,42 @@ function Tarefas() {
       </ModalOverlay>
 
       {/* Modal de detalhes */}
-    
       <ModalOverlay show={showDetalhesModal}>
         <TarefaDetalhesModal>
           <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
-    
-          <NomeTarefa>{tarefaSelecionada?.nomeTarefa}</NomeTarefa>
-
+          <NomeTarefa>{tarefaSelecionada?.nomeTarefa || "Sem título"}</NomeTarefa>
           <DetalheItem>
             <Label>Descrição:</Label>
-            <Valor>{tarefaSelecionada?.descricao}</Valor>
+            <Valor>{tarefaSelecionada?.descricao || "Sem descrição"}</Valor>
           </DetalheItem>
-
           <DetalheItem>
             <Label>Prioridade:</Label>
-            <Valor>{tarefaSelecionada?.prioridade}</Valor>
+            <Valor>{tarefaSelecionada?.prioridade || "Nenhuma"}</Valor>
           </DetalheItem>
-
           <DetalheItem>
             <Label>Prazos:</Label>
-            <Valor>{tarefaSelecionada?.prazoLimite}</Valor>
+            <Valor>{tarefaSelecionada?.prazoLimite || "Sem prazo"}</Valor>
           </DetalheItem>
-
           <DetalheItem>
             <Label>Responsável:</Label>
             <Valor>
               {tarefaSelecionada?.responsaveisNome?.join(", ") || "Nenhum responsável"}
             </Valor>
           </DetalheItem>
-
           <DetalheItem>
             <Label>Status:</Label>
-            <Status ativo={tarefaSelecionada.status}>
-              {tarefaSelecionada.status ? "Ativa" : "Finalizada"}
+            <Status ativo={tarefaSelecionada?.status}>
+              {tarefaSelecionada?.status ? "Ativa" : "Finalizada"}
             </Status>
           </DetalheItem>
-          <BotaoEditar tarefaSelecionada={tarefaSelecionada} carregarTarefas={carregarTarefas} />
-    
-          <BotaoFinalizar onClick={() => finalizarTarefa(tarefaSelecionada?.id)}>
-            Finalizar Tarefa
-          </BotaoFinalizar>
+          {tarefaSelecionada && (
+            <BotaoEditar tarefaSelecionada={tarefaSelecionada} carregarTarefas={carregarTarefas} />
+          )}
+          {tarefaSelecionada && (
+            <BotaoFinalizar onClick={() => finalizarTarefa(tarefaSelecionada?.id)}>
+              Finalizar Tarefa
+            </BotaoFinalizar>
+          )}
         </TarefaDetalhesModal>
       </ModalOverlay>
     </TarefasContainer>
