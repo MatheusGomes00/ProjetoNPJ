@@ -1,9 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
-
-/* Grid que vai de ponta a ponta */
 const GridContainer = styled.div`
-  position: fixed;  /* Fixa no topo */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -13,10 +11,16 @@ const GridContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 0; /* Menor que o z-index do pop-up */
+  z-index: 0; /* Menor que o z-index do modal */
+  overflow: hidden; 
+  box-sizing: border-box;
   
-
+  /* Certificando-se de que o modal vai ficar abaixo do grid, independente da resolução */
+  @media (max-width: 768px) {
+    height: 120px; /* Ajuste para telas menores, se necessário */
+  }
 `;
+
 /* Mantém a barra de pesquisa no mesmo lugar */
 const SearchBarContainer = styled.div`
   position: absolute;

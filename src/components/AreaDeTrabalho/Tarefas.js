@@ -5,22 +5,18 @@ import useAuth from "../Seguranca/UseAuth";
 
 
 const TarefasContainer = styled.div`
-  position: absolute;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  width: 700px;
-  max-width: 800px;
-  margin: 0 auto;
+  width: 700px; /* Tamanho fixo original */
+  height: 350px; /* Tamanho fixo original */
   padding: 40px;
   border: 2px solid black;
   border-radius: 0px;
   background: #fff;
-  margin-left: -487px;
-  margin-top: -269px;
-  height: 350px;
-  display: flex;
-  flex-direction: column;
+  box-sizing: border-box; /* Padding não aumenta o tamanho total */
 `;
+
 
 const TituloTarefas = styled.h2`
   font-size: 20px;
@@ -105,41 +101,52 @@ const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 10000;
   width: 100vw;
   height: 100vh;
+  z-index: 10000;
   background: rgba(0, 0, 0, 0.4);
   justify-content: center;
   align-items: center;
-  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(5px);
+  transition: opacity 0.3s ease-in-out;
+  opacity: ${({ show }) => (show ? "1" : "0")};
 `;
+
 
 const ModalContent = styled.div`
   background: #fff;
   padding: 30px;
   border-radius: 15px;
-  width: 450px;
+  width: 90%;
+  max-width: 450px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-   z-index: 10000;
-  position: relative;
+  z-index: 10001;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-  transform: translateY(30px);
-  opacity: 0;
-  animation: modalSlideIn 0.3s forwards;
+  position: relative;
 
-  @keyframes modalSlideIn {
+  /* Move o modal levemente para cima e para a esquerda */
+  transform: translate(-15%, -15%);
+  opacity: 0;
+  animation: fadeInModal 0.3s forwards;
+
+  @keyframes fadeInModal {
     0% {
-      transform: translateY(30px);
       opacity: 0;
+      transform: translate(-15%, -15%) scale(0.9);
     }
     100% {
-      transform: translateY(0);
       opacity: 1;
+      transform: translate(-15%, -15%) scale(1);
     }
   }
+
+  @media (max-width: 480px) {
+    padding: 20px;
+  }
 `;
+
 
 const LegendaPrioridades = styled.div`
   display: flex;
