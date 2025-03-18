@@ -39,45 +39,41 @@ const MainContent = styled.div`
 
 const TopRightIcons = styled.div`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 20px; /* Distância do topo da tela */
+  right: 20px; /* Distância da direita da tela */
   display: flex;
   gap: 10px;
+  z-index: 1000; /* Garante que fique acima de outros elementos */
 `;
 
-const HorizontalLine = styled.div`
-  position: absolute;
-  top: 100px;
-  left: 200px;
-  right: 0;
-  height: 1px;
-  background-color: #000;
-`;
+
 
 const CornerLabel = styled.div`
   position: absolute;
-  bottom: 10px;
-  left: 210px;
+  top: 10px; /* Canto superior esquerdo */
+  left: 10px;
   font-family: Arial, sans-serif;
+  z-index: 1000; /* Acima do Sidebar e SearchBarTop */
+  color: #333;
 `;
 
 const ComponentesFixos = ({ children }) => {
   return (
     <FixedGridContainer>
       <GridSearchBar />
+      <CornerLabel>
+        <span className="corner-label-npj">NPJ</span>
+        <br />
+        <span className="corner-label-anhanguera">ANHANGUERA</span>
+      </CornerLabel>
+      <TopRightIcons>
+        <IconeNotificacoes />
+        <IconeLogOut />
+        <IconeNovaTarefa />
+      </TopRightIcons>
       <GridSidebar />
       <MainContent>
-        <TopRightIcons>
-          <IconeNotificacoes />
-          <IconeLogOut />
-          <IconeNovaTarefa />
-        </TopRightIcons>
-       
-        <CornerLabel>
-          <span className="corner-label-npj">NPJ</span>
-          <br />
-          <span className="corner-label-anhanguera">ANHANGUERA</span>
-        </CornerLabel>
+        
         {children} {/* Aqui vai o conteúdo dinâmico, como Tarefas */}
       </MainContent>
     </FixedGridContainer>

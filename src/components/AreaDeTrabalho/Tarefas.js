@@ -8,8 +8,8 @@ const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 700px; /* Tamanho fixo original */
-  height: 350px; /* Tamanho fixo original */
+  width: 720px; /* Tamanho fixo original */
+  height: 400px; /* Tamanho fixo original */
   padding: 40px;
   border: 2px solid black;
   border-radius: 0px;
@@ -97,16 +97,16 @@ const BotaoAdicionar = styled.button`
 `;
 
 const ModalOverlay = styled.div`
-  display: ${({ show }) => (show ? "flex" : "none")}; 
+  display: ${({ show }) => (show ? "flex" : "none")};
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 10000;
-  background: rgba(0, 0, 0, 0.4);
-  justify-content: center;
-  align-items: center;
+  z-index: 10000; /* Garante que o modal fique acima de tudo */
+  background: rgba(0, 0, 0, 0.4); /* Fundo escurecido */
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center; /* Centraliza verticalmente */
   backdrop-filter: blur(5px);
   transition: opacity 0.3s ease-in-out;
   opacity: ${({ show }) => (show ? "1" : "0")};
@@ -119,33 +119,31 @@ const ModalContent = styled.div`
   border-radius: 15px;
   width: 90%;
   max-width: 450px;
+  max-height: 80vh; /* Limita a altura para caber na tela */
+  overflow-y: auto; /* Rolagem interna se o conteúdo for grande */
   display: flex;
   flex-direction: column;
   gap: 20px;
-  z-index: 10001;
+  z-index: 10001; /* Acima do overlay */
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
   position: relative;
-
-  /* Move o modal levemente para cima e para a esquerda */
-  transform: translate(-15%, -15%);
-  opacity: 0;
   animation: fadeInModal 0.3s forwards;
 
   @keyframes fadeInModal {
     0% {
       opacity: 0;
-      transform: translate(-15%, -15%) scale(0.9);
+      transform: scale(0.9) translateY(-20px); /* Começa um pouco acima */
     }
     100% {
       opacity: 1;
-      transform: translate(-15%, -15%) scale(1);
+      transform: scale(1) translateY(0); /* Termina centralizado */
     }
   }
 
   @media (max-width: 480px) {
     padding: 20px;
   }
-`;
+`;      
 
 
 const LegendaPrioridades = styled.div`
@@ -258,18 +256,15 @@ const MensagemSucesso = styled.p`
 
 const TarefaDetalhesModal = styled(ModalContent)`
   width: 520px;
-  max-height: 90vh;
+  max-height: 80vh; /* Limita a altura para caber na tela */
   padding: 25px;
-   z-index: 10000;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   gap: 15px;
-  position: relative;
 `;
-
 const piscar = keyframes`
   0% { border-color: red; }
   50% { border-color: transparent; }

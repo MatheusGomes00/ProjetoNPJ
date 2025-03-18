@@ -5,25 +5,21 @@ import styled from "styled-components";
 
 // Grid interno para o conteúdo principal
 const GridContainer = styled.div`
-  display: flex; /* Mudamos de grid para flex para simplificar com 1 item */
-  justify-content: center; /* Centraliza o GridItem */
-  align-items: center; /* Centraliza verticalmente */
-  padding: 20px;
   height: calc(100% - 20px); /* Respeita o espaço do MainContent */
   width: calc(100% - 20px); /* Respeita o espaço do MainContent */
-  overflow: auto; /* Rolagem se necessário */
+  position: relative; /* Referência para o GridItem absoluto */
+  padding: 0; /* Sem padding no container */
 `;
 
 const GridItem = styled.div`
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 10px;
-  width: 700px; /* Tamanho fixo do Tarefas */
-  height: 350px; /* Tamanho fixo do Tarefas */
-  display: flex;
-  justify-content: center; /* Centraliza o Tarefas dentro do GridItem */
-  align-items: center;
-  box-sizing: border-box; /* Garante que padding não expanda o tamanho */
+  background-color:rgb(226, 0, 0);
+  position: absolute;
+  top: 100px; /* Logo abaixo do SearchBarTop */
+  left: 200px; /* Logo ao lado do Sidebar */
+  width: 720px; /* Mesmo tamanho do Tarefas */
+  height: 400px; /* Mesmo tamanho do Tarefas */
+  top: 0px; /* Logo abaixo do SearchBarTop (100px) */
+  left: 32px;
 `;
 
 function AreaDeTrabalho() {
