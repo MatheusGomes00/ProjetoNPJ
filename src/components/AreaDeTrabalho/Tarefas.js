@@ -3,6 +3,7 @@ import styled, { keyframes } from "styled-components";
 import BotaoEditar from "./BotaoEditar";
 import useAuth from "../Seguranca/UseAuth";
 
+
 const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -14,6 +15,7 @@ const TarefasContainer = styled.div`
   border-radius: 0px;
   background: #fff;
   box-sizing: border-box;
+ 
 `;
 
 const TituloTarefas = styled.h2`
@@ -102,45 +104,98 @@ const ModalOverlay = styled.div`
   width: 100vw;
   height: 100vh;
   z-index: 10000;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5); /* Fundo um pouco mais escuro */
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(6px); /* Desfoque mais suave */
   transition: opacity 0.3s ease-in-out;
   opacity: ${({ show }) => (show ? "1" : "0")};
 `;
 
 const ModalContent = styled.div`
-  background: #fff;
+  background: #ffffff;
   padding: 30px;
-  border-radius: 15px;
+  border-radius: 16px; /* Bordas mais arredondadas */
   width: 90%;
-  max-width: 450px;
-  max-height: 80vh;
+  max-width: 550px; /* Um pouco mais largo */
+  max-height: 85vh; /* Mais espaço vertical */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  z-index: 10001;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* Sombra mais pronunciada */
   position: relative;
-  animation: fadeInModal 0.3s forwards;
+  animation: slideIn 0.3s ease-out forwards;
 
-  @keyframes fadeInModal {
+  @keyframes slideIn {
     0% {
       opacity: 0;
-      transform: scale(0.9) translateY(-20px);
+      transform: translateY(-30px);
     }
     100% {
       opacity: 1;
-      transform: scale(1) translateY(0);
+      transform: translateY(0);
     }
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50; /* Cor mais elegante */
+    text-align: center;
+    margin-bottom: 10px;
   }
 
   @media (max-width: 480px) {
     padding: 20px;
   }
 `;
+
+const FormLabel = styled.label`
+  font-size: 14px;
+  font-weight: 600;
+  color: #34495e; /* Azul escuro suave */
+  margin-bottom: 5px;
+  display: block;
+`;
+const FormInput = styled.input`
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #dfe6e9; /* Cinza claro */
+  width: 100%;
+  font-size: 16px;
+  color: #2d3436;
+  background: #f9fbfc; /* Fundo claro */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:focus {
+    border-color: #3498db; /* Azul vibrante */
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    outline: none;
+  }
+`;
+const RemoveButton = styled.button`
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #c0392b;
+  }
+`;
+
+
 
 const TarefaDetalhesModal = styled(ModalContent)`
   width: 520px;
@@ -153,6 +208,7 @@ const TarefaDetalhesModal = styled(ModalContent)`
   flex-direction: column;
   gap: 15px;
 `;
+
 
 const LegendaPrioridades = styled.div`
   display: flex;
@@ -251,12 +307,96 @@ const BotaoFinalizar = styled.button`
 `;
 
 const SelectPrioridade = styled.select`
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #dfe6e9;
+  width: 100%;
+  font-size: 16px;
+  color: #2d3436;
+  background: #f9fbfc;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    outline: none;
+  }
+`;
+const DropdownContainer = styled.div`
+  position: relative;
+  width: 100%;
+`;
+const DropdownButton = styled.button`
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #dfe6e9;
+  background: #f9fbfc;
+  font-size: 16px;
+  color: #2d3436;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.3s ease, background 0.3s ease;
+
+  &:hover {
+    border-color: #3498db;
+    background: #eef2f5;
+  }
+`;
+const DropdownContent = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #dfe6e9;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 10001;
   padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+`;
+const DropdownItem = styled.label`
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
   font-size: 14px;
+  color: #2d3436;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #eef2f5;
+  }
+
+  input[type="checkbox"] {
+    margin-right: 10px;
+    accent-color: #3498db; /* Cor do checkbox */
+  }
 `;
 
+const ResponsaveisList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+`;
+
+const ResponsavelTag = styled.div`
+  display: flex;
+  align-items: center;
+  background: #ecf0f1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #2d3436;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+`;
 const MensagemSucesso = styled.p`
   color: green;
   font-weight: bold;
@@ -293,6 +433,7 @@ function Tarefas() {
   const [isLoading, setIsLoading] = useState(false);
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
   const [dropdownAberto, setDropdownAberto] = useState(false);
+  
 
   const [novaTarefa, setNovaTarefa] = useState({
     nomeTarefa: "",
@@ -312,13 +453,27 @@ function Tarefas() {
       responsaveisNome: [...novaTarefa.responsaveisNome, advogado.nome],
     });
   };
-
   const toggleSelecionarAdvogado = (advogado) => {
-    if (novaTarefa.responsaveisId.includes(advogado.id)) {
-      removerResponsavel(advogado.id);
-    } else {
-      adicionarResponsavel(advogado);
-    }
+    setNovaTarefa((prevTarefa) => {
+      const isSelected = prevTarefa.responsaveisId.includes(advogado.id);
+      if (isSelected) {
+        const novosIds = prevTarefa.responsaveisId.filter((id) => id !== advogado.id);
+        const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome);
+        console.log("Removendo advogado:", advogado.nome, "Novos IDs:", novosIds, "Novos Nomes:", novosNomes);
+        return {
+          ...prevTarefa,
+          responsaveisId: novosIds,
+          responsaveisNome: novosNomes,
+        };
+      } else {
+        console.log("Adicionando advogado:", advogado.nome);
+        return {
+          ...prevTarefa,
+          responsaveisId: [...prevTarefa.responsaveisId, advogado.id],
+          responsaveisNome: [...prevTarefa.responsaveisNome, advogado.nome],
+        };
+      }
+    });
   };
 
   const removerResponsavel = (id) => {
@@ -340,35 +495,47 @@ function Tarefas() {
     async (forceRefresh = false) => {
       const now = Date.now();
       const minInterval = 5000;
-
+  
       if (!forceRefresh && now - lastFetchTime < minInterval && tarefas.length > 0) {
         console.log("Usando dados em memória, evitando requisição desnecessária.");
         return;
       }
-
+  
       setIsLoading(true);
-
+  
       try {
         const response = await fetchAuthenticated("http://localhost:8080/task/get", {
           method: "GET",
         });
-
+  
         if (!response.ok) {
           throw new Error("Erro ao buscar tarefas");
         }
-
+  
         const data = await response.json();
-
+        console.log("Dados completos recebidos da API:", JSON.stringify(data));
+        
+        // Procurar a tarefa editada
+        const tarefaEditada = data.find(tarefa => tarefa.id === tarefaSelecionada?.id);
+        console.log("Tarefa editada retornada:", tarefaEditada || "Tarefa não encontrada");
+  
         if (!data || data.length === 0) {
           setMensagemErro("Nenhuma tarefa cadastrada.");
           setTarefas([]);
           return;
         }
-
-        console.log("Dados recebidos da API:", data);
-
+  
         const tarefasAtivas = data.filter((tarefa) => tarefa.status === true);
+        console.log("Tarefas ativas filtradas:", tarefasAtivas);
         setTarefas(tarefasAtivas);
+  
+        // Atualizar tarefaSelecionada se estiver aberta
+        if (tarefaSelecionada) {
+          const updatedTarefa = tarefasAtivas.find(t => t.id === tarefaSelecionada.id) || data.find(t => t.id === tarefaSelecionada.id);
+          console.log("Atualizando tarefaSelecionada:", updatedTarefa);
+          setTarefaSelecionada(updatedTarefa);
+        }
+  
         setMensagemErro("");
         setLastFetchTime(now);
       } catch (error) {
@@ -379,7 +546,7 @@ function Tarefas() {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, tarefas.length, lastFetchTime]
+    [fetchAuthenticated, lastFetchTime, tarefaSelecionada]
   );
 
   const buscarAdvogados = useCallback(
@@ -439,26 +606,42 @@ function Tarefas() {
       alert("Por favor, preencha todos os campos antes de cadastrar a tarefa.");
       return;
     }
-
+  
     try {
       const prazoLimiteFormatado = novaTarefa.prazoLimite
         ? novaTarefa.prazoLimite.split("T")[0]
         : null;
-
+  
       const novaTarefaComData = {
-        ...novaTarefa,
+        nomeTarefa: novaTarefa.nomeTarefa,
+        descricao: novaTarefa.descricao,
+        status: novaTarefa.status,
+        prioridade: novaTarefa.prioridade,
         prazoLimite: prazoLimiteFormatado,
         dataCriacao: new Date().toISOString(),
+        responsaveisId: novaTarefa.responsaveisId,
+        responsaveisNome: novaTarefa.responsaveisNome, // Adicionado aqui
       };
-
-      await fetchAuthenticated("http://localhost:8080/task/create", {
+  
+      console.log("Estado de novaTarefa antes do envio:", novaTarefa);
+      console.log("Payload enviado para a API:", JSON.stringify(novaTarefaComData));
+  
+      const response = await fetchAuthenticated("http://localhost:8080/task/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(novaTarefaComData),
       });
-
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Erro na requisição: ${response.status} - ${JSON.stringify(errorData)}`);
+      }
+  
+      const tarefaCriada = await response.json();
+      console.log("Tarefa criada retornada pela API:", tarefaCriada);
+  
       setShowModal(false);
       setNovaTarefa({
         nomeTarefa: "",
@@ -470,12 +653,13 @@ function Tarefas() {
         responsaveisId: [],
         responsaveisNome: [],
       });
-
+  
       setMensagemSucesso("Tarefa cadastrada!");
       await carregarTarefas(true);
       setTimeout(() => setMensagemSucesso(""), 3000);
     } catch (error) {
       console.error("Erro ao adicionar tarefa:", error);
+      setMensagemErro(`Erro ao cadastrar tarefa: ${error.message}`);
     }
   };
 
@@ -561,118 +745,105 @@ function Tarefas() {
 
       {/* Modal para adicionar tarefa */}
       <ModalOverlay show={showModal}>
-        <ModalContent>
-          <BotaoFechar onClick={fecharModal}>X</BotaoFechar>
-          <h3>Cadastrar Nova Tarefa</h3>
-          <label>Nome da Tarefa:</label>
-          <input
-            type="text"
-            value={novaTarefa.nomeTarefa}
-            onChange={(e) =>
-              setNovaTarefa({ ...novaTarefa, nomeTarefa: e.target.value })
-            }
-          />
-          <label>Descrição:</label>
-          <input
-            type="text"
-            value={novaTarefa.descricao}
-            onChange={(e) =>
-              setNovaTarefa({ ...novaTarefa, descricao: e.target.value })
-            }
-          />
-          <label>Prioridade:</label>
-          <SelectPrioridade
-            value={novaTarefa.prioridade}
-            onChange={(e) =>
-              setNovaTarefa({ ...novaTarefa, prioridade: e.target.value })
-            }
-          >
-            <option value="baixa">Baixa</option>
-            <option value="media">Média</option>
-            <option value="alta">Alta</option>
-          </SelectPrioridade>
-          <label>Prazo Limite:</label>
-          <input
-            type="datetime-local"
-            value={novaTarefa.prazoLimite}
-            onChange={handlePrazoLimiteChange}
-          />
-          <div>
-            <h3>Selecionar Responsáveis:</h3>
-            <div className="custom-dropdown">
-              <button
-                className="dropdown-btn"
-                onClick={() => setDropdownAberto(!dropdownAberto)}
-              >
-                Selecione Advogados ▼
-              </button>
-              {dropdownAberto && (
-                <div className="dropdown-content">
-                  {advogados.length > 0 ? (
-                    advogados.map((advogado) => (
-                      <label key={advogado.id} className="dropdown-item">
-                        <input
-                          type="checkbox"
-                          checked={novaTarefa.responsaveisId.includes(advogado.id)}
-                          onChange={() => toggleSelecionarAdvogado(advogado)}
-                        />
-                        {advogado.nome}
-                      </label>
-                    ))
-                  ) : (
-                    <p className="dropdown-empty">Nenhum advogado cadastrado</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-          <div style={{ marginTop: "12px" }}>
-            <h4 style={{ fontSize: "16px", fontWeight: "bold" }}>Responsáveis Selecionados:</h4>
-            {novaTarefa.responsaveisNome.length > 0 ? (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
-                {novaTarefa.responsaveisNome.map((nome, index) => (
-                  <div
-                    key={novaTarefa.responsaveisId[index]}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      backgroundColor: "#f0f0f0",
-                      padding: "8px 12px",
-                      borderRadius: "20px",
-                      boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                    }}
-                  >
-                    <span style={{ marginRight: "10px", fontSize: "14px" }}>{nome}</span>
-                    <button
-                      type="button"
-                      onClick={() => removerResponsavel(novaTarefa.responsaveisId[index])}
-                      style={{
-                        backgroundColor: "red",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "50%",
-                        width: "24px",
-                        height: "24px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      ✖
-                    </button>
-                  </div>
-                ))}
-              </div>
+  <ModalContent>
+    <BotaoFechar onClick={fecharModal}>×</BotaoFechar>
+    <h3>Cadastrar Nova Tarefa</h3>
+
+    <div>
+      <FormLabel>Nome da Tarefa:</FormLabel>
+      <FormInput
+        type="text"
+        value={novaTarefa.nomeTarefa}
+        onChange={(e) => setNovaTarefa({ ...novaTarefa, nomeTarefa: e.target.value })}
+        placeholder="Digite o nome da tarefa"
+      />
+    </div>
+
+    <div>
+      <FormLabel>Descrição:</FormLabel>
+      <FormInput
+        type="text"
+        value={novaTarefa.descricao}
+        onChange={(e) => setNovaTarefa({ ...novaTarefa, descricao: e.target.value })}
+        placeholder="Descreva a tarefa"
+      />
+    </div>
+
+    <div>
+      <FormLabel>Prioridade:</FormLabel>
+      <SelectPrioridade
+        value={novaTarefa.prioridade}
+        onChange={(e) => setNovaTarefa({ ...novaTarefa, prioridade: e.target.value })}
+      >
+        <option value="baixa">Baixa</option>
+        <option value="media">Média</option>
+        <option value="alta">Alta</option>
+      </SelectPrioridade>
+    </div>
+
+    <div>
+      <FormLabel>Prazo Limite:</FormLabel>
+      <FormInput
+        type="datetime-local"
+        value={novaTarefa.prazoLimite}
+        onChange={handlePrazoLimiteChange}
+      />
+    </div>
+
+    <div>
+      <FormLabel>Selecionar Responsáveis:</FormLabel>
+      <DropdownContainer>
+        <DropdownButton onClick={() => setDropdownAberto(!dropdownAberto)}>
+          Selecione Advogados <span>▼</span>
+        </DropdownButton>
+        {dropdownAberto && (
+          <DropdownContent>
+            {advogados.length > 0 ? (
+              advogados.map((advogado) => (
+                <DropdownItem key={advogado.id}>
+                  <input
+                    type="checkbox"
+                    checked={novaTarefa.responsaveisId.includes(advogado.id)}
+                    onChange={() => toggleSelecionarAdvogado(advogado)}
+                  />
+                  {advogado.nome}
+                </DropdownItem>
+              ))
             ) : (
-              <p style={{ color: "#666", fontSize: "14px" }}>Nenhum responsável selecionado.</p>
+              <p style={{ color: "#7f8c8d", padding: "10px" }}>
+                Nenhum advogado cadastrado
+              </p>
             )}
-          </div>
-          <BotaoAdicionar onClick={handleSubmit}>Cadastrar</BotaoAdicionar>
-        </ModalContent>
-      </ModalOverlay>
+          </DropdownContent>
+        )}
+      </DropdownContainer>
+    </div>
+
+    <div>
+      <FormLabel>Responsáveis Selecionados:</FormLabel>
+      {novaTarefa.responsaveisNome.length > 0 ? (
+        <ResponsaveisList>
+          {novaTarefa.responsaveisNome.map((nome, index) => (
+            <ResponsavelTag key={novaTarefa.responsaveisId[index]}>
+            <span>{nome}</span>
+            <RemoveButton
+              onClick={() => toggleSelecionarAdvogado(advogados.find(a => a.id === novaTarefa.responsaveisId[index]))}
+            >
+              ×
+            </RemoveButton>
+          </ResponsavelTag>
+          ))}
+        </ResponsaveisList>
+      ) : (
+        <p style={{ color: "#7f8c8d", fontSize: "14px" }}>
+          Nenhum responsável selecionado
+        </p>
+      )}
+    </div>
+
+    <BotaoAdicionar onClick={handleSubmit}>Cadastrar</BotaoAdicionar>
+  </ModalContent>
+</ModalOverlay>
 
       {/* Modal de detalhes */}
       <ModalOverlay show={showDetalhesModal}>

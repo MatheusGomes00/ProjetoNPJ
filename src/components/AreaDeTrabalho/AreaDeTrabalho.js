@@ -1,5 +1,7 @@
 import React from "react";
 import Tarefas from "./Tarefas";
+import ProcessosAreaDeTrabalho from "./ProcessosAreaDeTrabalho";
+import Notificacoes from "./Notificacoes"; // Novo import
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import styled from "styled-components";
 
@@ -7,28 +9,38 @@ import styled from "styled-components";
 const GridContainer = styled.div`
   height: calc(100% - 20px); /* Respeita o espaço do MainContent */
   width: calc(100% - 20px); /* Respeita o espaço do MainContent */
-  position: relative; /* Referência para o GridItem absoluto */
+  position: relative; /* Referência para os GridItems absolutos */
   padding: 0; /* Sem padding no container */
 `;
 
-const GridItem = styled.div`
-  background-color:rgb(226, 0, 0);
+const GridItemTarefas = styled.div`
+  background-color: rgb(226, 0, 0);
   position: absolute;
-  top: 100px; /* Logo abaixo do SearchBarTop */
-  left: 200px; /* Logo ao lado do Sidebar */
-  width: 720px; /* Mesmo tamanho do Tarefas */
-  height: 400px; /* Mesmo tamanho do Tarefas */
-  top: 0px; /* Logo abaixo do SearchBarTop (100px) */
+  top: 0px;
   left: 32px;
+  width: 720px;
+  height: 400px;
+`;
+
+const GridItemProcessos = styled.div`
+  position: absolute;
+  top: 0px;
+  left: 752px; /* 720px (largura do Tarefas) + 32px (esquerda do Tarefas) */
+  width: 445px; /* Atualizado para refletir o novo tamanho */
+  height: 595px; /* Atualizado para refletir o novo tamanho */
 `;
 
 function AreaDeTrabalho() {
   return (
     <ComponentesFixos>
       <GridContainer>
-        <GridItem>
+        <GridItemTarefas>
           <Tarefas />
-        </GridItem>
+        </GridItemTarefas>
+        <GridItemProcessos>
+          <ProcessosAreaDeTrabalho />
+        </GridItemProcessos>
+        <Notificacoes /> {/* Adicionado diretamente, pois já é posicionado */}
       </GridContainer>
     </ComponentesFixos>
   );

@@ -1,24 +1,17 @@
 import React from "react";
 import styled from "styled-components";
 
-// Container principal do grid
 const ProcessosContainer = styled.div`
-  position: absolute;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
   padding: 20px;
-  right: 0px; 
-  bottom: 5px;
-  height: 590px;
-  border: 1px solid #000000; /* Borda preta */
+  width: 445px;
+  height: 595px;
+  border: 1px solid #000000;
   border-radius: 5px;
-  width: 380px;
-  z-index: 1;
-  padding: 20px; 
-  background: white; 
-  margin: auto;
-  align-items: end;
+  background: white;
+  overflow-y: auto;
 `;
 
 const ProcessoCard = styled.div`
@@ -26,10 +19,10 @@ const ProcessoCard = styled.div`
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 2px solid #000000; /* Borda preta */
+  border: 2px solid #000000;
   text-align: center;
   font-weight: bold;
-  color: #000000; /* Cor do texto */
+  color: #000000;
   display: flex;
   flex-direction: column-reverse;
   justify-content: flex-end;
@@ -37,7 +30,7 @@ const ProcessoCard = styled.div`
   cursor: pointer;
 
   &:hover {
-    background-color: #f0f8ff; /* Cor de fundo suave ao passar o mouse */
+    background-color: #f0f8ff;
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
@@ -57,13 +50,13 @@ const Status = styled.div`
   color: ${(props) => {
     switch (props.status) {
       case "Em andamento":
-        return "green"; // Cor verde para "Em andamento"
+        return "green";
       case "Finalizado":
-        return "red"; // Cor vermelha para "Finalizado"
+        return "red";
       case "Aguardando resposta":
-        return "yellow"; // Cor amarela para "Aguardando resposta"
+        return "yellow";
       default:
-        return "black"; // Cor padrão caso não tenha status definido
+        return "black";
     }
   }};
 `;
