@@ -7,24 +7,16 @@ import com.npj.ProjetoNPJ.advogados.dtos.UpdateRequestDto;
 import com.npj.ProjetoNPJ.advogados.dtos.UpdateSenhaDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
-import com.npj.ProjetoNPJ.advogados.entity.Advogado;
-import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
-import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
-import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/adv")

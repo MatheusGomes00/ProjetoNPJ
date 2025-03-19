@@ -62,11 +62,6 @@ public class TarefasController {
     public ResponseEntity<List<DtoTarefas>> listarTarefas() {
 
         List<DtoTarefas> dto = service.getTarefasAutenticado();
-
-        List<Tarefas> tarefas = repository.findAll();
-        if (dto.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(dto);
     }
 }
