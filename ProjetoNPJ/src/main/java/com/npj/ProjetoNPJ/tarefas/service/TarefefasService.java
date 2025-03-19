@@ -80,6 +80,16 @@ public class TarefefasService {
         if (dto.getDescricao() != null) tarefa.setDescricao(dto.getDescricao());
         if (dto.getPrioridade() != null) tarefa.setPrioridade(dto.getPrioridade());
         if (dto.getPrazoLimite() != null) tarefa.setPrazoLimite(dto.getPrazoLimite());
+
+        //Método que atualizei para o update conseguir atualizar os responsáveis também
+        if (dto.getResponsaveisId() != null && !dto.getResponsaveisId().isEmpty()) {
+            List<Advogado> advogados = dto.getResponsaveisId().stream()
+                    .map(id -> advogadoRepository.findById(id)
+                            .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
+                    .collect(Collectors.toList());
+            System.out.println("Advogados encontrados para atualização: " + advogados);
+            tarefa.setResponsaveis(advogados);
+        }
     }
 
     public void finalizar(String id){

@@ -40,7 +40,7 @@ public class TarefasMapper {
         dtoTarefas.setDataCriacao(tarefas.getDataCriacao());
         dtoTarefas.setCriador(tarefas.getCriador());
 
-        // Converte a lista de advogados para listas de IDs e Nomes
+        // Métod que atualizei para atualizar os responsáveis também
         if (tarefas.getResponsaveis() != null && !tarefas.getResponsaveis().isEmpty()) {
             List<String> ids = tarefas.getResponsaveis().stream()
                     .map(Advogado::getId)
