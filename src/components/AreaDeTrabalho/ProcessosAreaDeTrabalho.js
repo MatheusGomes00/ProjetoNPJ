@@ -6,10 +6,10 @@ const ProcessosContainer = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
   padding: 20px;
-  width: 445px;
-  height: 595px;
+  width: 29vw;
+  height: 49vw;
   border: 1px solid #000000;
-  border-radius: 5px;
+  
   background: white;
   overflow-y: auto;
 `;

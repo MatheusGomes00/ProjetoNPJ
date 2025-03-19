@@ -34,48 +34,29 @@ const GridSidebar = styled(Sidebar)`
 const MainContent = styled.div`
   grid-area: main;
   position: relative;
-  overflow: auto; /* Permite rolagem se o conteúdo for grande */
+  overflow: auto;
 `;
 
 const TopRightIcons = styled.div`
   position: absolute;
-  top: 20px; /* Distância do topo da tela */
-  right: 20px; /* Distância da direita da tela */
+  top: 20px;
+  right: 20px;
   display: flex;
   gap: 10px;
-  z-index: 1000; /* Garante que fique acima de outros elementos */
-`;
-
-
-
-const CornerLabel = styled.div`
-  position: absolute;
-  top: 10px; /* Canto superior esquerdo */
-  left: 10px;
-  font-family: Arial, sans-serif;
-  z-index: 1000; /* Acima do Sidebar e SearchBarTop */
-  color: #333;
+  z-index: 1000;
 `;
 
 const ComponentesFixos = ({ children }) => {
   return (
     <FixedGridContainer>
       <GridSearchBar />
-      <CornerLabel>
-        <span className="corner-label-npj">NPJ</span>
-        <br />
-        <span className="corner-label-anhanguera">ANHANGUERA</span>
-      </CornerLabel>
       <TopRightIcons>
         <IconeNotificacoes />
         <IconeLogOut />
         <IconeNovaTarefa />
       </TopRightIcons>
       <GridSidebar />
-      <MainContent>
-        
-        {children} {/* Aqui vai o conteúdo dinâmico, como Tarefas */}
-      </MainContent>
+      <MainContent>{children}</MainContent>
     </FixedGridContainer>
   );
 };

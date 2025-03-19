@@ -2,7 +2,7 @@ import styled from "styled-components";
 import React, { useState, useEffect, useCallback } from "react";
 import useAuth from "../Seguranca/UseAuth";
 
-// Botão Editar (mantido como está)
+// Estilos mantidos iguais ao seu código original
 const BotaoEditar = styled.button`
   background: #007bff;
   color: white;
@@ -26,7 +26,6 @@ const BotaoEditar = styled.button`
   }
 `;
 
-// ModalOverlay (mantido como está)
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -40,7 +39,6 @@ const ModalOverlay = styled.div`
   z-index: 999;
 `;
 
-// ModalContainer (mantido como está)
 const ModalContainer = styled.div`
   background: #fff;
   padding: 24px;
@@ -52,7 +50,6 @@ const ModalContainer = styled.div`
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 `;
 
-// Botão Fechar (mantido como está)
 const BotaoFechar = styled.button`
   position: absolute;
   top: 16px;
@@ -68,24 +65,20 @@ const BotaoFechar = styled.button`
   }
 `;
 
-// TarefaDetalhesModal (mantido como está)
 const TarefaDetalhesModal = styled.div``;
 
-// DetalheItem (mantido como está)
 const DetalheItem = styled.div`
   display: flex;
   margin-bottom: 12px;
   align-items: center;
 `;
 
-// Label (mantido como está)
 const Label = styled.label`
   font-weight: 600;
   width: 120px;
   color: #555;
 `;
 
-// Input (mantido como está)
 const Input = styled.input`
   padding: 10px;
   border-radius: 8px;
@@ -101,7 +94,6 @@ const Input = styled.input`
   }
 `;
 
-// Select (mantido como está, mas não será mais usado para responsáveis)
 const Select = styled.select`
   padding: 10px;
   border-radius: 8px;
@@ -117,7 +109,6 @@ const Select = styled.select`
   }
 `;
 
-// Botão Salvar (mantido como está)
 const BotaoSalvar = styled.button`
   background: #28a745;
   color: white;
@@ -141,7 +132,6 @@ const BotaoSalvar = styled.button`
   }
 `;
 
-// Novos componentes para o dropdown de responsáveis (copiados do Tarefas)
 const DropdownContainer = styled.div`
   position: relative;
   width: 100%;
@@ -248,7 +238,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
     descricao: "",
     prioridade: "",
     prazoLimite: "",
-    responsaveisId: [], // Alterei para responsaveisId, alinhado com Tarefas.js
+    responsaveisId: [],
     responsaveisNome: [],
     status: false,
   });
@@ -256,7 +246,6 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const { fetchAuthenticated } = useAuth();
 
-  // Função para buscar advogados, memoizada
   const fetchAdvogados = useCallback(async () => {
     try {
       const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
@@ -271,14 +260,12 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
     }
   }, [fetchAuthenticated]);
 
-  // Carregar advogados apenas uma vez ao abrir o modal
   useEffect(() => {
     if (modalAberto && advogados.length === 0) {
       fetchAdvogados();
     }
   }, [modalAberto, advogados.length, fetchAdvogados]);
 
-  // Inicializar tarefa ao mudar tarefaSelecionada
   useEffect(() => {
     if (tarefaSelecionada) {
       setTarefa({
@@ -286,7 +273,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
         descricao: tarefaSelecionada.descricao || "",
         prioridade: tarefaSelecionada.prioridade || "",
         prazoLimite: tarefaSelecionada.prazoLimite || "",
-        responsaveisId: tarefaSelecionada.responsaveisId || [], // Incluí responsaveisId
+        responsaveisId: tarefaSelecionada.responsaveisId || [],
         responsaveisNome: tarefaSelecionada.responsaveisNome || [],
         status: tarefaSelecionada.status || false,
       });
@@ -318,14 +305,14 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
     setTarefa((prevTarefa) => {
       const isSelected = prevTarefa.responsaveisId.includes(advogado.id);
       if (isSelected) {
+        
         return {
           ...prevTarefa,
           responsaveisId: prevTarefa.responsaveisId.filter((id) => id !== advogado.id),
-          responsaveisNome: prevTarefa.responsaveisNome.filter(
-            (nome) => nome !== advogado.nome
-          ),
+          responsaveisNome: prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome),
         };
       } else {
+        
         return {
           ...prevTarefa,
           responsaveisId: [...prevTarefa.responsaveisId, advogado.id],
@@ -338,15 +325,15 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
   const removerResponsavel = (id) => {
     setTarefa((prevTarefa) => {
       const index = prevTarefa.responsaveisId.indexOf(id);
-      if (index === -1) return prevTarefa; // Não altera se o ID não for encontrado
-  
+      if (index === -1) return prevTarefa;
+
+      const novoIdRemovido = prevTarefa.responsaveisId[index];
+      const novoNomeRemovido = prevTarefa.responsaveisNome[index];
       const novosIds = prevTarefa.responsaveisId.filter((rid) => rid !== id);
-      const novoNomeRemovido = prevTarefa.responsaveisNome[index]; // Captura o nome removido
       const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== novoNomeRemovido);
-  
-      console.log("Removendo responsável - ID:", id, "Nome:", novoNomeRemovido);
-      console.log("Novos IDs:", novosIds, "Novos Nomes:", novosNomes);
-  
+
+      
+
       return {
         ...prevTarefa,
         responsaveisId: novosIds,
@@ -354,12 +341,13 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
       };
     });
   };
+
   const salvarTarefa = async () => {
     if (!tarefaSelecionada) {
       alert("Nenhuma tarefa selecionada.");
       return;
     }
-  
+
     try {
       const tarefaAtualizada = {
         nomeTarefa: tarefa.nomeTarefa,
@@ -370,9 +358,9 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
         responsaveisNome: tarefa.responsaveisNome,
         status: tarefa.status,
       };
-  
-      console.log("Payload enviado para atualização:", JSON.stringify(tarefaAtualizada));
-  
+
+     
+
       const response = await fetchAuthenticated(
         `http://localhost:8080/task/upd/${tarefaSelecionada.id}`,
         {
@@ -383,14 +371,14 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
           body: JSON.stringify(tarefaAtualizada),
         }
       );
-  
+
       if (!response.ok) {
         const errorData = await response.text();
         throw new Error(`Erro na requisição: ${response.status} - ${errorData || "Sem detalhes"}`);
       }
-  
-      console.log("Resposta da API:", response.status);
-  
+
+      
+
       await carregarTarefas(true); // Recarregar antes de fechar
       alert("Tarefa atualizada com sucesso!");
       fecharModal();
@@ -399,6 +387,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
       alert(`Erro ao salvar a tarefa: ${error.message}`);
     }
   };
+
   return (
     <div>
       <BotaoEditar onClick={abrirModal}>Editar</BotaoEditar>

@@ -1,7 +1,7 @@
 import React from "react";
 import Tarefas from "./Tarefas";
 import ProcessosAreaDeTrabalho from "./ProcessosAreaDeTrabalho";
-import Notificacoes from "./Notificacoes"; // Novo import
+import Notificacoes from "./Notificacoes";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import styled from "styled-components";
 
@@ -18,15 +18,15 @@ const GridItemTarefas = styled.div`
   position: absolute;
   top: 0px;
   left: 32px;
-  width: 720px;
+  width: 102vh;
   height: 400px;
 `;
 
 const GridItemProcessos = styled.div`
   position: absolute;
   top: 0px;
-  left: 752px; /* 720px (largura do Tarefas) + 32px (esquerda do Tarefas) */
-  width: 445px; /* Atualizado para refletir o novo tamanho */
+  left: 106vh; /* 720px (largura do Tarefas) + 32px (esquerda do Tarefas) */
+  width: 10vw; /* Atualizado para refletir o novo tamanho */
   height: 595px; /* Atualizado para refletir o novo tamanho */
 `;
 
@@ -37,10 +37,10 @@ function AreaDeTrabalho() {
         <GridItemTarefas>
           <Tarefas />
         </GridItemTarefas>
-        <GridItemProcessos>
-          <ProcessosAreaDeTrabalho />
-        </GridItemProcessos>
-        <Notificacoes /> {/* Adicionado diretamente, pois já é posicionado */}
+          <GridItemProcessos>
+            <ProcessosAreaDeTrabalho></ProcessosAreaDeTrabalho>
+          </GridItemProcessos>
+        {/* Se quiser adicionar Notificações em algum lugar, pode criar um novo GridItem */}
       </GridContainer>
     </ComponentesFixos>
   );

@@ -8,7 +8,7 @@ const SidebarContainer = styled.div`
   position: absolute;
   top: 100px;
   left: 0;
-  height: 605px;
+  height: 50vw;
   width: 200px;
   background-color: #ffffff;
   border-right: 1px solid #000000;
@@ -17,6 +17,7 @@ const SidebarContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  overflow-y: auto;
 `;
 
 // Estilo do título
