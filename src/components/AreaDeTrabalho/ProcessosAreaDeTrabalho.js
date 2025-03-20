@@ -20,7 +20,7 @@ const ProcessosContainer = styled.div`
 
 const ProcessosGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 15px;
 `;
 
