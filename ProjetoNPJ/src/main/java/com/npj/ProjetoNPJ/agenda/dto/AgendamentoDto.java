@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class CreateAgendamentoDto {
+public class AgendamentoDto {
 
     @NotBlank
     private String nome;
