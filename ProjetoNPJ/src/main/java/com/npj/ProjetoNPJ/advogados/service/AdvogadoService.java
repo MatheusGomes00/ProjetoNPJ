@@ -80,6 +80,7 @@ public class AdvogadoService {
             advogado.setDatanasc(dto.getDatanasc());
         }
         if (dto.getCpf() != null) {
+            validarCpf(dto.getCpf());
             advogado.setCpf(normalizarCpf(dto.getCpf()));
         }
         if (dto.getRegistroOab() != null) {
