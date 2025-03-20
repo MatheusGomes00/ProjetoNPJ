@@ -11,7 +11,7 @@ const TarefasContainer = styled.div`
   width: calc(106vh - 32px);
   height: 400px;
   padding: 40px;
-  border: 2px solid black;
+  border: 1px solid black;
   border-radius: 0px;
   background: #fff;
   box-sizing: border-box;
@@ -34,7 +34,7 @@ const ListaTarefas = styled.div`
   align-items: flex-start;
   width: 100%;
   max-width: 200%;
-  max-height: 350px;
+  max-height: 380px;
   overflow-y: auto;
   padding: 10px;
   border: 1px solid #ccc;

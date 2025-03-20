@@ -8,7 +8,7 @@ const NotificacoesContainer = styled.div`
   gap: 10px;
   padding: 20px;
   width: 100%;
-  height: 53vh;
+  height: 50vh;
   border: 1px solid #000000;
   background: white;
   box-sizing: border-box;
