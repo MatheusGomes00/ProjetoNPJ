@@ -40,7 +40,6 @@ const ListaTarefas = styled.div`
   border: 1px solid #ccc;
   border-radius: 8px;
 `;
-
 const TarefaCard = styled.div`
   font-size: 15px;
   background-color: #f9f9f9;
@@ -435,6 +434,16 @@ function Tarefas() {
   const [dropdownAberto, setDropdownAberto] = useState(false);
   
 
+  const formatarData = (dataString) => {
+    const data = new Date(dataString);
+    const dia = String(data.getDate()).padStart(2, "0");
+    const mes = String(data.getMonth() + 1).padStart(2, "0"); // Mês começa em 0, então somamos 1
+    const ano = data.getFullYear();
+    const horas = String(data.getHours()).padStart(2, "0");
+    const minutos = String(data.getMinutes()).padStart(2, "0");
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+  }
+
   const [novaTarefa, setNovaTarefa] = useState({
     nomeTarefa: "",
     descricao: "",
@@ -723,7 +732,7 @@ function Tarefas() {
             <StatusTag prioridade={tarefa.prioridade} />
             <div>{tarefa.nomeTarefa}</div>
             <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
-            <div>{tarefa.prazoLimite}</div>
+            <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
           </TarefaCard>
         ))}
       </ListaTarefas>
@@ -859,8 +868,8 @@ function Tarefas() {
             <Valor>{tarefaSelecionada?.prioridade || "Nenhuma"}</Valor>
           </DetalheItem>
           <DetalheItem>
-            <Label>Prazos:</Label>
-            <Valor>{tarefaSelecionada?.prazoLimite || "Sem prazo"}</Valor>
+          <Label>Prazo:</Label>
+          <Valor>{formatarData(tarefaSelecionada?.prazoLimite)}</Valor>
           </DetalheItem>
           <DetalheItem>
             <Label>Responsável:</Label>
