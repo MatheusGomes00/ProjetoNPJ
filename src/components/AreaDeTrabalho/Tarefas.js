@@ -8,7 +8,7 @@ const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 102vh;
+  width: calc(106vh - 32px);
   height: 400px;
   padding: 40px;
   border: 2px solid black;

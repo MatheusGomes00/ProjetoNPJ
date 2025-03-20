@@ -18,7 +18,7 @@ const GridItemTarefas = styled.div`
   position: absolute;
   top: 0px;
   left: 32px;
-  width: 102vh;
+  width: calc(106vh - 32px);
   height: 400px;
 `;
 
@@ -30,6 +30,16 @@ const GridItemProcessos = styled.div`
   height: 595px; /* Atualizado para refletir o novo tamanho */
 `;
 
+const GridItemNotificacoes = styled.div`
+  position: absolute;
+  top: 401px; /* 400px (altura do GridItemTarefas) + 20px (espaço) */
+  left: 32px; /* Mesmo left que o GridItemTarefas */
+  width: calc(106vh - 32px); /* Largura até encostar no GridItemProcessos */
+  height: 215px; /* Altura da telinha de notificações (ajuste conforme necessário) */
+  box-sizing: border-box;
+`;
+
+
 function AreaDeTrabalho() {
   return (
     <ComponentesFixos>
@@ -40,7 +50,10 @@ function AreaDeTrabalho() {
           <GridItemProcessos>
             <ProcessosAreaDeTrabalho></ProcessosAreaDeTrabalho>
           </GridItemProcessos>
-        {/* Se quiser adicionar Notificações em algum lugar, pode criar um novo GridItem */}
+          <GridItemNotificacoes>
+          <Notificacoes />
+        </GridItemNotificacoes>
+       
       </GridContainer>
     </ComponentesFixos>
   );

@@ -1,117 +1,60 @@
+// Notificacoes.js
 import React from "react";
 import styled from "styled-components";
 
-// Container principal das notificações
+// Estilo do container de notificações
 const NotificacoesContainer = styled.div`
-  position: absolute;
-  top: 420px; /* 400px (altura do Tarefas) + 20px de espaço */
-  left: 33px; /* Alinhado com o início do Tarefas */
-  width: 678px; 
-  max-height: 150px; 
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: 20px;
-  background: #ffffff;
-  border: 1px solid #dfe6e9;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+  width: 100%;
+  height: 53vh;
+  border: 1px solid #000000;
+  background: white;
   overflow-y: auto;
+  box-sizing: border-box;
 `;
 
-const TituloNotificacoes = styled.h2`
-  grid-column: span 2;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 600;
-  color: #2c3e50;
-  margin: 0 0 15px;
+// Estilo de cada item de notificação
+const NotificacaoItem = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-`;
-
-const NotificacaoCard = styled.div`
-  background: #f9fbfc;
-  padding: 15px;
-  border: 1px solid #dfe6e9;
-  border-radius: 8px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const NotificacaoTitulo = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: #34495e;
-  margin: 0 0 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-`;
-
-const NotificacaoMensagem = styled.p`
+  padding: 10px;
+  background: #f0f0f0;
+  border-radius: 5px;
   font-size: 14px;
-  color: #7f8c8d;
-  margin: 0;
 `;
 
-const BotaoMostrarTudo = styled.button`
-  grid-column: span 2;
-  padding: 12px;
-  margin-top: 15px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  transition: background 0.3s ease, transform 0.2s ease;
+function Notificacoes() {
+  // Exemplo de dados de notificações (você pode substituir por dados reais)
+  const notificacoes = [
+    { id: 1, mensagem: "Nova tarefa atribuída: Reunião com Bárbara", data: "10/03/2025, 14:30:00" },
+    { id: 2, mensagem: "Processo 101 finalizado", data: "10/03/2025, 07:00:00" },
+    { id: 3, mensagem: "Atualização no Processo 303", data: "09/03/2025, 19:15:00" },
+    { id: 1, mensagem: "Nova tarefa atribuída: Reunião com Bárbara", data: "10/03/2025, 14:30:00" },
+    { id: 2, mensagem: "Processo 101 finalizado", data: "10/03/2025, 07:00:00" },
+    { id: 3, mensagem: "Atualização no Processo 303", data: "09/03/2025, 19:15:00" },
+    { id: 1, mensagem: "Nova tarefa atribuída: Reunião com Bárbara", data: "10/03/2025, 14:30:00" },
+    { id: 2, mensagem: "Processo 101 finalizado", data: "10/03/2025, 07:00:00" },
+    { id: 3, mensagem: "Atualização no Processo 303", data: "09/03/2025, 19:15:00" },
+  ];
 
-  &:hover {
-    background: #0056b3;
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    background: #004085;
-    transform: translateY(0);
-  }
-`;
-
-const notificacoes = [
-  { id: 1, titulo: "Novo Cliente", mensagem: "Novo cliente interessado." },
-  { id: 2, titulo: "Pagamento Recebido", mensagem: "Pagamento confirmado." },
-  { id: 3, titulo: "Novo Pedido", mensagem: "Novo pedido realizado." },
-  { id: 4, titulo: "Atualização de Sistema", mensagem: "Sistema atualizado com sucesso." },
-  { id: 5, titulo: "Alerta de Segurança", mensagem: "Nova vulnerabilidade identificada." },
-  { id: 6, titulo: "Promoção Especial", mensagem: "Desconto de 20% em todos os produtos." },
-];
-
-const Notificacoes = () => {
   return (
     <NotificacoesContainer>
-      <TituloNotificacoes>🔔 Suas Notificações</TituloNotificacoes>
-      {notificacoes.map((notificacao) => (
-        <NotificacaoCard key={notificacao.id}>
-          <NotificacaoTitulo>🔔 {notificacao.titulo}</NotificacaoTitulo>
-          <NotificacaoMensagem>{notificacao.mensagem}</NotificacaoMensagem>
-        </NotificacaoCard>
-      ))}
-      <BotaoMostrarTudo>Mostrar Tudo: ➕</BotaoMostrarTudo>
+      {notificacoes.length > 0 ? (
+        notificacoes.map((notificacao) => (
+          <NotificacaoItem key={notificacao.id}>
+            <span>{notificacao.mensagem}</span>
+            <span>{notificacao.data}</span>
+          </NotificacaoItem>
+        ))
+      ) : (
+        <p>Nenhuma notificação disponível.</p>
+      )}
     </NotificacoesContainer>
   );
-};
+}
 
 export default Notificacoes;

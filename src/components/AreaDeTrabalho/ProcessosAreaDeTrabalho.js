@@ -1,70 +1,95 @@
 import React from "react";
 import styled from "styled-components";
+import { createGlobalStyle } from "styled-components";
+
+const GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+`;
 
 const ProcessosContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column; /* Mudado para flex para incluir o título */
   gap: 15px;
   padding: 20px;
   width: 29vw;
   height: 49vw;
-  border: 1px solid #000000;
-  
+  border: none;
   background: white;
   overflow-y: auto;
 `;
 
+const ProcessosGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+`;
+
+const ProcessosTitle = styled.h2`
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  color: #333;
+  margin: 0 0 10px 0; /* Espaço abaixo do título */
+  text-align: left;
+`;
+
 const ProcessoCard = styled.div`
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 2px solid #000000;
-  text-align: center;
-  font-weight: bold;
-  color: #000000;
+  background:rgba(232, 234, 236, 0.42);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: none;
   display: flex;
-  flex-direction: column-reverse;
-  justify-content: flex-end;
+  flex-direction: column;
+  justify-content: space-between;
   height: 150px;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    background-color: #f0f8ff;
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    background-color: #f9faff;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   }
 
   &:active {
-    transform: translateY(2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   }
-
-  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 `;
 
 const Status = styled.div`
-  font-size: 20px;
-  margin-top: 10px;
-  font-weight: normal;
-  color: ${(props) => {
+  align-self: flex-start;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background: ${(props) => {
     switch (props.status) {
       case "Em andamento":
-        return "green";
+        return "#1890ff";
       case "Finalizado":
-        return "red";
+        return "#52c41a";
       case "Aguardando resposta":
-        return "yellow";
+        return "#faad14";
       default:
-        return "black";
+        return "#d9d9d9";
     }
   }};
 `;
 
+const ProcessoNome = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+`;
+
 const UltimaAtualizacao = styled.div`
-  font-size: 12px;
-  color: #888;
-  margin-top: 5px;
+  font-size: 11px;
+  color: #666;
+  text-align: left;
 `;
 
 const processos = [
@@ -77,15 +102,18 @@ const processos = [
 const ProcessosAreaDeTrabalho = () => {
   return (
     <ProcessosContainer>
-      {processos.map((processo) => (
-        <ProcessoCard key={processo.id} onClick={() => alert(`Clicou em ${processo.nome}`)}>
-          <div>{processo.nome}</div>
-          <Status status={processo.status}>{processo.status}</Status>
-          <UltimaAtualizacao>
-            Última atualização: {new Date(processo.ultimaAtualizacao).toLocaleString()}
-          </UltimaAtualizacao>
-        </ProcessoCard>
-      ))}
+      <ProcessosTitle>Seus Processos/Casos</ProcessosTitle>
+      <ProcessosGrid>
+        {processos.map((processo) => (
+          <ProcessoCard key={processo.id} onClick={() => alert(`Clicou em ${processo.nome}`)}>
+            <Status status={processo.status}>{processo.status}</Status>
+            <ProcessoNome>{processo.nome}</ProcessoNome>
+            <UltimaAtualizacao>
+              Última atualização: {new Date(processo.ultimaAtualizacao).toLocaleString()}
+            </UltimaAtualizacao>
+          </ProcessoCard>
+        ))}
+      </ProcessosGrid>
     </ProcessosContainer>
   );
 };
