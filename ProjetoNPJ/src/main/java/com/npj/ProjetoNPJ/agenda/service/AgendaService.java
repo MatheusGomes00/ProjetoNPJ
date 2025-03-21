@@ -37,30 +37,58 @@ public class AgendaService {
         }
     }
 
-    public void validarCpf(String cpf) {
-        Boolean verificador = clienteRepository.existsByClienteCpf(cpf);
-        if (verificador) {
-            throw new CpfUnicoException("CPF " + cpf + " já cadastrado!");
-        }
-    }
-
     public String normalizarCpf(String cpf) {
         return cpf.replaceAll("[.\\-\\s]", "");
     }
 
+
     public ResponseAgendamentoDto criarAgendamento(AgendamentoDto dto) {
         dto.setCpf(normalizarCpf(dto.getCpf()));
-        validarCpf(dto.getCpf());
         // ... lógica para programar notificação
 
         agendaRepository.insert(AgendaMapper.toEntity(dto));
         return AgendaMapper.toResponseDto(dto);
     }
 
-    public ResponseAgendamentoDto atualizarAgendamento(AgendamentoDto dto, String id) {
-        Agendamento agendamento = agendaRepository.findById(id)
+    // public void notificarResponsaveis() {
+    //
+    // }
+
+    // public void criarAlerta() {
+    //
+    // }
+
+
+    public ResponseAgendamentoDto atualizarAgendamento(AgendamentoDto updateDto, String id) {
+        Agendamento registro = agendaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento não localizado"));
 
+        updateData(registro, updateDto);
+        agendaRepository.save(registro);
+
+        return AgendaMapper.toResponseDto(updateDto);
+    }
+
+    public void updateData(Agendamento registro, AgendamentoDto updateDto) {
+        if(updateDto.getNome() != null) {
+            registro.setNome(updateDto.getNome());
+        }
+        if(updateDto.getCpf() != null) {
+            registro.setCpf(updateDto.getCpf());
+        }
+        if(updateDto.getDataAgendamento() != null) {
+            registro.setDataAgendamento(updateDto.getDataAgendamento());
+        }
+        if(updateDto.getCasoTipo() != null) {
+            registro.setCasoTipo(updateDto.getCasoTipo());
+        }
+        if(updateDto.getResponsaveis() != null) {
+            registro.setResponsaveis(updateDto.getResponsaveis());
+        }
+    }
+
+    public ResponseAgendamentoDto buscarNome(String nome) {
 
     }
+
 }
