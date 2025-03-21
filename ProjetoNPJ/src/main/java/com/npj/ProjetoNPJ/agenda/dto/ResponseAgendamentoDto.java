@@ -12,6 +12,8 @@ import java.util.List;
 @Setter
 public class ResponseAgendamentoDto {
 
+    private String id;
+
     private String nome;
 
     private String cpf;
