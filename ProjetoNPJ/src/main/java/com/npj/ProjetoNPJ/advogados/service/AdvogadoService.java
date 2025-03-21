@@ -127,7 +127,9 @@ public class AdvogadoService {
     }
 
     public List<ResponseAdvogadoDto> findByNome(String nome){
-
+        if (nome == null || nome.isBlank()) {
+            throw new NullPointerException("Nome não pode ser nulo ou estar em branco.");
+        }
         List<Advogado> advogados = repository.findByNome(nome);
         if(advogados.isEmpty()) {
             throw new RecursoNaoEncontradoException("Nome não localizado");
@@ -140,7 +142,6 @@ public class AdvogadoService {
         if(cpf == null || cpf.isBlank()) {
             throw new NullPointerException("CPF não pode ser nulo ou estar em branco");
         }
-
         String cpfTratado = normalizarCpf(cpf);
         List<Advogado> advogados = repository.findExistsByCpf(cpfTratado);
         if(advogados.isEmpty()) {
@@ -150,7 +151,9 @@ public class AdvogadoService {
     }
 
     public ResponseAdvogadoDto findById(String id) {
-
+        if(id == null || id.isBlank()) {
+            throw new NullPointerException("ID não pode ser nulo ou estar em branco.");
+        }
         Advogado advogado = repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não localizado."));
         return AdvogadoMapper.responseDto(advogado);

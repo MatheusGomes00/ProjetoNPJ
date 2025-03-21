@@ -7,12 +7,15 @@ import com.npj.ProjetoNPJ.agenda.entity.Agendamento;
 import com.npj.ProjetoNPJ.agenda.mapper.AgendaMapper;
 import com.npj.ProjetoNPJ.agenda.repository.AgendaRepository;
 import com.npj.ProjetoNPJ.exceptions.CpfUnicoException;
+import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.triagem.repository.CadastroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AgendaService {
@@ -87,8 +90,42 @@ public class AgendaService {
         }
     }
 
-    public ResponseAgendamentoDto buscarNome(String nome) {
-
+    public ResponseAgendamentoDto buscaId(String id) {
+        if(id == null || id.isBlank()) {
+            throw new NullPointerException("ID não pode ser nulo ou estar em branco.");
+        }
+        Agendamento agendamento = agendaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento não localizado."));
+        return AgendaMapper.toDto(agendamento);
     }
+
+    public List<ResponseAgendamentoDto> buscaTodos() {
+        List<Agendamento> agendamentos = agendaRepository.findAll();
+        return AgendaMapper.toListDto(agendamentos);
+    }
+
+    public List<ResponseAgendamentoDto> buscaNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new NullPointerException("Nome não pode ser nulo ou estar em branco.");
+        }
+        List<Agendamento> agendamentos = agendaRepository.findByNome(nome);
+        if(agendamentos.isEmpty()) {
+            throw new RecursoNaoEncontradoException("Nome não localizado.");
+        }
+        return AgendaMapper.toListDto(agendamentos);
+    }
+
+    public List<ResponseAgendamentoDto> buscaCpf(String cpf) {
+        if(cpf == null || cpf.isBlank()) {
+            throw new NullPointerException("CPF não pode ser nulo ou estar em branco");
+        }
+        String cpfTratado = normalizarCpf(cpf);
+        List<Agendamento> agendamentos = agendaRepository.findByCpf(cpfTratado);
+        if (agendamentos.isEmpty()) {
+            throw new RecursoNaoEncontradoException("CPF não localizado.");
+        }
+        return AgendaMapper.toListDto(agendamentos);
+    }
+
 
 }

@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping(value = "/age")
+@RequestMapping(value = "/agenda")
 public class AgendaController {
 
     @Autowired
@@ -26,5 +28,29 @@ public class AgendaController {
     public ResponseEntity<ResponseAgendamentoDto> atualizar(@Valid @PathVariable String id, @RequestBody AgendamentoDto dto) {
         ResponseAgendamentoDto agendamento = service.atualizarAgendamento(dto, id);
         return ResponseEntity.ok().body(agendamento);
+    }
+
+    @GetMapping(value = "/id/{id}")
+    public ResponseEntity<ResponseAgendamentoDto> buscarPorId(@PathVariable String id) {
+        ResponseAgendamentoDto agendamento = service.buscaId(id);
+        return ResponseEntity.ok().body(agendamento);
+    }
+
+    @GetMapping(value = "/todos")
+    public ResponseEntity<List<ResponseAgendamentoDto>> buscarTodos() {
+        List<ResponseAgendamentoDto> agendamentos = service.buscaTodos();
+        return ResponseEntity.ok().body(agendamentos);
+    }
+
+    @GetMapping(value = "/nome/{nome}")
+    public ResponseEntity<List<ResponseAgendamentoDto>> buscarPorNome(@PathVariable String nome) {
+        List<ResponseAgendamentoDto> agendamentos = service.buscaNome(nome);
+        return ResponseEntity.ok().body(agendamentos);
+    }
+
+    @GetMapping(value = "/cpf/{cpf}")
+    public ResponseEntity<List<ResponseAgendamentoDto>> buscarPorCpf(@PathVariable String cpf) {
+        List<ResponseAgendamentoDto> agendamentos = service.buscaCpf(cpf);
+        return ResponseEntity.ok().body(agendamentos);
     }
 }
