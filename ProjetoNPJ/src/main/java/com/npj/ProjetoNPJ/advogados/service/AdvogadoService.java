@@ -68,6 +68,13 @@ public class AdvogadoService {
                 .findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado."));
 
+        String cpfNovo = normalizarCpf(dto.getCpf());
+        String cpfAntigo = normalizarCpf(advAntigo.getCpf());
+
+        if(!cpfAntigo.equals(cpfNovo)) {
+            validarCpf(cpfNovo);
+        }
+
         updateData(advAntigo, dto);
         repository.save(advAntigo);
     }
@@ -80,7 +87,6 @@ public class AdvogadoService {
             advogado.setDatanasc(dto.getDatanasc());
         }
         if (dto.getCpf() != null) {
-            validarCpf(dto.getCpf());
             advogado.setCpf(normalizarCpf(dto.getCpf()));
         }
         if (dto.getRegistroOab() != null) {
