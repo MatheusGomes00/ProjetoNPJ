@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.tarefas.controller;
 
 
+import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
@@ -63,5 +64,12 @@ public class TarefasController {
 
         List<DtoTarefas> dto = service.getTarefasAutenticado();
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping(value = "/search/{nome}")
+    public ResponseEntity<List<DtoTarefas>> buscarPorNome(@PathVariable String nome){
+
+        List<DtoTarefas> tarefas = service.findByNome(nome);
+        return ResponseEntity.ok(tarefas);
     }
 }

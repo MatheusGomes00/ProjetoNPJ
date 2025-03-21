@@ -13,6 +13,10 @@ public interface TarefasRepository extends MongoRepository<Tarefas, String> {
     List<Tarefas> findByAdvogado(String advogadoId);
 
 
+    @Query("{ 'nomeTarefa': { $regex: ?0, $options: 'i' } }")
+    List<Tarefas> findByNome(String nome);
+
+
 
 
 

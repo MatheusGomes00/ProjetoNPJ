@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.tarefas.service;
 
 import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
+import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
@@ -104,5 +105,14 @@ public class TarefefasService {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
         List<Tarefas> tarefa = repository.findByAdvogado(advogado.getId());
         return TarefasMapper.toListDto(tarefa);
+    }
+
+    public List<DtoTarefas> findByNome(String nome){
+
+        List<Tarefas> tarefas = repository.findByNome(nome);
+        if(tarefas.isEmpty()) {
+            throw new RecursoNaoEncontradoException("Tarefa Nao localizada");
+        }
+        return TarefasMapper.toListDto(tarefas);
     }
 }
