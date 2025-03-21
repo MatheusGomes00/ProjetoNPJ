@@ -1,198 +1,220 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import axios from "axios";
-import Sidebar from "../ComponentesPadroes/Sidebar";
-import SearchBarTop from "../ComponentesPadroes/SearchBarTop";
-import { FaFolderOpen } from "react-icons/fa"; // Ícone para NPJ
-import IconeLogOut from "../botoesTelaImovel/IconeLogOut";
-import IconeNotificacoes from "../botoesTelaImovel/IconeNotificacoes";
-import IconeNovaTarefa from "../botoesTelaImovel/IconeNovaTarefa";
+import useAuth from "../Seguranca/UseAuth";
+import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 
-// Estilos para a Lista
-const Container = styled.div`
-  display: flex;
-  width: 100%;
-  height: 70vh;               
+// Estilo do container principal
+const MainContainer = styled.div`
+  position: absolute;
+  left: 300px;
+  top: 0;
+  width: 150vh;
+  min-height: 100vh;
+  background: #f4f7fa;
+  padding: 30px;
+  box-sizing: border-box;
 `;
 
-const Content = styled.div`
-  flex-grow: 1;
-  margin-left: 220px; /* Garante espaço para a Sidebar */
-  padding: 20px;
-`;
-
-const Header = styled.div`
+// Estilo do cabeçalho
+const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f5f5f5;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
 `;
 
-const NpjLabel = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-
-  svg {
-    margin-right: 8px;
-    color: #007bff; /* Azul para o ícone */
-  }
+// Estilo do título
+const Titulo = styled.h1`
+  font-family: "Arial", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
 `;
 
-const ListaTarefas = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding: 20px;
+// Estilo do botão de adicionar
+const BotaoAdicionar = styled.button`
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 20px;
   border-radius: 8px;
-  background-color: #fff;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  max-height: 60vh;
-  overflow-y: auto;
-`;
-
-const TarefaItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease-in-out;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.3s ease, transform 0.1s ease;
 
   &:hover {
-    transform: scale(1.02);
+    background: #2980b9;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 
-const TarefaHeader = styled.div`
+// Estilo do campo de busca
+const CampoBusca = styled.input`
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 300px;
+  margin-bottom: 20px;
+`;
+
+// Estilo do grid de tarefas
+const TarefasGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+`;
+
+// Estilo de cada card de tarefa
+const TarefaCard = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
 `;
 
-const TarefaNome = styled.h3`
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
+// Estilo para mensagens de loading ou erro
+const Mensagem = styled.p`
+  font-family: "Arial", sans-serif;
+  font-size: 16px;
+  color: #7f8c8d;
+  text-align: center;
+  margin: 20px 0;
 `;
 
-const TarefaPrioridade = styled.div`
-  background-color: ${({ prioridade }) =>
-    prioridade === "baixa"
-      ? "green"
-      : prioridade === "media"
-      ? "yellow"
-      : "red"};
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-`;
-
-const TarefaDescricao = styled.p`
-  font-size: 14px;
-  color: #666;
-  margin-top: 10px;
-`;
-
-const TarefaFooter = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  font-size: 14px;
-  color: #666;
-`;
-
-const TarefaPrazo = styled.span`
-  font-weight: bold;
-  color: #333;
-`;
-
-const TarefaResponsavel = styled.span`
-  font-style: italic;
-  color: #333;
-`;
-
-const getToken = () => {
-  return localStorage.getItem("token"); // Certifique-se de que o token está salvo corretamente
-};
-
-function TarefasMain() {
+const TarefasMain = () => {
+  const { fetchAuthenticated } = useAuth();
   const [tarefas, setTarefas] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [mensagemErro, setMensagemErro] = useState("");
+  const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [nomeBusca, setNomeBusca] = useState(""); // Estado para o campo de busca
 
-  useEffect(() => {
-    // Busca as tarefas ao carregar o componente
-    const fetchTarefas = async () => {
+  // Função para formatar a data
+  const formatarData = (dataString) => {
+    if (!dataString) return "Sem prazo";
+    const data = new Date(dataString);
+    const dia = String(data.getDate()).padStart(2, "0");
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const ano = data.getFullYear();
+    const horas = String(data.getHours()).padStart(2, "0");
+    const minutos = String(data.getMinutes()).padStart(2, "0");
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+  };
+
+  // Função para buscar tarefas por nome
+  const buscarTarefasPorNome = useCallback(
+    async (nome, forceRefresh = false) => {
+      const now = Date.now();
+      const minInterval = 5000;
+
+      if (!forceRefresh && now - lastFetchTime < minInterval && tarefas.length > 0 && !nome) {
+        console.log("Usando dados em memória, evitando requisição desnecessária.");
+        return;
+      }
+
+      setIsLoading(true);
+
       try {
-        const token = getToken();
-        const response = await axios.get("http://localhost:8080/task/get", {
+        // Se nome estiver vazio, busca todas as tarefas; caso contrário, busca por nome
+        const url = nome
+          ? `http://localhost:8080/task/search/${encodeURIComponent(nome)}`
+          : "http://localhost:8080/task/get";
+        
+        const response = await fetchAuthenticated(url, {
+          method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
-        setTarefas(response.data);
+
+        if (!response.ok) {
+          throw new Error("Erro ao buscar tarefas");
+        }
+
+        const data = await response.json();
+        console.log("Dados completos recebidos da API:", JSON.stringify(data));
+
+        if (!data || data.length === 0) {
+          setMensagemErro(nome ? "Nenhuma tarefa encontrada com esse nome." : "Nenhuma tarefa cadastrada.");
+          setTarefas([]);
+          return;
+        }
+
+        setTarefas(data);
+        setMensagemErro("");
+        setLastFetchTime(now);
       } catch (error) {
         console.error("Erro ao buscar tarefas:", error);
+        setMensagemErro("Erro ao carregar tarefas. Tente novamente mais tarde.");
+        setTarefas([]);
+      } finally {
+        setIsLoading(false);
       }
-    };
+    },
+    [fetchAuthenticated, lastFetchTime, tarefas.length]
+  );
 
-    fetchTarefas();
-  }, []);
+  // Carregar todas as tarefas ao montar o componente
+  useEffect(() => {
+    buscarTarefasPorNome("");
+  }, [buscarTarefasPorNome]);
+
+  // Função para lidar com a busca
+  const handleBusca = (e) => {
+    const nome = e.target.value;
+    setNomeBusca(nome);
+    buscarTarefasPorNome(nome, true); // Forçar a busca ao digitar
+  };
 
   return (
-    <Container>
-      {/* Sidebar à esquerda */}
-      <Sidebar />
-
-      {/* Conteúdo Principal */}
-      <Content>
-        {/* Barra de Pesquisa e Label NPJ */}
+    <ComponentesFixos>
+      <MainContainer>
         <Header>
-          <SearchBarTop />
+          <Titulo>Tarefas Principais</Titulo>
+          <BotaoAdicionar>Adicionar Tarefa</BotaoAdicionar>
         </Header>
 
-        {/* Lista de Tarefas */}
-        <h2>Lista de Tarefas</h2>
-        <div className="top-right-icons">
-          <IconeLogOut />
-          <IconeNotificacoes />
-          <IconeNovaTarefa />
-        </div>
+        <CampoBusca
+          type="text"
+          value={nomeBusca}
+          onChange={handleBusca}
+          placeholder="Buscar tarefa por nome..."
+        />
 
-        {/* Exibe as tarefas como uma lista*/}
-        <ListaTarefas>
-          {tarefas.map((tarefa) => (
-            <TarefaItem key={tarefa.nomeTarefa}>
-              <TarefaHeader>
-                <TarefaNome>{tarefa.nomeTarefa}</TarefaNome>
-                <TarefaPrioridade prioridade={tarefa.prioridade} />
-              </TarefaHeader>
-              <TarefaDescricao>{tarefa.descricao}</TarefaDescricao>
-              <TarefaFooter>
-                <TarefaPrazo>{tarefa.prazoLimite}</TarefaPrazo>
-                <TarefaResponsavel>
-                  {tarefa.responsavelNome}
-                </TarefaResponsavel>
-              </TarefaFooter>
-            </TarefaItem>
-          ))}
-        </ListaTarefas>
-
-        <div className="corner-label">
-          <span className="corner-label-npj">NPJ</span>
-          <br />
-          <span className="corner-label-anhanguera">ANHANGUERA</span>
-        </div>
-      </Content>
-    </Container>
+        {isLoading ? (
+          <Mensagem>Carregando tarefas...</Mensagem>
+        ) : mensagemErro ? (
+          <Mensagem>{mensagemErro}</Mensagem>
+        ) : (
+          <TarefasGrid>
+            {tarefas.map((tarefa) => (
+              <TarefaCard key={tarefa.id}>
+                <h3>{tarefa.nomeTarefa}</h3>
+                <p>Status: {tarefa.status ? "Ativa" : "Finalizada"}</p>
+                <p>Prazo: {formatarData(tarefa.prazoLimite)}</p>
+              </TarefaCard>
+            ))}
+          </TarefasGrid>
+        )}
+      </MainContainer>
+    </ComponentesFixos>
   );
-}
+};
 
 export default TarefasMain;
