@@ -5,6 +5,9 @@ import com.npj.ProjetoNPJ.agenda.dto.ResponseAgendamentoDto;
 import com.npj.ProjetoNPJ.agenda.entity.Agendamento;
 import org.modelmapper.ModelMapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class AgendaMapper {
 
     public static ResponseAgendamentoDto toResponseDto(AgendamentoDto dto) {
@@ -12,8 +15,18 @@ public class AgendaMapper {
         return new ModelMapper().map(dto, ResponseAgendamentoDto.class);
     }
 
+    public static ResponseAgendamentoDto toDto(Agendamento agendamento) {
+
+        return new ModelMapper().map(agendamento, ResponseAgendamentoDto.class);
+    }
+
     public static Agendamento toEntity(AgendamentoDto dto) {
 
         return new ModelMapper().map(dto, Agendamento.class);
+    }
+
+    public static List<ResponseAgendamentoDto> toListDto(List<Agendamento> agendamentos) {
+
+        return agendamentos.stream().map(agendamento -> toDto(agendamento)).collect(Collectors.toList());
     }
 }
