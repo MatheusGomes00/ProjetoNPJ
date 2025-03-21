@@ -1,8 +1,13 @@
 package com.npj.ProjetoNPJ.agenda.service;
 
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
+import com.npj.ProjetoNPJ.agenda.dto.AgendamentoDto;
+import com.npj.ProjetoNPJ.agenda.dto.ResponseAgendamentoDto;
+import com.npj.ProjetoNPJ.agenda.entity.Agendamento;
+import com.npj.ProjetoNPJ.agenda.mapper.AgendaMapper;
 import com.npj.ProjetoNPJ.agenda.repository.AgendaRepository;
 import com.npj.ProjetoNPJ.exceptions.CpfUnicoException;
+import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.triagem.repository.CadastroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,6 +48,19 @@ public class AgendaService {
         return cpf.replaceAll("[.\\-\\s]", "");
     }
 
+    public ResponseAgendamentoDto criarAgendamento(AgendamentoDto dto) {
+        dto.setCpf(normalizarCpf(dto.getCpf()));
+        validarCpf(dto.getCpf());
+        // ... lógica para programar notificação
+
+        agendaRepository.insert(AgendaMapper.toEntity(dto));
+        return AgendaMapper.toResponseDto(dto);
+    }
+
+    public ResponseAgendamentoDto atualizarAgendamento(AgendamentoDto dto, String id) {
+        Agendamento agendamento = agendaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento não localizado"));
 
 
+    }
 }
