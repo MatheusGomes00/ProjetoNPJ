@@ -25,8 +25,8 @@ const GridItemTarefas = styled.div`
 const GridItemProcessos = styled.div`
   position: absolute;
   top: 0px;
-  left: 106vh; /* 720px (largura do Tarefas) + 32px (esquerda do Tarefas) */
-  width: 10vw; /* Atualizado para refletir o novo tamanho */
+  left: 107vh; 
+  width: calc(100% - 107vh); /* Atualizado para refletir o novo tamanho */
   height: 595px; /* Atualizado para refletir o novo tamanho */
 `;
 
