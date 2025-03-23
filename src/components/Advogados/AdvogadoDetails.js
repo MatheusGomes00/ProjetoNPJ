@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Importando o useNavigate
 import styled from "styled-components";
+<<<<<<< HEAD
 import Sidebar from "../ComponentesPadroes/Sidebar";
 import SearchBarTop from "../ComponentesPadroes/SearchBarTop";
 import IconeLogOut from "../botoesTelaImovel/IconeLogOut";
 import IconeNotificacoes from "../botoesTelaImovel/IconeNotificacoes";
 import IconeNovaTarefa from "../botoesTelaImovel/IconeNovaTarefa";
 import useAuth from "../Seguranca/UseAuth";
+=======
+import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
+>>>>>>> 9a6b24b (adcionado token no header da requisição)
 
 const Container = styled.div`
   display: flex;
@@ -16,13 +20,6 @@ const Content = styled.div`
   flex-grow: 1;
   padding: 20px;
   margin-left: 250px;
-`;
-
-const IconsContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 10px 20px;
 `;
 
 const FormContainer = styled.div`
@@ -72,12 +69,19 @@ function AdvogadoDetails() {
   const navigate = useNavigate();
   const { fetchAuthenticated } = useAuth();
 
+  const getToken = () => {
+    return localStorage.getItem("token"); // Certifique-se de que o token está salvo corretamente
+  };
+
+  const token = getToken();
+
   useEffect(() => {
     const fetchAdvogado = async () => {
       try {
         
         const response = await fetchAuthenticated(`http://localhost:8080/adv/buscar/${id}`, {
             method: "GET"});
+
 
         if (!response.ok) {
           throw new Error("Erro ao carregar dados do advogado");
@@ -105,6 +109,7 @@ function AdvogadoDetails() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(advogado),
       });
@@ -128,9 +133,8 @@ function AdvogadoDetails() {
 
   return (
     <Container>
-      <Sidebar />
+      <ComponentesFixos />
       <Content>
-        <SearchBarTop />
         <FormContainer>
           <BackButton onClick={handleBack}>Voltar</BackButton> {/* Botão de Voltar */}
           <h2>Detalhes do Advogado</h2>
@@ -193,16 +197,6 @@ function AdvogadoDetails() {
           <button onClick={handleSave}>Salvar</button>
         </FormContainer>
       </Content>
-      <div className="top-right-icons">
-        <IconeLogOut />
-        <IconeNotificacoes />
-        <IconeNovaTarefa />
-      </div>
-      <div className="corner-label">
-        <span className="corner-label-npj">NPJ</span>
-        <br />
-        <span className="corner-label-anhanguera">ANHANGUERA</span>
-      </div>
     </Container>
   );
 }
