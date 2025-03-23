@@ -37,15 +37,20 @@ const Field = styled.div`
   margin-bottom: 15px;
   font-size: 16px;
   color: #333;
+  display: flex;
+  align-items: center; 
+  gap: 10px;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 8px;
   margin-top: 5px;
+  margin-right: 10px;
   font-size: 16px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  box-sizing: border-box;
 `;
 
 const BackButton = styled.button`
@@ -148,9 +153,9 @@ function AdvogadoDetails() {
             />
           </Field>
           <Field>
-            <strong>Data de Nascimento:</strong>
+            <strong>Nascimento:</strong>
             <Input
-              type="text"
+              type="date"
               name="datanasc"
               value={advogado.datanasc}
               onChange={handleChange}
