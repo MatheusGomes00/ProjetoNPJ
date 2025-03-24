@@ -2,6 +2,9 @@ package com.npj.ProjetoNPJ.tarefas.controller;
 
 
 
+import com.npj.ProjetoNPJ.advogados.entity.Advogado;
+import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
+import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.security.JwtService;
 import com.npj.ProjetoNPJ.security.JwtService.*;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
@@ -26,8 +29,21 @@ public class TarefasController {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private AdvogadoRepository advogadoRepository;
+
     @PostMapping(value = "/create")
-    public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody @Valid DtoTarefas tarefaDto) {
+    public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody  DtoTarefas tarefaDto, @RequestHeader("Authorization") String authorizationHeader) {
+
+        String token = authorizationHeader.replace("Bearer ", "");
+
+        String advogadoId = jwtService.extractId(token);
+
+        Advogado advogado = advogadoRepository.findById(advogadoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + advogadoId));
+
+        tarefaDto.setCriador(advogado.getNome());
+
         DtoTarefas tarefa = service.insert(tarefaDto);
         return ResponseEntity.ok().body(tarefa);
     }

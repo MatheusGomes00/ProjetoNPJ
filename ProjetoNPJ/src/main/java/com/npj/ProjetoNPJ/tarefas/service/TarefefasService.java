@@ -3,6 +3,7 @@ package com.npj.ProjetoNPJ.tarefas.service;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
+import com.npj.ProjetoNPJ.security.JwtService;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
@@ -24,6 +25,10 @@ public class TarefefasService {
     @Autowired
     private TarefasRepository repository;
 
+    @Autowired
+    private JwtService jwtService;
+
+
     public String getAuthenticatedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -36,8 +41,6 @@ public class TarefefasService {
 
     public DtoTarefas insert(DtoTarefas dto) {
         dto.setStatus(true);
-
-        // Buscar os advogados pelo ID
         List<Advogado> advogados = dto.getResponsaveisId().stream()
                 .map(id -> advogadoRepository.findById(id)
                         .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
@@ -47,21 +50,11 @@ public class TarefefasService {
 
 
         Tarefas newTask = TarefasMapper.toEntity(dto, advogados);
-        newTask.setCriador(getAuthenticatedUsername());
+        newTask.setCriador(dto.getCriador());
 
         repository.save(newTask);
         return TarefasMapper.toDto(newTask);
     }
-
-  //  public String getNomeAdvogadoPorTarefa(String tarefaId) {
-
-     //   Tarefas tarefa = repository.findById(tarefaId)
-         //       .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada"));
-      //  if (tarefa.getResponsaveis() == null) {
-       //     throw new RecursoNaoEncontradoException("A tarefa não possui um responsável atribuído.");
-      //  }
-       // return tarefa.getResponsavel().getNome();
-    //}
 
     public void update(DtoTarefas dto, String id){
 
