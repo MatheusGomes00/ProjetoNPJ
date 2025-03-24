@@ -3,7 +3,6 @@ import Login from "./components/Login/Login";
 import AreaDeTrabalho from "./components/AreaDeTrabalho/AreaDeTrabalho";
 import TarefasMain from "./components/Tarefas/TarefasMain";
 import AdvogadosTela from "./components/Advogados/AdvogadosTela";
-import AdvogadoDetails from "./components/Advogados/AdvogadoDetails";
 import SearchBar from "./components/Advogados/Searchbar";
 import { isAuthenticated } from "./components/Seguranca/GerenciaToken";
 
@@ -28,10 +27,6 @@ function App() {
         <Route
           path="/advogados"
           element={isAuthenticated() ? <AdvogadosTela /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/buscar/:id"
-          element={isAuthenticated() ? <AdvogadoDetails /> : <Navigate to="/login" />}
         />
         <Route
           path="/search"
