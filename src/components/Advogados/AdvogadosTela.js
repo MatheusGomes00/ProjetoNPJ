@@ -1,121 +1,97 @@
-import React, { useState, useEffect, useCallback } from "react";
-import SearchBar from "../Advogados/Searchbar";
-import CadastrarAdvogado from "./CadastrarAdvogado";
+import React, { useEffect, useState } from "react";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
-import ResultsList from "../Advogados/ResultsList";
 import useAuth from "../Seguranca/UseAuth";
+import { GridContainer, LawyerPage, Header } from "./AdvogadosStyles";
+import AdvogadoForm from "./AdvogadosForm";
+
 
 function AdvogadosTela() {
-  const [results, setResults] = useState([]);
-  const [showCadastro, setShowCadastro] = useState(false);
-  const [defaultResults, setDefaultResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const { fetchAuthenticated } = useAuth();
+  const { fetchAuthenticated, getId } = useAuth();
+  const [advogadoData, setAdvogadoData] = useState(null);
 
-  const transformAdvogadosData = (data) => {
-    return data.map((advogado) => {
-      const { status, ...rest } = advogado;
-      return {
-        ...rest,
-        status: status ? "ATIVO" : "DESATIVADO",
-      };
-    });
-  };
-
-  const fetchAdvogados = useCallback(async () => {
-    try {
-      const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
-        method: "GET",
-      });
-
-      const data = await response.json();
-      const transformedData = transformAdvogadosData(data);
-      setResults(transformedData);
-      setDefaultResults(transformedData);
-    } catch (error) {
-      console.error("Erro ao buscar advogados:", error);
-    }
-  }, [fetchAuthenticated]);
+  const id = getId();
 
   useEffect(() => {
-    fetchAdvogados();
-  }, [fetchAdvogados]);
+    const buscarAutenticado = async () => {
+      if (!id) {
+        console.error("ID do advogado não encontrado");
+        return;
+      }
+      try {
+        const response = await fetchAuthenticated(`http://localhost:8080/adv/buscar/${id}`, {
+          method: "GET",
+        });
+        if (!response.ok) {
+          throw new Error("Erro ao carregar dados do advogado");
+        }
+        const data = await response.json();
+        setAdvogadoData(data);
+      } catch (error) {
+        console.error("Erro:", error);
+      }
+    };
+    buscarAutenticado();
+  }, [id]);
 
-  const handleSearch = (searchResults) => {
-    if (searchResults.length > 0) {
-      setResults(searchResults);
-      setIsSearching(true);
-    } else {
-      setResults(defaultResults);
-      setIsSearching(false);
+  const onSubmit = async(data) => {
+    if (!id) {
+      console.error("ID do advogado não encontrado");
+      return;
+    }
+
+    try {
+      // Cria o objeto do corpo dinamicamente
+      const requestBody = {
+        nome: data.nome,
+        datanasc: data.datanasc,
+        cpf: data.cpf,
+        registroOab: data.registroOab,
+        secaoOab: data.secaoOab,
+        status: data.status,
+      };
+
+      // Adiciona senha apenas se estiver preenchida
+      if (data.senha && data.senha.trim() !== "") {
+        requestBody.senha = data.senha;
+      }
+      
+      const response = await fetchAuthenticated(`http://localhost:8080/adv/upd/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.status !== 204) {
+        throw new Error("Erro ao atualizar os dados do advogado");
+      }
+
+      console.log("Atualização bem-sucedida, sem dados retornados (204)");
+      alert("Dados atualizados com sucesso!");
+    } catch (error) {
+      console.error("Erro:", error);
+      alert("Erro ao atualizar os dados");
     }
   };
 
   return (
     <ComponentesFixos>
-      <div style={styles.quadroContainer}>
-        <div style={styles.searchSection}>
-          <SearchBar onSearch={handleSearch} />
-          <button
-            onClick={() => setShowCadastro(true)}
-            style={styles.cadastrarBtn}
-          >
-            +
-          </button>
-        </div>
-
-        <div style={styles.resultsContainer}>
-          <ResultsList results={results} />
-        </div>
-      </div>
-
-      {showCadastro && <CadastrarAdvogado onClose={() => setShowCadastro(false)} />}
+      <GridContainer>
+        <LawyerPage>
+          <Header>
+            <input type="text" placeholder="Pesquisar advogados..." />
+            <button>Adicionar</button>
+          </Header>
+          {advogadoData ? (
+            <AdvogadoForm onSubmit={onSubmit} initialData={advogadoData} />
+          ) : (
+            <p>Carregando...</p>
+          )}
+        </LawyerPage>
+      </GridContainer>
     </ComponentesFixos>
   );
 }
-
-const styles = {
-  quadroContainer: {
-    width: "90%",
-    maxWidth: "900px",
-    margin: "20px auto", // Centraliza horizontalmente
-    backgroundColor: "#fff",
-    borderRadius: "8px",
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-    padding: "20px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
-    position: "relative", // Garante que fique dentro do MainContent
-  },
-  searchSection: {
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingBottom: "10px",
-    borderBottom: "2px solid #eee",
-    gap: "30px",
-  },
-  cadastrarBtn: {
-    width: "80px",
-    height: "50px",
-    borderRadius: "50%",
-    backgroundColor: "#007bff",
-    color: "white",
-    fontSize: "30px",
-    fontWeight: "bold",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    border: "none",
-    cursor: "pointer",
-    marginLeft: "10px",
-  },
-  resultsContainer: {
-    width: "100%",
-    marginTop: "20px",
-  },
-};
 
 export default AdvogadosTela;
