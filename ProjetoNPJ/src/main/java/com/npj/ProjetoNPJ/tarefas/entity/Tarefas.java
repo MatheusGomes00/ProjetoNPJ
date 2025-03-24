@@ -36,6 +36,10 @@ public class Tarefas {
     @DBRef(lazy = false)
     private List<Advogado> responsaveis;
 
+    private String finalizadoPor;
+
+    private String advogadoFinalizadorId;
+
     private String criador;
 
 

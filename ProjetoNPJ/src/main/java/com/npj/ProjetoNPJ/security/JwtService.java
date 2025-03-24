@@ -89,6 +89,9 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    public String extractId(String token) {
+        return extractClaim(token, claims -> claims.get("id", String.class));
+    }
     public LocalDateTime extractExpirationAsLocalDateTime(String token) {
         Date expiration = extractExpiration(token);
         return expiration.toInstant()

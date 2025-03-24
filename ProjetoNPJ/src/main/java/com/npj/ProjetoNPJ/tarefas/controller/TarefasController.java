@@ -2,10 +2,15 @@ package com.npj.ProjetoNPJ.tarefas.controller;
 
 
 
+import com.npj.ProjetoNPJ.security.JwtService;
+import com.npj.ProjetoNPJ.security.JwtService.*;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
+import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.service.TarefefasService;
+import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +23,8 @@ public class TarefasController {
     @Autowired
     private TarefefasService service;
 
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping(value = "/create")
     public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody @Valid DtoTarefas tarefaDto) {
@@ -36,9 +43,23 @@ public class TarefasController {
     }
 
     @PutMapping(value = "/end/{id}")
-    public ResponseEntity<String> finalizarTarefa(@PathVariable String id){
-        service.finalizar(id);
-        return ResponseEntity.ok().body("Tarefa FInalizada com sucesso");
+    public ResponseEntity<Tarefas> finalizarTarefa(@PathVariable String id, @RequestHeader("Authorization") String authorizationHeader){
+
+        try {
+            String token = authorizationHeader.replace("Bearer ", "");
+
+            String advogadoId = jwtService.extractId(token);
+
+            Tarefas tarefaAtualizada = service.finalizar(id, advogadoId);
+
+            return ResponseEntity.ok(tarefaAtualizada);
+        } catch (Exception e) {
+            System.err.println("Erro ao finalizar tarefa: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+
     }
 
     @GetMapping("/get")

@@ -19,7 +19,8 @@ public class TarefasMapper {
         tarefas.setPrazoLimite(dtoTarefas.getPrazoLimite());
         tarefas.setDataCriacao(dtoTarefas.getDataCriacao());
         tarefas.setCriador(dtoTarefas.getCriador());
-
+        tarefas.setAdvogadoFinalizadorId(tarefas.getAdvogadoFinalizadorId());
+        tarefas.setFinalizadoPor(dtoTarefas.getFinalizadoPor());
         // Agora lidamos com uma lista de advogados (responsáveis)
         List<Advogado> responsaveis = advogados.stream()
                 .filter(advogado -> dtoTarefas.getResponsaveisId().contains(advogado.getId()))
@@ -39,6 +40,8 @@ public class TarefasMapper {
         dtoTarefas.setPrazoLimite(tarefas.getPrazoLimite());
         dtoTarefas.setDataCriacao(tarefas.getDataCriacao());
         dtoTarefas.setCriador(tarefas.getCriador());
+        dtoTarefas.setFinalizadoPor(tarefas.getFinalizadoPor());
+        dtoTarefas.setAdvogadoFinalizadorId(tarefas.getAdvogadoFinalizadorId());
 
         // Métod que atualizei para atualizar os responsáveis também
         if (tarefas.getResponsaveis() != null && !tarefas.getResponsaveis().isEmpty()) {

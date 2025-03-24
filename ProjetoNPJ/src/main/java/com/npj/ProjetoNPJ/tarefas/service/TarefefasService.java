@@ -1,16 +1,12 @@
 package com.npj.ProjetoNPJ.tarefas.service;
 
-import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
-import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
-import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
 import com.npj.ProjetoNPJ.tarefas.repository.TarefasRepository;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -93,10 +89,17 @@ public class TarefefasService {
         }
     }
 
-    public void finalizar(String id){
+    public Tarefas finalizar(String id, String advogadoId){
         Tarefas task = repository.findById(id).orElseThrow(()-> new RecursoNaoEncontradoException("Tarefa não encontrada"));
+
+        Advogado advogado = advogadoRepository.findById(advogadoId)
+                .orElseThrow(() -> new RuntimeException("Advogado não encontrado com ID: " + advogadoId));
+
+        task.setFinalizadoPor(advogadoId);
+        task.setAdvogadoFinalizadorId(advogado.getNome());
         task.setStatus(false);
         repository.save(task);
+        return task;
     }
 
     public List<DtoTarefas> getTarefasAutenticado() {

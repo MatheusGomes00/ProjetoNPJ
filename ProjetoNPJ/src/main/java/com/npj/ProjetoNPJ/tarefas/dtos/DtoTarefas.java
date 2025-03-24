@@ -43,6 +43,11 @@ public class DtoTarefas {
     @NotEmpty
     private List<String> responsaveisNome;
 
+    private String finalizadoPor;
+
+    private String advogadoFinalizadorId;
+
+
     private String criador;
 
 }
