@@ -1,6 +1,6 @@
 const API_BASE_URL = 'http://localhost:8080/auth';
 
-const getAccessToken = () => {
+export const getAccessToken = () => {
   return sessionStorage.getItem('accessToken');
 };
 
@@ -124,7 +124,7 @@ export const fetchWithToken = async (url, options = {}) => {
   };
 
 const tokenManager = {
-    login, logout, isAuthenticated, fetchWithToken
+    getAccessToken, login, logout, isAuthenticated, fetchWithToken
 }
 
 export default tokenManager;
