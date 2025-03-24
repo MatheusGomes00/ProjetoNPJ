@@ -135,7 +135,7 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar }) => {
           <>
             <DetalheItem>
               <strong>Finalizado Por:</strong>{" "}
-              {tarefa.finalizadoPor || "Desconhecido"}
+              {tarefa.advogadoFinalizadorId || "Desconhecido"}
             </DetalheItem>
             <DetalheItem>
               <strong>Data de Finalização:</strong>{" "}
