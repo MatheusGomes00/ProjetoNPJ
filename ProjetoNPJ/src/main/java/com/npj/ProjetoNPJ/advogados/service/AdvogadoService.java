@@ -98,6 +98,9 @@ public class AdvogadoService {
         if (dto.getRole() != null) {
             advogado.setRole(Roles.valueOf(dto.getRole()));
         }
+        if (dto.getSenha() != null) {
+            advogado.setSenha(passwordEncoder.encode(dto.getSenha()));
+        }
     }
 
     public void updateSenha(UpdateSenhaDto senhaDto) {

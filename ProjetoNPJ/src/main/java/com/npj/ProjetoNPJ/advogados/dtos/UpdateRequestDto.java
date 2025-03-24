@@ -24,6 +24,8 @@ public class UpdateRequestDto {
     @NotBlank
     private String secaoOab;
 
+    private String senha;
+
     private boolean status;
 
     private String role;
