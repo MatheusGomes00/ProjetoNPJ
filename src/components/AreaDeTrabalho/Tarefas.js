@@ -196,17 +196,17 @@ const RemoveButton = styled.button`
   }
 `;
 
-const TarefaDetalhesModal = styled(ModalContent)`
-  width: 520px;
-  max-height: 80vh;
-  padding: 25px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-`;
+  const TarefaDetalhesModal = styled(ModalContent)`
+    width: 520px;
+    max-height: 80vh;
+    padding: 25px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  `;
 
 const LegendaPrioridades = styled.div`
   display: flex;
@@ -462,6 +462,7 @@ function Tarefas() {
     dataCriacao: new Date().toISOString(),
     responsaveisId: [],
     responsaveisNome: [],
+  
   });
 
   const toggleSelecionarAdvogado = (advogado) => {
@@ -632,6 +633,7 @@ function Tarefas() {
         dataCriacao: new Date().toISOString(),
         responsaveisId: novaTarefa.responsaveisId,
         responsaveisNome: novaTarefa.responsaveisNome,
+       
       };
 
       console.log("Estado de novaTarefa antes do envio:", novaTarefa);

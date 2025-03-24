@@ -89,7 +89,7 @@ const TarefaCard = styled.div`
   background: white;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(240, 5, 5, 0.1);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -113,10 +113,12 @@ const Mensagem = styled.p`
 `;
 
 const TarefasMain = () => {
-  const { fetchAuthenticated, user } = useAuth(); // Obtém o usuário logado
+  const { fetchAuthenticated } = useAuth(); // Obtém o usuário logado
   const [tarefas, setTarefas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState(0);
   const [nomeBusca, setNomeBusca] = useState(""); // Estado para o campo de busca
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null); // Estado para a tarefa selecionada
@@ -170,7 +172,7 @@ const TarefasMain = () => {
         }
 
         const data = await response.json();
-       
+        
 
         if (!data || data.length === 0) {
           setMensagemErro(nome ? "Nenhuma tarefa encontrada com esse nome." : "Nenhuma tarefa cadastrada.");
@@ -193,10 +195,16 @@ const TarefasMain = () => {
   );
 
   // Função para finalizar a tarefa
-  const finalizarTarefa = async (tarefaId) => {
+  const finalizarTarefa = async (id) => {
+    const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
+    if (!confirmacao) return;
+
+    setIsLoadingFinalizar(true);
+    setMensagemErro("");
+    setMensagemSucesso("");
+
     try {
-      const usuarioFinalizador = user?.nome || "Usuário Desconhecido"; // Obtém o nome do usuário logado
-      const url = `http://localhost:8080/task/finalizar/${tarefaId}?usuarioFinalizador=${encodeURIComponent(usuarioFinalizador)}`;
+      const url = `http://localhost:8080/task/end/${id}`;
 
       const response = await fetchAuthenticated(url, {
         method: "PUT",
@@ -205,22 +213,27 @@ const TarefasMain = () => {
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Erro ao finalizar a tarefa");
+      const tarefaAtualizada = await response.json();
+      
+
+      setTarefas((tarefasAntigas) =>
+        tarefasAntigas.map((tarefa) => (tarefa.id === id ? tarefaAtualizada : tarefa))
+      );
+
+      if (tarefaSelecionada && tarefaSelecionada.id === id) {
+        setTarefaSelecionada(tarefaAtualizada);
       }
 
-      const tarefaAtualizada = await response.json();
-      setTarefas((prevTarefas) =>
-        prevTarefas.map((tarefa) =>
-          tarefa.id === tarefaId ? tarefaAtualizada : tarefa
-        )
-      );
-      setTarefaSelecionada(tarefaAtualizada); // Atualiza a tarefa selecionada no modal
+      setMensagemSucesso("Tarefa finalizada com sucesso!");
+      setTimeout(() => setMensagemSucesso(""), 3000);
     } catch (error) {
-      console.error("Erro ao finalizar tarefa:", error);
-      setMensagemErro("Erro ao finalizar a tarefa. Tente novamente.");
+      console.error("Erro ao finalizar a tarefa:", error);
+      setMensagemErro(error.message || "Erro ao finalizar a tarefa. Tente novamente mais tarde.");
+    } finally {
+      setIsLoadingFinalizar(false);
     }
   };
+
 
   // Carregar todas as tarefas ao montar o componente
   useEffect(() => {

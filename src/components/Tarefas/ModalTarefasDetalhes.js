@@ -15,17 +15,57 @@ const ModalOverlay = styled.div`
   z-index: 1000;
 `;
 
-// Estilo do container do modal
-const ModalContainer = styled.div`
-  background: white;
-  border-radius: 12px;
+// Estilo base do modal (equivalente a ModalContent)
+const ModalContent = styled.div`
+  background: #ffffff;
   padding: 30px;
-  width: 500px;
-  max-width: 90%;
-  max-height: 80vh;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 550px;
+  max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   position: relative;
+  animation: slideIn 0.3s ease-out forwards;
+
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px;
+  }
+`;
+
+// Estilo específico do modal de tarefas (equivalente a TarefaDetalhesModal)
+const TarefaDetalhesModal = styled(ModalContent)`
+  width: 520px;
+  max-height: 80vh;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 `;
 
 // Estilo do botão de fechar
@@ -54,12 +94,17 @@ const ModalTitulo = styled.h2`
   margin: 0 0 20px 0;
 `;
 
-// Estilo dos detalhes
-const DetalheItem = styled.p`
-  font-family: "Arial", sans-serif;
+const DetalheItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
   font-size: 16px;
-  color: #2c3e50;
-  margin: 10px 0;
+  color: #333;
+  max-height: 120px;
+
+  word-wrap: break-word;
 `;
 
 // Estilo do botão de finalizar
@@ -84,6 +129,7 @@ const BotaoFinalizar = styled.button`
   }
 `;
 
+
 // Função para formatar a data
 const formatarData = (dataString) => {
   if (!dataString) return "Sem prazo";
@@ -101,7 +147,7 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar }) => {
 
   return (
     <ModalOverlay onClick={onClose}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
+      <TarefaDetalhesModal onClick={(e) => e.stopPropagation()}>
         <BotaoFechar onClick={onClose}>×</BotaoFechar>
         <ModalTitulo>Detalhes da Tarefa</ModalTitulo>
         <DetalheItem>
@@ -148,7 +194,7 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar }) => {
             Finalizar Tarefa
           </BotaoFinalizar>
         )}
-      </ModalContainer>
+      </TarefaDetalhesModal>
     </ModalOverlay>
   );
 };
