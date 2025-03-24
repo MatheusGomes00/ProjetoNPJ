@@ -33,33 +33,32 @@ public class JwtService {
 
     private final UserDetailsService userDetailsService;
 
+
     public JwtService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-
     public String generateAccessToken(String username) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserAutenticado userDetails = (UserAutenticado) userDetailsService.loadUserByUsername(username);
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        String id = userDetails.getId();
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role); // Adiciona a role ao payload do token
-
-        return createToken(claims, username, accessExpiration);
+        return createToken(claims, username, id, accessExpiration);
     }
-
 
     public String generateRefreshToken(String username) {
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserAutenticado userDetails = (UserAutenticado) userDetailsService.loadUserByUsername(username);
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        String id = userDetails.getId();
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role); // Adiciona a role no refresh token
-
-        return createToken(claims, username, refreshExpiration);
+        return createToken(claims, username, id, refreshExpiration);
     }
 
-
-    private String createToken(Map<String, Object> claims, String username, long expiration) {
+    private String createToken(Map<String, Object> claims, String username, String id, long expiration) {
+        claims.put("id", id);
         return Jwts.builder()
                 .claims(claims)
                 .subject(username)

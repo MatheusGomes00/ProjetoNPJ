@@ -21,6 +21,8 @@ public class UserAutenticado implements UserDetails {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + advogado.getRole().name()));
     }
 
+    public String getId() { return advogado.getId(); }
+
     @Override
     public String getPassword() {
         return advogado.getSenha();
