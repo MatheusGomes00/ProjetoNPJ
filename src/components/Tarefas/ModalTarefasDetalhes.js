@@ -103,7 +103,6 @@ const DetalheItem = styled.div`
   font-size: 16px;
   color: #333;
   max-height: 120px;
-
   word-wrap: break-word;
 `;
 
@@ -129,6 +128,27 @@ const BotaoFinalizar = styled.button`
   }
 `;
 
+// Estilo do botão de editar (mesma estilização do BotaoFinalizar, mas com cor diferente)
+const BotaoEditar = styled.button`
+  background: rgb(0, 24, 236); /* Cor azul para o botão de editar */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: #c0392b; /* Mesma cor de hover do BotaoFinalizar */
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+`;
 
 // Função para formatar a data
 const formatarData = (dataString) => {
@@ -142,7 +162,7 @@ const formatarData = (dataString) => {
   return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 };
 
-const ModalTarefa = ({ tarefa, onClose, onFinalizar }) => {
+const ModalTarefa = ({ tarefa, onClose, onFinalizar, onEditar }) => {
   if (!tarefa) return null; // Não renderiza o modal se não houver tarefa
 
   return (
@@ -190,9 +210,14 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar }) => {
           </>
         )}
         {tarefa.status && (
-          <BotaoFinalizar onClick={() => onFinalizar(tarefa.id)}>
-            Finalizar Tarefa
-          </BotaoFinalizar>
+          <>
+            <BotaoFinalizar onClick={() => onFinalizar(tarefa.id)}>
+              Finalizar Tarefa
+            </BotaoFinalizar>
+            <BotaoEditar onClick={() => onEditar(tarefa)}>
+              Editar Tarefa
+            </BotaoEditar>
+          </>
         )}
       </TarefaDetalhesModal>
     </ModalOverlay>
