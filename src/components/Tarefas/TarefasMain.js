@@ -4,6 +4,7 @@ import useAuth from "../Seguranca/UseAuth";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import ModalTarefasDetalhes from "./ModalTarefasDetalhes";
 import ModalEdicao from "./Modais/ModalEdicao";
+
 // Estilo do container principal
 const MainContainer = styled.div`
   display: flex;
@@ -127,8 +128,8 @@ const TarefasMain = () => {
   const [tarefasFiltradas, setTarefasFiltradas] = useState([]); // Tarefas exibidas (filtradas pela busca)
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [mensagemSucesso, setMensagemSucesso] = useState("");
-  const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
+  const [ setMensagemSucesso] = useState("");
+  const [ setIsLoadingFinalizar] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState(0);
   const [nomeBusca, setNomeBusca] = useState("");
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
