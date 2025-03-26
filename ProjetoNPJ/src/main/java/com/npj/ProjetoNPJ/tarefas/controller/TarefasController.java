@@ -91,4 +91,11 @@ public class TarefasController {
         List<DtoTarefas> tarefas = service.findByNome(nome);
         return ResponseEntity.ok(tarefas);
     }
+    @PutMapping(value = "/reopen/{id}")
+    public ResponseEntity <Tarefas> reabrirTarefas(@PathVariable String id){
+
+        Tarefas tarefaAtualiza = service.reativarTarefa(id);
+
+        return ResponseEntity.ok(tarefaAtualiza);
+    }
 }

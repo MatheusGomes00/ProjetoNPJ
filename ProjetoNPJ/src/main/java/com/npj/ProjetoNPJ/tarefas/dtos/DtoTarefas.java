@@ -47,6 +47,7 @@ public class DtoTarefas {
 
     private String advogadoFinalizadorId;
 
+    private String reativadaPor;
 
     private String criador;
 

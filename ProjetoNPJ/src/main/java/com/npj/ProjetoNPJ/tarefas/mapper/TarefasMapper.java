@@ -26,6 +26,7 @@ public class TarefasMapper {
                 .filter(advogado -> dtoTarefas.getResponsaveisId().contains(advogado.getId()))
                 .collect(Collectors.toList());
         tarefas.setResponsaveis(responsaveis);
+        tarefas.setReativadoPor(dtoTarefas.getReativadaPor());
 
         return tarefas;
     }

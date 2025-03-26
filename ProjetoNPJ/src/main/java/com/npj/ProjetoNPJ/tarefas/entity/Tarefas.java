@@ -42,5 +42,7 @@ public class Tarefas {
 
     private String criador;
 
+    private String reativadoPor;
+
 
 }
