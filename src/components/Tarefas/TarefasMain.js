@@ -4,7 +4,7 @@ import useAuth from "../Seguranca/UseAuth";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import ModalTarefasDetalhes from "./ModalTarefasDetalhes";
 import ModalEdicao from "./Modais/ModalEdicao";
-
+import CriarTarefa from "./Modais/CriarTarefa";
 // Estilo do container principal
 const MainContainer = styled.div`
   display: flex;
@@ -38,28 +38,6 @@ const Titulo = styled.h1`
   font-weight: 700;
   color: #2c3e50;
   margin: 0;
-`;
-
-// Estilo do botão de adicionar
-const BotaoAdicionar = styled.button`
-  background: #3498db;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.1s ease;
-
-  &:hover {
-    background: #2980b9;
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
 `;
 
 // Estilo do campo de busca
@@ -128,8 +106,8 @@ const TarefasMain = () => {
   const [tarefasFiltradas, setTarefasFiltradas] = useState([]); // Tarefas exibidas (filtradas pela busca)
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [ setMensagemSucesso] = useState("");
-  const [ setIsLoadingFinalizar] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState(""); // Corrigido: Adicionado estado para mensagem de sucesso
+  const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false); // Corrigido: Adicionado estado para loading de finalização
   const [lastFetchTime, setLastFetchTime] = useState(0);
   const [nomeBusca, setNomeBusca] = useState("");
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
@@ -246,7 +224,7 @@ const TarefasMain = () => {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, isLoading, isSearching] // Removido lastFetchTime e cache das dependências
+    [fetchAuthenticated, isLoading, isSearching, lastFetchTime, cache]
   );
 
   // Função para finalizar a tarefa
@@ -352,7 +330,8 @@ const TarefasMain = () => {
       <MainContainer>
         <Header>
           <Titulo>Tarefas Principais</Titulo>
-          <BotaoAdicionar>Adicionar Tarefa</BotaoAdicionar>
+          {/* Substituir o BotaoAdicionar pelo componente CriarTarefa */}
+          <CriarTarefa carregarTarefas={buscarTarefasPorNome} />
         </Header>
 
         <CampoBusca
