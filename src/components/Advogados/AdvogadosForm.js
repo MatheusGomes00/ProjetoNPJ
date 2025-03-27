@@ -67,12 +67,12 @@ function AdvogadoForm({ onSubmit, initialData }) {
     
           <div>
             <label>Registro OAB:</label>
-            <input type="text" {...register("registroOab", { required: true })} />
+            <input type="text" {...register("registroOab", { required: false })} />
           </div>
     
           <div>
             <label>Seção OAB:</label>
-            <input type="text" {...register("secaoOab", { required: true })} />
+            <input type="text" {...register("secaoOab", { required: false })} />
           </div>
     
           <div>
