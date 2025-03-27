@@ -8,7 +8,7 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Fundo escurecido */
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -128,9 +128,9 @@ const BotaoFinalizar = styled.button`
   }
 `;
 
-// Estilo do botão de editar (mesma estilização do BotaoFinalizar, mas com cor diferente)
+// Estilo do botão de editar
 const BotaoEditar = styled.button`
-  background: rgb(0, 24, 236); /* Cor azul para o botão de editar */
+  background: rgb(0, 24, 236);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -141,7 +141,29 @@ const BotaoEditar = styled.button`
   transition: background 0.3s ease;
 
   &:hover {
-    background: #c0392b; /* Mesma cor de hover do BotaoFinalizar */
+    background: #c0392b;
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+// Estilo do botão de reativar (adicionado diretamente aqui)
+const BotaoReativar = styled.button`
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: #218838;
   }
 
   &:disabled {
@@ -162,8 +184,19 @@ const formatarData = (dataString) => {
   return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 };
 
-const ModalTarefa = ({ tarefa, onClose, onFinalizar, onEditar }) => {
-  if (!tarefa) return null; // Não renderiza o modal se não houver tarefa
+const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar }) => {
+  console.log("Props recebidas no ModalTarefa:", { onReabrir }); // Log para depuração
+
+  if (!tarefa) return null;
+
+  // Função para lidar com o clique no botão de reativar
+  const handleReativar = () => {
+    if (typeof onReabrir === "function") {
+      onReabrir(tarefa.id);
+    } else {
+      console.error("onReabrir não é uma função:", onReabrir);
+    }
+  };
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -207,6 +240,8 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar, onEditar }) => {
               <strong>Data de Finalização:</strong>{" "}
               {formatarData(tarefa.dataFinalizacao)}
             </DetalheItem>
+            {/* Botão de reativar adicionado diretamente aqui */}
+            <BotaoReativar onClick={handleReativar}>Reativar Tarefa</BotaoReativar>
           </>
         )}
         {tarefa.status && (

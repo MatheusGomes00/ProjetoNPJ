@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import useAuth from "../Seguranca/UseAuth";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
-import ModalTarefasDetalhes from "./ModalTarefasDetalhes";
+import ModalTarefa from "./ModalTarefasDetalhes";
 import ModalEdicao from "./Modais/ModalEdicao";
 import CriarTarefa from "./Modais/CriarTarefa";
+
 // Estilo do container principal
 const MainContainer = styled.div`
   display: flex;
@@ -102,23 +103,20 @@ const debounce = (func, delay) => {
 
 const TarefasMain = () => {
   const { fetchAuthenticated } = useAuth();
-  const [tarefas, setTarefas] = useState([]); // Todas as tarefas (carregamento inicial)
-  const [tarefasFiltradas, setTarefasFiltradas] = useState([]); // Tarefas exibidas (filtradas pela busca)
+  const [tarefas, setTarefas] = useState([]);
+  const [tarefasFiltradas, setTarefasFiltradas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [mensagemSucesso, setMensagemSucesso] = useState(""); // Corrigido: Adicionado estado para mensagem de sucesso
-  const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false); // Corrigido: Adicionado estado para loading de finalização
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState(0);
   const [nomeBusca, setNomeBusca] = useState("");
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
   const [showModalEdicao, setShowModalEdicao] = useState(false);
   const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
-  const [isSearching, setIsSearching] = useState(false); // Novo estado para indicar busca ativa
-
-  // Cache para armazenar resultados de busca
+  const [isSearching, setIsSearching] = useState(false);
   const [cache, setCache] = useState({});
 
-  // Função para formatar a data
   const formatarData = (dataString) => {
     if (!dataString) return "Sem prazo";
     const data = new Date(dataString);
@@ -130,37 +128,33 @@ const TarefasMain = () => {
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
   };
 
-  // Função para buscar tarefas por nome
   const buscarTarefasPorNome = useCallback(
     async (nome, forceRefresh = false) => {
       const now = Date.now();
       const minInterval = 5000;
 
-      // Verificar se os dados estão no cache e não é uma busca forçada
       const cacheKey = nome || "all";
       if (!forceRefresh && cache[cacheKey] && now - lastFetchTime < minInterval) {
         console.log(`Usando dados do cache para: ${cacheKey}`);
         if (nome) {
-          setTarefasFiltradas(cache[cacheKey]); // Usar o cache para busca
+          setTarefasFiltradas(cache[cacheKey]);
           console.log("Tarefas filtradas (cache):", cache[cacheKey]);
         } else if (!isSearching) {
-          // Só atualizar tarefas iniciais se não houver busca ativa
-          setTarefas(cache[cacheKey]); // Usar o cache para carregamento inicial
-          setTarefasFiltradas(cache[cacheKey]); // Atualizar tarefas exibidas
+          setTarefas(cache[cacheKey]);
+          setTarefasFiltradas(cache[cacheKey]);
           console.log("Tarefas iniciais (cache):", cache[cacheKey]);
         }
         setMensagemErro("");
         return;
       }
 
-      // Evitar requisições simultâneas
       if (isLoading) {
         console.log("Requisição já em andamento, aguardando...");
         return;
       }
 
       setIsLoading(true);
-      setMensagemErro(""); // Limpar mensagem de erro antes de iniciar a busca
+      setMensagemErro("");
 
       try {
         const url = nome
@@ -177,7 +171,7 @@ const TarefasMain = () => {
         if (!response.ok) {
           if (response.status === 404) {
             setMensagemErro("Nenhuma tarefa encontrada com esse nome.");
-            setTarefasFiltradas([]); // Limpar as tarefas exibidas
+            setTarefasFiltradas([]);
             setCache((prev) => ({ ...prev, [cacheKey]: [] }));
             console.log("Tarefas filtradas (404): []");
             return;
@@ -191,9 +185,9 @@ const TarefasMain = () => {
 
         if (!data || data.length === 0) {
           setMensagemErro(nome ? "Nenhuma tarefa encontrada com esse nome." : "Nenhuma tarefa cadastrada.");
-          setTarefasFiltradas([]); // Limpar as tarefas exibidas
+          setTarefasFiltradas([]);
           if (!nome) {
-            setTarefas([]); // Limpar as tarefas iniciais se não houver dados
+            setTarefas([]);
           }
           setCache((prev) => ({ ...prev, [cacheKey]: [] }));
           console.log("Tarefas filtradas (vazio): []");
@@ -201,12 +195,11 @@ const TarefasMain = () => {
         }
 
         if (nome) {
-          setTarefasFiltradas(data); // Atualizar apenas as tarefas filtradas
+          setTarefasFiltradas(data);
           console.log("Tarefas filtradas (busca):", data);
         } else if (!isSearching) {
-          // Só atualizar tarefas iniciais se não houver busca ativa
-          setTarefas(data); // Atualizar todas as tarefas (carregamento inicial)
-          setTarefasFiltradas(data); // Atualizar tarefas exibidas
+          setTarefas(data);
+          setTarefasFiltradas(data);
           console.log("Tarefas iniciais (carregamento):", data);
         }
         setMensagemErro("");
@@ -215,9 +208,9 @@ const TarefasMain = () => {
       } catch (error) {
         console.error("Erro ao buscar tarefas:", error);
         setMensagemErro(error.message);
-        setTarefasFiltradas([]); // Limpar as tarefas exibidas em caso de erro
+        setTarefasFiltradas([]);
         if (!nome) {
-          setTarefas([]); // Limpar as tarefas iniciais em caso de erro
+          setTarefas([]);
         }
         console.log("Tarefas filtradas (erro): []");
       } finally {
@@ -227,7 +220,6 @@ const TarefasMain = () => {
     [fetchAuthenticated, isLoading, isSearching, lastFetchTime, cache]
   );
 
-  // Função para finalizar a tarefa
   const finalizarTarefa = async (id) => {
     const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
     if (!confirmacao) return;
@@ -259,9 +251,8 @@ const TarefasMain = () => {
       setMensagemSucesso("Tarefa finalizada com sucesso!");
       setTimeout(() => setMensagemSucesso(""), 3000);
 
-      // Limpar o cache após finalizar uma tarefa
       setCache({});
-      await buscarTarefasPorNome("", true); // Forçar recarregamento de todas as tarefas
+      await buscarTarefasPorNome("", true);
     } catch (error) {
       console.error("Erro ao finalizar a tarefa:", error);
       setMensagemErro(error.message || "Erro ao finalizar a tarefa. Tente novamente mais tarde.");
@@ -270,36 +261,76 @@ const TarefasMain = () => {
     }
   };
 
-  // Função para abrir o modal de edição
+  const reabrirTarefa = async (id) => {
+    const confirmacao = window.confirm("Tem certeza que deseja reabrir a tarefa?");
+    if (!confirmacao) return;
+
+    setIsLoadingFinalizar(true);
+    setMensagemErro("");
+    setMensagemSucesso("");
+
+    try {
+      const url = `http://localhost:8080/task/reopen/${id}`;
+
+      const response = await fetchAuthenticated(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Erro na requisição: ${response.status} - ${errorData || "Sem detalhes"}`);
+      }
+
+      const tarefaAtualizada = await response.json();
+
+      setTarefas((tarefasAntigas) =>
+        tarefasAntigas.map((tarefa) => (tarefa.id === id ? tarefaAtualizada : tarefa))
+      );
+
+      if (tarefaSelecionada && tarefaSelecionada.id === id) {
+        setTarefaSelecionada(tarefaAtualizada);
+      }
+
+      setMensagemSucesso("Tarefa reaberta com sucesso!");
+      setTimeout(() => setMensagemSucesso(""), 3000);
+
+      setCache({});
+      await buscarTarefasPorNome("", true);
+    } catch (error) {
+      console.error("Erro ao reabrir a tarefa:", error);
+      setMensagemErro(error.message || "Erro ao reabrir a tarefa. Tente novamente mais tarde.");
+    } finally {
+      setIsLoadingFinalizar(false);
+    }
+  };
+
   const abrirModalEdicao = (tarefa) => {
     setTarefaParaEditar(tarefa);
     setShowModalEdicao(true);
   };
 
-  // Função para fechar o modal de edição
   const fecharModalEdicao = () => {
     setShowModalEdicao(false);
     setTarefaParaEditar(null);
-    setCache({}); // Limpar o cache após edição
-    buscarTarefasPorNome("", true); // Forçar recarregamento de todas as tarefas
+    setCache({});
+    buscarTarefasPorNome("", true);
   };
 
-  // Carregar todas as tarefas ao montar o componente
   useEffect(() => {
     buscarTarefasPorNome("");
   }, [buscarTarefasPorNome]);
 
-  // Função de busca com debounce
   const handleBuscaDebounced = useMemo(
     () =>
       debounce((nome) => {
-        // Só buscar se o termo tiver 4 ou mais letras
         if (nome.length >= 4) {
-          setIsSearching(true); // Indicar que uma busca está ativa
+          setIsSearching(true);
           buscarTarefasPorNome(nome, true);
         } else {
-          // Se o termo tiver menos de 4 letras, mostrar todas as tarefas
-          setIsSearching(false); // Busca não está ativa
+          setIsSearching(false);
           setTarefasFiltradas(tarefas);
           setMensagemErro("");
           console.log("Tarefas filtradas (menos de 4 letras):", tarefas);
@@ -308,19 +339,16 @@ const TarefasMain = () => {
     [buscarTarefasPorNome, tarefas]
   );
 
-  // Função para lidar com a busca
   const handleBusca = (e) => {
     const nome = e.target.value;
     setNomeBusca(nome);
     handleBuscaDebounced(nome);
   };
 
-  // Função para abrir o modal com os detalhes da tarefa
   const abrirModalDetalhes = (tarefa) => {
     setTarefaSelecionada(tarefa);
   };
 
-  // Função para fechar o modal de detalhes
   const fecharModal = () => {
     setTarefaSelecionada(null);
   };
@@ -330,7 +358,6 @@ const TarefasMain = () => {
       <MainContainer>
         <Header>
           <Titulo>Tarefas Principais</Titulo>
-          {/* Substituir o BotaoAdicionar pelo componente CriarTarefa */}
           <CriarTarefa carregarTarefas={buscarTarefasPorNome} />
         </Header>
 
@@ -362,17 +389,16 @@ const TarefasMain = () => {
           </TarefasGrid>
         )}
 
-        {/* Modal de detalhes da tarefa */}
         {tarefaSelecionada && (
-          <ModalTarefasDetalhes
+          <ModalTarefa
             tarefa={tarefaSelecionada}
             onClose={fecharModal}
             onFinalizar={finalizarTarefa}
+            onReabrir={reabrirTarefa}
             onEditar={abrirModalEdicao}
           />
         )}
 
-        {/* Modal de edição */}
         {showModalEdicao && tarefaParaEditar && (
           <ModalEdicao
             tarefa={tarefaParaEditar}
