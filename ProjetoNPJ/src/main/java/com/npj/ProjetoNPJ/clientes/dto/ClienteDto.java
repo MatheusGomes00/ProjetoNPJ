@@ -1,4 +1,4 @@
-package com.npj.ProjetoNPJ.triagem.dto;
+package com.npj.ProjetoNPJ.clientes.dto;
 
 
 import jakarta.validation.Valid;

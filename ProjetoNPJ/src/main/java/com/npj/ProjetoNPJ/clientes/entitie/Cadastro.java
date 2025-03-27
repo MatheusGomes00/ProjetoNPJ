@@ -1,8 +1,7 @@
-package com.npj.ProjetoNPJ.triagem.entitie;
+package com.npj.ProjetoNPJ.clientes.entitie;
 
 import org.springframework.data.annotation.Id;
 import lombok.*;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter

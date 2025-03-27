@@ -1,4 +1,4 @@
-package com.npj.ProjetoNPJ.triagem.entitie;
+package com.npj.ProjetoNPJ.clientes.entitie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
