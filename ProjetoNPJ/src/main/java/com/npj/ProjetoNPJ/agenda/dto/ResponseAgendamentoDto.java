@@ -18,7 +18,7 @@ public class ResponseAgendamentoDto {
 
     private String cpf;
 
-    private LocalDateTime dataAgendamento;
+    private String dataAgendamento;
 
     private String casoTipo;
 
