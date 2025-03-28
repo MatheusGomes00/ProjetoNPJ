@@ -236,20 +236,29 @@ const BotaoSalvar = styled.button`
   }
 `;
 
-const ModalEdicao = ({ tarefa, onClose, carregarTarefas }) => {
+const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
   const { fetchAuthenticated } = useAuth();
   const [advogados, setAdvogados] = useState([]);
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const [tarefaEditada, setTarefaEditada] = useState(null);
   const [error, setError] = useState(""); // Estado para erros
 
-  // Função para formatar a data do backend para o formato do input datetime-local
+  // Função para formatar a data do backend para o formato do input datetime-local (yyyy-MM-ddTHH:mm)
   const formatarDataParaInput = (dataString) => {
     if (!dataString) return "";
     try {
+      // Criar o objeto Date a partir da string (assumindo que está em UTC)
       const data = new Date(dataString);
-      // Formato esperado pelo input datetime-local: "2025-03-25T14:30"
-      return data.toISOString().slice(0, 16);
+      // Garantir que a data seja tratada como UTC
+      const dataUTC = new Date(Date.UTC(
+        data.getUTCFullYear(),
+        data.getUTCMonth(),
+        data.getUTCDate(),
+        data.getUTCHours(),
+        data.getUTCMinutes()
+      ));
+      // Retornar no formato yyyy-MM-ddTHH:mm (sem os segundos)
+      return dataUTC.toISOString().slice(0, 16);
     } catch (err) {
       console.error("Erro ao formatar data:", err);
       return "";
@@ -264,7 +273,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas }) => {
         nomeTarefa: tarefa.nomeTarefa || "",
         descricao: tarefa.descricao || "",
         prioridade: tarefa.prioridade || "baixa",
-        prazoLimite: formatarDataParaInput(tarefa.prazoLimite), // Formatar a data
+        prazoLimite: formatarDataParaInput(tarefa.prazoLimite), // Formatar a data para o input
         dataCriacao: tarefa.dataCriacao || new Date().toISOString(),
         responsaveisId: tarefa.responsaveisId || [],
         responsaveisNome: tarefa.responsaveisNome || [],
@@ -374,9 +383,9 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas }) => {
     }
 
     try {
-      // Formatar prazoLimite para o formato LocalDateTime (sem milissegundos)
+      // Formatar prazoLimite para o formato LocalDateTime (yyyy-MM-dd'T'HH:mm:ss)
       const prazoLimiteFormatado = tarefaEditada.prazoLimite
-        ? new Date(tarefaEditada.prazoLimite).toISOString().slice(0, 19) // Formato: "2025-03-25T14:30:00"
+        ? `${tarefaEditada.prazoLimite}:00` // Adiciona os segundos para o formato yyyy-MM-dd'T'HH:mm:ss
         : null;
 
       const tarefaAtualizada = {
@@ -406,8 +415,32 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas }) => {
         throw new Error(`Erro na requisição: ${response.status} - ${errorData || "Sem detalhes"}`);
       }
 
+      // Verificar se a resposta tem um corpo antes de tentar parsear
+      const contentType = response.headers.get("content-type");
+      let tarefaAtualizadaDoBackend = null;
+      if (contentType && contentType.includes("application/json")) {
+        tarefaAtualizadaDoBackend = await response.json();
+        // Não formatar o prazoLimite aqui, manter o formato completo (ex.: 2025-08-15T14:30:00)
+      } else {
+        console.warn("Resposta do backend não contém JSON. Usando dados enviados como fallback.");
+        tarefaAtualizadaDoBackend = { ...tarefaAtualizada, id: tarefa.id };
+        // Ajustar o prazoLimite para o formato completo
+        tarefaAtualizadaDoBackend.prazoLimite = prazoLimiteFormatado;
+      }
+
+      console.log("Tarefa retornada pelo backend:", tarefaAtualizadaDoBackend); // Log para depuração
+
+      // Atualizar a tarefa no estado do componente pai, se a prop atualizarTarefa estiver disponível
+      if (typeof atualizarTarefa === "function") {
+        atualizarTarefa(tarefaAtualizadaDoBackend);
+      } else {
+        console.warn("Prop atualizarTarefa não foi fornecida ou não é uma função.");
+        if (typeof carregarTarefas === "function") {
+          await carregarTarefas("", true); // Recarrega as tarefas (passando "" para buscar todas)
+        }
+      }
+
       onClose(); // Fecha o modal após salvar
-      await carregarTarefas("", true); // Recarrega as tarefas (passando "" para buscar todas)
       alert("Tarefa atualizada com sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar tarefa:", error);

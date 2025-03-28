@@ -150,7 +150,7 @@ const BotaoEditar = styled.button`
   }
 `;
 
-// Estilo do botão de reativar (adicionado diretamente aqui)
+// Estilo do botão de reativar
 const BotaoReativar = styled.button`
   background: #28a745;
   color: white;
@@ -176,11 +176,11 @@ const BotaoReativar = styled.button`
 const formatarData = (dataString) => {
   if (!dataString) return "Sem prazo";
   const data = new Date(dataString);
-  const dia = String(data.getDate()).padStart(2, "0");
-  const mes = String(data.getMonth() + 1).padStart(2, "0");
-  const ano = data.getFullYear();
-  const horas = String(data.getHours()).padStart(2, "0");
-  const minutos = String(data.getMinutes()).padStart(2, "0");
+  const dia = String(data.getUTCDate()).padStart(2, "0");
+  const mes = String(data.getUTCMonth() + 1).padStart(2, "0");
+  const ano = data.getUTCFullYear();
+  const horas = String(data.getUTCHours()).padStart(2, "0");
+  const minutos = String(data.getUTCMinutes()).padStart(2, "0");
   return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 };
 
@@ -240,7 +240,6 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar }) => {
               <strong>Data de Finalização:</strong>{" "}
               {formatarData(tarefa.dataFinalizacao)}
             </DetalheItem>
-            {/* Botão de reativar adicionado diretamente aqui */}
             <BotaoReativar onClick={handleReativar}>Reativar Tarefa</BotaoReativar>
           </>
         )}
