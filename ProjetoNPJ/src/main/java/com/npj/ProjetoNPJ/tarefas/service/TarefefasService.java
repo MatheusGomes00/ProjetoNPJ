@@ -58,12 +58,14 @@ public class TarefefasService {
         return TarefasMapper.toDto(newTask);
     }
 
-    public void update(DtoTarefas dto, String id){
+    public Tarefas update(DtoTarefas dto, String id){
 
         Tarefas tarefa = repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada."));
         updateData(tarefa, dto);
         repository.save(tarefa);
+        System.out.println(tarefa.getDataCriacao());
+        return tarefa;
     }
 
     public void updateData(Tarefas tarefa, DtoTarefas dto) {
