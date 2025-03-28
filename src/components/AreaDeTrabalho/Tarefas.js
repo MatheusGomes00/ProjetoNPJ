@@ -196,17 +196,17 @@ const RemoveButton = styled.button`
   }
 `;
 
-  const TarefaDetalhesModal = styled(ModalContent)`
-    width: 520px;
-    max-height: 80vh;
-    padding: 25px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  `;
+const TarefaDetalhesModal = styled(ModalContent)`
+  width: 520px;
+  max-height: 80vh;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+`;
 
 const LegendaPrioridades = styled.div`
   display: flex;
@@ -444,12 +444,13 @@ function Tarefas() {
   const [dropdownAberto, setDropdownAberto] = useState(false);
 
   const formatarData = (dataString) => {
+    if (!dataString) return "Sem prazo";
     const data = new Date(dataString);
-    const dia = String(data.getDate()).padStart(2, "0");
-    const mes = String(data.getMonth() + 1).padStart(2, "0");
-    const ano = data.getFullYear();
-    const horas = String(data.getHours()).padStart(2, "0");
-    const minutos = String(data.getMinutes()).padStart(2, "0");
+    const dia = String(data.getUTCDate()).padStart(2, "0");
+    const mes = String(data.getUTCMonth() + 1).padStart(2, "0");
+    const ano = data.getUTCFullYear();
+    const horas = String(data.getUTCHours()).padStart(2, "0");
+    const minutos = String(data.getUTCMinutes()).padStart(2, "0");
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
   };
 
@@ -462,7 +463,6 @@ function Tarefas() {
     dataCriacao: new Date().toISOString(),
     responsaveisId: [],
     responsaveisNome: [],
-  
   });
 
   const toggleSelecionarAdvogado = (advogado) => {
@@ -478,7 +478,6 @@ function Tarefas() {
           responsaveisNome: novosNomes,
         };
       } else {
-       
         return {
           ...prevTarefa,
           responsaveisId: [...prevTarefa.responsaveisId, advogado.id],
@@ -510,10 +509,6 @@ function Tarefas() {
         }
 
         const data = await response.json();
-        
-
-        const tarefaEditada = data.find((tarefa) => tarefa.id === tarefaSelecionada?.id);
-        
 
         if (!data || data.length === 0) {
           setMensagemErro("Nenhuma tarefa cadastrada.");
@@ -522,15 +517,17 @@ function Tarefas() {
         }
 
         const tarefasAtivas = data.filter((tarefa) => tarefa.status === true);
-       
         setTarefas(tarefasAtivas);
 
+        // Atualizar tarefaSelecionada, se existir
         if (tarefaSelecionada) {
-          const updatedTarefa =
-            tarefasAtivas.find((t) => t.id === tarefaSelecionada.id) ||
-            data.find((t) => t.id === tarefaSelecionada.id);
-          
-          setTarefaSelecionada(updatedTarefa);
+          const updatedTarefa = tarefasAtivas.find((t) => t.id === tarefaSelecionada.id);
+          if (updatedTarefa) {
+            setTarefaSelecionada(updatedTarefa);
+          } else {
+            setTarefaSelecionada(null);
+            setShowDetalhesModal(false);
+          }
         }
 
         setMensagemErro("");
@@ -589,14 +586,14 @@ function Tarefas() {
       });
 
       const tarefaAtualizada = await response.json();
-      
 
       setTarefas((tarefasAntigas) =>
-        tarefasAntigas.map((tarefa) => (tarefa.id === id ? tarefaAtualizada : tarefa))
+        tarefasAntigas.filter((tarefa) => tarefa.id !== id)
       );
 
       if (tarefaSelecionada && tarefaSelecionada.id === id) {
-        setTarefaSelecionada(tarefaAtualizada);
+        setTarefaSelecionada(null);
+        setShowDetalhesModal(false);
       }
 
       setMensagemSucesso("Tarefa finalizada com sucesso!");
@@ -606,6 +603,18 @@ function Tarefas() {
       setMensagemErro(error.message || "Erro ao finalizar a tarefa. Tente novamente mais tarde.");
     } finally {
       setIsLoadingFinalizar(false);
+    }
+  };
+
+  const atualizarTarefa = (tarefaAtualizada) => {
+    setTarefas((prevTarefas) =>
+      prevTarefas.map((tarefa) =>
+        tarefa.id === tarefaAtualizada.id ? tarefaAtualizada : tarefa
+      )
+    );
+
+    if (tarefaSelecionada && tarefaSelecionada.id === tarefaAtualizada.id) {
+      setTarefaSelecionada(tarefaAtualizada);
     }
   };
 
@@ -633,7 +642,6 @@ function Tarefas() {
         dataCriacao: new Date().toISOString(),
         responsaveisId: novaTarefa.responsaveisId,
         responsaveisNome: novaTarefa.responsaveisNome,
-       
       };
 
       console.log("Estado de novaTarefa antes do envio:", novaTarefa);
@@ -899,7 +907,11 @@ function Tarefas() {
             </BotaoFinalizar>
           )}
           {tarefaSelecionada && (
-            <BotaoEditar tarefaSelecionada={tarefaSelecionada} carregarTarefas={carregarTarefas} />
+            <BotaoEditar
+              tarefaSelecionada={tarefaSelecionada}
+              carregarTarefas={carregarTarefas}
+              atualizarTarefa={atualizarTarefa}
+            />
           )}
         </TarefaDetalhesModal>
       </ModalOverlay>

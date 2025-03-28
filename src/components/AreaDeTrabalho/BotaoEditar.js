@@ -231,7 +231,7 @@ const RemoveButton = styled.button`
   }
 `;
 
-const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
+const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTarefa }) => {
   const [modalAberto, setModalAberto] = useState(false);
   const [tarefa, setTarefa] = useState({
     nomeTarefa: "",
@@ -245,6 +245,23 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
   const [advogados, setAdvogados] = useState([]);
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const { fetchAuthenticated } = useAuth();
+
+  // Função para formatar a data do backend para o formato do input date (yyyy-MM-dd)
+  const formatarDataParaInput = (dataString) => {
+    if (!dataString) return "";
+    try {
+      const data = new Date(dataString);
+      const dataUTC = new Date(Date.UTC(
+        data.getUTCFullYear(),
+        data.getUTCMonth(),
+        data.getUTCDate()
+      ));
+      return dataUTC.toISOString().split("T")[0]; // Retorna apenas a parte da data: yyyy-MM-dd
+    } catch (err) {
+      console.error("Erro ao formatar data:", err);
+      return "";
+    }
+  };
 
   const fetchAdvogados = useCallback(async () => {
     try {
@@ -272,7 +289,8 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
         nomeTarefa: tarefaSelecionada.nomeTarefa || "",
         descricao: tarefaSelecionada.descricao || "",
         prioridade: tarefaSelecionada.prioridade || "",
-        prazoLimite: tarefaSelecionada.prazoLimite || "",
+        // Formatar apenas para o input, não para o estado
+        prazoLimite: formatarDataParaInput(tarefaSelecionada.prazoLimite),
         responsaveisId: tarefaSelecionada.responsaveisId || [],
         responsaveisNome: tarefaSelecionada.responsaveisNome || [],
         status: tarefaSelecionada.status || false,
@@ -305,14 +323,12 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
     setTarefa((prevTarefa) => {
       const isSelected = prevTarefa.responsaveisId.includes(advogado.id);
       if (isSelected) {
-        
         return {
           ...prevTarefa,
           responsaveisId: prevTarefa.responsaveisId.filter((id) => id !== advogado.id),
           responsaveisNome: prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome),
         };
       } else {
-        
         return {
           ...prevTarefa,
           responsaveisId: [...prevTarefa.responsaveisId, advogado.id],
@@ -332,8 +348,6 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
       const novosIds = prevTarefa.responsaveisId.filter((rid) => rid !== id);
       const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== novoNomeRemovido);
 
-      
-
       return {
         ...prevTarefa,
         responsaveisId: novosIds,
@@ -348,18 +362,31 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
       return;
     }
 
+    // Validação dos campos
+    if (
+      !tarefa.nomeTarefa?.trim() ||
+      !tarefa.descricao?.trim() ||
+      !tarefa.prioridade ||
+      !tarefa.prazoLimite ||
+      !tarefa.responsaveisId?.length ||
+      !tarefa.responsaveisNome?.length
+    ) {
+      alert("Por favor, preencha todos os campos antes de salvar a tarefa.");
+      return;
+    }
+
     try {
       const tarefaAtualizada = {
         nomeTarefa: tarefa.nomeTarefa,
         descricao: tarefa.descricao,
         prioridade: tarefa.prioridade,
-        prazoLimite: tarefa.prazoLimite,
+        prazoLimite: tarefa.prazoLimite, // Enviando no formato yyyy-MM-dd
         responsaveisId: tarefa.responsaveisId,
         responsaveisNome: tarefa.responsaveisNome,
         status: tarefa.status,
       };
 
-     
+      console.log("Dados enviados ao backend:", tarefaAtualizada); // Log para depuração
 
       const response = await fetchAuthenticated(
         `http://localhost:8080/task/upd/${tarefaSelecionada.id}`,
@@ -377,9 +404,31 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
         throw new Error(`Erro na requisição: ${response.status} - ${errorData || "Sem detalhes"}`);
       }
 
-      
+      // Verificar se a resposta tem um corpo antes de tentar parsear
+      const contentType = response.headers.get("content-type");
+      let tarefaAtualizadaDoBackend = null;
+      if (contentType && contentType.includes("application/json")) {
+        tarefaAtualizadaDoBackend = await response.json();
+        // Não formatar o prazoLimite aqui, manter o formato completo (ex.: 2025-08-05T20:00:00)
+      } else {
+        console.warn("Resposta do backend não contém JSON. Usando dados enviados como fallback.");
+        tarefaAtualizadaDoBackend = { ...tarefaAtualizada, id: tarefaSelecionada.id };
+        // Ajustar o prazoLimite para o formato completo, assumindo 20:00 como horário padrão
+        tarefaAtualizadaDoBackend.prazoLimite = `${tarefaAtualizada.prazoLimite}T20:00:00`;
+      }
 
-      await carregarTarefas(true); // Recarregar antes de fechar
+      console.log("Tarefa retornada pelo backend:", tarefaAtualizadaDoBackend); // Log para depuração
+
+      // Atualizar a tarefa no estado do componente pai
+      if (typeof atualizarTarefa === "function") {
+        atualizarTarefa(tarefaAtualizadaDoBackend);
+      } else {
+        console.warn("Prop atualizarTarefa não foi fornecida ou não é uma função.");
+        if (typeof carregarTarefas === "function") {
+          await carregarTarefas(true);
+        }
+      }
+
       alert("Tarefa atualizada com sucesso!");
       fecharModal();
     } catch (error) {
