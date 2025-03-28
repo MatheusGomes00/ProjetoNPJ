@@ -1,7 +1,7 @@
-package com.npj.ProjetoNPJ.triagem.mapper;
+package com.npj.ProjetoNPJ.clientes.mapper;
 
-import com.npj.ProjetoNPJ.triagem.dto.CadastroDto;
-import com.npj.ProjetoNPJ.triagem.entitie.Cadastro;
+import com.npj.ProjetoNPJ.clientes.dto.CadastroDto;
+import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;

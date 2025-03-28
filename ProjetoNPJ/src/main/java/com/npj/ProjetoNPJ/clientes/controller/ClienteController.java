@@ -1,8 +1,8 @@
-package com.npj.ProjetoNPJ.triagem.controller;
+package com.npj.ProjetoNPJ.clientes.controller;
 
 
-import com.npj.ProjetoNPJ.triagem.dto.CadastroDto;
-import com.npj.ProjetoNPJ.triagem.service.ClienteService;
+import com.npj.ProjetoNPJ.clientes.dto.CadastroDto;
+import com.npj.ProjetoNPJ.clientes.service.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,12 +1,12 @@
-package com.npj.ProjetoNPJ.triagem.service;
+package com.npj.ProjetoNPJ.clientes.service;
 
 import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
-import com.npj.ProjetoNPJ.triagem.dto.CadastroDto;
-import com.npj.ProjetoNPJ.triagem.entitie.Cadastro;
+import com.npj.ProjetoNPJ.clientes.dto.CadastroDto;
+import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
 import com.npj.ProjetoNPJ.exceptions.CpfUnicoException;
-import com.npj.ProjetoNPJ.triagem.mapper.CadastroMapper;
-import com.npj.ProjetoNPJ.triagem.repository.CadastroRepository;
+import com.npj.ProjetoNPJ.clientes.mapper.CadastroMapper;
+import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
