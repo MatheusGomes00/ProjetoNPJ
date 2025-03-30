@@ -12,8 +12,8 @@ const useAuth = () => {
     // Executa o logout e redireciona para a página de login
     const logoutWithRedirect = async () => {
         try {
-        await logout(); // Limpa os tokens no frontend e backend
-        navigate('/login');
+          await logout(); // Limpa os tokens no frontend e backend
+          navigate('/login');
         } catch (error) {
         console.error('Erro ao realizar logout:', error.message);
         navigate('/login');
@@ -27,31 +27,29 @@ const useAuth = () => {
       return decoded.id;
     }
 
+    const getRole = () => {
+      const token = getAccessToken();
+      if (!token) return null;
+      const decoded = jwtDecode(token);
+      const role = decoded.role;
+      return role ? role.replace("ROLE_", "") : null;
+    }
+
     // Wrapper para fetchWithToken com tratamento de autenticação
     const fetchAuthenticated = async (url, options = {}) => {
-      try {
-        const response = await fetchWithToken(url, options);
-        
-        if (!response.ok) {
-          if (response.status === 401) {
-            console.warn("Token inválido ou expirado, fazendo logout...");
-            await logoutWithRedirect();
-          }
-          throw new Error(`Erro na requisição: ${response.status}`);
-        }
-        return response;
-      } catch (error) {
-        console.error('Erro na requisição autenticada:', error.message);
-        if (error.message.includes("401")) {
-          await logoutWithRedirect(); // Logout apenas em 401 explícito
-        }
-        throw error; // Propaga o erro para o chamador tratar
+      const response = await fetchWithToken(url, options);
+      
+      if (response.status === 401) {
+        console.warn("Token inválido ou expirado, fazendo logout...");
+        await logoutWithRedirect();
       }
+      return response;
     };
 
     return {
         checkAuth,          // Verifica se o usuário está autenticado
         getId,
+        getRole,
         logoutWithRedirect, // Faz logout e redireciona
         fetchAuthenticated, // Faz requisições autenticadas com tratamento
       };

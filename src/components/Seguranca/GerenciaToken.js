@@ -77,15 +77,10 @@ export const refreshToken = async () => {
 
 export const logout = async () => {
   try {
-      const response = await fetch(`${API_BASE_URL}/logout`, {
-          method: 'POST',
-          credentials: 'include', // Envia o cookie refreshToken para o backend
+      await fetch(`${API_BASE_URL}/logout`, {
+        method: 'POST',
+        credentials: 'include', // Envia o cookie refreshToken para o backend
       });
-
-      if (!response.ok) {
-          throw new Error('Falha ao realizar logout');
-      }
-
       clearAccessToken();
   } catch (error) {
       console.error('Erro no logout:', error.message);

@@ -88,6 +88,18 @@ export const Form = styled.form`
     }
   }
 
+  .backButton {
+    margin-top: 10px;
+    background: #6c757d; /* Cinza */
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    &:hover {
+      background: #5a6268; /* Cinza mais escuro no hover */
+  }
+
   .change-password-btn {
     padding: 10px;
     background: #007bff;
