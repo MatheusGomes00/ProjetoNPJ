@@ -22,10 +22,8 @@ public class DtoAdvogado {
     @NotBlank
     private String cpf;
 
-    @NotBlank
     private String registroOab;
 
-    @NotBlank
     private String secaoOab;
 
     @NotBlank

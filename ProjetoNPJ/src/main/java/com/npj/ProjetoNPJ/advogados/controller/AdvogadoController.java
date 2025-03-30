@@ -32,12 +32,9 @@ public class AdvogadoController {
     }
 
     @PostMapping(value = "/ins")
-    public ResponseEntity<ResponseAdvogadoDto> criarAdvogado(@RequestBody @Valid DtoAdvogado advogadoDto){
-        Advogado advogado = service.insert(advogadoDto);
-        ResponseAdvogadoDto dto = AdvogadoMapper.responseDto(advogado);
-
-        URI location = URI.create("/buscar/" + advogado.getId());
-        return ResponseEntity.created(location).body(dto);
+    public ResponseEntity<Void> criarAdvogado(@RequestBody @Valid DtoAdvogado advogadoDto){
+        service.insert(advogadoDto);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping(value = "/upd/{id}")

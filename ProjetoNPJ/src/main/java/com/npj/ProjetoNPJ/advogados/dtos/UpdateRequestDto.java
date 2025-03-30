@@ -18,10 +18,10 @@ public class UpdateRequestDto {
     @NotBlank
     private String cpf;
 
-    @NotBlank
+    
     private String registroOab;
 
-    @NotBlank
+
     private String secaoOab;
 
     private String senha;
