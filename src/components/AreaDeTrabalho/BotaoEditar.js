@@ -2,7 +2,7 @@ import styled from "styled-components";
 import React, { useState, useEffect, useCallback } from "react";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilos mantidos iguais ao seu código original
+// Estilos
 const BotaoEditar = styled.button`
   background: #007bff;
   color: white;
@@ -238,25 +238,21 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
     descricao: "",
     prioridade: "",
     prazoLimite: "",
-    responsaveisId: [],
-    responsaveisNome: [],
+    responsaveis: [], // Lista de objetos { id, nome }
     status: false,
   });
   const [advogados, setAdvogados] = useState([]);
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const { fetchAuthenticated } = useAuth();
 
-  // Função para formatar a data do backend para o formato do input date (yyyy-MM-dd)
   const formatarDataParaInput = (dataString) => {
     if (!dataString) return "";
     try {
       const data = new Date(dataString);
-      const dataUTC = new Date(Date.UTC(
-        data.getUTCFullYear(),
-        data.getUTCMonth(),
-        data.getUTCDate()
-      ));
-      return dataUTC.toISOString().split("T")[0]; // Retorna apenas a parte da data: yyyy-MM-dd
+      const dataUTC = new Date(
+        Date.UTC(data.getUTCFullYear(), data.getUTCMonth(), data.getUTCDate())
+      );
+      return dataUTC.toISOString().split("T")[0];
     } catch (err) {
       console.error("Erro ao formatar data:", err);
       return "";
@@ -285,14 +281,17 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
 
   useEffect(() => {
     if (tarefaSelecionada) {
+      const responsaveis = (tarefaSelecionada.responsaveisId || []).map((id, index) => ({
+        id: id,
+        nome: tarefaSelecionada.responsaveisNome[index],
+      }));
+
       setTarefa({
         nomeTarefa: tarefaSelecionada.nomeTarefa || "",
         descricao: tarefaSelecionada.descricao || "",
         prioridade: tarefaSelecionada.prioridade || "",
-        // Formatar apenas para o input, não para o estado
         prazoLimite: formatarDataParaInput(tarefaSelecionada.prazoLimite),
-        responsaveisId: tarefaSelecionada.responsaveisId || [],
-        responsaveisNome: tarefaSelecionada.responsaveisNome || [],
+        responsaveis: responsaveis,
         status: tarefaSelecionada.status || false,
       });
     }
@@ -321,39 +320,26 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
 
   const toggleSelecionarAdvogado = (advogado) => {
     setTarefa((prevTarefa) => {
-      const isSelected = prevTarefa.responsaveisId.includes(advogado.id);
+      const isSelected = prevTarefa.responsaveis.some((resp) => resp.id === advogado.id);
       if (isSelected) {
         return {
           ...prevTarefa,
-          responsaveisId: prevTarefa.responsaveisId.filter((id) => id !== advogado.id),
-          responsaveisNome: prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome),
+          responsaveis: prevTarefa.responsaveis.filter((resp) => resp.id !== advogado.id),
         };
       } else {
         return {
           ...prevTarefa,
-          responsaveisId: [...prevTarefa.responsaveisId, advogado.id],
-          responsaveisNome: [...prevTarefa.responsaveisNome, advogado.nome],
+          responsaveis: [...prevTarefa.responsaveis, { id: advogado.id, nome: advogado.nome }],
         };
       }
     });
   };
 
   const removerResponsavel = (id) => {
-    setTarefa((prevTarefa) => {
-      const index = prevTarefa.responsaveisId.indexOf(id);
-      if (index === -1) return prevTarefa;
-
-      const novoIdRemovido = prevTarefa.responsaveisId[index];
-      const novoNomeRemovido = prevTarefa.responsaveisNome[index];
-      const novosIds = prevTarefa.responsaveisId.filter((rid) => rid !== id);
-      const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== novoNomeRemovido);
-
-      return {
-        ...prevTarefa,
-        responsaveisId: novosIds,
-        responsaveisNome: novosNomes,
-      };
-    });
+    setTarefa((prevTarefa) => ({
+      ...prevTarefa,
+      responsaveis: prevTarefa.responsaveis.filter((resp) => resp.id !== id),
+    }));
   };
 
   const salvarTarefa = async () => {
@@ -362,31 +348,33 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
       return;
     }
 
-    // Validação dos campos
     if (
       !tarefa.nomeTarefa?.trim() ||
       !tarefa.descricao?.trim() ||
       !tarefa.prioridade ||
       !tarefa.prazoLimite ||
-      !tarefa.responsaveisId?.length ||
-      !tarefa.responsaveisNome?.length
+      !tarefa.responsaveis?.length
     ) {
       alert("Por favor, preencha todos os campos antes de salvar a tarefa.");
       return;
     }
 
     try {
+      // Transformar a lista de responsaveis em responsaveisId e responsaveisNome
+      const responsaveisId = tarefa.responsaveis.map((resp) => resp.id);
+      const responsaveisNome = tarefa.responsaveis.map((resp) => resp.nome);
+
       const tarefaAtualizada = {
         nomeTarefa: tarefa.nomeTarefa,
         descricao: tarefa.descricao,
         prioridade: tarefa.prioridade,
-        prazoLimite: tarefa.prazoLimite, // Enviando no formato yyyy-MM-dd
-        responsaveisId: tarefa.responsaveisId,
-        responsaveisNome: tarefa.responsaveisNome,
+        prazoLimite: tarefa.prazoLimite,
+        responsaveisId: responsaveisId,
+        responsaveisNome: responsaveisNome,
         status: tarefa.status,
       };
 
-      console.log("Dados enviados ao backend:", tarefaAtualizada); // Log para depuração
+      console.log("Dados enviados ao backend:", tarefaAtualizada);
 
       const response = await fetchAuthenticated(
         `http://localhost:8080/task/upd/${tarefaSelecionada.id}`,
@@ -404,22 +392,28 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
         throw new Error(`Erro na requisição: ${response.status} - ${errorData || "Sem detalhes"}`);
       }
 
-      // Verificar se a resposta tem um corpo antes de tentar parsear
       const contentType = response.headers.get("content-type");
       let tarefaAtualizadaDoBackend = null;
       if (contentType && contentType.includes("application/json")) {
         tarefaAtualizadaDoBackend = await response.json();
-        // Não formatar o prazoLimite aqui, manter o formato completo (ex.: 2025-08-05T20:00:00)
+        // Transformar a lista de responsaveis em responsaveisId e responsaveisNome
+        if (tarefaAtualizadaDoBackend.responsaveis) {
+          tarefaAtualizadaDoBackend.responsaveisId = tarefaAtualizadaDoBackend.responsaveis.map(
+            (adv) => adv.id
+          );
+          tarefaAtualizadaDoBackend.responsaveisNome = tarefaAtualizadaDoBackend.responsaveis.map(
+            (adv) => adv.nome
+          );
+          delete tarefaAtualizadaDoBackend.responsaveis;
+        }
       } else {
         console.warn("Resposta do backend não contém JSON. Usando dados enviados como fallback.");
         tarefaAtualizadaDoBackend = { ...tarefaAtualizada, id: tarefaSelecionada.id };
-        // Ajustar o prazoLimite para o formato completo, assumindo 20:00 como horário padrão
         tarefaAtualizadaDoBackend.prazoLimite = `${tarefaAtualizada.prazoLimite}T20:00:00`;
       }
 
-      console.log("Tarefa retornada pelo backend:", tarefaAtualizadaDoBackend); // Log para depuração
+      console.log("Tarefa retornada pelo backend:", tarefaAtualizadaDoBackend);
 
-      // Atualizar a tarefa no estado do componente pai
       if (typeof atualizarTarefa === "function") {
         atualizarTarefa(tarefaAtualizadaDoBackend);
       } else {
@@ -505,7 +499,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
                             <DropdownItem key={advogado.id}>
                               <input
                                 type="checkbox"
-                                checked={tarefa.responsaveisId.includes(advogado.id)}
+                                checked={tarefa.responsaveis.some((resp) => resp.id === advogado.id)}
                                 onChange={() => toggleSelecionarAdvogado(advogado)}
                               />
                               {advogado.nome}
@@ -520,14 +514,12 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
                     )}
                   </DropdownContainer>
 
-                  {tarefa.responsaveisNome.length > 0 && (
+                  {tarefa.responsaveis.length > 0 && (
                     <ResponsaveisList>
-                      {tarefa.responsaveisNome.map((nome, index) => (
-                        <ResponsavelTag key={tarefa.responsaveisId[index] || nome}>
-                          <span>{nome}</span>
-                          <RemoveButton
-                            onClick={() => removerResponsavel(tarefa.responsaveisId[index])}
-                          >
+                      {tarefa.responsaveis.map((resp) => (
+                        <ResponsavelTag key={resp.id}>
+                          <span>{resp.nome}</span>
+                          <RemoveButton onClick={() => removerResponsavel(resp.id)}>
                             ×
                           </RemoveButton>
                         </ResponsavelTag>
