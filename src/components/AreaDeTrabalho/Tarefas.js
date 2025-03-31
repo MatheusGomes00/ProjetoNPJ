@@ -9,7 +9,7 @@ const TarefasContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: calc(106vh - 32px);
-  height: 400px;
+  height: 440px;
   padding: 40px;
   border: 1px solid black;
   border-radius: 0px;
@@ -22,7 +22,7 @@ const TituloTarefas = styled.h2`
   font-weight: bold;
   color: #333;
   text-align: center;
-  margin-bottom: 15px;
+  margin-top: -35px;
 `;
 
 const ListaTarefas = styled.div`
@@ -32,7 +32,7 @@ const ListaTarefas = styled.div`
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  max-width: 200%;
+  max-width: 250%;
   max-height: 380px;
   overflow-y: auto;
   padding: 10px;

@@ -9,14 +9,14 @@ const GlobalStyle = createGlobalStyle`
 const ProcessosContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  padding: 20px;
-  width: 28vw;
-  height: 50vw;
+  gap: 10px;
+  padding: 22px;
+  width: 27vw;
+  height: 55vw;
   border: none;
   background: linear-gradient(145deg, #f8fbff 0%, #e6f0fa 100%);
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
-  overflow-y: auto;
+ 
   border-radius: 12px;
 `;
 
