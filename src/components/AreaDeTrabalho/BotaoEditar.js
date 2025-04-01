@@ -43,17 +43,20 @@ const ModalContainer = styled.div`
   background: #fff;
   padding: 24px;
   border-radius: 12px;
-  width: 150%;
-  max-width: 150%;
-  max-height: 100vh;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 `;
 
 const BotaoFechar = styled.button`
   position: absolute;
   top: 16px;
-  right: 16px;
+  right: 60px;
   background: none;
   border: none;
   font-size: 22px;
@@ -69,13 +72,13 @@ const TarefaDetalhesModal = styled.div``;
 
 const DetalheItem = styled.div`
   display: flex;
+  flex-direction: column;
   margin-bottom: 12px;
-  align-items: center;
+  gap: 8px;
 `;
 
 const Label = styled.label`
   font-weight: 600;
-  width: 120px;
   color: #555;
 `;
 
@@ -87,9 +90,33 @@ const Input = styled.input`
   font-size: 16px;
   color: #333;
   transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &:focus {
     border-color: #007bff;
+    outline: none;
+  }
+`;
+
+const TextArea = styled.textarea`
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s ease;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color:rgb(0, 123, 255);
     outline: none;
   }
 `;
@@ -238,7 +265,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
     descricao: "",
     prioridade: "",
     prazoLimite: "",
-    responsaveis: [], // Lista de objetos { id, nome }
+    responsaveis: [],
     status: false,
   });
   const [advogados, setAdvogados] = useState([]);
@@ -360,7 +387,6 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
     }
 
     try {
-      // Transformar a lista de responsaveis em responsaveisId e responsaveisNome
       const responsaveisId = tarefa.responsaveis.map((resp) => resp.id);
       const responsaveisNome = tarefa.responsaveis.map((resp) => resp.nome);
 
@@ -396,7 +422,6 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
       let tarefaAtualizadaDoBackend = null;
       if (contentType && contentType.includes("application/json")) {
         tarefaAtualizadaDoBackend = await response.json();
-        // Transformar a lista de responsaveis em responsaveisId e responsaveisNome
         if (tarefaAtualizadaDoBackend.responsaveis) {
           tarefaAtualizadaDoBackend.responsaveisId = tarefaAtualizadaDoBackend.responsaveis.map(
             (adv) => adv.id
@@ -444,9 +469,8 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
 
               <DetalheItem>
                 <Label>Nome:</Label>
-                <Input
-                  type="text"
-                  name="nomeTarefa"
+                <TextArea
+                  name="nome"
                   value={tarefa.nomeTarefa}
                   onChange={handleChange}
                 />
@@ -454,8 +478,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
 
               <DetalheItem>
                 <Label>Descrição:</Label>
-                <Input
-                  type="text"
+                <TextArea
                   name="descricao"
                   value={tarefa.descricao}
                   onChange={handleChange}

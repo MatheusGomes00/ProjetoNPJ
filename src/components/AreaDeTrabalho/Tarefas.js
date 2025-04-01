@@ -24,7 +24,20 @@ const TituloTarefas = styled.h2`
   text-align: center;
   margin-top: -35px;
 `;
-
+const NomeTarefaCard = styled.div`
+  font-size: 15px; /* Mantém o mesmo tamanho de fonte do TarefaCard */
+  font-weight: 600; /* Torna o nome um pouco mais destacado */
+  color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limita o texto a 3 linhas */
+  -webkit-box-orient: vertical;
+  line-clamp: 3; /* Padrão mais recente para compatibilidade */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Adiciona reticências */
+  word-break: break-word; /* Quebra palavras longas */
+  max-width: 100%; /* Evita transbordo horizontal */
+  text-align: center; /* Mantém o alinhamento centralizado */
+`;
 const ListaTarefas = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -45,7 +58,7 @@ const TarefaCard = styled.div`
   background-color: #f9f9f9;
   padding: 15px;
   border-radius: 10px;
-  width: 120px;
+  width: 170px;
   height: 120px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
@@ -197,8 +210,8 @@ const RemoveButton = styled.button`
 `;
 
 const TarefaDetalhesModal = styled(ModalContent)`
-  width: 520px;
-  max-height: 80vh;
+  width: 100vh;
+  height: 100vh;
   padding: 25px;
   background: #fff;
   border-radius: 12px;
@@ -206,6 +219,8 @@ const TarefaDetalhesModal = styled(ModalContent)`
   display: flex;
   flex-direction: column;
   gap: 15px;
+  box-sizing: border-box; /* Garante que padding seja incluído na largura/altura */
+  overflow: hidden; /* Evita transbordo de conteúdo */
 `;
 
 const LegendaPrioridades = styled.div`
@@ -242,11 +257,19 @@ const BotaoFechar = styled.button`
 `;
 
 const NomeTarefa = styled.h3`
-  font-size: 22px;
+  font-size: px;
   font-weight: bold;
   color: #333;
   text-align: center;
   margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limita o texto a 3 linhas */
+  -webkit-box-orient: vertical;
+  line-clamp: 3; /* Padrão mais recente, para compatibilidade futura */
+  overflow: auto;
+  text-overflow: ellipsis; /* Adiciona reticências no final */
+  word-break: break-word; /* Quebra palavras longas para evitar transbordo horizontal */
+  max-width: 100%; /* Garante que o texto não ultrapasse a largura do modal */
 `;
 
 const DetalheItem = styled.div`
@@ -258,7 +281,7 @@ const DetalheItem = styled.div`
   font-size: 16px;
   color: #333;
   max-height: 120px;
-  overflow-y: auto;
+
   word-wrap: break-word;
 `;
 
@@ -740,15 +763,15 @@ function Tarefas() {
       {mensagemSucesso && <MensagemSucesso>{mensagemSucesso}</MensagemSucesso>}
       {mensagemErro && <MensagemErro>{mensagemErro}</MensagemErro>}
       <ListaTarefas>
-        {tarefas.map((tarefa) => (
-          <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
-            <StatusTag prioridade={tarefa.prioridade} />
-            <div>{tarefa.nomeTarefa}</div>
-            <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
-            <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
-          </TarefaCard>
-        ))}
-      </ListaTarefas>
+      {tarefas.map((tarefa) => (
+      <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
+      <StatusTag prioridade={tarefa.prioridade} />
+      <NomeTarefaCard>{tarefa.nomeTarefa}</NomeTarefaCard>
+      <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
+      <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
+    </TarefaCard>
+     ))}
+    </ListaTarefas>
       <LegendaPrioridades>
         <TagLegenda>
           <CorTag cor="red" />
