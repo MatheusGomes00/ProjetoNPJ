@@ -55,7 +55,7 @@ public class AgendaService {
 
         Agendamento novoAgendamento = agendaRepository.insert(AgendaMapper.toEntity(dto, advogados));
         novoAgendamento.setResponsaveis(dto.getResponsaveis());
-        return AgendaMapper.toResponseDto(dto);
+        return AgendaMapper.toDto(novoAgendamento);
     }
 
     // public void notificarResponsaveis() {
