@@ -1,9 +1,43 @@
 package com.npj.ProjetoNPJ.processos.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
+import com.npj.ProjetoNPJ.processos.entity.Processos;
+import com.npj.ProjetoNPJ.processos.service.ProcessosService;
+import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/proc")
 public class ProcessosController {
+
+    @Autowired
+    private ProcessosService service;
+
+
+    @PostMapping(value = "/newProc")
+    public ResponseEntity<DtoProcessos> insert(@RequestBody DtoProcessos dto, @RequestHeader("Authorization") String authorizationHeader){
+
+       DtoProcessos novoProcesso = service.insert(dto);
+
+       return ResponseEntity.ok().body(novoProcesso);
+
+    }
+    @PutMapping(value = "/updProc/{id}")
+    public ResponseEntity<Processos> atualizarProcesso(@PathVariable String id, @RequestBody DtoProcessos dto){
+
+        Processos processo = service.update(dto, id);
+
+        return ResponseEntity.ok().body(processo);
+    }
+    @GetMapping(value = "/searchProc/{numeroProcesso}")
+    public ResponseEntity<List<DtoProcessos>> buscarPorNumero(@PathVariable String numeroProcesso){
+
+        List<DtoProcessos> processos = service.findByNumeroProcesso(numeroProcesso);
+        return ResponseEntity.ok(processos);
+    }
+
 }

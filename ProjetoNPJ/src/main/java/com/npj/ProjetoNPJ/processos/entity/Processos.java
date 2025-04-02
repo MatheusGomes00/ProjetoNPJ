@@ -1,8 +1,12 @@
 package com.npj.ProjetoNPJ.processos.entity;
 
+import com.npj.ProjetoNPJ.clientes.entitie.Cliente;
+import com.npj.ProjetoNPJ.processos.dtos.Situacao;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,7 +19,7 @@ public class Processos {
     @Id
     private String id;
 
-    private String situação;
+    private Situacao situacao;
 
     private String numeroProcesso;
 
@@ -34,4 +38,8 @@ public class Processos {
     private String vara;
 
     private String valorCausa;
+
+    private Cliente cliente;
+
+    private List<String> advogadosResponsaveis;
 }
