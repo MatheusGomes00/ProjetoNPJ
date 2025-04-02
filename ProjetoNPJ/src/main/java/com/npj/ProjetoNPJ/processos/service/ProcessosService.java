@@ -15,10 +15,14 @@ import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.npj.ProjetoNPJ.processos.dtos.Situacao.FINALIZADO;
 
 @Service
 public class ProcessosService {
@@ -74,5 +78,27 @@ public class ProcessosService {
             throw new RecursoNaoEncontradoException("Processo Nao localizada");
         }
         return ProcessosMapper.toListDto(processos);
+    }
+
+    public List<DtoProcessos> findAll() {
+        List<Processos> processos = processosRepositorio.findAll();
+        return ProcessosMapper.toListDto(processos);
+    }
+
+    public Processos excluir( String id){
+
+        Processos excluirProc = processosRepositorio.findById(id)
+                .orElseThrow(()-> new RecursoNaoEncontradoException("Processo nao encontrado"));
+        excluirProc.setSituacao(FINALIZADO);
+        processosRepositorio.save(excluirProc);
+        return excluirProc;
+    }
+
+    public Processos findById(String id){
+
+        Processos acharPorID = processosRepositorio.findById(id).
+                orElseThrow(()-> new RecursoNaoEncontradoException("Processo nao encontrado"));
+
+        return acharPorID;
     }
 }

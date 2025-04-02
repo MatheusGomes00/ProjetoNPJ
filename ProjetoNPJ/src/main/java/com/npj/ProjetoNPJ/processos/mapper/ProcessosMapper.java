@@ -56,8 +56,24 @@
             dto.setAdvogadosResponsaveis(processo.getAdvogadosResponsaveis());
             return dto;
         }
+
+        public static DtoProcessos toListDto(Processos processo) {
+            DtoProcessos dto = new DtoProcessos();
+            dto.setId(processo.getId());
+            dto.setSituacao(processo.getSituacao());
+            dto.setNumeroProcesso(processo.getNumeroProcesso());
+            dto.setPasta(processo.getPasta());
+            dto.setTipoAcaoClasse(processo.getTipoAcaoClasse());
+            dto.setRequerido(processo.getRequerido());
+            dto.setVara(processo.getVara());
+            dto.setValorCausa(processo.getValorCausa());
+            return dto;
+        }
+
         public static List<DtoProcessos> toListDto(List<Processos> list) {
-            return list.stream().map(ProcessosMapper::toDto).collect(Collectors.toList());
+            return list.stream()
+                    .map(ProcessosMapper::toListDto)
+                    .collect(Collectors.toList());
         }
     }
 
