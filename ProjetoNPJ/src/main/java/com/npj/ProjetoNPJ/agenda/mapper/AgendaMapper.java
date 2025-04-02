@@ -1,5 +1,6 @@
 package com.npj.ProjetoNPJ.agenda.mapper;
 
+import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.agenda.dto.AgendamentoDto;
 import com.npj.ProjetoNPJ.agenda.dto.ResponseAgendamentoDto;
 import com.npj.ProjetoNPJ.agenda.entity.Agendamento;
@@ -20,7 +21,7 @@ public class AgendaMapper {
         return new ModelMapper().map(agendamento, ResponseAgendamentoDto.class);
     }
 
-    public static Agendamento toEntity(AgendamentoDto dto) {
+    public static Agendamento toEntity(AgendamentoDto dto,  List<Advogado> advogados) {
 
         return new ModelMapper().map(dto, Agendamento.class);
     }

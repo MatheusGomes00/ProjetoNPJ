@@ -1,5 +1,6 @@
 package com.npj.ProjetoNPJ.agenda.service;
 
+import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.agenda.dto.AgendamentoDto;
 import com.npj.ProjetoNPJ.agenda.dto.ResponseAgendamentoDto;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AgendaService {
@@ -46,9 +48,13 @@ public class AgendaService {
 
     public ResponseAgendamentoDto criarAgendamento(AgendamentoDto dto) {
         dto.setCpf(normalizarCpf(dto.getCpf()));
-        // ... lógica para programar notificação
+        List<Advogado> advogados = dto.getResponsaveis().stream()
+                .map(id -> advogadoRepository.findById(id)
+                        .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
+                .collect(Collectors.toList());
 
-        agendaRepository.insert(AgendaMapper.toEntity(dto));
+        Agendamento novoAgendamento = agendaRepository.insert(AgendaMapper.toEntity(dto, advogados));
+        novoAgendamento.setResponsaveis(dto.getResponsaveis());
         return AgendaMapper.toResponseDto(dto);
     }
 
