@@ -5,6 +5,7 @@
     import com.npj.ProjetoNPJ.advogados.dtos.UpdateRequestDto;
     import com.npj.ProjetoNPJ.advogados.entity.Advogado;
     import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
+    import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
     import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
     import com.npj.ProjetoNPJ.processos.dtos.Situacao;
     import com.npj.ProjetoNPJ.processos.entity.Processos;
@@ -18,7 +19,7 @@
 
     public class ProcessosMapper {
 
-        public static Processos toEntitie(DtoProcessos dto) {
+        public static Processos toEntitie(DtoProcessos dto, List<Advogado> advogados, List<Cadastro> cliente) {
             Processos processo = new Processos();
             processo.setId(dto.getId());
             processo.setSituacao(dto.getSituacao() != null ? Situacao.valueOf(String.valueOf(dto.getSituacao())) : null);
@@ -28,8 +29,8 @@
             processo.setRepresentanteLegal(dto.getRepresentanteLegal());
             processo.setRequerido(dto.getRequerido());
             processo.setVara(dto.getVara());
-            processo.setValorCausa(dto.getValorCausa());
             processo.setAdvogadosResponsaveis(dto.getAdvogadosResponsaveis());
+            processo.setCliente(dto.getCliente());
             return processo;
         }
 
@@ -53,7 +54,7 @@
             dto.setVara(processo.getVara());
             dto.setValorCausa(processo.getValorCausa());
             dto.setCliente(null); // Simplificado; ajuste se precisar do objeto Cliente
-            dto.setAdvogadosResponsaveis(processo.getAdvogadosResponsaveis());
+            //dto.setAdvogadosResponsaveis(processo.getAdvogadosResponsaveis().);
             return dto;
         }
 
@@ -67,6 +68,8 @@
             dto.setRequerido(processo.getRequerido());
             dto.setVara(processo.getVara());
             dto.setValorCausa(processo.getValorCausa());
+            dto.setAdvogadosResponsaveis(processo.getAdvogadosResponsaveis());
+            dto.setCliente(processo.getCliente());
             return dto;
         }
 

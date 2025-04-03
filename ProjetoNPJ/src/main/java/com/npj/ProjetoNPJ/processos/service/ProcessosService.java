@@ -4,6 +4,9 @@ package com.npj.ProjetoNPJ.processos.service;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
+import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
+import com.npj.ProjetoNPJ.clientes.entitie.Cliente;
+import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
 import com.npj.ProjetoNPJ.processos.dtos.Situacao;
@@ -34,12 +37,26 @@ public class ProcessosService {
     private ProcessosRepositorio processosRepositorio;
 
     @Autowired
+    private CadastroRepository clienterepository;
+
+    @Autowired
     private JwtService jwtService;
 
     public DtoProcessos insert(DtoProcessos dto) {
         dto.setSituacao(Situacao.INICIADO);
 
-        Processos processo = ProcessosMapper.toEntitie(dto);
+        List<Advogado> advogados = dto.getAdvogadosResponsaveis().stream()
+                .map(id -> advrepository.findById(String.valueOf(id))
+                        .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
+                .collect(Collectors.toList());
+
+        List<Cadastro> cliente = dto.getCliente().stream()
+                .map(id -> clienterepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
+                .toList();
+
+
+        Processos processo = ProcessosMapper.toEntitie(dto, advogados, cliente);
+
         processo.setSituacao(Situacao.INICIADO);
 
         Processos processoSalvo = processosRepositorio.save(processo);

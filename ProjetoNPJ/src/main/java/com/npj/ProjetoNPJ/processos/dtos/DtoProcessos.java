@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.processos.dtos;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
+import com.npj.ProjetoNPJ.clientes.dto.ClienteDto;
 import com.npj.ProjetoNPJ.clientes.entitie.Cliente;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -37,7 +38,7 @@ public class DtoProcessos {
 
     private String valorCausa;
 
-    private Cliente cliente;
+    private List<ClienteDto> cliente;
 
     private List<String> advogadosResponsaveis;
 }
