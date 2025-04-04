@@ -17,7 +17,7 @@ public class CadastroDto {
     @Valid
     @NotNull(message = "Cliente não pode estar nulo!")
     private ClienteDto cliente;
-
+    private String nome;
     private RepresentanteDto representante;
     private ParteContrariaDto parteContraria;
     private DadosProcessuaisDto dadosProcessuais;

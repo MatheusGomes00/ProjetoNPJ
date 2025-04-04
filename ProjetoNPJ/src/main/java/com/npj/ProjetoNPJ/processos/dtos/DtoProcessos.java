@@ -3,6 +3,7 @@ package com.npj.ProjetoNPJ.processos.dtos;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.clientes.dto.ClienteDto;
 import com.npj.ProjetoNPJ.clientes.entitie.Cliente;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 
@@ -38,7 +39,15 @@ public class DtoProcessos {
 
     private String valorCausa;
 
-    private List<ClienteDto> cliente;
+    //private List<ClienteDto> cliente;
 
-    private List<String> advogadosResponsaveis;
+    @NotEmpty
+    private List<String> responsaveisId;
+
+    @NotEmpty
+    private List<String> responsaveisNome;
+
+    private List<String> clienteId;
+
+    private List<String> clienteNome;
 }

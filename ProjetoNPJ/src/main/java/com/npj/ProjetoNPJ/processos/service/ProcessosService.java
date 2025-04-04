@@ -45,17 +45,17 @@ public class ProcessosService {
     public DtoProcessos insert(DtoProcessos dto) {
         dto.setSituacao(Situacao.INICIADO);
 
-        List<Advogado> advogados = dto.getAdvogadosResponsaveis().stream()
+        List<Advogado> advogados = dto.getResponsaveisId().stream()
                 .map(id -> advrepository.findById(String.valueOf(id))
                         .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
                 .collect(Collectors.toList());
 
-        List<Cadastro> cliente = dto.getCliente().stream()
-                .map(id -> clienterepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
-                .toList();
+       List<Cadastro> cliente = dto.getClienteId().stream()
+              .map(id -> clienterepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
+               .toList();
 
 
-        Processos processo = ProcessosMapper.toEntitie(dto, advogados, cliente);
+        Processos processo = ProcessosMapper.toEntity(dto, advogados, cliente);
 
         processo.setSituacao(Situacao.INICIADO);
 
@@ -86,8 +86,27 @@ public class ProcessosService {
         if (dto.getVara() != null) processos.setVara(dto.getVara());
         if (dto.getValorCausa() != null) processos.setValorCausa(dto.getValorCausa());
 
-    }
+        if (dto.getResponsaveisId() != null && !dto.getResponsaveisId().isEmpty()) {
+            List<Advogado> advogados = dto.getResponsaveisId().stream()
+                    .map(id -> advrepository.findById(id)
+                            .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
+                    .collect(Collectors.toList());
+            System.out.println("Advogados encontrados para atualização: " + advogados);
+            processos.setResponsaveis(advogados);
 
+
+            if (dto.getClienteId() != null && !dto.getClienteId().isEmpty()){
+                List<Cadastro> clientes = dto.getClienteId().stream()
+                        .map(id-> clienterepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
+                        .collect(Collectors.toList());
+
+            processos.setCliente(clientes);
+            }
+
+
+
+        }
+    }
     public List<DtoProcessos> findByNumeroProcesso(String numeroProcesso){
 
         List<Processos> processos = processosRepositorio.findByNumeroProcesso(numeroProcesso);

@@ -61,6 +61,8 @@ public class TarefasMapper {
     }
 
     public static List<DtoTarefas> toListDto(List<Tarefas> list) {
-        return list.stream().map(TarefasMapper::toDto).collect(Collectors.toList());
+        return list.stream().
+                map(TarefasMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

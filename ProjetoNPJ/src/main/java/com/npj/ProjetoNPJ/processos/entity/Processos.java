@@ -1,8 +1,10 @@
 package com.npj.ProjetoNPJ.processos.entity;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
+import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
 import com.npj.ProjetoNPJ.clientes.entitie.Cliente;
 import com.npj.ProjetoNPJ.processos.dtos.Situacao;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -41,8 +43,15 @@ public class Processos {
 
     private String valorCausa;
 
-    private List<String> cliente;
+    @DBRef(lazy = false)
+    private List<Advogado> responsaveis;
+
+    private List<String> responsaveisNome;
+
 
     @DBRef(lazy = false)
-    private List<String> advogadosResponsaveis;
+    private List<Cadastro> cliente;
+
+    @NotEmpty
+    private List<String> clienteNome;
 }
