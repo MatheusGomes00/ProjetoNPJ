@@ -39,15 +39,15 @@ public class DtoProcessos {
 
     private String valorCausa;
 
-    //private List<ClienteDto> cliente;
-
     @NotEmpty
     private List<String> responsaveisId;
 
     @NotEmpty
     private List<String> responsaveisNome;
 
+    @NotEmpty
     private List<String> clienteId;
 
+    @NotEmpty
     private List<String> clienteNome;
 }
