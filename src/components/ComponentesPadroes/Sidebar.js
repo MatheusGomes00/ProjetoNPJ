@@ -99,9 +99,11 @@ function Sidebar({ onAdvogadosClick }) {
           </Link>
         </SidebarItem>
         <SidebarItem>
+          <Link to="/processos">
           <SidebarButton>
             <FaFileAlt /> Processos
           </SidebarButton>
+          </Link>
         </SidebarItem>
         <SidebarItem>
           <SidebarButton>

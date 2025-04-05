@@ -5,6 +5,8 @@ import TarefasMain from "./components/Tarefas/TarefasMain";
 import AdvogadosTela from "./components/Advogados/AdvogadosTela";
 import SearchBar from "./components/Advogados/Searchbar";
 import { isAuthenticated } from "./components/Seguranca/GerenciaToken";
+import Processos from "./components/Processos/ProcessosMain";
+
 
 function App() {
   return (
@@ -23,6 +25,10 @@ function App() {
         <Route
           path="/tarefas"
           element={isAuthenticated() ? <TarefasMain /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/processos"
+          element={isAuthenticated() ? <Processos /> : <Navigate to="/login" />}
         />
         <Route
           path="/advogados"
