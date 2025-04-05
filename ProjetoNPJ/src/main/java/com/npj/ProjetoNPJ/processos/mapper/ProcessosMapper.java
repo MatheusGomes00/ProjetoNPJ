@@ -1,30 +1,19 @@
     package com.npj.ProjetoNPJ.processos.mapper;
 
-    import com.npj.ProjetoNPJ.advogados.dtos.DtoAdvogado;
-    import com.npj.ProjetoNPJ.advogados.dtos.ResponseAdvogadoDto;
-    import com.npj.ProjetoNPJ.advogados.dtos.UpdateRequestDto;
+
     import com.npj.ProjetoNPJ.advogados.entity.Advogado;
-    import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
     import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
-    import com.npj.ProjetoNPJ.clientes.entitie.Cliente;
     import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
     import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
     import com.npj.ProjetoNPJ.processos.dtos.Situacao;
     import com.npj.ProjetoNPJ.processos.entity.Processos;
-    import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
-    import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
-    import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
-    import org.modelmapper.ModelMapper;
     import org.springframework.beans.factory.annotation.Autowired;
 
     import java.util.List;
-    import java.util.Objects;
     import java.util.stream.Collectors;
 
     public class ProcessosMapper {
 
-        @Autowired
-        private CadastroRepository cadastroRepository;
 
         public static Processos toEntity(DtoProcessos dto, List<Advogado> advogados, List<Cadastro> cliente) {
             Processos processo = new Processos();
@@ -89,8 +78,6 @@
 
 
         }
-
-
 
         public static List<DtoProcessos> toListDto(List<Processos> list) {
 

@@ -48,7 +48,6 @@ public class Processos {
 
     private List<String> responsaveisNome;
 
-
     @DBRef(lazy = false)
     private List<Cadastro> cliente;
 
