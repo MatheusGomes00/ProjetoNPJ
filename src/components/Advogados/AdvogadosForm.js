@@ -112,6 +112,14 @@ function AdvogadoForm({ onSubmit, initialData, mode = "profile", isEditable = tr
         {errors.cpf && <span style={{ color: "red", fontSize: "12px" }}>{errors.cpf.message}</span>}
       </div>
 
+      <div>
+        <label>Cargo:</label>
+        <select {...register("role")} disabled={!isEditable || userRole === "ESTAGIARIO"}>
+          <option value="ADVOGADO">Advogado</option>
+          <option value="ESTAGIARIO">Estagiário</option>
+        </select>
+      </div>
+
       {showOabFields && (
         <>
           <div>
@@ -145,14 +153,6 @@ function AdvogadoForm({ onSubmit, initialData, mode = "profile", isEditable = tr
         <select {...register("status")} disabled={!isEditable}>
           <option value="true">Ativo</option>
           <option value="false">Inativo</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Cargo:</label>
-        <select {...register("role")} disabled={!isEditable || userRole === "ESTAGIARIO"}>
-          <option value="ADVOGADO">Advogado</option>
-          <option value="ESTAGIARIO">Estagiário</option>
         </select>
       </div>
 

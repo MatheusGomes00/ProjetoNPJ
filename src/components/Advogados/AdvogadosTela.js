@@ -8,6 +8,7 @@ import AdvogadoForm from "./AdvogadosForm";
 function AdvogadosTela() {
   const { fetchAuthenticated, getId, getRole } = useAuth();
   const [advogadoData, setAdvogadoData] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
   const [formMode, setFormMode] = useState("profile");
@@ -196,6 +197,8 @@ function AdvogadosTela() {
   const handleBack = () => {
     setFormMode("profile");
     setSearchResult(null);
+    setSearchResults([]);
+    setSearchQuery("");
   };
 
   const handleAdd = () => {
@@ -215,7 +218,9 @@ function AdvogadosTela() {
             <input 
               type="text" 
               placeholder="Pesquisar nome ou cpf..." 
-              onKeyDown={(e) => e.key === "Enter" && handleSearch(e.target.value)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch(searchQuery)}
             />
             {role === "ADVOGADO" && <button onClick={handleAdd}>Adicionar</button>}
           </Header>
@@ -232,12 +237,16 @@ function AdvogadosTela() {
                       borderBottom: "1px solid #ccc",
                       cursor: "pointer",
                       background: advogado.id === id ? "#e9ecef" : "transparent",
+                      
                     }}
                   >
                     {advogado.nome} - {advogado.cpf}
                   </li>
                 ))}
               </ul>
+              <button type="button" className="backButton" onClick={handleBack}>
+                Voltar
+              </button>
             </div>
           ) : formMode === "create" ? (
             <AdvogadoForm

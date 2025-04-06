@@ -17,6 +17,19 @@ export const LawyerPage = styled.div`
   padding: 20px;
   width: 100%;
   max-width: 600px; /* Largura máxima para legibilidade */
+
+  button {
+    margin-top: 10px;
+    padding: 10px;
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    &:hover {
+      background: #5a6268; /* Tom mais escuro no hover */
+    }
+  }
 `;
 
 export const Header = styled.div`
@@ -70,8 +83,9 @@ export const Form = styled.form`
 
   input,
   select {
+    background-color: #f0f0f0;
     padding: 8px;
-    border: 1px solid #ccc;
+    border: none;
     border-radius: 4px;
     font-size: 14px;
   }
@@ -85,6 +99,19 @@ export const Form = styled.form`
     cursor: pointer;
     &:hover {
       background: #218838; /* Tom mais escuro no hover */
+    }
+  }
+
+  button[type="button"] {
+    margin-top: 10px;
+    padding: 10px;
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    &:hover {
+      background: #5a6268; /* Tom mais escuro no hover */
     }
   }
 
