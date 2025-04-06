@@ -77,7 +77,7 @@ function Sidebar({ onAdvogadosClick }) {
         <SidebarItem>
           <Link to="/workspace">
             <SidebarButton>
-              <FaHome /> Área de Trabalho
+              <FaHome/> Área de Trabalho
             </SidebarButton>
           </Link>
         </SidebarItem>
@@ -99,9 +99,11 @@ function Sidebar({ onAdvogadosClick }) {
           </Link>
         </SidebarItem>
         <SidebarItem>
+          <Link to="/processos">
           <SidebarButton>
             <FaFileAlt /> Processos
           </SidebarButton>
+          </Link>
         </SidebarItem>
         <SidebarItem>
           <SidebarButton>

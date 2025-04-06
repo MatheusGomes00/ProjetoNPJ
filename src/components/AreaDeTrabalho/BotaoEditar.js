@@ -2,7 +2,7 @@ import styled from "styled-components";
 import React, { useState, useEffect, useCallback } from "react";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilos mantidos iguais ao seu código original
+// Estilos
 const BotaoEditar = styled.button`
   background: #007bff;
   color: white;
@@ -43,17 +43,20 @@ const ModalContainer = styled.div`
   background: #fff;
   padding: 24px;
   border-radius: 12px;
-  width: 150%;
-  max-width: 150%;
-  max-height: 100vh;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 `;
 
 const BotaoFechar = styled.button`
   position: absolute;
   top: 16px;
-  right: 16px;
+  right: 60px;
   background: none;
   border: none;
   font-size: 22px;
@@ -69,13 +72,13 @@ const TarefaDetalhesModal = styled.div``;
 
 const DetalheItem = styled.div`
   display: flex;
+  flex-direction: column;
   margin-bottom: 12px;
-  align-items: center;
+  gap: 8px;
 `;
 
 const Label = styled.label`
   font-weight: 600;
-  width: 120px;
   color: #555;
 `;
 
@@ -87,9 +90,33 @@ const Input = styled.input`
   font-size: 16px;
   color: #333;
   transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &:focus {
     border-color: #007bff;
+    outline: none;
+  }
+`;
+
+const TextArea = styled.textarea`
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s ease;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color:rgb(0, 123, 255);
     outline: none;
   }
 `;
@@ -231,20 +258,33 @@ const RemoveButton = styled.button`
   }
 `;
 
-const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
+const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTarefa }) => {
   const [modalAberto, setModalAberto] = useState(false);
   const [tarefa, setTarefa] = useState({
     nomeTarefa: "",
     descricao: "",
     prioridade: "",
     prazoLimite: "",
-    responsaveisId: [],
-    responsaveisNome: [],
+    responsaveis: [],
     status: false,
   });
   const [advogados, setAdvogados] = useState([]);
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const { fetchAuthenticated } = useAuth();
+
+  const formatarDataParaInput = (dataString) => {
+    if (!dataString) return "";
+    try {
+      const data = new Date(dataString);
+      const dataUTC = new Date(
+        Date.UTC(data.getUTCFullYear(), data.getUTCMonth(), data.getUTCDate())
+      );
+      return dataUTC.toISOString().split("T")[0];
+    } catch (err) {
+      console.error("Erro ao formatar data:", err);
+      return "";
+    }
+  };
 
   const fetchAdvogados = useCallback(async () => {
     try {
@@ -268,13 +308,17 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
 
   useEffect(() => {
     if (tarefaSelecionada) {
+      const responsaveis = (tarefaSelecionada.responsaveisId || []).map((id, index) => ({
+        id: id,
+        nome: tarefaSelecionada.responsaveisNome[index],
+      }));
+
       setTarefa({
         nomeTarefa: tarefaSelecionada.nomeTarefa || "",
         descricao: tarefaSelecionada.descricao || "",
         prioridade: tarefaSelecionada.prioridade || "",
-        prazoLimite: tarefaSelecionada.prazoLimite || "",
-        responsaveisId: tarefaSelecionada.responsaveisId || [],
-        responsaveisNome: tarefaSelecionada.responsaveisNome || [],
+        prazoLimite: formatarDataParaInput(tarefaSelecionada.prazoLimite),
+        responsaveis: responsaveis,
         status: tarefaSelecionada.status || false,
       });
     }
@@ -303,43 +347,26 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
 
   const toggleSelecionarAdvogado = (advogado) => {
     setTarefa((prevTarefa) => {
-      const isSelected = prevTarefa.responsaveisId.includes(advogado.id);
+      const isSelected = prevTarefa.responsaveis.some((resp) => resp.id === advogado.id);
       if (isSelected) {
-        
         return {
           ...prevTarefa,
-          responsaveisId: prevTarefa.responsaveisId.filter((id) => id !== advogado.id),
-          responsaveisNome: prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome),
+          responsaveis: prevTarefa.responsaveis.filter((resp) => resp.id !== advogado.id),
         };
       } else {
-        
         return {
           ...prevTarefa,
-          responsaveisId: [...prevTarefa.responsaveisId, advogado.id],
-          responsaveisNome: [...prevTarefa.responsaveisNome, advogado.nome],
+          responsaveis: [...prevTarefa.responsaveis, { id: advogado.id, nome: advogado.nome }],
         };
       }
     });
   };
 
   const removerResponsavel = (id) => {
-    setTarefa((prevTarefa) => {
-      const index = prevTarefa.responsaveisId.indexOf(id);
-      if (index === -1) return prevTarefa;
-
-      const novoIdRemovido = prevTarefa.responsaveisId[index];
-      const novoNomeRemovido = prevTarefa.responsaveisNome[index];
-      const novosIds = prevTarefa.responsaveisId.filter((rid) => rid !== id);
-      const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== novoNomeRemovido);
-
-      
-
-      return {
-        ...prevTarefa,
-        responsaveisId: novosIds,
-        responsaveisNome: novosNomes,
-      };
-    });
+    setTarefa((prevTarefa) => ({
+      ...prevTarefa,
+      responsaveis: prevTarefa.responsaveis.filter((resp) => resp.id !== id),
+    }));
   };
 
   const salvarTarefa = async () => {
@@ -348,18 +375,32 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
       return;
     }
 
+    if (
+      !tarefa.nomeTarefa?.trim() ||
+      !tarefa.descricao?.trim() ||
+      !tarefa.prioridade ||
+      !tarefa.prazoLimite ||
+      !tarefa.responsaveis?.length
+    ) {
+      alert("Por favor, preencha todos os campos antes de salvar a tarefa.");
+      return;
+    }
+
     try {
+      const responsaveisId = tarefa.responsaveis.map((resp) => resp.id);
+      const responsaveisNome = tarefa.responsaveis.map((resp) => resp.nome);
+
       const tarefaAtualizada = {
         nomeTarefa: tarefa.nomeTarefa,
         descricao: tarefa.descricao,
         prioridade: tarefa.prioridade,
         prazoLimite: tarefa.prazoLimite,
-        responsaveisId: tarefa.responsaveisId,
-        responsaveisNome: tarefa.responsaveisNome,
+        responsaveisId: responsaveisId,
+        responsaveisNome: responsaveisNome,
         status: tarefa.status,
       };
 
-     
+      console.log("Dados enviados ao backend:", tarefaAtualizada);
 
       const response = await fetchAuthenticated(
         `http://localhost:8080/task/upd/${tarefaSelecionada.id}`,
@@ -377,9 +418,36 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
         throw new Error(`Erro na requisição: ${response.status} - ${errorData || "Sem detalhes"}`);
       }
 
-      
+      const contentType = response.headers.get("content-type");
+      let tarefaAtualizadaDoBackend = null;
+      if (contentType && contentType.includes("application/json")) {
+        tarefaAtualizadaDoBackend = await response.json();
+        if (tarefaAtualizadaDoBackend.responsaveis) {
+          tarefaAtualizadaDoBackend.responsaveisId = tarefaAtualizadaDoBackend.responsaveis.map(
+            (adv) => adv.id
+          );
+          tarefaAtualizadaDoBackend.responsaveisNome = tarefaAtualizadaDoBackend.responsaveis.map(
+            (adv) => adv.nome
+          );
+          delete tarefaAtualizadaDoBackend.responsaveis;
+        }
+      } else {
+        console.warn("Resposta do backend não contém JSON. Usando dados enviados como fallback.");
+        tarefaAtualizadaDoBackend = { ...tarefaAtualizada, id: tarefaSelecionada.id };
+        tarefaAtualizadaDoBackend.prazoLimite = `${tarefaAtualizada.prazoLimite}T20:00:00`;
+      }
 
-      await carregarTarefas(true); // Recarregar antes de fechar
+      console.log("Tarefa retornada pelo backend:", tarefaAtualizadaDoBackend);
+
+      if (typeof atualizarTarefa === "function") {
+        atualizarTarefa(tarefaAtualizadaDoBackend);
+      } else {
+        console.warn("Prop atualizarTarefa não foi fornecida ou não é uma função.");
+        if (typeof carregarTarefas === "function") {
+          await carregarTarefas(true);
+        }
+      }
+
       alert("Tarefa atualizada com sucesso!");
       fecharModal();
     } catch (error) {
@@ -401,9 +469,8 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
 
               <DetalheItem>
                 <Label>Nome:</Label>
-                <Input
-                  type="text"
-                  name="nomeTarefa"
+                <TextArea
+                  name="nome"
                   value={tarefa.nomeTarefa}
                   onChange={handleChange}
                 />
@@ -411,8 +478,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
 
               <DetalheItem>
                 <Label>Descrição:</Label>
-                <Input
-                  type="text"
+                <TextArea
                   name="descricao"
                   value={tarefa.descricao}
                   onChange={handleChange}
@@ -456,7 +522,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
                             <DropdownItem key={advogado.id}>
                               <input
                                 type="checkbox"
-                                checked={tarefa.responsaveisId.includes(advogado.id)}
+                                checked={tarefa.responsaveis.some((resp) => resp.id === advogado.id)}
                                 onChange={() => toggleSelecionarAdvogado(advogado)}
                               />
                               {advogado.nome}
@@ -471,14 +537,12 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas }) => {
                     )}
                   </DropdownContainer>
 
-                  {tarefa.responsaveisNome.length > 0 && (
+                  {tarefa.responsaveis.length > 0 && (
                     <ResponsaveisList>
-                      {tarefa.responsaveisNome.map((nome, index) => (
-                        <ResponsavelTag key={tarefa.responsaveisId[index] || nome}>
-                          <span>{nome}</span>
-                          <RemoveButton
-                            onClick={() => removerResponsavel(tarefa.responsaveisId[index])}
-                          >
+                      {tarefa.responsaveis.map((resp) => (
+                        <ResponsavelTag key={resp.id}>
+                          <span>{resp.nome}</span>
+                          <RemoveButton onClick={() => removerResponsavel(resp.id)}>
                             ×
                           </RemoveButton>
                         </ResponsavelTag>
