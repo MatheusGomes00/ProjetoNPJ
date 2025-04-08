@@ -2,21 +2,16 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
-// Estilo do container principal, ajustado para ficar dentro da MainContent
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 34px;
-  width: calc(100% - 34px);
-  min-height: 100vh;
-  background: #f4f7fa;
-  padding: 30px;
-  box-sizing: border-box;
+import useAuth from "../Seguranca/UseAuth";
 
-  @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-  }
+// Estilo do container principal
+const MainContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: auto;
+  background: #f4f7fa;
 `;
 
 // Estilo do cabeçalho
@@ -37,7 +32,7 @@ const Titulo = styled.h1`
   margin: 0;
 `;
 
-// Estilo do botão de criar processo (placeholder)
+// Estilo do botão de criar processo
 const BotaoCriar = styled.button`
   padding: 10px 20px;
   background-color: #007bff;
@@ -120,6 +115,32 @@ const TableCell = styled.td`
   color: #555;
 `;
 
+// Estilo para o valor borrado e o botão de visibilidade
+const ValorCausaContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const ValorCausa = styled.span`
+  filter: ${({ visivel }) => (visivel ? "none" : "blur(4px)")};
+  transition: filter 0.2s ease;
+`;
+
+const BotaoVisibilidade = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+  padding: 0;
+  margin-left: 5px;
+
+  &:hover {
+    color: #007bff;
+  }
+`;
+
 // Estilo para mensagens
 const Mensagem = styled.p`
   font-family: "Arial", sans-serif;
@@ -130,105 +151,174 @@ const Mensagem = styled.p`
 `;
 
 const ProcessosMain = () => {
+  const { fetchAuthenticated } = useAuth();
   const [processosOriginais, setProcessosOriginais] = useState([]);
   const [processosBuscados, setProcessosBuscados] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [numeroBusca, setNumeroBusca] = useState("");
+  const [busca, setBusca] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [filtroSituacao, setFiltroSituacao] = useState(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [valoresVisiveis, setValoresVisiveis] = useState({});
 
-  // Dados fictícios
-  const mockProcessos = [
-    {
-      id: "67edd644e73f677075437884",
-      situacao: "INICIADO",
-      numeroProcesso: "1007217-37.2024.8.26.0196",
-      pasta: "Distribuído",
-      tipoAcaoClasse: "Procedimento Comum Cível - Guarda",
-      requerente: "João Silva Pereira",
-      representanteLegal: "CAROLYNE GUIMARÃES LOPES DA COSTA",
-      requerido: "WELLIGTON RODRIGUES MOREIRA",
-      npjRepresentando: "NPJ XYZ",
-      vara: "3ª Vara de Família e das Sucessões",
-      valorCausa: "R$ 8.472,00",
-      responsaveisId: ["67abe806104c212f07b1dc5c"],
-      responsaveisNome: ["Dr. Pedro Almeida"],
-      clienteId: ["67edd609e73f677075437883"],
-      clienteNome: ["João Silva Pereira"],
-    },
-    {
-      id: "67edd644e73f677075437885",
-      situacao: "EM ANDAMENTO",
-      numeroProcesso: "2001234-12.2024.8.26.0100",
-      pasta: "Em Análise",
-      tipoAcaoClasse: "Ação Trabalhista",
-      requerente: "Maria Oliveira",
-      representanteLegal: "FERNANDA COSTA SILVA",
-      requerido: "EMPRESA ABC LTDA",
-      npjRepresentando: "NPJ ABC",
-      vara: "2ª Vara Trabalhista",
-      valorCausa: "R$ 15.000,00",
-      responsaveisId: ["67abe806104c212f07b1dc5d"],
-      responsaveisNome: ["Dra. Ana Souza"],
-      clienteId: ["67edd609e73f677075437884"],
-      clienteNome: ["Maria Oliveira"],
-    },
-  ];
+  const buscarTodosProcessos = useCallback(
+    async (forceRefresh = false) => {
+      const now = Date.now();
+      const minInterval = 5000;
 
-  // Função para aplicar filtros
-  const aplicarFiltros = (processosData, situacao, numero) => {
+      if (!forceRefresh && now - lastFetchTime < minInterval && processosOriginais.length > 0) {
+        console.log("Usando dados em memória, evitando requisição desnecessária.");
+        return;
+      }
+
+      setIsLoading(true);
+      setMensagemErro("");
+      try {
+        const response = await fetchAuthenticated("http://localhost:8080/proc/findAll", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
+        const data = await response.json();
+        console.log("Dados de /proc/findAll:", data);
+        setProcessosOriginais(data);
+        if (data.length === 0) setMensagemErro("Nenhum processo cadastrado.");
+        setLastFetchTime(now);
+      } catch (error) {
+        console.error("Erro ao buscar processos:", error);
+        setMensagemErro("Erro ao carregar processos. Tente novamente.");
+        setProcessosOriginais([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [fetchAuthenticated, lastFetchTime, processosOriginais.length]
+  );
+
+  const buscarProcessosPorNumero = useCallback(
+    async (numero) => {
+      setIsLoading(true);
+      setMensagemErro("");
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/proc/searchProc/${encodeURIComponent(numero)}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        if (!response.ok) {
+          if (response.status === 404) {
+            setMensagemErro("Nenhum processo encontrado com esse número.");
+            setProcessosBuscados([]);
+            return;
+          }
+          throw new Error(`Erro na requisição: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Dados de /proc/searchProc:", data);
+        setProcessosBuscados(data);
+        if (data.length === 0) setMensagemErro("Nenhum processo encontrado com esse número.");
+      } catch (error) {
+        console.error("Erro ao buscar processos por número:", error);
+        setMensagemErro("Erro ao buscar processos. Tente novamente.");
+        setProcessosBuscados([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  const buscarProcessosPorNomeCliente = useCallback(
+    async (nome) => {
+      setIsLoading(true);
+      setMensagemErro("");
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/proc/porNome/${encodeURIComponent(nome)}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        if (!response.ok) {
+          if (response.status === 404) {
+            setMensagemErro("Nenhum processo encontrado com esse cliente.");
+            setProcessosBuscados([]);
+            return;
+          }
+          throw new Error(`Erro na requisição: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Dados de /proc/porNome:", data);
+        setProcessosBuscados(data);
+        if (data.length === 0) setMensagemErro("Nenhum processo encontrado com esse cliente.");
+      } catch (error) {
+        console.error("Erro ao buscar processos por nome do cliente:", error);
+        setMensagemErro("Erro ao buscar processos. Tente novamente.");
+        setProcessosBuscados([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!isInitialLoad) return;
+      setIsLoading(true);
+      try {
+        await buscarTodosProcessos();
+        setIsInitialLoad(false);
+      } catch (error) {
+        console.error("Erro no carregamento inicial:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [isInitialLoad, buscarTodosProcessos]);
+
+  const aplicarFiltros = useCallback((processosData, situacao, termoBusca) => {
     let processosFiltrados = [...processosData];
-
-    if (numero) {
-      processosFiltrados = processosFiltrados.filter((processo) =>
-        processo.numeroProcesso.toLowerCase().includes(numero.toLowerCase())
-      );
+    if (termoBusca) {
+      if (/^[0-9-]+$/.test(termoBusca)) {
+        processosFiltrados = processosFiltrados.filter((processo) =>
+          processo.numeroProcesso.includes(termoBusca)
+        );
+      } else {
+        processosFiltrados = processosFiltrados.filter((processo) =>
+          (processo.clienteNome || []).some((n) => n.toLowerCase().includes(termoBusca.toLowerCase()))
+        );
+      }
     }
-
     if (situacao) {
       processosFiltrados = processosFiltrados.filter(
         (processo) => processo.situacao === situacao
       );
     }
-
     return processosFiltrados;
-  };
-
-  // Carregar dados iniciais
-  useEffect(() => {
-    setProcessosOriginais(mockProcessos);
   }, []);
 
-  // Função de busca simulada
-  const buscarProcessosPorNumero = useCallback((numero) => {
-    setIsLoading(true);
-    setMensagemErro("");
-    setTimeout(() => {
-      const filtrados = mockProcessos.filter((processo) =>
-        processo.numeroProcesso.toLowerCase().includes(numero.toLowerCase())
-      );
-      setProcessosBuscados(filtrados);
-      setIsLoading(false);
-      if (filtrados.length === 0) {
-        setMensagemErro("Nenhum processo encontrado com esse número.");
-      }
-    }, 500);
-  }, []);
-
-  // Memoizar processos filtrados
   const processosFiltrados = useMemo(() => {
-    const baseProcessos = isSearching && numeroBusca.length >= 4 ? processosBuscados : processosOriginais;
-    return aplicarFiltros(baseProcessos, filtroSituacao, numeroBusca);
-  }, [processosOriginais, processosBuscados, isSearching, filtroSituacao, numeroBusca]);
+    const baseProcessos = isSearching && busca.length >= 3 ? processosBuscados : processosOriginais;
+    return aplicarFiltros(baseProcessos, filtroSituacao, busca);
+  }, [processosOriginais, processosBuscados, isSearching, filtroSituacao, busca, aplicarFiltros]);
 
-  // Manipuladores de eventos
   const handleBusca = (e) => {
-    const numero = e.target.value;
-    setNumeroBusca(numero);
-    if (numero.length >= 4) {
+    const termo = e.target.value;
+    setBusca(termo);
+    if (termo.length >= 3) {
       setIsSearching(true);
-      buscarProcessosPorNumero(numero);
+      if (/^[0-9-]+$/.test(termo)) {
+        buscarProcessosPorNumero(termo);
+      } else {
+        buscarProcessosPorNomeCliente(termo);
+      }
     } else {
       setIsSearching(false);
       setMensagemErro("");
@@ -237,6 +327,13 @@ const ProcessosMain = () => {
 
   const handleFiltroSituacao = (situacao) => {
     setFiltroSituacao((prev) => (prev === situacao ? null : situacao));
+  };
+
+  const toggleVisibilidadeValor = (id) => {
+    setValoresVisiveis((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
   return (
@@ -249,9 +346,9 @@ const ProcessosMain = () => {
 
         <CampoBusca
           type="text"
-          value={numeroBusca}
+          value={busca}
           onChange={handleBusca}
-          placeholder="Buscar por número do processo..."
+          placeholder="Buscar por número ou nome do cliente..."
         />
 
         <FiltrosContainer>
@@ -276,7 +373,7 @@ const ProcessosMain = () => {
           <Mensagem>Carregando processos...</Mensagem>
         ) : mensagemErro ? (
           <Mensagem>{mensagemErro}</Mensagem>
-        ) : processosFiltrados.length === 0 && numeroBusca.length >= 4 ? (
+        ) : processosFiltrados.length === 0 && busca.length >= 3 ? (
           <Mensagem>Nenhum processo encontrado.</Mensagem>
         ) : processosFiltrados.length === 0 ? (
           <Mensagem>Nenhum processo corresponde aos filtros selecionados.</Mensagem>
@@ -294,17 +391,29 @@ const ProcessosMain = () => {
               </tr>
             </thead>
             <tbody>
-              {processosFiltrados.map((processo) => (
-                <TableRow key={processo.id}>
-                  <TableCell>{processo.numeroProcesso}</TableCell>
-                  <TableCell>{processo.situacao}</TableCell>
-                  <TableCell>{processo.tipoAcaoClasse}</TableCell>
-                  <TableCell>{processo.clienteNome.join(", ")}</TableCell>
-                  <TableCell>{processo.responsaveisNome.join(", ")}</TableCell>
-                  <TableCell>{processo.vara}</TableCell>
-                  <TableCell>{processo.valorCausa}</TableCell>
-                </TableRow>
-              ))}
+              {processosFiltrados.map((processo) => {
+                const visivel = valoresVisiveis[processo.id] || false;
+                return (
+                  <TableRow key={processo.id}>
+                    <TableCell>{processo.numeroProcesso || "N/A"}</TableCell>
+                    <TableCell>{processo.situacao || "N/A"}</TableCell>
+                    <TableCell>{processo.tipoAcaoClasse || "N/A"}</TableCell>
+                    <TableCell>{(processo.clienteNome || []).join(", ") || "N/A"}</TableCell>
+                    <TableCell>{(processo.responsaveisNome || []).join(", ") || "N/A"}</TableCell>
+                    <TableCell>{processo.vara || "N/A"}</TableCell>
+                    <TableCell>
+                      <ValorCausaContainer>
+                        <ValorCausa visivel={visivel}>
+                          {processo.valorCausa || "N/A"}
+                        </ValorCausa>
+                        <BotaoVisibilidade onClick={() => toggleVisibilidadeValor(processo.id)}>
+                          {visivel ? "👁️‍🗨️" : "👁️"}
+                        </BotaoVisibilidade>
+                      </ValorCausaContainer>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </tbody>
           </ProcessosTable>
         )}
