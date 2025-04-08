@@ -13,6 +13,8 @@ import com.npj.ProjetoNPJ.tarefas.service.TarefefasService;
 import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -76,6 +78,11 @@ public class TarefasController {
                     .body(null);
         }
 
+    }
+    @GetMapping("/page")
+    public ResponseEntity<Page<DtoTarefas>> listarTarefasPage(Pageable page){
+        Page<DtoTarefas> dto = service.getTarefasAutenticadoPage(page);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/get")

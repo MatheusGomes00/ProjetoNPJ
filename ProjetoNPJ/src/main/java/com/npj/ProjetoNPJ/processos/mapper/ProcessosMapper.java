@@ -25,6 +25,7 @@
             processo.setRepresentanteLegal(dto.getRepresentanteLegal());
             processo.setRequerido(dto.getRequerido());
             processo.setVara(dto.getVara());
+            processo.setValorCausa(dto.getValorCausa());
             List<Advogado> responsaveis = advogados.stream()
                     .filter(advogado -> dto.getResponsaveisId().contains(advogado.getId()))
                     .collect(Collectors.toList());

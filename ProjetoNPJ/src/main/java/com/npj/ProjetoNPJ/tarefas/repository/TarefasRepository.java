@@ -2,6 +2,8 @@ package com.npj.ProjetoNPJ.tarefas.repository;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
@@ -17,7 +19,7 @@ public interface TarefasRepository extends MongoRepository<Tarefas, String> {
     List<Tarefas> findByNome(String nome);
 
 
-
-
+    @Query("{'responsaveis.id': ?0 }")
+    Page<Tarefas> findAllPageable(String id, Pageable pageable);
 
 }
