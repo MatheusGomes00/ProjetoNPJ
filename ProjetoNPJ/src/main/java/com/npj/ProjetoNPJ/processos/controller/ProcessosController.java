@@ -97,4 +97,11 @@ public class ProcessosController {
 
     }
 
+    @GetMapping(value = "/porNome/{clienteNome}")
+    public ResponseEntity<List<DtoProcessos>> findByNome(@PathVariable String clienteNome){
+
+        List<DtoProcessos> processos = service.findByNome(clienteNome);
+        return ResponseEntity.ok(processos);
+    }
+
 }

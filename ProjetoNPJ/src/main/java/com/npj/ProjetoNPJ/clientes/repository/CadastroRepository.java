@@ -10,10 +10,12 @@ import java.util.List;
 @Repository
 public interface CadastroRepository extends MongoRepository<Cadastro, String> {
 
-    @Query("{ $or: [ { 'cliente.nome': { $regex: ?0, $options: 'i' } }, " +
-            "{ 'representante.nome': { $regex: ?0, $options: 'i' } }, " +
-            "{ 'parteContraria.nome': { $regex: ?0, $options: 'i' } } ] }")
-    List<Cadastro> findByNome(String nome);
+   @Query("{ $or: [ { 'cliente.nome': { $regex: ?0, $options: 'i' } }, " +
+           "{ 'representante.nome': { $regex: ?0, $options: 'i' } }, " +
+          "{ 'parteContraria.nome': { $regex: ?0, $options: 'i' } } ] }")
+      List<Cadastro> findByNome(String nome);
+
+
 
     @Query("{ $or: [ { 'cliente.cpf': { $regex: ?0 } }, " +
             "{ 'representante.cpf': { $regex: ?0 } }, " +

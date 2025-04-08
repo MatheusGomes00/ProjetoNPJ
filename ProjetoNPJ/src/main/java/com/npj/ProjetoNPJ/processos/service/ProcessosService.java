@@ -44,7 +44,7 @@ public class ProcessosService {
 
     public DtoProcessos insert(DtoProcessos dto) {
         dto.setSituacao(Situacao.INICIADO);
-
+        dto.setValorCausa(dto.getValorCausa());
         List<Advogado> advogados = dto.getResponsaveisId().stream()
                 .map(id -> advrepository.findById(String.valueOf(id))
                         .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
@@ -137,4 +137,26 @@ public class ProcessosService {
 
         return acharPorID;
     }
-}
+
+    public List<DtoProcessos> findByNome(String clienteNome) {
+
+        List<Cadastro> clientes = clienterepository.findByNome(clienteNome);
+        if (clientes.isEmpty()) {
+            throw new RecursoNaoEncontradoException("Nenhum cliente encontrado com esse nome");
+        }
+
+
+        List<String> clienteIds = clientes.stream()
+                .map(Cadastro::getId)
+                .collect(Collectors.toList());
+
+
+        List<Processos> processos = processosRepositorio.findByClienteIds(clienteIds);
+        if (processos.isEmpty()) {
+            throw new RecursoNaoEncontradoException("Processo Não localizado");
+        }
+
+        return ProcessosMapper.toListDto(processos);
+    }
+    }
+
