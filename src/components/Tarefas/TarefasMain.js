@@ -156,6 +156,32 @@ const Mensagem = styled.p`
   margin: 20px 0;
 `;
 
+// Estilo do container de navegação
+const NavegacaoContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  font-family: "Arial", sans-serif;
+  font-size: 16px;
+  color: #2c3e50;
+`;
+
+// Estilo dos botões de navegação
+const BotaoNavegacao = styled.button`
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+  color: ${({ disabled }) => (disabled ? "#ccc" : "#007bff")};
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: ${({ disabled }) => (disabled ? "#ccc" : "#0056b3")};
+  }
+`;
+
 // Função de debounce manual
 const debounce = (func, delay) => {
   let timeoutId;
@@ -180,6 +206,9 @@ const TarefasMain = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState(null); // "ativas", "inativas", ou null
   const [filtroPrioridade, setFiltroPrioridade] = useState(null); // "alta", "media", "baixa", ou null
+  const [currentPage, setCurrentPage] = useState(0); // Página atual, começa em 0
+  const [totalPages, setTotalPages] = useState(1); // Total de páginas, começa em 1
+  const PAGE_SIZE = 12; // Tamanho da página fixo (12 tarefas por página)
 
   // Usar useRef para cache e lastFetchTime
   const cacheRef = useRef({});
@@ -229,7 +258,7 @@ const TarefasMain = () => {
     async (nome, forceRefresh = false) => {
       const now = Date.now();
       const minInterval = 5000;
-      const cacheKey = nome || "all";
+      const cacheKey = nome ? `${nome}_page${currentPage}` : `all_page${currentPage}`;
 
       if (!forceRefresh && cacheRef.current[cacheKey] && now - lastFetchTimeRef.current < minInterval) {
         console.log(`Usando dados do cache para: ${cacheKey}`);
@@ -255,8 +284,8 @@ const TarefasMain = () => {
 
       try {
         const url = nome
-          ? `http://localhost:8080/task/search/${encodeURIComponent(nome)}`
-          : "http://localhost:8080/task/get";
+          ? `http://localhost:8080/task/search/${encodeURIComponent(nome)}?page=${currentPage}&size=${PAGE_SIZE}&sort=nomeTarefa,asc`
+          : `http://localhost:8080/task/page?page=${currentPage}&size=${PAGE_SIZE}&sort=nomeTarefa,asc`;
 
         const response = await fetchAuthenticated(url, {
           method: "GET",
@@ -273,6 +302,7 @@ const TarefasMain = () => {
             } else {
               setTarefasOriginais([]);
             }
+            setTotalPages(1); // Reseta o total de páginas
             cacheRef.current[cacheKey] = [];
             console.log("Tarefas buscadas (404): []");
             return;
@@ -284,28 +314,33 @@ const TarefasMain = () => {
 
         const data = await response.json();
 
-        if (!data || data.length === 0) {
+        if (!data || !data.content || data.content.length === 0) {
           setMensagemErro(nome ? "Nenhuma tarefa encontrada com esse nome." : "Nenhuma tarefa cadastrada.");
           if (nome) {
             setTarefasBuscadas([]);
           } else {
             setTarefasOriginais([]);
           }
+          setTotalPages(1); // Reseta o total de páginas
           cacheRef.current[cacheKey] = [];
           console.log("Tarefas buscadas (vazio): []");
           return;
         }
 
+        const tarefas = data.content; // Extrai a lista de tarefas do campo 'content'
+        const totalPaginas = data.totalPages || 1; // Extrai o total de páginas
+
         if (nome) {
-          setTarefasBuscadas(data);
-          console.log("Tarefas buscadas (servidor):", data);
+          setTarefasBuscadas(tarefas);
+          console.log("Tarefas buscadas (servidor):", tarefas);
         } else {
-          setTarefasOriginais(data);
-          console.log("Tarefas iniciais (carregamento):", data);
+          setTarefasOriginais(tarefas);
+          console.log("Tarefas iniciais (carregamento):", tarefas);
         }
+        setTotalPages(totalPaginas);
         setMensagemErro("");
         lastFetchTimeRef.current = now;
-        cacheRef.current[cacheKey] = data;
+        cacheRef.current[cacheKey] = tarefas;
       } catch (error) {
         console.error("Erro ao buscar tarefas:", error);
         setMensagemErro(error.message);
@@ -314,12 +349,13 @@ const TarefasMain = () => {
         } else {
           setTarefasOriginais([]);
         }
+        setTotalPages(1); // Reseta o total de páginas em caso de erro
         console.log("Tarefas buscadas (erro): []");
       } finally {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, isLoading]
+    [fetchAuthenticated, isLoading, currentPage] // Adiciona currentPage como dependência
   );
 
   // Memoizar as tarefas filtradas, aplicando todos os filtros (nome → status → prioridade)
@@ -427,10 +463,10 @@ const TarefasMain = () => {
     buscarTarefasPorNome("", true);
   };
 
-  // Carregar tarefas apenas uma vez ao montar o componente
+  // Carregar tarefas sempre que a página atual mudar
   useEffect(() => {
     buscarTarefasPorNome("");
-  }, []); // Sem dependências
+  }, [currentPage, buscarTarefasPorNome]); // Recarrega quando currentPage muda
 
   const handleBuscaDebounced = useMemo(
     () =>
@@ -441,6 +477,7 @@ const TarefasMain = () => {
         } else {
           setIsSearching(false);
           setMensagemErro("");
+          setCurrentPage(0); // Reseta para a primeira página quando a busca é limpa
           console.log("Tarefas filtradas (menos de 4 letras):", tarefasOriginais);
         }
       }, 500),
@@ -482,6 +519,19 @@ const TarefasMain = () => {
       buscarTarefasPorNome(nomeBusca, true);
     } else {
       setIsSearching(false);
+    }
+  };
+
+  // Funções de navegação entre páginas
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage((prev) => prev + 1);
     }
   };
 
@@ -540,19 +590,32 @@ const TarefasMain = () => {
         ) : tarefasFiltradas.length === 0 ? (
           <Mensagem>Nenhuma tarefa corresponde aos filtros selecionados.</Mensagem>
         ) : (
-          <TarefasGrid>
-            {tarefasFiltradas.map((tarefa) => (
-              <TarefaCard
-                key={tarefa.id}
-                onClick={() => abrirModalDetalhes(tarefa)}
-              >
-                <StatusTag prioridade={tarefa.prioridade} />
-                <div>{tarefa.nomeTarefa}</div>
-                <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
-                <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
-              </TarefaCard>
-            ))}
-          </TarefasGrid>
+          <>
+            <TarefasGrid>
+              {tarefasFiltradas.map((tarefa) => (
+                <TarefaCard
+                  key={tarefa.id}
+                  onClick={() => abrirModalDetalhes(tarefa)}
+                >
+                  <StatusTag prioridade={tarefa.prioridade} />
+                  <div>{tarefa.nomeTarefa}</div>
+                  <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
+                  <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
+                </TarefaCard>
+              ))}
+            </TarefasGrid>
+
+            {/* Controles de Navegação */}
+            <NavegacaoContainer>
+              <BotaoNavegacao onClick={handlePreviousPage} disabled={currentPage === 0}>
+                ⬅️
+              </BotaoNavegacao>
+              <span>Página {currentPage + 1} de {totalPages}</span>
+              <BotaoNavegacao onClick={handleNextPage} disabled={currentPage === totalPages - 1}>
+                ➡️
+              </BotaoNavegacao>
+            </NavegacaoContainer>
+          </>
         )}
 
         {tarefaSelecionada && (
