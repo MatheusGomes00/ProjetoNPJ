@@ -25,6 +25,28 @@ const TituloTarefas = styled.h2`
   margin-top: -35px;
 `;
 
+const TextAreaNome = styled.textarea`
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s ease;
+  resize: vertical;
+  min-height: 80px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background: #f8f9fa; /* Para manter consistência com DetalheItem */
+  cursor: default; /* Indica que não é editável */
+
+  &:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+`;
+
 const TextArea = styled.textarea`
   padding: 10px;
   border-radius: 8px;
@@ -34,7 +56,7 @@ const TextArea = styled.textarea`
   color: #333;
   transition: border-color 0.3s ease;
   resize: vertical;
-  min-height: 60px;
+  min-height: 100px;
   max-height: 200px;
   overflow-y: auto;
   box-sizing: border-box;
@@ -150,7 +172,7 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 10000;
+  z-index: 1000;
   background: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;
@@ -255,7 +277,7 @@ const TarefaDetalhesModal = styled(ModalContent)`
   flex-direction: column;
   gap: 15px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: auto;
 `;
 
 const LegendaPrioridades = styled.div`
@@ -930,13 +952,14 @@ function Tarefas() {
 
       {/* Modal de detalhes */}
       <ModalOverlay show={showDetalhesModal}>
-  <TarefaDetalhesModal>
-    <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
-    <TextArea
-      value={tarefaSelecionada?.nomeTarefa || "Sem título"}
-      readOnly
-    />
-    <DetalheItem>
+      <TarefaDetalhesModal>
+      <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
+      <DetalheItem>
+      <Label>Nome:</Label>
+        {tarefaSelecionada?.nomeTarefa || "Sem título"}
+        
+      </DetalheItem>
+      <DetalheItem>
       <Label>Descrição:</Label>
       <TextArea
         value={tarefaSelecionada?.descricao || "Sem descrição"}

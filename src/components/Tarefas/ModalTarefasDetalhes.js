@@ -94,6 +94,22 @@ const ModalTitulo = styled.h2`
   margin: 0 0 20px 0;
 `;
 
+const DetalheItemDescr = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  max-height: 180px; /* Altura máxima de 120px */
+  min-height: 180px; /* Altura mínima para evitar que o campo fique muito pequeno */
+  word-wrap: break-word; /* Quebra de palavras para evitar transbordo horizontal */
+  overflow-y: auto; /* Barra de rolagem vertical apenas */
+  overflow-x: hidden; /* Evita barra de rolagem horizontal */
+  box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
+`;
+
 const DetalheItem = styled.div`
   display: flex;
   flex-direction: column;
@@ -212,9 +228,9 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar }) => {
         <DetalheItem>
           <strong>Prazo:</strong> {formatarData(tarefa.prazoLimite)}
         </DetalheItem>
-        <DetalheItem>
+        <DetalheItemDescr>
           <strong>Descrição:</strong> {tarefa.descricao || "Sem descrição"}
-        </DetalheItem>
+        </DetalheItemDescr>
         <DetalheItem>
           <strong>Prioridade:</strong> {tarefa.prioridade || "Não especificada"}
         </DetalheItem>

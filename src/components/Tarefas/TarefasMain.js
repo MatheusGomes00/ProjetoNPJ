@@ -181,7 +181,19 @@ const BotaoNavegacao = styled.button`
     color: ${({ disabled }) => (disabled ? "#ccc" : "#0056b3")};
   }
 `;
-
+const NomeTarefa = styled.div`
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limita a 2 linhas */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2em; /* Altura da linha para consistência */
+  max-height: 2.4em; /* 2 linhas x 1.2em */
+  word-wrap: break-word; /* Quebra palavras longas */
+`;
 // Função de debounce manual
 const debounce = (func, delay) => {
   let timeoutId;
@@ -591,19 +603,19 @@ const TarefasMain = () => {
           <Mensagem>Nenhuma tarefa corresponde aos filtros selecionados.</Mensagem>
         ) : (
           <>
-            <TarefasGrid>
-              {tarefasFiltradas.map((tarefa) => (
-                <TarefaCard
-                  key={tarefa.id}
-                  onClick={() => abrirModalDetalhes(tarefa)}
-                >
-                  <StatusTag prioridade={tarefa.prioridade} />
-                  <div>{tarefa.nomeTarefa}</div>
-                  <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
-                  <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
-                </TarefaCard>
-              ))}
-            </TarefasGrid>
+           <TarefasGrid>
+  {tarefasFiltradas.map((tarefa) => (
+    <TarefaCard
+      key={tarefa.id}
+      onClick={() => abrirModalDetalhes(tarefa)}
+    >
+      <StatusTag prioridade={tarefa.prioridade} />
+      <NomeTarefa>{tarefa.nomeTarefa}</NomeTarefa>
+      <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
+      <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
+    </TarefaCard>
+  ))}
+</TarefasGrid>
 
             {/* Controles de Navegação */}
             <NavegacaoContainer>
