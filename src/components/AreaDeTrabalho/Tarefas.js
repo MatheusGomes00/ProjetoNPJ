@@ -3,7 +3,7 @@ import styled, { keyframes } from "styled-components";
 import BotaoEditar from "./BotaoEditar";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilização (mantida como está)
+// Estilização
 const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -24,20 +24,45 @@ const TituloTarefas = styled.h2`
   text-align: center;
   margin-top: -35px;
 `;
+
+const TextArea = styled.textarea`
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s ease;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background: #f8f9fa; /* Para manter consistência com DetalheItem */
+  cursor: default; /* Indica que não é editável */
+
+  &:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+`;
+
 const NomeTarefaCard = styled.div`
-  font-size: 15px; /* Mantém o mesmo tamanho de fonte do TarefaCard */
-  font-weight: 600; /* Torna o nome um pouco mais destacado */
+  font-size: 15px;
+  font-weight: 600;
   color: #333;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* Limita o texto a 3 linhas */
+  -webkit-line-clamp: 2; /* Reduzido para 2 linhas para evitar ocupar muito espaço */
   -webkit-box-orient: vertical;
-  line-clamp: 3; /* Padrão mais recente para compatibilidade */
+  line-clamp: 2; /* Padrão mais recente para compatibilidade */
   overflow: hidden;
   text-overflow: ellipsis; /* Adiciona reticências */
-  word-break: break-word; /* Quebra palavras longas */
   max-width: 100%; /* Evita transbordo horizontal */
-  text-align: center; /* Mantém o alinhamento centralizado */
+  text-align: center;
+  line-height: 1.2em; /* Controla a altura da linha para consistência */
+  max-height: 2.4em; /* Limita a altura a 2 linhas (2 * 1.2em) */
 `;
+
 const ListaTarefas = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -68,9 +93,19 @@ const TarefaCard = styled.div`
   position: relative;
   transition: transform 0.2s ease-in-out;
   cursor: pointer;
+  overflow: hidden; /* Garante que nada transborde do card */
 
   &:hover {
     transform: scale(1.05);
+  }
+
+  /* Estiliza os elementos filhos (status e prazo) para evitar transbordo */
+  > div {
+    font-size: 13px;
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Garante que o texto de status e prazo fique em uma linha */
   }
 `;
 
@@ -219,8 +254,8 @@ const TarefaDetalhesModal = styled(ModalContent)`
   display: flex;
   flex-direction: column;
   gap: 15px;
-  box-sizing: border-box; /* Garante que padding seja incluído na largura/altura */
-  overflow: hidden; /* Evita transbordo de conteúdo */
+  box-sizing: border-box;
+  overflow: hidden;
 `;
 
 const LegendaPrioridades = styled.div`
@@ -257,19 +292,19 @@ const BotaoFechar = styled.button`
 `;
 
 const NomeTarefa = styled.h3`
-  font-size: px;
+  font-size: 24px;
   font-weight: bold;
   color: #333;
   text-align: center;
   margin-bottom: 10px;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* Limita o texto a 3 linhas */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  line-clamp: 3; /* Padrão mais recente, para compatibilidade futura */
+  line-clamp: 3;
   overflow: auto;
-  text-overflow: ellipsis; /* Adiciona reticências no final */
-  word-break: break-word; /* Quebra palavras longas para evitar transbordo horizontal */
-  max-width: 100%; /* Garante que o texto não ultrapasse a largura do modal */
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-width: 100%;
 `;
 
 const DetalheItem = styled.div`
@@ -281,7 +316,6 @@ const DetalheItem = styled.div`
   font-size: 16px;
   color: #333;
   max-height: 120px;
-
   word-wrap: break-word;
 `;
 
@@ -763,15 +797,15 @@ function Tarefas() {
       {mensagemSucesso && <MensagemSucesso>{mensagemSucesso}</MensagemSucesso>}
       {mensagemErro && <MensagemErro>{mensagemErro}</MensagemErro>}
       <ListaTarefas>
-      {tarefas.map((tarefa) => (
-      <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
-      <StatusTag prioridade={tarefa.prioridade} />
-      <NomeTarefaCard>{tarefa.nomeTarefa}</NomeTarefaCard>
-      <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
-      <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
-    </TarefaCard>
-     ))}
-    </ListaTarefas>
+        {tarefas.map((tarefa) => (
+          <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
+            <StatusTag prioridade={tarefa.prioridade} />
+            <NomeTarefaCard>{tarefa.nomeTarefa}</NomeTarefaCard>
+            <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
+            <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
+          </TarefaCard>
+        ))}
+      </ListaTarefas>
       <LegendaPrioridades>
         <TagLegenda>
           <CorTag cor="red" />
@@ -896,48 +930,54 @@ function Tarefas() {
 
       {/* Modal de detalhes */}
       <ModalOverlay show={showDetalhesModal}>
-        <TarefaDetalhesModal>
-          <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
-          <NomeTarefa>{tarefaSelecionada?.nomeTarefa || "Sem título"}</NomeTarefa>
-          <DetalheItem>
-            <Label>Descrição:</Label>
-            <Valor>{tarefaSelecionada?.descricao || "Sem descrição"}</Valor>
-          </DetalheItem>
-          <DetalheItem>
-            <Label>Prioridade:</Label>
-            <Valor>{tarefaSelecionada?.prioridade || "Nenhuma"}</Valor>
-          </DetalheItem>
-          <DetalheItem>
-            <Label>Prazo:</Label>
-            <Valor>{formatarData(tarefaSelecionada?.prazoLimite)}</Valor>
-          </DetalheItem>
-          <DetalheItem>
-            <Label>Responsável:</Label>
-            <Valor>{tarefaSelecionada?.responsaveisNome?.join(", ") || "Nenhum responsável"}</Valor>
-          </DetalheItem>
-          <DetalheItem>
-            <Label>Status:</Label>
-            <Status ativo={tarefaSelecionada?.status}>
-              {tarefaSelecionada?.status ? "Ativa" : "Finalizada"}
-            </Status>
-          </DetalheItem>
-          {tarefaSelecionada?.status && (
-            <BotaoFinalizar
-              onClick={() => finalizarTarefa(tarefaSelecionada?.id)}
-              disabled={isLoadingFinalizar}
-            >
-              {isLoadingFinalizar ? "Finalizando..." : "Finalizar Tarefa"}
-            </BotaoFinalizar>
-          )}
-          {tarefaSelecionada && (
-            <BotaoEditar
-              tarefaSelecionada={tarefaSelecionada}
-              carregarTarefas={carregarTarefas}
-              atualizarTarefa={atualizarTarefa}
-            />
-          )}
-        </TarefaDetalhesModal>
-      </ModalOverlay>
+  <TarefaDetalhesModal>
+    <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
+    <TextArea
+      value={tarefaSelecionada?.nomeTarefa || "Sem título"}
+      readOnly
+    />
+    <DetalheItem>
+      <Label>Descrição:</Label>
+      <TextArea
+        value={tarefaSelecionada?.descricao || "Sem descrição"}
+        readOnly
+      />
+    </DetalheItem>
+    <DetalheItem>
+      <Label>Prioridade:</Label>
+      <Valor>{tarefaSelecionada?.prioridade || "Nenhuma"}</Valor>
+    </DetalheItem>
+    <DetalheItem>
+      <Label>Prazo:</Label>
+      <Valor>{formatarData(tarefaSelecionada?.prazoLimite)}</Valor>
+    </DetalheItem>
+    <DetalheItem>
+      <Label>Responsável:</Label>
+      <Valor>{tarefaSelecionada?.responsaveisNome?.join(", ") || "Nenhum responsável"}</Valor>
+    </DetalheItem>
+    <DetalheItem>
+      <Label>Status:</Label>
+      <Status ativo={tarefaSelecionada?.status}>
+        {tarefaSelecionada?.status ? "Ativa" : "Finalizada"}
+      </Status>
+    </DetalheItem>
+    {tarefaSelecionada?.status && (
+      <BotaoFinalizar
+        onClick={() => finalizarTarefa(tarefaSelecionada?.id)}
+        disabled={isLoadingFinalizar}
+      >
+        {isLoadingFinalizar ? "Finalizando..." : "Finalizar Tarefa"}
+      </BotaoFinalizar>
+    )}
+    {tarefaSelecionada && (
+      <BotaoEditar
+        tarefaSelecionada={tarefaSelecionada}
+        carregarTarefas={carregarTarefas}
+        atualizarTarefa={atualizarTarefa}
+      />
+    )}
+  </TarefaDetalhesModal>
+</ModalOverlay>
     </TarefasContainer>
   );
 }

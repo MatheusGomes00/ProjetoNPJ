@@ -2,7 +2,7 @@ import styled from "styled-components";
 import React, { useState, useEffect, useCallback } from "react";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilos
+// Estilos (mantidos como estão)
 const BotaoEditar = styled.button`
   background: #007bff;
   color: white;
@@ -116,7 +116,7 @@ const TextArea = styled.textarea`
   box-sizing: border-box;
 
   &:focus {
-    border-color:rgb(0, 123, 255);
+    border-color: rgb(0, 123, 255);
     outline: none;
   }
 `;
@@ -313,6 +313,8 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
         nome: tarefaSelecionada.responsaveisNome[index],
       }));
 
+      console.log("Inicializando tarefa com tarefaSelecionada:", tarefaSelecionada);
+
       setTarefa({
         nomeTarefa: tarefaSelecionada.nomeTarefa || "",
         descricao: tarefaSelecionada.descricao || "",
@@ -339,10 +341,15 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setTarefa((prevTarefa) => ({
-      ...prevTarefa,
-      [name]: value,
-    }));
+    console.log(`Alterando ${name} para: ${value}`);
+    setTarefa((prevTarefa) => {
+      const novaTarefa = {
+        ...prevTarefa,
+        [name]: value,
+      };
+      console.log("Novo estado da tarefa:", novaTarefa);
+      return novaTarefa;
+    });
   };
 
   const toggleSelecionarAdvogado = (advogado) => {
@@ -470,9 +477,10 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
               <DetalheItem>
                 <Label>Nome:</Label>
                 <TextArea
-                  name="nome"
+                  name="nomeTarefa"
                   value={tarefa.nomeTarefa}
                   onChange={handleChange}
+                  required
                 />
               </DetalheItem>
 
