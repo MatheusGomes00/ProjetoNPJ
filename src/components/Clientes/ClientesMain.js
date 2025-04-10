@@ -80,29 +80,47 @@ const ClientesList = styled.div`
   gap: 15px;
 `;
 
-// Estilo de cada card de cliente
+// Estilo de cada card de cliente (modernizado)
 const ClienteCard = styled.div`
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(200, 210, 230, 0.3);
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Duas colunas para melhor aproveitamento do espaço */
+  gap: 10px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr; /* Em telas menores, volta para uma coluna */
   }
 `;
 
 // Estilo para o nome do cliente
 const ClienteNome = styled.div`
   font-family: "Arial", sans-serif;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: #1e3c72;
+  grid-column: span 2; /* O nome ocupa as duas colunas */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:before {
+    content: "👤"; /* Ícone de usuário */
+    font-size: 18px;
+  }
+
+  @media (max-width: 768px) {
+    grid-column: span 1;
+  }
 `;
 
 // Estilo para informações adicionais
@@ -110,14 +128,50 @@ const InfoText = styled.div`
   font-family: "Arial", sans-serif;
   font-size: 14px;
   color: #5a6a8a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:before {
+    font-size: 14px;
+  }
+
+  &.representante:before {
+    content: "🤝"; /* Ícone de representante */
+  }
+
+  &.parteContraria:before {
+    content: "⚖️"; /* Ícone de parte contrária */
+  }
+
+  &.processo:before {
+    content: "📜"; /* Ícone de processo */
+  }
+
+  &.natureza:before {
+    content: "🏛️"; /* Ícone de natureza */
+  }
+
+  &.responsaveis:before {
+    content: "👥"; /* Ícone de responsáveis */
+  }
 `;
 
 // Estilo para o status
 const Status = styled.div`
   font-family: "Arial", sans-serif;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: ${(props) => (props.ativo ? "#52c41a" : "#ff4d4f")};
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:before {
+    content: "●";
+    font-size: 12px;
+    color: ${(props) => (props.ativo ? "#52c41a" : "#ff4d4f")};
+  }
 `;
 
 // Estilo para mensagens
@@ -218,15 +272,19 @@ const ClientesMain = () => {
                   <Status ativo={cliente.status}>
                     Status: {cliente.status ? "Ativo" : "Inativo"}
                   </Status>
-                  <InfoText>Representante: {cliente.representante?.nome || "N/A"}</InfoText>
-                  <InfoText>
+                  <InfoText className="representante">
+                    Representante: {cliente.representante?.nome || "N/A"}
+                  </InfoText>
+                  <InfoText className="parteContraria">
                     Parte Contrária: {cliente.parteContraria?.nome || "N/A"}
                   </InfoText>
-                  <InfoText>
+                  <InfoText className="processo">
                     Processo: {cliente.dadosProcessuais?.numeroProcesso || "N/A"}
                   </InfoText>
-                  <InfoText>Natureza: {cliente.natureza?.tipo || "N/A"}</InfoText>
-                  <InfoText>
+                  <InfoText className="natureza">
+                    Natureza: {cliente.natureza?.tipo || "N/A"}
+                  </InfoText>
+                  <InfoText className="responsaveis">
                     Responsáveis: {(cliente.responsaveis?.nomes || []).join(", ") || "N/A"}
                   </InfoText>
                 </ClienteCard>
