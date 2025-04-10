@@ -1,22 +1,21 @@
 import styled from "styled-components";
 
 export const GridContainer = styled.div`
-  height: calc(100% - 20px); /* Respeita o espaço do MainContent */
-  width: calc(100% - 20px); /* Respeita o espaço do MainContent */
-  display: flex; /* Centraliza o conteúdo */
+  height: 100%; 
+  width: calc(100% - 40px); 
+  display: flex; 
   justify-content: center;
   align-items: center;
-  padding: 20px; /* Espaçamento interno */
-  overflow: auto; /* Permite rolagem se necessário */
+  padding: 100px; 
 `;
 
 export const LawyerPage = styled.div`
-  background: #fff; /* Fundo branco para destacar */
+  background: #fff; 
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
   padding: 20px;
   width: 100%;
-  max-width: 600px; /* Largura máxima para legibilidade */
+  max-width: 600px;
 
   button {
     margin-top: 10px;
