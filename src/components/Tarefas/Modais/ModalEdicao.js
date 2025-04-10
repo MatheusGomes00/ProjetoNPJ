@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import useAuth from "../../Seguranca/UseAuth";
+import { BsTextareaT } from "react-icons/bs";
 
 // Estilo do overlay do modal
 const ModalOverlay = styled.div`
@@ -58,6 +59,25 @@ const ModalTitulo = styled.h3`
   color: #2c3e50;
   text-align: center;
   margin-bottom: 10px;
+`;
+const TextArea = styled.textarea`
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s ease;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: rgb(0, 123, 255);
+    outline: none;
+  }
 `;
 
 // Estilo dos itens de detalhe (label + input)
@@ -464,7 +484,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
 
           <DetalheItem>
             <Label>Nome:</Label>
-            <Input
+            <TextArea
               type="text"
               name="nomeTarefa"
               value={tarefaEditada.nomeTarefa}
@@ -474,7 +494,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
 
           <DetalheItem>
             <Label>Descrição:</Label>
-            <Input
+            <TextArea
               type="text"
               name="descricao"
               value={tarefaEditada.descricao}

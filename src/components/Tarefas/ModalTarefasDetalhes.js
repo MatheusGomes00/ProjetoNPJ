@@ -55,6 +55,26 @@ const ModalContent = styled.div`
   }
 `;
 
+const TextArea = styled.textarea`
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s ease;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: rgb(0, 123, 255);
+    outline: none;
+  }
+`;
+
 // Estilo específico do modal de tarefas (equivalente a TarefaDetalhesModal)
 const TarefaDetalhesModal = styled(ModalContent)`
   width: 520px;
@@ -92,6 +112,22 @@ const ModalTitulo = styled.h2`
   font-weight: 700;
   color: #2c3e50;
   margin: 0 0 20px 0;
+`;
+
+const DetalheItemNome = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  max-height: 180px; /* Altura máxima de 120px */
+  min-height: 180px; /* Altura mínima para evitar que o campo fique muito pequeno */
+  word-wrap: break-word; /* Quebra de palavras para evitar transbordo horizontal */
+  overflow-y: auto; /* Barra de rolagem vertical apenas */
+  overflow-x: hidden; /* Evita barra de rolagem horizontal */
+  box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
 `;
 
 const DetalheItemDescr = styled.div`
@@ -219,9 +255,9 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar }) => {
       <TarefaDetalhesModal onClick={(e) => e.stopPropagation()}>
         <BotaoFechar onClick={onClose}>×</BotaoFechar>
         <ModalTitulo>Detalhes da Tarefa</ModalTitulo>
-        <DetalheItem>
+        <DetalheItemNome>
           <strong>Nome:</strong> {tarefa.nomeTarefa}
-        </DetalheItem>
+        </DetalheItemNome>
         <DetalheItem>
           <strong>Status:</strong> {tarefa.status ? "Ativa" : "Finalizada"}
         </DetalheItem>
