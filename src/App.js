@@ -6,6 +6,7 @@ import AdvogadosTela from "./components/Advogados/AdvogadosTela";
 import SearchBar from "./components/Advogados/Searchbar";
 import { isAuthenticated } from "./components/Seguranca/GerenciaToken";
 import Processos from "./components/Processos/ProcessosMain";
+import ClientesMain from "./components/Clientes/ClientesMain";
 
 
 function App() {
@@ -37,6 +38,10 @@ function App() {
         <Route
           path="/search"
           element={isAuthenticated() ? <SearchBar /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/clientes"
+          element={isAuthenticated() ? <ClientesMain /> : <Navigate to="/login" />}
         />
       </Routes>
     </div>
