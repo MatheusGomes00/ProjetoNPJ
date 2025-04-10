@@ -3,7 +3,7 @@ package com.npj.ProjetoNPJ.agendamentos.controller;
 
 import com.npj.ProjetoNPJ.agendamentos.dto.AgendamentoDto;
 import com.npj.ProjetoNPJ.agendamentos.dto.ResponseAgendamentoDto;
-import com.npj.ProjetoNPJ.agendamentos.service.AgendaService;
+import com.npj.ProjetoNPJ.agendamentos.service.AgendamentoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/agenda")
-public class AgendaController {
+@RequestMapping(value = "/agendamento")
+public class AgendamentoController {
 
     @Autowired
-    private AgendaService service;
+    private AgendamentoService service;
 
 
     @PostMapping(value = "/insert")

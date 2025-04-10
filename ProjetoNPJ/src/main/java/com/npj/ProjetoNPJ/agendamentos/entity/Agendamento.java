@@ -1,10 +1,9 @@
-package com.npj.ProjetoNPJ.agenda.entity;
+package com.npj.ProjetoNPJ.agendamentos.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter

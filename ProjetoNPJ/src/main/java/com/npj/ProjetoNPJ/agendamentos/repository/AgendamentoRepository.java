@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AgendaRepository extends MongoRepository<Agendamento, String> {
+public interface AgendamentoRepository extends MongoRepository<Agendamento, String> {
 
     @Query("{ 'nome': { $regex: ?0, $options: 'i' } }")
     List<Agendamento> findByNome(String nome);

@@ -1,12 +1,9 @@
-package com.npj.ProjetoNPJ.agenda.dto;
+package com.npj.ProjetoNPJ.agendamentos.dto;
 
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter

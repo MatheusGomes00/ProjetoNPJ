@@ -5,8 +5,8 @@ import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.agendamentos.dto.AgendamentoDto;
 import com.npj.ProjetoNPJ.agendamentos.dto.ResponseAgendamentoDto;
 import com.npj.ProjetoNPJ.agendamentos.entity.Agendamento;
-import com.npj.ProjetoNPJ.agendamentos.mapper.AgendaMapper;
-import com.npj.ProjetoNPJ.agendamentos.repository.AgendaRepository;
+import com.npj.ProjetoNPJ.agendamentos.mapper.AgendamentoMapper;
+import com.npj.ProjetoNPJ.agendamentos.repository.AgendamentoRepository;
 import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class AgendaService {
+public class AgendamentoService {
 
     @Autowired
-    private AgendaRepository agendaRepository;
+    private AgendamentoRepository agendaRepository;
 
     @Autowired
     private AdvogadoRepository advogadoRepository;
@@ -53,9 +53,9 @@ public class AgendaService {
                         .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
                 .collect(Collectors.toList());
 
-        Agendamento novoAgendamento = agendaRepository.insert(AgendaMapper.toEntity(dto, advogados));
+        Agendamento novoAgendamento = agendaRepository.insert(AgendamentoMapper.toEntity(dto, advogados));
         novoAgendamento.setResponsaveisId(dto.getResponsaveisId());
-        return AgendaMapper.toDto(novoAgendamento);
+        return AgendamentoMapper.toDto(novoAgendamento);
     }
 
     // public void notificarResponsaveis() {
@@ -75,7 +75,7 @@ public class AgendaService {
         agendaRepository.save(registro);
         updateDto.setId(id);
 
-        return AgendaMapper.toResponseDto(updateDto);
+        return AgendamentoMapper.toResponseDto(updateDto);
     }
 
     public void updateData(Agendamento registro, AgendamentoDto updateDto) {
@@ -102,12 +102,12 @@ public class AgendaService {
         }
         Agendamento agendamento = agendaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento não localizado."));
-        return AgendaMapper.toDto(agendamento);
+        return AgendamentoMapper.toDto(agendamento);
     }
 
     public List<ResponseAgendamentoDto> buscaTodos() {
         List<Agendamento> agendamentos = agendaRepository.findAll();
-        return AgendaMapper.toListDto(agendamentos);
+        return AgendamentoMapper.toListDto(agendamentos);
     }
 
     public List<ResponseAgendamentoDto> buscaNome(String nome) {
@@ -118,7 +118,7 @@ public class AgendaService {
         if(agendamentos.isEmpty()) {
             throw new RecursoNaoEncontradoException("Nome não localizado.");
         }
-        return AgendaMapper.toListDto(agendamentos);
+        return AgendamentoMapper.toListDto(agendamentos);
     }
 
     public List<ResponseAgendamentoDto> buscaCpf(String cpf) {
@@ -130,7 +130,7 @@ public class AgendaService {
         if (agendamentos.isEmpty()) {
             throw new RecursoNaoEncontradoException("CPF não localizado.");
         }
-        return AgendaMapper.toListDto(agendamentos);
+        return AgendamentoMapper.toListDto(agendamentos);
     }
 
 
