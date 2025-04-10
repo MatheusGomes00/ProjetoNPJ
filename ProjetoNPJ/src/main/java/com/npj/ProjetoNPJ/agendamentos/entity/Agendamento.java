@@ -26,5 +26,5 @@ public class Agendamento {
 
     private String casoTipo;
 
-    private List<String> responsaveis;
+    private List<String> responsaveisId;
 }

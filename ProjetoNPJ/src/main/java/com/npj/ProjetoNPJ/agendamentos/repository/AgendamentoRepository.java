@@ -1,13 +1,11 @@
-package com.npj.ProjetoNPJ.agenda.repository;
+package com.npj.ProjetoNPJ.agendamentos.repository;
 
-import com.npj.ProjetoNPJ.advogados.entity.Advogado;
-import com.npj.ProjetoNPJ.agenda.entity.Agendamento;
+import com.npj.ProjetoNPJ.agendamentos.entity.Agendamento;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface AgendaRepository extends MongoRepository<Agendamento, String> {

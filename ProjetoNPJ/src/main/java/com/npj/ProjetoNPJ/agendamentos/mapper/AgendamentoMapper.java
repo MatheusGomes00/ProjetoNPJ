@@ -1,9 +1,9 @@
-package com.npj.ProjetoNPJ.agenda.mapper;
+package com.npj.ProjetoNPJ.agendamentos.mapper;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
-import com.npj.ProjetoNPJ.agenda.dto.AgendamentoDto;
-import com.npj.ProjetoNPJ.agenda.dto.ResponseAgendamentoDto;
-import com.npj.ProjetoNPJ.agenda.entity.Agendamento;
+import com.npj.ProjetoNPJ.agendamentos.dto.AgendamentoDto;
+import com.npj.ProjetoNPJ.agendamentos.dto.ResponseAgendamentoDto;
+import com.npj.ProjetoNPJ.agendamentos.entity.Agendamento;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
