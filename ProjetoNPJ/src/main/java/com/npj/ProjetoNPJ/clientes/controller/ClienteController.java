@@ -2,6 +2,7 @@ package com.npj.ProjetoNPJ.clientes.controller;
 
 
 import com.npj.ProjetoNPJ.clientes.dto.CadastroDto;
+import com.npj.ProjetoNPJ.clientes.dto.PreCadastroDto;
 import com.npj.ProjetoNPJ.clientes.service.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,16 @@ public class ClienteController {
 
     @Autowired
     private ClienteService service;
+
+
+    @PostMapping(value = "/preCad")
+    public ResponseEntity<PreCadastroDto> preCadastro(@RequestBody PreCadastroDto dto){
+
+
+        PreCadastroDto clientePre = service.precadastro(dto);
+        return ResponseEntity.ok(dto);
+
+    }
 
     @PostMapping(value = "/ins")
     public ResponseEntity<CadastroDto> insert(@RequestBody @Valid CadastroDto objDto) {
@@ -43,11 +54,13 @@ public class ClienteController {
         return ResponseEntity.ok().body(cadastros);
     }
 
-    @GetMapping
+    @GetMapping(value = "/get")
     public ResponseEntity<List<CadastroDto>> getAll() {
         List<CadastroDto> cadastros = service.findAll();
         return ResponseEntity.ok().body(cadastros);
     }
+
+
 
     @PatchMapping(value = "/del/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {

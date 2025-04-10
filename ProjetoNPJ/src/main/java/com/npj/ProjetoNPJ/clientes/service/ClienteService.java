@@ -1,5 +1,7 @@
 package com.npj.ProjetoNPJ.clientes.service;
 
+import com.npj.ProjetoNPJ.clientes.dto.PreCadastroDto;
+import com.npj.ProjetoNPJ.clientes.entitie.PreCadastro;
 import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.clientes.dto.CadastroDto;
@@ -27,6 +29,16 @@ public class ClienteService {
 
     public String normalizarCpf(String cpf) {
         return cpf.replaceAll("[.\\-\\s]", "");
+    }
+
+    public PreCadastroDto precadastro(PreCadastroDto dto){
+        dto.setNome(dto.getNome());
+        dto.setDataNasc(dto.getDataNasc());
+        dto.setDiaAgendado(dto.getDiaAgendado());
+        dto.setCelular(dto.getCelular());
+        dto.setCpf(dto.getCpf());
+
+        return dto;
     }
 
     public CadastroDto insert(CadastroDto obj) {
