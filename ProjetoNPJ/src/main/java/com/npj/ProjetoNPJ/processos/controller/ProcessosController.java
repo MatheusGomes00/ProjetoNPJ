@@ -26,7 +26,7 @@ public class ProcessosController {
     public ResponseEntity<DtoProcessos> insert(@RequestBody DtoProcessos dto, @RequestHeader("Authorization") String authorizationHeader){
 
         try {
-            DtoProcessos novoProcesso = service.insert(dto);
+            DtoProcessos novoProcesso = service.insertProcesso(dto);
 
             return ResponseEntity.ok().body(novoProcesso);
         } catch (Exception e) {

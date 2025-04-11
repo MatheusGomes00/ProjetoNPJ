@@ -44,7 +44,7 @@ public class ProcessosService {
     @Autowired
     private JwtService jwtService;
 
-    public DtoProcessos insert(DtoProcessos dto) {
+    public DtoProcessos insertProcesso(DtoProcessos dto) {
         dto.setSituacao(Situacao.INICIADO);
         dto.setValorCausa(dto.getValorCausa());
         List<Advogado> advogados = dto.getResponsaveisId().stream()
