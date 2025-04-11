@@ -1,4 +1,4 @@
-package com.npj.ProjetoNPJ.agenda.dto;
+package com.npj.ProjetoNPJ.agendamentos.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -29,5 +28,5 @@ public class AgendamentoDto {
     private String casoTipo;
 
     @NotNull
-    private List<String> responsaveis;
+    private List<String> responsaveisId;
 }
