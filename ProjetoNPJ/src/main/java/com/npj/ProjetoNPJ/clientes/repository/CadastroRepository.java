@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.clientes.repository;
 
 import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
+import com.npj.ProjetoNPJ.processos.entity.Processos;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -23,4 +24,7 @@ public interface CadastroRepository extends MongoRepository<Cadastro, String> {
     List<Cadastro> findByCpf(String cpf);
 
     Boolean existsByClienteCpf(String cpf);
+
+
+    List<String> findByProcesso(String proc);
 }

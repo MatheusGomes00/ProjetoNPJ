@@ -1,5 +1,7 @@
 package com.npj.ProjetoNPJ.clientes.service;
 
+import com.npj.ProjetoNPJ.advogados.entity.Advogado;
+import com.npj.ProjetoNPJ.clientes.dto.ClienteDto;
 import com.npj.ProjetoNPJ.clientes.dto.PreCadastroDto;
 import com.npj.ProjetoNPJ.clientes.dto.Status;
 import com.npj.ProjetoNPJ.clientes.entitie.PreCadastro;
@@ -10,17 +12,26 @@ import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
 import com.npj.ProjetoNPJ.exceptions.CpfUnicoException;
 import com.npj.ProjetoNPJ.clientes.mapper.CadastroMapper;
 import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
+import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
+import com.npj.ProjetoNPJ.processos.entity.Processos;
+import com.npj.ProjetoNPJ.processos.mapper.ProcessosMapper;
+import com.npj.ProjetoNPJ.processos.repository.ProcessosRepositorio;
+import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
+import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ClienteService {
 
     @Autowired
     private CadastroRepository cadastroRepository;
+
+    @Autowired
+    private ProcessosRepositorio processosRepositorio;
 
     public void validarCpf(String cpf) {
         Boolean verificador = cadastroRepository.existsByClienteCpf(cpf);
@@ -33,7 +44,7 @@ public class ClienteService {
         return cpf.replaceAll("[.\\-\\s]", "");
     }
 
-    public PreCadastroDto precadastro(PreCadastroDto dto){
+    public PreCadastroDto precadastro(PreCadastroDto dto) {
         dto.setNome(dto.getNome());
         dto.setDataNasc(dto.getDataNasc());
         dto.setDiaAgendado(dto.getDiaAgendado());
@@ -59,7 +70,8 @@ public class ClienteService {
 
         String cpfNovo = normalizarCpf(objNovo.getCliente().getCpf());
         String cpfAntigo = normalizarCpf(objAntigo.getCliente().getCpf());
-        if(!cpfAntigo.equals(cpfNovo)) {
+
+        if (!cpfAntigo.equals(cpfNovo)) {
             validarCpf(cpfNovo);
         }
 
@@ -68,8 +80,6 @@ public class ClienteService {
 
         return CadastroMapper.toDto(objAntigo);
     }
-
-
 
     private void updateData(Cadastro oldObj, CadastroDto dto) {
         Cadastro dtoAtualizado = CadastroMapper.toEntitie(dto);
@@ -91,22 +101,21 @@ public class ClienteService {
 
     public List<CadastroDto> findByNome(String nome) {
         List<Cadastro> cadastros = cadastroRepository.findByNome(nome);
-        if(cadastros.isEmpty()) {
+        if (cadastros.isEmpty()) {
             throw new RecursoNaoEncontradoException("Nome não localizado.");
         }
         return CadastroMapper.toListDto(cadastros);
     }
 
-
     public List<CadastroDto> findByCpf(String cpf) {
 
-        if(cpf == null || cpf.isBlank()) {
+        if (cpf == null || cpf.isBlank()) {
             throw new NullPointerException("CPF não pode ser nulo ou estar em branco");
         }
         
         String cpfTratado = normalizarCpf(cpf);
         List<Cadastro> cadastros = cadastroRepository.findByCpf(cpfTratado);
-        if(cadastros.isEmpty()) {
+        if (cadastros.isEmpty()) {
             throw new RecursoNaoEncontradoException("CPF não localizado.");
         }
         return CadastroMapper.toListDto(cadastros);
@@ -114,7 +123,7 @@ public class ClienteService {
 
     public List<CadastroDto> findAll() {
         List<Cadastro> cadastros = cadastroRepository.findAll();
-        if(cadastros.isEmpty()) {
+        if (cadastros.isEmpty()) {
             throw new RecursoNaoEncontradoException("Sem registros");
         }
         return CadastroMapper.toListDto(cadastros);
