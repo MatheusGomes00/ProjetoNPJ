@@ -36,7 +36,6 @@ public class ProcessosController {
                     .body(null);
         }
 
-
     }
     @PutMapping(value = "/updProc/{id}")
     public ResponseEntity<Processos> atualizarProcesso(@PathVariable String id, @RequestBody DtoProcessos dto){
@@ -103,5 +102,7 @@ public class ProcessosController {
         List<DtoProcessos> processos = service.findByNome(clienteNome);
         return ResponseEntity.ok(processos);
     }
+
+
 
 }
