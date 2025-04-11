@@ -1,10 +1,13 @@
 package com.npj.ProjetoNPJ.clientes.entitie;
 
+import com.npj.ProjetoNPJ.processos.entity.Processos;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,5 +25,6 @@ public class Cliente {
     private String nascimento;
     private Contato contato;
     private Boolean casaPropria;
+    private List<String> processo;
 
 }
