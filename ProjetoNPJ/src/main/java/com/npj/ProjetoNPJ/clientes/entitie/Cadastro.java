@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.clientes.entitie;
 
 import com.npj.ProjetoNPJ.clientes.dto.ClienteDto;
+import com.npj.ProjetoNPJ.processos.entity.Processos;
 import org.springframework.data.annotation.Id;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -22,5 +23,7 @@ public class Cadastro {
     private DadosProcessuais dadosProcessuais;
     private Natureza natureza;
     private Responsaveis responsaveis;
+
+    private Processos processos;
 
 }

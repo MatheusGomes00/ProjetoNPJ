@@ -9,6 +9,11 @@ import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
 import com.npj.ProjetoNPJ.exceptions.CpfUnicoException;
 import com.npj.ProjetoNPJ.clientes.mapper.CadastroMapper;
 import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
+import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
+import com.npj.ProjetoNPJ.processos.entity.Processos;
+import com.npj.ProjetoNPJ.processos.mapper.ProcessosMapper;
+import com.npj.ProjetoNPJ.processos.repository.ProcessosRepositorio;
+import com.npj.ProjetoNPJ.processos.service.ProcessosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +24,12 @@ public class ClienteService {
 
     @Autowired
     private CadastroRepository cadastroRepository;
+
+    @Autowired
+    private ProcessosRepositorio processosRepositorio;
+
+    @Autowired
+    private ProcessosService processosService;
 
     public void validarCpf(String cpf) {
         Boolean verificador = cadastroRepository.existsByClienteCpf(cpf);
@@ -131,5 +142,16 @@ public class ClienteService {
 
         cadastro.setStatus(!cadastro.getStatus());
         cadastroRepository.save(cadastro);
+    }
+
+    public void inserirProcesso(DtoProcessos dto, String id) {
+        DtoProcessos processoDto = processosService.insertProcesso(dto);
+        Processos processo = ProcessosMapper.toEntity(processoDto);
+        Cadastro cadastro = cadastroRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("ID Não localizado"));
+
+        cadastro.setProcessos(processo);
+
+
     }
 }

@@ -1,5 +1,6 @@
 package com.npj.ProjetoNPJ.clientes.entitie;
 
+import com.npj.ProjetoNPJ.processos.entity.Processos;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,5 +23,4 @@ public class Cliente {
     private String nascimento;
     private Contato contato;
     private Boolean casaPropria;
-
 }

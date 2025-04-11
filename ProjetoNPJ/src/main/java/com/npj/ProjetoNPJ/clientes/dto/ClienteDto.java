@@ -34,4 +34,6 @@ public class ClienteDto {
     private ContatoDto contato;
 
     private Boolean casaPropria;
+
+
 }
