@@ -25,26 +25,20 @@ const TituloTarefas = styled.h2`
   margin-top: -35px;
 `;
 
-const TextAreaNome = styled.textarea`
-  padding: 10px;
+const DetalheItemNome = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  padding: 12px;
   border-radius: 8px;
-  border: 1px solid #ddd;
-  width: 100%;
   font-size: 16px;
   color: #333;
-  transition: border-color 0.3s ease;
-  resize: vertical;
-  min-height: 80px;
-  max-height: 200px;
-  overflow-y: auto;
-  box-sizing: border-box;
-  background: #f8f9fa; /* Para manter consistência com DetalheItem */
-  cursor: default; /* Indica que não é editável */
-
-  &:focus {
-    border-color: #007bff;
-    outline: none;
-  }
+  max-height: 180px;
+  min-height: 100px; /* Altura mínima para evitar que o campo fique muito pequeno */
+  word-wrap: break-word; /* Quebra de palavras para evitar transbordo horizontal */
+  overflow-y: auto; /* Barra de rolagem vertical apenas */
+  
+  box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
 `;
 
 const TextArea = styled.textarea`
@@ -172,7 +166,7 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 1000;
+  z-index: 10000;
   background: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;
@@ -954,11 +948,11 @@ function Tarefas() {
       <ModalOverlay show={showDetalhesModal}>
       <TarefaDetalhesModal>
       <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
-      <DetalheItem>
+      <DetalheItemNome>
       <Label>Nome:</Label>
         {tarefaSelecionada?.nomeTarefa || "Sem título"}
         
-      </DetalheItem>
+      </DetalheItemNome>
       <DetalheItem>
       <Label>Descrição:</Label>
       <TextArea
