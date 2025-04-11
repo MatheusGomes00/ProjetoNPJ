@@ -7,6 +7,7 @@
     import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
     import com.npj.ProjetoNPJ.processos.dtos.Situacao;
     import com.npj.ProjetoNPJ.processos.entity.Processos;
+    import org.modelmapper.ModelMapper;
     import org.springframework.beans.factory.annotation.Autowired;
 
     import java.util.List;
@@ -35,6 +36,10 @@
                     .toList();
             processo.setCliente(clientes);
             return processo;
+        }
+
+        public static Processos toEntity(DtoProcessos dto) {
+            return new ModelMapper().map(dto, Processos.class);
         }
 
         public static DtoProcessos toDto(Processos processo) {
