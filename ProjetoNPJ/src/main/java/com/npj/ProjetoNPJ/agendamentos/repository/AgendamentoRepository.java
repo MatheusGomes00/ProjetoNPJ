@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -15,4 +16,7 @@ public interface AgendamentoRepository extends MongoRepository<Agendamento, Stri
 
     @Query("{ 'cpf': { $regex: ?0 } }")
     List<Agendamento> findByCpf(String cpf);
+
+    @Query("{ 'start': { $lte: ?1 }, 'end': { $gte: ?0 } }")
+    List<Agendamento> findByPeriod(LocalDateTime start, LocalDateTime end);
 }
