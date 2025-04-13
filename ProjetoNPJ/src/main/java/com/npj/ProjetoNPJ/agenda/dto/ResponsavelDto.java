@@ -5,14 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class EventoDto {
+@AllArgsConstructor
+public class ResponsavelDto {
 
-    private List<EventoItemDto> eventos;
-    
+    private String responsavelId;
+
+    private String responsavelNome;
 }
