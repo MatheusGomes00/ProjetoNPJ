@@ -26,6 +26,7 @@ public class DtoTarefas {
     @NotBlank
     private String descricao;
 
+    @NotNull
     private boolean status;
 
     @NotBlank
