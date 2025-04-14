@@ -7,6 +7,7 @@ import SearchBar from "./components/Advogados/Searchbar";
 import { isAuthenticated } from "./components/Seguranca/GerenciaToken";
 import Processos from "./components/Processos/ProcessosMain";
 import ClientesMain from "./components/Clientes/ClientesMain";
+import DetalhesClientes from "./components/Clientes/DetalhesClientes";
 
 
 function App() {
@@ -42,6 +43,10 @@ function App() {
         <Route
           path="/clientes"
           element={isAuthenticated() ? <ClientesMain /> : <Navigate to="/login" />}
+        />
+         <Route
+          path="/clientes/:id"
+          element={isAuthenticated() ? <DetalhesClientes /> : <Navigate to="/login" />}
         />
       </Routes>
     </div>

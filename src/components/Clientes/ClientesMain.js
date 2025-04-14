@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import styled from "styled-components";
 import useAuth from "../Seguranca/UseAuth";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 
 // Estilo do contêiner principal
 const MainContainer = styled.div`
@@ -223,6 +224,8 @@ const ClientesMain = () => {
   const [totalPages, setTotalPages] = useState(1);
   const PAGE_SIZE = 12; // 12 clientes por página
 
+  const navigate = useNavigate(); // Hook para navegação
+
   // Cache e controle de tempo
   const cacheRef = useRef({});
   const lastFetchTimeRef = useRef(0);
@@ -412,6 +415,11 @@ const ClientesMain = () => {
     alert("Funcionalidade de adicionar cliente será implementada!");
   };
 
+  // Função para lidar com o clique no card
+  const handleClienteClick = (clienteId) => {
+    navigate(`/clientes/${clienteId}`); // Navega para a tela de detalhes
+  };
+
   return (
     <ComponentesFixos>
       <MainContainer>
@@ -460,7 +468,11 @@ const ClientesMain = () => {
             <>
               <ClientesList>
                 {clientesFiltrados.map((cliente) => (
-                  <ClienteCard key={cliente.id}>
+                  <ClienteCard
+                    key={cliente.id}
+                    onClick={() => handleClienteClick(cliente.id)} // Adiciona o evento de clique
+                    style={{ cursor: "pointer" }} // Adiciona cursor de clique
+                  >
                     <ClienteNome>{cliente.cliente.nome}</ClienteNome>
                     <Status ativo={cliente.status}>
                       Status: {cliente.status ? "Ativo" : "Inativo"}
