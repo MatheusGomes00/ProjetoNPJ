@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class AgendamentoService {
 
     @Autowired
-    private AgendamentoRepository agendaRepository;
+    private AgendamentoRepository agendamentoRepository;
 
     @Autowired
     private AdvogadoRepository advogadoRepository;
@@ -47,13 +47,7 @@ public class AgendamentoService {
 
     public AgendamentoDto criarAgendamento(AgendamentoDto dto) {
         dto.setCpf(normalizarCpf(dto.getCpf()));
-        List<Advogado> advogados = dto.getResponsaveis().stream()
-                .map(responsavel -> advogadoRepository.findById(responsavel.getResponsavelId())
-                        .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: "
-                                + responsavel.getResponsavelId())))
-                .collect(Collectors.toList());
-
-        Agendamento novoAgendamento = agendaRepository.insert(AgendamentoMapper.toEntity(dto, advogados));
+        Agendamento novoAgendamento = agendamentoRepository.insert(AgendamentoMapper.toEntity(dto));
         novoAgendamento.setResponsaveis(dto.getResponsaveis());
         return AgendamentoMapper.toDto(novoAgendamento);
     }
@@ -68,11 +62,11 @@ public class AgendamentoService {
 
 
     public AgendamentoDto atualizarAgendamento(AgendamentoDto updateDto, String id) {
-        Agendamento registro = agendaRepository.findById(id)
+        Agendamento registro = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento não localizado"));
 
         updateData(registro, updateDto);
-        agendaRepository.save(registro);
+        agendamentoRepository.save(registro);
         updateDto.setId(id);
 
         return updateDto;
@@ -103,13 +97,13 @@ public class AgendamentoService {
         if(id == null || id.isBlank()) {
             throw new NullPointerException("ID não pode ser nulo ou estar em branco.");
         }
-        Agendamento agendamento = agendaRepository.findById(id)
+        Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento não localizado."));
         return AgendamentoMapper.toDto(agendamento);
     }
 
     public List<AgendamentoDto> buscaTodos() {
-        List<Agendamento> agendamentos = agendaRepository.findAll();
+        List<Agendamento> agendamentos = agendamentoRepository.findAll();
         return AgendamentoMapper.toListDto(agendamentos);
     }
 
@@ -117,7 +111,7 @@ public class AgendamentoService {
         if (nome == null || nome.isBlank()) {
             throw new NullPointerException("Nome não pode ser nulo ou estar em branco.");
         }
-        List<Agendamento> agendamentos = agendaRepository.findByNome(nome);
+        List<Agendamento> agendamentos = agendamentoRepository.findByNome(nome);
         if(agendamentos.isEmpty()) {
             throw new RecursoNaoEncontradoException("Nome não localizado.");
         }
@@ -129,7 +123,7 @@ public class AgendamentoService {
             throw new NullPointerException("CPF não pode ser nulo ou estar em branco");
         }
         String cpfTratado = normalizarCpf(cpf);
-        List<Agendamento> agendamentos = agendaRepository.findByCpf(cpfTratado);
+        List<Agendamento> agendamentos = agendamentoRepository.findByCpf(cpfTratado);
         if (agendamentos.isEmpty()) {
             throw new RecursoNaoEncontradoException("CPF não localizado.");
         }
