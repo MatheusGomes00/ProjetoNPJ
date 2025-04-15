@@ -1,11 +1,11 @@
 // DetalhesClientes.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilo do contêiner principal (reutilizando o mesmo estilo de ClientesMain)
+// Estilo do contêiner principal
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -56,6 +56,48 @@ const BotaoVoltar = styled.button`
   }
 `;
 
+// Estilo do botão de salvar
+const BotaoSalvar = styled.button`
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #218838;
+  }
+`;
+
+// Estilo do contêiner de abas
+const AbasContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e0e4e8;
+`;
+
+// Estilo dos botões de aba
+const BotaoAba = styled.button`
+  padding: 10px 20px;
+  background-color: ${(props) => (props.ativo ? "#2c3e50" : "#f4f7fa")};
+  color: ${(props) => (props.ativo ? "#fff" : "#2c3e50")};
+  border: none;
+  border-radius: 8px 8px 0 0;
+  font-family: "Arial", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    background-color: ${(props) => (props.ativo ? "#2c3e50" : "#e0e4e8")};
+  }
+`;
+
 // Estilo do contêiner de detalhes
 const DetalhesContainer = styled.div`
   background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
@@ -68,18 +110,50 @@ const DetalhesContainer = styled.div`
   gap: 15px;
 `;
 
-// Estilo para os campos de informação
+// Estilo para os campos de informação editáveis
 const InfoCampo = styled.div`
   font-family: "Arial", sans-serif;
   font-size: 16px;
   color: #2c3e50;
   display: flex;
-  gap: 10px;
-  align-items: center;
+  flex-direction: column;
+  gap: 5px;
 
-  & > strong {
+  & > label {
     font-weight: 600;
     color: #1e3c72;
+  }
+`;
+
+// Estilo para os inputs
+const CampoInput = styled.input`
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+`;
+
+// Estilo para o select (status)
+const CampoSelect = styled.select`
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #007bff;
+    outline: none;
   }
 `;
 
@@ -92,24 +166,62 @@ const Mensagem = styled.p`
   margin: 20px 0;
 `;
 
+// Estilo para o pop-up de feedback
+const Popup = styled.div`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #28a745;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-family: "Arial", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: fadeInOut 2s ease-in-out;
+
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+`;
+
 const DetalhesClientes = () => {
-  const { id } = useParams(); // Pega o ID da URL
+  const { id } = useParams();
   const { fetchAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [cliente, setCliente] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [hasFetched, setHasFetched] = useState(false); // Novo estado para controlar se a busca já foi feita
+  const [hasFetched, setHasFetched] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [showPopup, setShowPopup] = useState(false);
+  const [abaAtiva, setAbaAtiva] = useState("informacoes"); // Estado para controlar a aba ativa
 
   // Função para buscar os dados do cliente pelo ID
   useEffect(() => {
     const buscarClientePorId = async () => {
-      // Evitar múltiplas requisições se já buscamos os dados
       if (hasFetched) return;
 
       setIsLoading(true);
       setMensagemErro("");
-      setHasFetched(true); // Marca que a busca foi iniciada
+      setHasFetched(true);
 
       try {
         const response = await fetchAuthenticated(`http://localhost:8080/cad/get`, {
@@ -129,13 +241,28 @@ const DetalhesClientes = () => {
         }
 
         const data = await response.json();
-        const clienteSelecionado = data.find((c) => c.id === id); // Filtra o cliente pelo ID
+        const clienteSelecionado = data.find((c) => c.id === id);
 
         if (!clienteSelecionado) {
           throw new Error("Cliente não encontrado.");
         }
 
         setCliente(clienteSelecionado);
+        setFormData({
+          nome: clienteSelecionado.cliente.nome || "",
+          status: clienteSelecionado.status,
+          cpf: clienteSelecionado.cliente.cpf || "",
+          rua: clienteSelecionado.cliente.endereco?.rua || "",
+          numero: clienteSelecionado.cliente.endereco?.numero || "",
+          bairro: clienteSelecionado.cliente.endereco?.bairro || "",
+          cidade: clienteSelecionado.cliente.endereco?.cidade || "",
+          cep: clienteSelecionado.cliente.endereco?.cep || "",
+          telefone: clienteSelecionado.cliente.contato?.telefone || "",
+          celular: clienteSelecionado.cliente.contato?.celular || "",
+          email: clienteSelecionado.cliente.contato?.email || "",
+          representanteNome: clienteSelecionado.representante?.nome || "",
+          representanteCpf: clienteSelecionado.representante?.cpf || "",
+        });
       } catch (error) {
         console.error("Erro ao buscar cliente:", error);
         setMensagemErro(error.message || "Erro ao carregar os dados do cliente.");
@@ -145,7 +272,104 @@ const DetalhesClientes = () => {
     };
 
     buscarClientePorId();
-  }, [id, fetchAuthenticated]); // Mantemos as dependências, mas controlamos a execução com hasFetched
+  }, [id, fetchAuthenticated, hasFetched]);
+
+  // Função para lidar com mudanças nos inputs
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Função para lidar com a mudança no status (select)
+  const handleStatusChange = (e) => {
+    const value = e.target.value === "true";
+    setFormData((prev) => ({
+      ...prev,
+      status: value,
+    }));
+  };
+
+  // Função para salvar as alterações
+  const handleSalvar = async () => {
+    setIsLoading(true);
+    setMensagemErro("");
+
+    const updatedCliente = {
+      ...cliente,
+      status: formData.status.toString(),
+      cliente: {
+        ...cliente.cliente,
+        nome: formData.nome,
+        cpf: formData.cpf,
+        endereco: {
+          ...cliente.cliente.endereco,
+          rua: formData.rua,
+          numero: formData.numero,
+          bairro: formData.bairro,
+          cidade: formData.cidade,
+          cep: formData.cep,
+        },
+        contato: {
+          ...cliente.cliente.contato,
+          telefone: formData.telefone,
+          celular: formData.celular,
+          email: formData.email,
+        },
+      },
+      representante: {
+        ...cliente.representante,
+        nome: formData.representanteNome,
+        cpf: formData.representanteCpf,
+      },
+    };
+
+    try {
+      const response = await fetchAuthenticated(`http://localhost:8080/cad/upd/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedCliente),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Sessão expirada. Faça login novamente.");
+        }
+        throw new Error(`Erro ao atualizar cliente: ${response.status}`);
+      }
+
+      const updatedData = await response.json();
+      setCliente(updatedData);
+      setFormData({
+        nome: updatedData.cliente.nome || "",
+        status: updatedData.status,
+        cpf: updatedData.cliente.cpf || "",
+        rua: updatedData.cliente.endereco?.rua || "",
+        numero: updatedData.cliente.endereco?.numero || "",
+        bairro: updatedData.cliente.endereco?.bairro || "",
+        cidade: updatedData.cliente.endereco?.cidade || "",
+        cep: updatedData.cliente.endereco?.cep || "",
+        telefone: updatedData.cliente.contato?.telefone || "",
+        celular: updatedData.cliente.contato?.celular || "",
+        email: updatedData.cliente.contato?.email || "",
+        representanteNome: updatedData.representante?.nome || "",
+        representanteCpf: updatedData.representante?.cpf || "",
+      });
+      setShowPopup(true);
+      setTimeout(() => {
+        setShowPopup(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Erro ao salvar cliente:", error);
+      setMensagemErro(error.message || "Erro ao salvar as alterações.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Função para voltar à tela anterior
   const handleVoltar = () => {
@@ -157,54 +381,183 @@ const DetalhesClientes = () => {
       <MainContainer>
         <Header>
           <Titulo>Detalhes do Cliente</Titulo>
-          <BotaoVoltar onClick={handleVoltar}>Voltar</BotaoVoltar>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <BotaoSalvar onClick={handleSalvar} disabled={isLoading}>
+              {isLoading ? "Salvando..." : "Salvar"}
+            </BotaoSalvar>
+            <BotaoVoltar onClick={handleVoltar}>Voltar</BotaoVoltar>
+          </div>
         </Header>
 
-        {isLoading ? (
+        {/* Sistema de abas */}
+        <AbasContainer>
+          <BotaoAba
+            ativo={abaAtiva === "informacoes"}
+            onClick={() => setAbaAtiva("informacoes")}
+          >
+            Informações do Cliente
+          </BotaoAba>
+          <BotaoAba
+            ativo={abaAtiva === "documentos"}
+            onClick={() => setAbaAtiva("documentos")}
+          >
+            Documentos e Arquivos
+          </BotaoAba>
+          <BotaoAba
+            ativo={abaAtiva === "processos"}
+            onClick={() => setAbaAtiva("processos")}
+          >
+            Processos Vinculados
+          </BotaoAba>
+        </AbasContainer>
+
+        {/* Conteúdo das abas */}
+        {isLoading && !formData.nome ? (
           <Mensagem>Carregando dados do cliente...</Mensagem>
         ) : mensagemErro ? (
           <Mensagem>{mensagemErro}</Mensagem>
-        ) : cliente ? (
-          <DetalhesContainer>
-            <InfoCampo>
-              <strong>Nome:</strong> {cliente.cliente.nome || "Não informado"}
-            </InfoCampo>
-            <InfoCampo>
-              <strong>Status:</strong> {cliente.status ? "Ativo" : "Inativo"}
-            </InfoCampo>
-            <InfoCampo>
-              <strong>CPF:</strong> {cliente.cliente.cpf || "Não informado"}
-            </InfoCampo>
-            <InfoCampo>
-              <strong>Endereço:</strong>{" "}
-              {cliente.cliente.endereco
-                ? `${cliente.cliente.endereco.rua}, ${cliente.cliente.endereco.numero}, ${cliente.cliente.endereco.bairro}, ${cliente.cliente.endereco.cidade} - CEP: ${cliente.cliente.endereco.cep}`
-                : "Não informado"}
-            </InfoCampo>
-            <InfoCampo>
-              <strong>Telefone:</strong>{" "}
-              {cliente.cliente.contato?.telefone || "Não informado"}
-            </InfoCampo>
-            <InfoCampo>
-              <strong>Celular:</strong>{" "}
-              {cliente.cliente.contato?.celular || "Não informado"}
-            </InfoCampo>
-            <InfoCampo>
-              <strong>Email:</strong>{" "}
-              {cliente.cliente.contato?.email || "Não informado"}
-            </InfoCampo>
-            <InfoCampo>
-              <strong>Representante:</strong>{" "}
-              {cliente.representante?.nome || "Não informado"}
-            </InfoCampo>
-            <InfoCampo>
-              <strong>CPF do Representante:</strong>{" "}
-              {cliente.representante?.cpf || "Não informado"}
-            </InfoCampo>
-          </DetalhesContainer>
+        ) : formData.nome ? (
+          <>
+            {abaAtiva === "informacoes" && (
+              <DetalhesContainer>
+                <InfoCampo>
+                  <label>Nome:</label>
+                  <CampoInput
+                    type="text"
+                    name="nome"
+                    value={formData.nome}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>Status:</label>
+                  <CampoSelect
+                    name="status"
+                    value={formData.status.toString()}
+                    onChange={handleStatusChange}
+                  >
+                    <option value="true">Ativo</option>
+                    <option value="false">Inativo</option>
+                  </CampoSelect>
+                </InfoCampo>
+                <InfoCampo>
+                  <label>CPF:</label>
+                  <CampoInput
+                    type="text"
+                    name="cpf"
+                    value={formData.cpf}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>Rua:</label>
+                  <CampoInput
+                    type="text"
+                    name="rua"
+                    value={formData.rua}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>Número:</label>
+                  <CampoInput
+                    type="text"
+                    name="numero"
+                    value={formData.numero}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>Bairro:</label>
+                  <CampoInput
+                    type="text"
+                    name="bairro"
+                    value={formData.bairro}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>Cidade:</label>
+                  <CampoInput
+                    type="text"
+                    name="cidade"
+                    value={formData.cidade}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>CEP:</label>
+                  <CampoInput
+                    type="text"
+                    name="cep"
+                    value={formData.cep}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>Telefone:</label>
+                  <CampoInput
+                    type="text"
+                    name="telefone"
+                    value={formData.telefone}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>Celular:</label>
+                  <CampoInput
+                    type="text"
+                    name="celular"
+                    value={formData.celular}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>Email:</label>
+                  <CampoInput
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>Representante:</label>
+                  <CampoInput
+                    type="text"
+                    name="representanteNome"
+                    value={formData.representanteNome}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+                <InfoCampo>
+                  <label>CPF do Representante:</label>
+                  <CampoInput
+                    type="text"
+                    name="representanteCpf"
+                    value={formData.representanteCpf}
+                    onChange={handleInputChange}
+                  />
+                </InfoCampo>
+              </DetalhesContainer>
+            )}
+            {abaAtiva === "documentos" && (
+              <DetalhesContainer>
+                <Mensagem>Seção de Documentos e Arquivos (em desenvolvimento)</Mensagem>
+              </DetalhesContainer>
+            )}
+            {abaAtiva === "processos" && (
+              <DetalhesContainer>
+                <Mensagem>Seção de Processos Vinculados (em desenvolvimento)</Mensagem>
+              </DetalhesContainer>
+            )}
+          </>
         ) : (
           <Mensagem>Cliente não encontrado.</Mensagem>
         )}
+
+        {/* Pop-up de feedback */}
+        {showPopup && <Popup>Alterações Salvas</Popup>}
       </MainContainer>
     </ComponentesFixos>
   );
