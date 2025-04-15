@@ -16,7 +16,7 @@ public class AgendamentoMapper {
         return new ModelMapper().map(agendamento, AgendamentoDto.class);
     }
 
-    public static Agendamento toEntity(AgendamentoDto dto,  List<Advogado> advogados) {
+    public static Agendamento toEntity(AgendamentoDto dto) {
 
         return new ModelMapper().map(dto, Agendamento.class);
     }

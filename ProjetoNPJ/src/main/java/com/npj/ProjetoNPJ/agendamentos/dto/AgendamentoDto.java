@@ -16,7 +16,6 @@ import java.util.List;
 @Setter
 public class AgendamentoDto {
 
-    @Id
     private String id;
 
     @NotBlank
