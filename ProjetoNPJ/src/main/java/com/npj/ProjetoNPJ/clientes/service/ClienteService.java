@@ -1,6 +1,7 @@
 package com.npj.ProjetoNPJ.clientes.service;
 
 import com.npj.ProjetoNPJ.clientes.dto.PreCadastroDto;
+import com.npj.ProjetoNPJ.clientes.dto.Status;
 import com.npj.ProjetoNPJ.clientes.entitie.PreCadastro;
 import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClienteService {
@@ -45,20 +47,18 @@ public class ClienteService {
         String cpf = normalizarCpf(obj.getCliente().getCpf());
         validarCpf(cpf);
         obj.getCliente().setCpf(cpf);
-        obj.setStatus(true);
+        obj.setStatus("ATIVO");
         Cadastro cadastro = cadastroRepository.insert(CadastroMapper.toEntitie(obj));
         return CadastroMapper.toDto(cadastro);
     }
 
     public CadastroDto update(CadastroDto objNovo, String id) {
 
-        Cadastro objAntigo = cadastroRepository
-                .findById(id)
+        Cadastro objAntigo = cadastroRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Erro ao localizar cliente"));
 
         String cpfNovo = normalizarCpf(objNovo.getCliente().getCpf());
         String cpfAntigo = normalizarCpf(objAntigo.getCliente().getCpf());
-
         if(!cpfAntigo.equals(cpfNovo)) {
             validarCpf(cpfNovo);
         }
@@ -69,6 +69,8 @@ public class ClienteService {
         return CadastroMapper.toDto(objAntigo);
     }
 
+
+
     private void updateData(Cadastro oldObj, CadastroDto dto) {
         Cadastro dtoAtualizado = CadastroMapper.toEntitie(dto);
         if (dto.getStatus() != null) {
@@ -77,21 +79,26 @@ public class ClienteService {
         if (dto.getCliente() != null) {
             oldObj.getCliente().setCpf(normalizarCpf(dto.getCliente().getCpf()));
         }
-        if (dto.getRepresentante() != null) {
-            oldObj.setRepresentante(dtoAtualizado.getRepresentante());
+        if (dto.getCliente() != null) {
+            oldObj.getCliente().setNome(dto.getCliente().getNome());
         }
-        if (dto.getParteContraria() != null) {
-            oldObj.setParteContraria(dtoAtualizado.getParteContraria());
-        }
-        if (dto.getDadosProcessuais() != null) {
-            oldObj.setDadosProcessuais(dtoAtualizado.getDadosProcessuais());
-        }
-        if (dto.getNatureza() != null) {
-            oldObj.setNatureza(dtoAtualizado.getNatureza());
-        }
-        if (dto.getResponsaveis() != null) {
-            oldObj.setResponsaveis(dtoAtualizado.getResponsaveis());
-        }
+
+
+//        if (dto.getRepresentante() != null) {
+//            oldObj.setRepresentante(dtoAtualizado.getRepresentante());
+//        }
+//        if (dto.getParteContraria() != null) {
+//            oldObj.setParteContraria(dtoAtualizado.getParteContraria());
+//        }
+//        if (dto.getDadosProcessuais() != null) {
+//            oldObj.setDadosProcessuais(dtoAtualizado.getDadosProcessuais());
+//        }
+//        if (dto.getNatureza() != null) {
+//            oldObj.setNatureza(dtoAtualizado.getNatureza());
+//        }
+//        if (dto.getResponsaveis() != null) {
+//            oldObj.setResponsaveis(dtoAtualizado.getResponsaveis());
+//        }
     }
 
     public List<CadastroDto> findByNome(String nome) {
@@ -101,6 +108,7 @@ public class ClienteService {
         }
         return CadastroMapper.toListDto(cadastros);
     }
+
 
     public List<CadastroDto> findByCpf(String cpf) {
 
@@ -129,7 +137,9 @@ public class ClienteService {
                 .findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("ID Não localizado"));
 
-        cadastro.setStatus(!cadastro.getStatus());
+        cadastro.setStatus(cadastro.getStatus());
         cadastroRepository.save(cadastro);
     }
+
+
 }

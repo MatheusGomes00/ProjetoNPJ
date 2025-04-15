@@ -30,7 +30,7 @@ public class ClienteDto {
 
     private String nascimento;
 
-    @NotNull(message = "Contato não pode ser nulo!")
+
     private ContatoDto contato;
 
     private Boolean casaPropria;

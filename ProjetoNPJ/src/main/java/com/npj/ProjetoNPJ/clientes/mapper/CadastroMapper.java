@@ -18,6 +18,8 @@ public class CadastroMapper {
     }
 
     public static List<CadastroDto> toListDto(List<Cadastro> list) {
-        return list.stream().map(cadastro -> toDto(cadastro)).collect(Collectors.toList());
+        return list.stream()
+                .map(cadastro -> toDto(cadastro))
+                .collect(Collectors.toList());
     }
 }

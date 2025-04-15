@@ -138,23 +138,20 @@ public class ProcessosService {
         return acharPorID;
     }
 
-    public List<DtoProcessos> findByNome(String clienteNome) {
+    public List<DtoProcessos> findByCliente(String clienteNome) {
 
-        List<Cadastro> clientes = clienterepository.findByNome(clienteNome);
-        if (clientes.isEmpty()) {
-            throw new RecursoNaoEncontradoException("Nenhum cliente encontrado com esse nome");
+        List<Processos> processos = processosRepositorio.findByCliente(clienteNome);
+
+
+        if(processos.isEmpty()) {
+            throw new RecursoNaoEncontradoException("Processo Nao localizada");
         }
+        return ProcessosMapper.toListDto(processos);
+    }
 
+    public List<DtoProcessos> findByClienteId(String clienteId) {
 
-        List<String> clienteIds = clientes.stream()
-                .map(Cadastro::getId)
-                .collect(Collectors.toList());
-
-
-        List<Processos> processos = processosRepositorio.findByClienteIds(clienteIds);
-        if (processos.isEmpty()) {
-            throw new RecursoNaoEncontradoException("Processo Não localizado");
-        }
+        List<Processos> processos = processosRepositorio.findByClienteIds(clienteId);
 
         return ProcessosMapper.toListDto(processos);
     }
