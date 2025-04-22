@@ -81,24 +81,12 @@ public class ClienteService {
         }
         if (dto.getCliente() != null) {
             oldObj.getCliente().setNome(dto.getCliente().getNome());
+            oldObj.getCliente().setRg(dto.getCliente().getRg());
+            oldObj.getCliente().setContato(dto.getCliente().getContato());
+            oldObj.getCliente().setEndereco(dto.getCliente().getEndereco());
+            oldObj.getCliente().setCasaPropria(dto.getCliente().getCasaPropria());
         }
 
-
-//        if (dto.getRepresentante() != null) {
-//            oldObj.setRepresentante(dtoAtualizado.getRepresentante());
-//        }
-//        if (dto.getParteContraria() != null) {
-//            oldObj.setParteContraria(dtoAtualizado.getParteContraria());
-//        }
-//        if (dto.getDadosProcessuais() != null) {
-//            oldObj.setDadosProcessuais(dtoAtualizado.getDadosProcessuais());
-//        }
-//        if (dto.getNatureza() != null) {
-//            oldObj.setNatureza(dtoAtualizado.getNatureza());
-//        }
-//        if (dto.getResponsaveis() != null) {
-//            oldObj.setResponsaveis(dtoAtualizado.getResponsaveis());
-//        }
     }
 
     public List<CadastroDto> findByNome(String nome) {

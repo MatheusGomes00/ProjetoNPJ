@@ -151,7 +151,7 @@ public class ProcessosService {
 
     public List<DtoProcessos> findByClienteId(String clienteId) {
 
-        List<Processos> processos = processosRepositorio.findByClienteIds(clienteId);
+        List<Processos> processos = processosRepositorio.findByClienteId(clienteId);
 
         return ProcessosMapper.toListDto(processos);
     }

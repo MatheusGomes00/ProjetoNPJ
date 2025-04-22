@@ -14,8 +14,8 @@ public interface ProcessosRepositorio extends MongoRepository<Processos, String>
     @Query("{ 'numeroProcesso': ?0 }")
     List<Processos> findByNumeroProcesso(String numeroProcesso);
 
-    @Query("{ 'cliente.$id': { $in: ?0 } }")
-    List<Processos> findByClienteIds(String clienteIds);
+    @Query("{ 'clienteId': ?0 }")
+    List<Processos> findByClienteId(String clienteId);
 
     @Query("{ 'cliente': ?0 }")
     List<Processos> findByCliente(String clienteNome);
