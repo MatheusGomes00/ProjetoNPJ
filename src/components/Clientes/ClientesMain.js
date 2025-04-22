@@ -1,4 +1,3 @@
-// src/components/Clientes/ClientesMain.jsx
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useAuth from "../Seguranca/UseAuth";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
@@ -48,6 +47,16 @@ const ClientesMain = () => {
   // Cache e controle de tempo
   const cacheRef = useRef({});
   const lastFetchTimeRef = useRef(0);
+
+  // Função para normalizar o status
+  const normalizeStatus = (status) => {
+    if (typeof status === "boolean") return status;
+    if (typeof status === "string") {
+      const lowerStatus = status.toLowerCase();
+      return lowerStatus === "ativo" || lowerStatus === "true";
+    }
+    return !!status; // Fallback para outros tipos
+  };
 
   // Função para aplicar filtros (status)
   const aplicarFiltros = (clientesData, status, nome) => {
@@ -133,7 +142,7 @@ const ClientesMain = () => {
           throw new Error(`Erro na requisição: ${response.status}`);
         }
 
-        const data = await response.json();
+        let data = await response.json();
 
         if (!data || data.length === 0) {
           setMensagemErro(
@@ -149,7 +158,17 @@ const ClientesMain = () => {
           return;
         }
 
-        // Paginação no frontend (caso o backend não suporte)
+        // Normalizar o status de cada cliente
+        data = data.map((cliente) => ({
+          ...cliente,
+          status: normalizeStatus(cliente.status),
+        }));
+
+        // Log para depuração
+        console.log("Clientes fetched:", data);
+        console.log("Status values:", data.map((c) => ({ id: c.id, status: c.status })));
+
+        // Paginação no frontend
         const startIndex = currentPage * PAGE_SIZE;
         const paginatedData = data.slice(startIndex, startIndex + PAGE_SIZE);
         const calculatedTotalPages = Math.ceil(data.length / PAGE_SIZE) || 1;
@@ -235,7 +254,7 @@ const ClientesMain = () => {
   };
 
   const handleAdicionarCliente = () => {
-    alert("Funcionalidade de adicionar cliente será implementada!");
+    navigate("/clientes/criar"); // Navega para a tela de criação de cliente
   };
 
   // Função para lidar com o clique no card
@@ -291,8 +310,8 @@ const ClientesMain = () => {
                 {clientesFiltrados.map((cliente) => (
                   <ClienteCard
                     key={cliente.id}
-                    onClick={() => handleClienteClick(cliente.id)} // Adiciona o evento de clique
-                    style={{ cursor: "pointer" }} // Adiciona cursor de clique
+                    onClick={() => handleClienteClick(cliente.id)}
+                    style={{ cursor: "pointer" }}
                   >
                     <ClienteNome>{cliente.cliente.nome}</ClienteNome>
                     <Status ativo={cliente.status}>
