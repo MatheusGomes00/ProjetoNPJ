@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Importado para navegação
 import styled from "styled-components";
 
 // Estilo para a tabela de processos
@@ -27,6 +28,10 @@ const TabelaLinha = styled.tr`
   &:nth-child(even) {
     background: #f8fbff;
   }
+  &:hover {
+    background: #e6f0ff;
+    cursor: pointer;
+  }
 `;
 
 const TabelaCelula = styled.td`
@@ -53,6 +58,7 @@ const AbaProcessos = ({ fetchAuthenticated, id, abaAtiva }) => {
   const [isLoadingProcessos, setIsLoadingProcessos] = useState(false);
   const [mensagemErroProcessos, setMensagemErroProcessos] = useState("");
   const [hasFetchedProcessos, setHasFetchedProcessos] = useState(false);
+  const navigate = useNavigate(); // Hook para navegação
 
   // Buscar processos vinculados
   useEffect(() => {
@@ -120,7 +126,11 @@ const AbaProcessos = ({ fetchAuthenticated, id, abaAtiva }) => {
           </thead>
           <tbody>
             {processos.map((processo) => (
-              <TabelaLinha key={processo.id}>
+              <TabelaLinha
+                key={processo.id}
+                onClick={() => navigate(`/processos/${processo.id}`)}
+                style={{ cursor: isLoadingProcessos ? "not-allowed" : "pointer" }}
+              >
                 <TabelaCelula>
                   {processo.numeroProcesso || "Não informado"}
                 </TabelaCelula>
