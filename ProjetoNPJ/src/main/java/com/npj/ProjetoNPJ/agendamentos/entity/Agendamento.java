@@ -1,9 +1,12 @@
 package com.npj.ProjetoNPJ.agendamentos.entity;
 
+import com.npj.ProjetoNPJ.agenda.dto.ResponsavelDto;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -21,9 +24,13 @@ public class Agendamento {
 
     private String cpf;
 
-    private String dataAgendamento;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime start;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime end;
 
     private String casoTipo;
 
-    private List<String> responsaveisId;
+    private List<ResponsavelDto> responsaveis;
 }

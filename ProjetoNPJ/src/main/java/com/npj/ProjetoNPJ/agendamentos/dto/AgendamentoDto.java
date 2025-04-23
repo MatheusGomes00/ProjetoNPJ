@@ -1,18 +1,21 @@
 package com.npj.ProjetoNPJ.agendamentos.dto;
 
+import com.npj.ProjetoNPJ.agenda.dto.ResponsavelDto;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
 public class AgendamentoDto {
 
-    @Id
     private String id;
 
     @NotBlank
@@ -21,12 +24,20 @@ public class AgendamentoDto {
     @NotBlank
     private String cpf;
 
-    @NotBlank
-    private String dataAgendamento;
+    @NotNull(message = "O início é obrigatório")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime start;
+
+    @NotNull(message = "O fim é obrigatório")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime end;
 
     @NotBlank
     private String casoTipo;
 
     @NotNull
-    private List<String> responsaveisId;
+    @NotEmpty
+    private List<ResponsavelDto> responsaveis;
+
+
 }

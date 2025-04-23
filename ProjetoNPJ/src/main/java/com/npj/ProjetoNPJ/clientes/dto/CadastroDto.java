@@ -1,5 +1,6 @@
 package com.npj.ProjetoNPJ.clientes.dto;
 
+import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -26,4 +27,5 @@ public class CadastroDto {
     private NaturezaDto natureza;
     private ResponsaveisDto responsaveis;
 
+    private DtoProcessos processoDto;
 }
