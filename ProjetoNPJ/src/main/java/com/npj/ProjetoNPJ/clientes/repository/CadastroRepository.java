@@ -25,6 +25,4 @@ public interface CadastroRepository extends MongoRepository<Cadastro, String> {
 
     Boolean existsByClienteCpf(String cpf);
 
-
-    List<String> findByProcesso(String proc);
 }
