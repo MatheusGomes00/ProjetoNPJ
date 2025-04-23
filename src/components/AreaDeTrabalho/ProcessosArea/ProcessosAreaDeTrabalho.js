@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { createGlobalStyle } from "styled-components";
-import useAuth from "../../Seguranca/UseAuth"; // Importando o useAuth para autenticação
+import useAuth from "../../Seguranca/UseAuth";
 
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap');
@@ -13,17 +14,17 @@ const ProcessosContainer = styled.div`
   gap: 10px;
   padding: 22px;
   width: 27vw;
-  height: 55vw;
+  max-height: 55vw;
+  overflow-y: auto;
   border: none;
   background: linear-gradient(145deg, #f8fbff 0%, #e6f0fa 100%);
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
   border-radius: 12px;
-`;
 
-const ProcessosGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 15px;
+  @media (max-width: 768px) {
+    width: 100%;
+    max-height: none;
+  }
 `;
 
 const ProcessosTitle = styled.h2`
@@ -38,6 +39,12 @@ const ProcessosTitle = styled.h2`
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
+const ProcessosGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 15px;
+`;
+
 const ProcessoCard = styled.div`
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(230, 240, 250, 0.85) 100%);
   padding: 15px;
@@ -47,7 +54,7 @@ const ProcessoCard = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 150px;
+  height: 120px;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 
@@ -64,7 +71,7 @@ const ProcessoCard = styled.div`
 `;
 
 const Status = styled.div`
-  align-self: center; /* Centralizado */
+  align-self: center;
   padding: 5px 10px;
   border-radius: 15px;
   font-size: 12px;
@@ -79,12 +86,13 @@ const Status = styled.div`
         return "linear-gradient(90deg, #52c41a 0%, #76ff03 100%)";
       case "Aguardando resposta":
         return "linear-gradient(90deg, #faad14 0%, #ffd740 100%)";
+      case "Iniciado":
+        return "linear-gradient(90deg, #722ed1 0%, #a855f7 100%)";
       default:
         return "#d9d9d9";
     }
   }};
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
 `;
 
 const ProcessoNome = styled.div`
@@ -92,53 +100,21 @@ const ProcessoNome = styled.div`
   font-weight: 600;
   font-family: "Poppins", sans-serif;
   color: #1e3c72;
-  text-align: center; /* Centralizado */
+  text-align: center;
 `;
 
-const UltimaAtualizacao = styled.div`
-  font-size: 11px;
+const NumeroProcesso = styled.div`
+  font-size: 12px;
   font-family: "Poppins", sans-serif;
   color: #5a6a8a;
-  text-align: center; /* Centralizado */
+  text-align: center;
 `;
 
-const Responsavel = styled.div`
-  font-size: 11px;
+const ClienteNome = styled.div`
+  font-size: 12px;
   font-family: "Poppins", sans-serif;
   color: #5a6a8a;
-  text-align: center; /* Centralizado */
-`;
-
-const PrazoFinal = styled.div`
-  font-size: 11px;
-  font-family: "Poppins", sans-serif;
-  color: #5a6a8a;
-  text-align: center; /* Centralizado */
-`;
-
-const Prioridade = styled.div`
-  font-size: 11px;
-  font-family: "Poppins", sans-serif;
-  color: ${(props) => {
-    switch (props.nivel) {
-      case "Alta":
-        return "#ff4d4f";
-      case "Média":
-        return "#faad14";
-      case "Baixa":
-        return "#52c41a";
-      default:
-        return "#5a6a8a";
-    }
-  }};
-  text-align: center; /* Centralizado */
-`;
-
-const Progresso = styled.div`
-  font-size: 11px;
-  font-family: "Poppins", sans-serif;
-  color: #5a6a8a;
-  text-align: center; /* Centralizado */
+  text-align: center;
 `;
 
 const Mensagem = styled.p`
@@ -151,52 +127,72 @@ const Mensagem = styled.p`
 
 const ProcessosAreaDeTrabalho = () => {
   const { fetchAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [processos, setProcessos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const hasFetched = useRef(false);
 
-  // Função para buscar os processos do endpoint
-  const buscarProcessos = useCallback(async () => {
-    setIsLoading(true);
-    setMensagemErro("");
-    try {
-      const response = await fetchAuthenticated("http://localhost:8080/proc/findAll", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
-      const data = await response.json();
-      console.log("Dados de /proc/findAll:", data);
-
-      // Mapeando os dados do backend para o formato esperado pelo componente
-      const processosMapeados = data.map((proc) => ({
-        id: proc.id,
-        nome: `Processo ${proc.numeroProcesso || "N/A"}`,
-        status: mapearStatus(proc.situacao),
-        ultimaAtualizacao: proc.ultimaAtualizacao || new Date().toISOString(),
-        responsavel: (proc.responsaveisNome || []).join(", ") || "N/A",
-        prazoFinal: proc.prazoFinal || new Date().toISOString(),
-        prioridade: proc.prioridade || "Baixa",
-        progresso: `${proc.progresso || 0}%`,
-      }));
-
-      setProcessos(processosMapeados);
-      if (processosMapeados.length === 0) setMensagemErro("Nenhum processo encontrado.");
-    } catch (error) {
-      console.error("Erro ao buscar processos:", error);
-      setMensagemErro("Erro ao carregar processos. Tente novamente.");
-      setProcessos([]);
-    } finally {
-      setIsLoading(false); // Corrigido para false
+  useEffect(() => {
+    console.log("Componente ProcessosAreaDeTrabalho montado");
+    if (hasFetched.current) {
+      console.log("Fetch já realizado, ignorando");
+      return;
     }
-  }, [fetchAuthenticated]);
 
-  // Função para mapear o status do backend para os valores esperados pelo componente
+    const buscarProcessos = async () => {
+      console.log("Iniciando fetch para http://localhost:8080/proc/get/auth");
+      setIsLoading(true);
+      setMensagemErro("");
+      try {
+        const response = await fetchAuthenticated("http://localhost:8080/proc/get/auth", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        console.log("Status da resposta:", response.status);
+        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
+        const data = await response.json();
+        console.log("Dados recebidos:", data);
+
+        const processosMapeados = data.map((proc) => {
+          const mapped = {
+            id: proc.id || "N/A",
+            nome: `Processo ${proc.numeroProcesso || "N/A"}`,
+            numeroProcesso: proc.numeroProcesso || "N/A",
+            status: mapearStatus(proc.situacao),
+            clienteNome: (proc.clienteNome || []).join(", ") || "N/A",
+          };
+          return mapped;
+        });
+        console.log("Processos mapeados:", processosMapeados);
+
+        setProcessos(processosMapeados);
+        if (processosMapeados.length === 0) {
+          setMensagemErro("Nenhum processo encontrado para este advogado.");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar processos:", error);
+        setMensagemErro("Erro ao carregar processos. Tente novamente.");
+        setProcessos([]);
+      } finally {
+        setIsLoading(false);
+        hasFetched.current = true;
+      }
+    };
+
+    buscarProcessos();
+
+    return () => {
+      console.log("Componente ProcessosAreaDeTrabalho desmontado");
+    };
+  }, []); // Dependência vazia para rodar apenas na montagem
+
   const mapearStatus = (situacao) => {
     switch (situacao) {
       case "INICIADO":
+        return "Iniciado";
       case "EM ANDAMENTO":
         return "Em andamento";
       case "FINALIZADO":
@@ -206,23 +202,6 @@ const ProcessosAreaDeTrabalho = () => {
       default:
         return "Desconhecido";
     }
-  };
-
-  // Carregar os processos ao montar o componente
-  useEffect(() => {
-    buscarProcessos();
-  }, [buscarProcessos]); // Dependência controlada para evitar loop
-
-  // Função para formatar datas no formato brasileiro
-  const formatarData = (dataString) => {
-    return new Date(dataString).toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
   };
 
   return (
@@ -241,19 +220,12 @@ const ProcessosAreaDeTrabalho = () => {
             {processos.map((processo) => (
               <ProcessoCard
                 key={processo.id}
-                onClick={() => alert(`Clicou em ${processo.nome}`)}
+                onClick={() => navigate(`/processos/${processo.id}`)}
               >
                 <Status status={processo.status}>{processo.status}</Status>
                 <ProcessoNome>{processo.nome}</ProcessoNome>
-                <Responsavel>Responsável: {processo.responsavel}</Responsavel>
-                <PrazoFinal>Prazo: {formatarData(processo.prazoFinal)}</PrazoFinal>
-                <Prioridade nivel={processo.prioridade}>
-                  Prioridade: {processo.prioridade}
-                </Prioridade>
-                <Progresso>Progresso: {processo.progresso}</Progresso>
-                <UltimaAtualizacao>
-                  Última atualização: {formatarData(processo.ultimaAtualizacao)}
-                </UltimaAtualizacao>
+                <NumeroProcesso>Nº: {processo.numeroProcesso}</NumeroProcesso>
+                <ClienteNome>Cliente: {processo.clienteNome}</ClienteNome>
               </ProcessoCard>
             ))}
           </ProcessosGrid>
