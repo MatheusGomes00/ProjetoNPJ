@@ -87,9 +87,11 @@ function Sidebar({ onAdvogadosClick }) {
           </SidebarButton>
         </SidebarItem>
         <SidebarItem>
-          <SidebarButton>
-            <FaUsers /> Clientes
-          </SidebarButton>
+        <Link to="/clientes">
+            <SidebarButton>
+              <FaUsers /> Clientes
+            </SidebarButton>
+          </Link>
         </SidebarItem>
         <SidebarItem>
           <Link to="/advogados">
