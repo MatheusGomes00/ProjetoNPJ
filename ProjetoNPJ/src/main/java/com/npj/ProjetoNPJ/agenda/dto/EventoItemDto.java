@@ -15,12 +15,12 @@ public class EventoItemDto {
     private LocalDateTime start;
     private LocalDateTime end;
     private boolean allDay;
-    private String type; // "agendamento" ou "tarefa"
+    private String type;
     private List<ResponsavelDto> responsaveis;
     private List<String> responsaveisId;
     private List<String> responsaveisNome;
-    private String casoTipo; // Para agendamentos
-    private String descricao; // Para tarefas
-    private String prioridade; // Para tarefas
-    private Boolean status; // Para tarefas
+    private String casoTipo;
+    private String descricao;
+    private String prioridade;
+    private Boolean status;
 }
