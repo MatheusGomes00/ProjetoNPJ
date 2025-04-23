@@ -19,6 +19,8 @@ import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -154,6 +156,31 @@ public class ProcessosService {
         List<Processos> processos = processosRepositorio.findByClienteId(clienteId);
 
         return ProcessosMapper.toListDto(processos);
+    }
+
+    public List<DtoProcessos> findByAdvogadoId(String advogadoID){
+
+        List<Processos> processos = processosRepositorio.findByAdvogadoId(advogadoID);
+
+        return ProcessosMapper.toListDto(processos);
+    }
+    public String getAuthenticatedUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
+
+    public List<DtoProcessos> getProcAutenticado() {
+
+        Advogado advogado = advrepository.findByCpf(getAuthenticatedUsername())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
+        List<Processos> tarefa = processosRepositorio.findByAdvogadoId(advogado.getId());
+
+        return ProcessosMapper.toListDto(tarefa);
     }
 }
 

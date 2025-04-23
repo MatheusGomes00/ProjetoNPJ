@@ -19,4 +19,7 @@ public interface ProcessosRepositorio extends MongoRepository<Processos, String>
 
     @Query("{ 'cliente': ?0 }")
     List<Processos> findByCliente(String clienteNome);
+
+    @Query("{ 'responsaveisId': ?0 }")
+    List<Processos> findByAdvogadoId(String advogadoId);
 }

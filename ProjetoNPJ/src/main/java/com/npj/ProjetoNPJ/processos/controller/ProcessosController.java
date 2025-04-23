@@ -104,4 +104,17 @@ public class ProcessosController {
         return ResponseEntity.ok(processos);
     }
 
+    @GetMapping(value = "/porAdv/{advogadoId}")
+    public ResponseEntity<List<DtoProcessos>> findByAdv(@PathVariable String advogadoId){
+        List<DtoProcessos> processos = service.findByAdvogadoId(advogadoId);
+        return ResponseEntity.ok(processos);
+    }
+
+    @GetMapping("/get/auth")
+    public ResponseEntity<List<DtoProcessos>> listarProcessosAuth() {
+
+        List<DtoProcessos> dto = service.getProcAutenticado();
+        return ResponseEntity.ok(dto);
+    }
+
 }
