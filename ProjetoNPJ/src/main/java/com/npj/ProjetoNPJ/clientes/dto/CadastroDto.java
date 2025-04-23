@@ -27,5 +27,4 @@ public class CadastroDto {
     private NaturezaDto natureza;
     private ResponsaveisDto responsaveis;
 
-    private DtoProcessos processoDto;
 }
