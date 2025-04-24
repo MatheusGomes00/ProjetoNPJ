@@ -19,6 +19,8 @@ import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -138,25 +140,47 @@ public class ProcessosService {
         return acharPorID;
     }
 
-    public List<DtoProcessos> findByNome(String clienteNome) {
+    public List<DtoProcessos> findByCliente(String clienteNome) {
 
-        List<Cadastro> clientes = clienterepository.findByNome(clienteNome);
-        if (clientes.isEmpty()) {
-            throw new RecursoNaoEncontradoException("Nenhum cliente encontrado com esse nome");
+        List<Processos> processos = processosRepositorio.findByCliente(clienteNome);
+
+
+        if(processos.isEmpty()) {
+            throw new RecursoNaoEncontradoException("Processo Nao localizada");
         }
+        return ProcessosMapper.toListDto(processos);
+    }
 
+    public List<DtoProcessos> findByClienteId(String clienteId) {
 
-        List<String> clienteIds = clientes.stream()
-                .map(Cadastro::getId)
-                .collect(Collectors.toList());
-
-
-        List<Processos> processos = processosRepositorio.findByClienteIds(clienteIds);
-        if (processos.isEmpty()) {
-            throw new RecursoNaoEncontradoException("Processo Não localizado");
-        }
+        List<Processos> processos = processosRepositorio.findByClienteId(clienteId);
 
         return ProcessosMapper.toListDto(processos);
+    }
+
+    public List<DtoProcessos> findByAdvogadoId(String advogadoID){
+
+        List<Processos> processos = processosRepositorio.findByAdvogadoId(advogadoID);
+
+        return ProcessosMapper.toListDto(processos);
+    }
+    public String getAuthenticatedUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
+
+    public List<DtoProcessos> getProcAutenticado() {
+
+        Advogado advogado = advrepository.findByCpf(getAuthenticatedUsername())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
+        List<Processos> tarefa = processosRepositorio.findByAdvogadoId(advogado.getId());
+
+        return ProcessosMapper.toListDto(tarefa);
     }
 }
 

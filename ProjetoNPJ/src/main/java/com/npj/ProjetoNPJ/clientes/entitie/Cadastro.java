@@ -1,9 +1,12 @@
 package com.npj.ProjetoNPJ.clientes.entitie;
 
 import com.npj.ProjetoNPJ.clientes.dto.ClienteDto;
+import com.npj.ProjetoNPJ.clientes.dto.Status;
 import org.springframework.data.annotation.Id;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,14 +17,14 @@ public class Cadastro {
 
     @Id
     private String id;
-    private String nome;
-    private Boolean status;
+    private String status;
     private ClienteDto cliente;
-    private Representante representante;
-    private ParteContraria parteContraria;
-    private DadosProcessuais dadosProcessuais;
-    private Natureza natureza;
-    private Responsaveis responsaveis;
+    //private Representante representante;
+    //private ParteContraria parteContraria;
+    //private DadosProcessuais dadosProcessuais;
+    //private Natureza natureza;
+    //private Responsaveis responsaveis;
+
 
 
 }
