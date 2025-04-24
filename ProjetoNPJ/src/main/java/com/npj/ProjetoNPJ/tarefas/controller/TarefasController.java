@@ -5,6 +5,7 @@ package com.npj.ProjetoNPJ.tarefas.controller;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
+import com.npj.ProjetoNPJ.notificacoes.service.NotificacaoService;
 import com.npj.ProjetoNPJ.security.JwtService;
 import com.npj.ProjetoNPJ.security.JwtService.*;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
@@ -34,6 +35,9 @@ public class TarefasController {
     @Autowired
     private AdvogadoRepository advogadoRepository;
 
+    @Autowired
+    private NotificacaoService notificacaoService;
+
     @PostMapping(value = "/create")
     public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody  DtoTarefas tarefaDto, @RequestHeader("Authorization") String authorizationHeader) {
 
@@ -47,6 +51,15 @@ public class TarefasController {
         tarefaDto.setCriador(advogado.getNome());
 
         DtoTarefas tarefa = service.insert(tarefaDto);
+
+        // Criar notificações para cada responsável
+        for (String responsavelId : tarefaDto.getResponsaveisId()) {
+            notificacaoService.criarNotificacao(
+                    responsavelId,
+                    "Uma tarefa foi atribuída a você: " + tarefaDto.getNomeTarefa(),
+                    tarefa.getId()
+            );
+        }
         return ResponseEntity.ok().body(tarefa);
     }
 
