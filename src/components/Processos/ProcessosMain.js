@@ -1,5 +1,5 @@
-// src/components/Processos/ProcessosMain.js
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom"; // Importado para navegação
 import styled from "styled-components";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import useAuth from "../Seguranca/UseAuth";
@@ -113,6 +113,7 @@ const TableRow = styled.tr`
   &:hover {
     background-color: #f0f0f0;
   }
+  cursor: pointer; /* Indica que a linha é clicável */
 `;
 
 const TableCell = styled.td`
@@ -158,6 +159,7 @@ const Mensagem = styled.p`
 
 const ProcessosMain = () => {
   const { fetchAuthenticated } = useAuth();
+  const navigate = useNavigate(); // Hook para navegação
   const [processosOriginais, setProcessosOriginais] = useState([]);
   const [processosBuscados, setProcessosBuscados] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -359,7 +361,10 @@ const ProcessosMain = () => {
               {processosFiltrados.map((processo) => {
                 const visivel = valoresVisiveis[processo.id] || false;
                 return (
-                  <TableRow key={processo.id}>
+                  <TableRow
+                    key={processo.id}
+                    onClick={() => navigate(`/processos/${processo.id}`)} // Navega para DetalhesProcesso
+                  >
                     <TableCell>{processo.numeroProcesso || "N/A"}</TableCell>
                     <TableCell>{processo.situacao || "N/A"}</TableCell>
                     <TableCell>{processo.tipoAcaoClasse || "N/A"}</TableCell>
@@ -371,7 +376,12 @@ const ProcessosMain = () => {
                         <ValorCausa visivel={visivel}>
                           {processo.valorCausa || "N/A"}
                         </ValorCausa>
-                        <BotaoVisibilidade onClick={() => toggleVisibilidadeValor(processo.id)}>
+                        <BotaoVisibilidade
+                          onClick={(e) => {
+                            e.stopPropagation(); // Impede que o clique no botão acione a navegação
+                            toggleVisibilidadeValor(processo.id);
+                          }}
+                        >
                           {visivel ? "👁️‍🗨️" : "👁️"}
                         </BotaoVisibilidade>
                       </ValorCausaContainer>

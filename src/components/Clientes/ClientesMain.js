@@ -1,205 +1,24 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import styled from "styled-components";
 import useAuth from "../Seguranca/UseAuth";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
-
-// Estilo do contêiner principal
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 34px;
-  width: calc(100% - 34px);
-  min-height: 100vh;
-  background: #f4f7fa;
-  padding: 30px;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-  }
-`;
-
-// Estilo do cabeçalho
-const Header = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  width: 100%;
-`;
-
-// Estilo do título
-const Titulo = styled.h1`
-  font-family: "Arial", sans-serif;
-  font-size: 28px;
-  font-weight: 700;
-  color: #2c3e50;
-  margin: 0;
-`;
-
-// Estilo do botão de adicionar cliente
-const BotaoAdicionar = styled.button`
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
-// Estilo do campo de busca
-const CampoBusca = styled.input`
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  width: 300px;
-  margin-bottom: 20px;
-
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-`;
-
-// Estilo do container de filtros
-const FiltrosContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-`;
-
-// Estilo dos botões de filtro de status
-const BotaoFiltroStatus = styled.button`
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: ${({ ativo }) => (ativo ? "#007bff" : "#fff")};
-  color: ${({ ativo }) => (ativo ? "#fff" : "#333")};
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-
-  &:hover {
-    background-color: ${({ ativo }) => (ativo ? "#0056b3" : "#f0f0f0")};
-  }
-`;
-
-// Estilo do contêiner da lista de clientes
-const ClientesContainer = styled.div`
-  flex: 1;
-  overflow-y: auto;
-`;
-
-// Estilo da lista de clientes
-const ClientesList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-`;
-
-// Estilo de cada card de cliente
-const ClienteCard = styled.div`
-  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(200, 210, 230, 0.3);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-// Estilo para o nome do cliente
-const ClienteNome = styled.div`
-  font-family: "Arial", sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e3c72;
-  grid-column: span 2;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  &:before {
-    content: "👤";
-    font-size: 18px;
-  }
-
-  @media (max-width: 768px) {
-    grid-column: span 1;
-  }
-`;
-
-// Estilo para o status
-const Status = styled.div`
-  font-family: "Arial", sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  color: ${(props) => (props.ativo ? "#52c41a" : "#ff4d4f")};
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  &:before {
-    content: "●";
-    font-size: 12px;
-    color: ${(props) => (props.ativo ? "#52c41a" : "#ff4d4f")};
-  }
-`;
-
-// Estilo para mensagens
-const Mensagem = styled.p`
-  font-family: "Arial", sans-serif;
-  font-size: 16px;
-  color: #7f8c8d;
-  text-align: center;
-  margin: 20px 0;
-`;
-
-// Estilo do container de navegação
-const NavegacaoContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-top: 20px;
-  font-family: "Arial", sans-serif;
-  font-size: 16px;
-  color: #2c3e50;
-`;
-
-// Estilo dos botões de navegação
-const BotaoNavegacao = styled.button`
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-  color: ${({ disabled }) => (disabled ? "#ccc" : "#007bff")};
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: ${({ disabled }) => (disabled ? "#ccc" : "#0056b3")};
-  }
-`;
+import { useNavigate } from "react-router-dom";
+import {
+  MainContainer,
+  Header,
+  Titulo,
+  BotaoAdicionar,
+  CampoBusca,
+  FiltrosContainer,
+  BotaoFiltroStatus,
+  ClientesContainer,
+  ClientesList,
+  ClienteCard,
+  ClienteNome,
+  Status,
+  Mensagem,
+  NavegacaoContainer,
+  BotaoNavegacao,
+} from "./EstilosClientes";
 
 // Função de debounce
 const debounce = (func, delay) => {
@@ -223,9 +42,21 @@ const ClientesMain = () => {
   const [totalPages, setTotalPages] = useState(1);
   const PAGE_SIZE = 12; // 12 clientes por página
 
+  const navigate = useNavigate(); // Hook para navegação
+
   // Cache e controle de tempo
   const cacheRef = useRef({});
   const lastFetchTimeRef = useRef(0);
+
+  // Função para normalizar o status
+  const normalizeStatus = (status) => {
+    if (typeof status === "boolean") return status;
+    if (typeof status === "string") {
+      const lowerStatus = status.toLowerCase();
+      return lowerStatus === "ativo" || lowerStatus === "true";
+    }
+    return !!status; // Fallback para outros tipos
+  };
 
   // Função para aplicar filtros (status)
   const aplicarFiltros = (clientesData, status, nome) => {
@@ -294,7 +125,9 @@ const ClientesMain = () => {
 
         if (!response.ok) {
           if (response.status === 404) {
-            setMensagemErro(nome ? "Nenhum cliente encontrado com esse nome." : "Nenhum cliente cadastrado.");
+            setMensagemErro(
+              nome ? "Nenhum cliente encontrado com esse nome." : "Nenhum cliente cadastrado."
+            );
             if (nome) {
               setClientesBuscados([]);
             } else {
@@ -309,10 +142,12 @@ const ClientesMain = () => {
           throw new Error(`Erro na requisição: ${response.status}`);
         }
 
-        const data = await response.json();
+        let data = await response.json();
 
         if (!data || data.length === 0) {
-          setMensagemErro(nome ? "Nenhum cliente encontrado com esse nome." : "Nenhum cliente cadastrado.");
+          setMensagemErro(
+            nome ? "Nenhum cliente encontrado com esse nome." : "Nenhum cliente cadastrado."
+          );
           if (nome) {
             setClientesBuscados([]);
           } else {
@@ -323,7 +158,17 @@ const ClientesMain = () => {
           return;
         }
 
-        // Paginação no frontend (caso o backend não suporte)
+        // Normalizar o status de cada cliente
+        data = data.map((cliente) => ({
+          ...cliente,
+          status: normalizeStatus(cliente.status),
+        }));
+
+        // Log para depuração
+        console.log("Clientes fetched:", data);
+        console.log("Status values:", data.map((c) => ({ id: c.id, status: c.status })));
+
+        // Paginação no frontend
         const startIndex = currentPage * PAGE_SIZE;
         const paginatedData = data.slice(startIndex, startIndex + PAGE_SIZE);
         const calculatedTotalPages = Math.ceil(data.length / PAGE_SIZE) || 1;
@@ -409,7 +254,12 @@ const ClientesMain = () => {
   };
 
   const handleAdicionarCliente = () => {
-    alert("Funcionalidade de adicionar cliente será implementada!");
+    navigate("/clientes/criar"); // Navega para a tela de criação de cliente
+  };
+
+  // Função para lidar com o clique no card
+  const handleClienteClick = (clienteId) => {
+    navigate(`/clientes/${clienteId}`); // Navega para a tela de detalhes
   };
 
   return (
@@ -417,9 +267,7 @@ const ClientesMain = () => {
       <MainContainer>
         <Header>
           <Titulo>Gerenciamento de Clientes</Titulo>
-          <BotaoAdicionar onClick={handleAdicionarCliente}>
-            Adicionar Cliente
-          </BotaoAdicionar>
+          <BotaoAdicionar onClick={handleAdicionarCliente}>Adicionar Cliente</BotaoAdicionar>
         </Header>
 
         <CampoBusca
@@ -460,7 +308,11 @@ const ClientesMain = () => {
             <>
               <ClientesList>
                 {clientesFiltrados.map((cliente) => (
-                  <ClienteCard key={cliente.id}>
+                  <ClienteCard
+                    key={cliente.id}
+                    onClick={() => handleClienteClick(cliente.id)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <ClienteNome>{cliente.cliente.nome}</ClienteNome>
                     <Status ativo={cliente.status}>
                       Status: {cliente.status ? "Ativo" : "Inativo"}
