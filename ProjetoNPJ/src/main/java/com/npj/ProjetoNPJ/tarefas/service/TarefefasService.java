@@ -84,7 +84,7 @@ public class TarefefasService {
                     .map(id -> advogadoRepository.findById(id)
                             .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
                     .collect(Collectors.toList());
-            System.out.println("Advogados encontrados para atualização: " + advogados);
+            // System.out.println("Advogados encontrados para atualização: " + advogados);
             tarefa.setResponsaveis(advogados);
         }
     }
