@@ -176,7 +176,7 @@ public class ProcessosService {
 
     public List<DtoProcessos> getProcAutenticado() {
 
-        Advogado advogado = advrepository.findByCpf(getAuthenticatedUsername())
+        Advogado advogado = advrepository.findById(getAuthenticatedUsername())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
         List<Processos> tarefa = processosRepositorio.findByAdvogadoId(advogado.getId());
 

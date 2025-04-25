@@ -114,7 +114,7 @@ public class TarefefasService {
 
     public List<DtoTarefas> getTarefasAutenticado() {
 
-        Advogado advogado = advogadoRepository.findByCpf(getAuthenticatedUsername())
+        Advogado advogado = advogadoRepository.findById(getAuthenticatedUsername())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
         List<Tarefas> tarefa = repository.findByAdvogado(advogado.getId());
         return TarefasMapper.toListDto(tarefa);
@@ -131,7 +131,7 @@ public class TarefefasService {
 
     public Page<DtoTarefas> getTarefasAutenticadoPage(Pageable page) {
 
-        Advogado advogado = advogadoRepository.findByCpf(getAuthenticatedUsername())
+        Advogado advogado = advogadoRepository.findById(getAuthenticatedUsername())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
         Page<Tarefas> tarefa = repository.findAllPageable(advogado.getId(), page);
         Page<DtoTarefas> tarefaDtoPage = tarefa.map(t -> TarefasMapper.toDto(t));

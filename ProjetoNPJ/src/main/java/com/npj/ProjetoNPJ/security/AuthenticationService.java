@@ -45,6 +45,7 @@ public class AuthenticationService {
             String refreshToken = jwtService.generateRefreshToken(authenticatedUsername);
 
             LocalDateTime expiration = jwtService.extractExpirationAsLocalDateTime(refreshToken);
+
             RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, authenticatedUsername, expiration);
             tokenRepository.save(refreshTokenEntity);
 

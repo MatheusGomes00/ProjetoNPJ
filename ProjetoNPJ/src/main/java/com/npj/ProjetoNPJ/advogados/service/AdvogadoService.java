@@ -104,9 +104,9 @@ public class AdvogadoService {
     }
 
     public void updateSenha(UpdateSenhaDto senhaDto) {
-        String username = getAuthenticatedUsername();
+        // String username = getAuthenticatedUsername();
         Advogado advogado = repository
-                .findByCpf(username)
+                .findById(getAuthenticatedUsername())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario não localizado."));
 
         if (!senhaDto.getNovaSenha().equals(senhaDto.getRepeteSenha())) {
@@ -160,5 +160,13 @@ public class AdvogadoService {
         Advogado advogado = repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não localizado."));
         return AdvogadoMapper.responseDto(advogado);
+    }
+
+    public String getUsername(String cpf) {
+
+        Advogado advogado = repository.findByCpf(normalizarCpf(cpf))
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não localizado."));
+
+        return advogado.getId();
     }
 }

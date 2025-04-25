@@ -2,6 +2,8 @@ package com.npj.ProjetoNPJ.advogados.controller;
 
 import com.npj.ProjetoNPJ.advogados.dtos.AuthRequest;
 import com.npj.ProjetoNPJ.advogados.dtos.RefreshTokenRequest;
+import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
+import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
 import com.npj.ProjetoNPJ.exceptions.CustomAuthenticationException;
 import com.npj.ProjetoNPJ.security.AuthenticationService;
 import jakarta.validation.Valid;
@@ -18,15 +20,19 @@ public class AuthController {
 
     private final AuthenticationService authenticationService;
 
-    public AuthController(AuthenticationService authenticationService) {
+    private final AdvogadoService advogadoService;
+
+    public AuthController(AuthenticationService authenticationService, AdvogadoService advogadoService) {
         this.authenticationService = authenticationService;
+        this.advogadoService = advogadoService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@Valid @RequestBody AuthRequest authRequest) {
         try {
+            String username = advogadoService.getUsername(authRequest.getUsername());
             Map<String, String> tokens = authenticationService
-                    .authenticate(authRequest.getUsername(), authRequest.getPassword());
+                    .authenticate(username, authRequest.getPassword());
             return ResponseEntity.ok()
                     .header(
                             "Set-Cookie",

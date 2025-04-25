@@ -43,7 +43,7 @@ public class TarefasController {
 
         String token = authorizationHeader.replace("Bearer ", "");
 
-        String advogadoId = jwtService.extractId(token);
+        String advogadoId = jwtService.extractUsername(token);
 
         Advogado advogado = advogadoRepository.findById(advogadoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + advogadoId));
@@ -79,7 +79,7 @@ public class TarefasController {
         try {
             String token = authorizationHeader.replace("Bearer ", "");
 
-            String advogadoId = jwtService.extractId(token);
+            String advogadoId = jwtService.extractUsername(token);
 
             Tarefas tarefaAtualizada = service.finalizar(id, advogadoId);
 

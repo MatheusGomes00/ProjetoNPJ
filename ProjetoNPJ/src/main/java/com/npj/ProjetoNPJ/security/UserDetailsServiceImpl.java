@@ -21,13 +21,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Advogado advogado = repository
-                .findByCpf(normalizarCpf(username))
+                .findById(username)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Username nao localizado."));
 
         return new UserAutenticado(advogado);
     }
 
-    public String normalizarCpf(String cpf) {
-        return cpf.replaceAll("[.\\-\\s]", "");
-    }
+//    public String normalizarCpf(String cpf) {
+//        return cpf.replaceAll("[.\\-\\s]", "");
+//    }
 }

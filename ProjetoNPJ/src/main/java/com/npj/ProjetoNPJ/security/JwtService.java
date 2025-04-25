@@ -41,24 +41,24 @@ public class JwtService {
     public String generateAccessToken(String username) {
         UserAutenticado userDetails = (UserAutenticado) userDetailsService.loadUserByUsername(username);
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
-        String id = userDetails.getId();
+        // String id = userDetails.getId();
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role); // Adiciona a role ao payload do token
-        return createToken(claims, username, id, accessExpiration);
+        return createToken(claims, username, accessExpiration);
     }
 
     public String generateRefreshToken(String username) {
 
         UserAutenticado userDetails = (UserAutenticado) userDetailsService.loadUserByUsername(username);
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
-        String id = userDetails.getId();
+        // String id = userDetails.getId();
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role); // Adiciona a role no refresh token
-        return createToken(claims, username, id, refreshExpiration);
+        return createToken(claims, username, refreshExpiration);
     }
 
-    private String createToken(Map<String, Object> claims, String username, String id, long expiration) {
-        claims.put("id", id);
+    private String createToken(Map<String, Object> claims, String username, long expiration) {
+        // claims.put("id", id);
         return Jwts.builder()
                 .claims(claims)
                 .subject(username)
@@ -89,9 +89,10 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public String extractId(String token) {
-        return extractClaim(token, claims -> claims.get("id", String.class));
-    }
+//    public String extractId(String token) {
+//        return extractClaim(token, claims -> claims.get("id", String.class));
+//    }
+
     public LocalDateTime extractExpirationAsLocalDateTime(String token) {
         Date expiration = extractExpiration(token);
         return expiration.toInstant()
