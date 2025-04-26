@@ -14,7 +14,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 
@@ -68,7 +70,6 @@ public class JwtService {
                 .compact();
     }
 
-
     public boolean validateToken(String token) {
         try {
             getJwtParser().parseSignedClaims(token);
@@ -89,16 +90,13 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-//    public String extractId(String token) {
-//        return extractClaim(token, claims -> claims.get("id", String.class));
-//    }
-
     public LocalDateTime extractExpirationAsLocalDateTime(String token) {
         Date expiration = extractExpiration(token);
         return expiration.toInstant()
-                .atZone(java.time.ZoneId.systemDefault())
+                .atZone(ZoneId.of("UTC"))
                 .toLocalDateTime();
     }
+
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);

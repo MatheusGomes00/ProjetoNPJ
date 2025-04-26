@@ -93,7 +93,7 @@ public class ProcessosService {
                     .map(id -> advrepository.findById(id)
                             .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
                     .collect(Collectors.toList());
-            System.out.println("Advogados encontrados para atualização: " + advogados);
+            // System.out.println("Advogados encontrados para atualização: " + advogados);
             processos.setResponsaveis(advogados);
 
 

@@ -3,6 +3,7 @@ package com.npj.ProjetoNPJ.security;
 import com.npj.ProjetoNPJ.advogados.entity.RefreshToken;
 import com.npj.ProjetoNPJ.advogados.repository.TokenRepository;
 import com.npj.ProjetoNPJ.exceptions.CustomAuthenticationException;
+import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,13 +43,20 @@ public class AuthenticationService {
 
             String authenticatedUsername = authentication.getName();
             String accessToken = jwtService.generateAccessToken(authenticatedUsername);
-            String refreshToken = jwtService.generateRefreshToken(authenticatedUsername);
 
+            RefreshToken existsRefreshToken = tokenRepository.findByUsername(authenticatedUsername);
+
+            String refreshToken = jwtService.generateRefreshToken(authenticatedUsername);
             LocalDateTime expiration = jwtService.extractExpirationAsLocalDateTime(refreshToken);
 
-            RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, authenticatedUsername, expiration);
-            tokenRepository.save(refreshTokenEntity);
-
+            if (existsRefreshToken == null || !existsRefreshToken.isActive()) {
+                RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, authenticatedUsername, expiration.minusHours(3));
+                tokenRepository.save(refreshTokenEntity);
+            } else {
+                existsRefreshToken.setToken(refreshToken);
+                existsRefreshToken.setExpiresAt(expiration.minusHours(3));
+                tokenRepository.save(existsRefreshToken);
+            }
             return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
         } catch (BadCredentialsException e) {
             throw new CustomAuthenticationException("Usuário ou senha inválidos");
@@ -87,7 +95,7 @@ public class AuthenticationService {
         tokenRepository.save(storedToken);
 
         LocalDateTime newExpiration = jwtService.extractExpirationAsLocalDateTime(newRefresh);
-        RefreshToken newTokenEntity = new RefreshToken(newRefresh, username, newExpiration);
+        RefreshToken newTokenEntity = new RefreshToken(newRefresh, username, newExpiration.minusHours(3));
         tokenRepository.save(newTokenEntity);
 
         return Map.of("accessToken", newAccess, "refreshToken", newRefresh);
