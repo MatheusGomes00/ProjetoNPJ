@@ -24,7 +24,7 @@ const useAuth = () => {
       const token = getAccessToken();
       if (!token) return null;
       const decoded = jwtDecode(token);
-      return decoded.id;
+      return decoded.sub;
     }
 
     const getRole = () => {
