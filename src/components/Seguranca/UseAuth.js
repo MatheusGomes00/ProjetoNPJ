@@ -52,6 +52,7 @@ const useAuth = () => {
         getRole,
         logoutWithRedirect, // Faz logout e redireciona
         fetchAuthenticated, // Faz requisições autenticadas com tratamento
+        getAccessToken
       };
 };
     

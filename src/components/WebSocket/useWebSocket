@@ -1,0 +1,74 @@
+import { useEffect, useState } from 'react';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import useAuth from './useAuth';
+
+const useWebSocket = () => {
+    const { getAccessToken, getId, logoutWithRedirect } = useAuth();
+    const [notifications, setNotifications] = useState([]);
+    const [client, setClient] = useState(null);
+
+    useEffect(() => {
+        const token = getAccessToken();
+        const userId = getId();
+
+        if (!token || !userId) {
+            console.warn('Usuário não autenticado. Não conectando ao WebSocket.');
+            return;
+        }
+
+        // Configurar o cliente STOMP
+        const sock = new SockJS('http://localhost:8080/ws'); // Ajuste a URL para o seu backend
+        const stompClient = new Client({
+            webSocketFactory: () => sock,
+            connectHeaders: {
+                Authorization: `Bearer ${token}`,
+            },
+            debug: (str) => {
+                console.log(str);
+            },
+            reconnectDelay: 5000, // Tenta reconectar a cada 5 segundos
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+        });
+
+        stompClient.onConnect = () => {
+            console.log('Conectado ao WebSocket');
+            // Inscrever no tópico de notificações
+            stompClient.subscribe('/topic/notifications', (message) => {
+                const notification = JSON.parse(message.body);
+                // Filtrar notificações pelo userId
+                if (notification.usuarioId === userId) {
+                    setNotifications((prev) => [...prev, notification.mensagem]);
+                }
+            });
+        };
+
+        stompClient.onStompError = (frame) => {
+            console.error('Erro no STOMP:', frame);
+            if (frame.headers?.message?.includes('401')) {
+                console.warn('Token inválido. Fazendo logout...');
+                logoutWithRedirect();
+            }
+        };
+
+        stompClient.onWebSocketClose = () => {
+            console.log('Conexão WebSocket fechada');
+        };
+
+        stompClient.activate();
+        setClient(stompClient);
+
+        // Cleanup ao desmontar o componente
+        return () => {
+            if (stompClient) {
+                stompClient.deactivate();
+                console.log('Desconectado do WebSocket');
+            }
+        };
+    }, [getAccessToken, getId, logoutWithRedirect]);
+
+    return { notifications, clearNotifications: () => setNotifications([]) };
+};
+
+export default useWebSocket;
