@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import styled from "styled-components";
 import useAuth from "../Seguranca/UseAuth";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-// 🎨 Estilos
+// 🎨 Estilos (mantidos exatamente como você forneceu)
 const NotificacoesContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -60,13 +60,13 @@ const MensagemCarregando = styled.p`
 `;
 
 function Notificacoes() {
-  const { fetchAuthenticated, user, loading } = useAuth();
+  const { fetchAuthenticated, getId, logoutWithRedirect } = useAuth();
   const [notificacoes, setNotificacoes] = useState([]);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [lastFetchTime, setLastFetchTime] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [stompClient, setStompClient] = useState(null);
+  const stompClientRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const hasLoadedRef = useRef(false);
 
   const formatarData = (dataString) => {
     if (!dataString) return "Sem data";
@@ -80,70 +80,90 @@ function Notificacoes() {
     return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
   };
 
-  const carregarNotificacoes = useCallback(
-    async (forceRefresh = false) => {
-      const now = Date.now();
-      const minInterval = 5000;
+  const carregarNotificacoes = useCallback(async () => {
+    if (!isMountedRef.current || isLoading) return;
 
-      if (!forceRefresh && now - lastFetchTime < minInterval && notificacoes.length > 0) {
-        return;
+    setIsLoading(true);
+    setMensagemErro("");
+
+    try {
+      const response = await fetchAuthenticated(
+        `http://localhost:8080/notificacao/get`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro ${response.status}: ${errorText}`);
       }
 
-      setIsLoading(true);
-      setMensagemErro("");
-
-      try {
-        const response = await fetchAuthenticated(
-          `http://localhost:8080/notificacao/get`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Erro ao buscar notificações: ${response.status} ${errorText}`);
-        }
-
-        const data = await response.json();
+      const data = await response.json();
+      if (isMountedRef.current) {
         setNotificacoes(data.length > 0 ? data : []);
         setMensagemErro(data.length === 0 ? "Nenhuma notificação disponível." : "");
-        setLastFetchTime(now);
-      } catch (error) {
+      }
+    } catch (error) {
+      if (isMountedRef.current) {
         console.error("Erro ao buscar notificações:", error);
-        setMensagemErro("Erro ao carregar notificações: " + error.message);
+        setMensagemErro(`Erro ao carregar notificações: ${error.message}`);
         setNotificacoes([]);
-      } finally {
+        if (error.message.includes("401")) {
+          setMensagemErro("Sessão expirada. Redirecionando para login...");
+          logoutWithRedirect();
+        }
+      }
+    } finally {
+      if (isMountedRef.current) {
         setIsLoading(false);
       }
-    },
-    [fetchAuthenticated, lastFetchTime, notificacoes.length]
-  );
+    }
+  }, [fetchAuthenticated, isLoading, logoutWithRedirect]);
 
-  // WebSocket
   useEffect(() => {
-    if (loading || !user?.id) return;
+    isMountedRef.current = true;
+    if (!hasLoadedRef.current) {
+      console.log("Carregando notificações iniciais");
+      carregarNotificacoes();
+      hasLoadedRef.current = true;
+    }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setMensagemErro("Token não encontrado. Faça login novamente.");
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [carregarNotificacoes]);
+
+  const setupWebSocket = useCallback(() => {
+    const userId = getId();
+
+    if (!userId) {
+      setMensagemErro("Usuário não autenticado. Faça login para receber notificações.");
+      return;
+    }
+
+    if (stompClientRef.current && stompClientRef.current.connected) {
+      console.log("WebSocket já conectado, ignorando nova conexão.");
       return;
     }
 
     const socket = new SockJS("http://localhost:8080/ws");
     const client = new Client({
       webSocketFactory: () => socket,
-      connectHeaders: { Authorization: `Bearer ${token}` },
       debug: (str) => console.log(str),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
     });
 
     client.onConnect = () => {
+      if (!isMountedRef.current) return;
       console.log("✅ Conectado ao WebSocket");
-
-      client.subscribe(`/topic/notificacoes/${user.id}`, (message) => {
+      client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
+        if (!isMountedRef.current) return;
         const novaNotificacao = JSON.parse(message.body);
         console.log("📩 Notificação recebida:", novaNotificacao);
         setNotificacoes((prev) => {
@@ -151,37 +171,43 @@ function Notificacoes() {
           return [novaNotificacao, ...prev];
         });
       });
-
-      setStompClient(client);
+      stompClientRef.current = client;
     };
 
-    client.onStompError = (error) => {
-      console.error("Erro na conexão WebSocket:", error);
-      setMensagemErro("Erro ao conectar ao WebSocket.");
+    client.onStompError = (frame) => {
+      if (!isMountedRef.current) return;
+      console.error("Erro no STOMP:", frame);
+      setMensagemErro("Erro ao conectar ao WebSocket: " + frame.headers?.message);
+    };
+
+    client.onWebSocketClose = () => {
+      if (!isMountedRef.current) return;
+      console.log("🔌 Conexão WebSocket fechada");
+      stompClientRef.current = null;
     };
 
     client.activate();
 
     return () => {
-      if (client.connected) {
+      if (client && client.connected) {
         client.deactivate();
         console.log("🔌 WebSocket desconectado");
+        stompClientRef.current = null;
       }
     };
-  }, [user?.id, loading]);
+  }, [getId]);
 
   useEffect(() => {
-    if (isInitialLoad && !loading) {
-      carregarNotificacoes(true);
-      setIsInitialLoad(false);
-    }
-  }, [isInitialLoad, loading, carregarNotificacoes]);
+    console.log("Configurando WebSocket");
+    const cleanup = setupWebSocket();
+    return cleanup;
+  }, [setupWebSocket]);
 
   return (
     <NotificacoesContainer>
       <NotificacoesTitle>🔔 Suas notificações:</NotificacoesTitle>
 
-      <button onClick={() => carregarNotificacoes(true)}>🔄 Atualizar manualmente</button>
+      <button onClick={carregarNotificacoes}>🔄 Atualizar manualmente</button>
 
       <NotificacoesList>
         {isLoading ? (
@@ -204,5 +230,3 @@ function Notificacoes() {
 }
 
 export default Notificacoes;
-
-//:c  
