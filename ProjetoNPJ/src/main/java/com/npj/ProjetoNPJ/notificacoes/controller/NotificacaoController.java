@@ -1,55 +1,42 @@
 package com.npj.ProjetoNPJ.notificacoes.controller;
 
-
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
-import com.npj.ProjetoNPJ.notificacoes.NotificacoesMain;
-import com.npj.ProjetoNPJ.notificacoes.dtos.NotificacoesDto;
-import com.npj.ProjetoNPJ.notificacoes.repository.NotificacaoRepository;
+import com.npj.ProjetoNPJ.notificacoes.entitie.Notificacao;
 import com.npj.ProjetoNPJ.notificacoes.service.NotificacaoService;
 import com.npj.ProjetoNPJ.security.JwtService;
-import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping(value = "/notificacao")
 public class NotificacaoController {
 
-    @Autowired
-    private NotificacaoRepository repository;
+    private static final Logger LOGGER = Logger.getLogger(NotificacaoController.class.getName());
 
     @Autowired
-    private JwtService service;
+    private NotificacaoService notificacaoService;
 
     @Autowired
-    private NotificacaoService servicenot;
+    private JwtService jwtService;
 
-    @GetMapping(value = "/{advogadoId}")
-    public ResponseEntity<List<NotificacoesMain>> getNotificacoes(
-            @PathVariable String advogadoId,
-            @RequestHeader("Authorization") String authorizationHeader){
-
-        String token = authorizationHeader.replace("Bearer", "").trim();
-        String adogadoId = service.extractId(token);
-
-
-
-        if (!adogadoId.equals(advogadoId)) {
-            throw new RecursoNaoEncontradoException("Acesso negado: usuário não autorizado.");
+    @GetMapping(value = "/get")
+    public ResponseEntity<List<Notificacao>> getNotificacao(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            LOGGER.info("Recebida requisição para /notificacao/get");
+            String token = authorizationHeader.replace("Bearer ", "").trim();
+            LOGGER.info("Token extraído: " + token);
+            String advogadoId = jwtService.extractId(token);
+            LOGGER.info("Advogado ID extraído: " + advogadoId);
+            List<Notificacao> notificacoes = notificacaoService.buscarNotificacoesPorAdvogado(advogadoId);
+            LOGGER.info("Notificações encontradas: " + notificacoes.size());
+            return ResponseEntity.ok(notificacoes);
+        } catch (Exception e) {
+            LOGGER.severe("Erro ao processar /notificacao/get: " + e.getMessage());
+            throw new RuntimeException("Erro interno ao buscar notificações: " + e.getMessage(), e);
         }
-
-        List<NotificacoesMain> not = repository.findByAdvogadoIdAndLidaFalse(advogadoId);
-
-        return ResponseEntity.ok(not);
     }
-    @GetMapping("/get")
-    public ResponseEntity<List<NotificacoesDto>> listarTarefas() {
-
-        List<NotificacoesDto> dto = servicenot.getTarefasAutenticado();
-        return ResponseEntity.ok(dto);
-    }
-
 }
