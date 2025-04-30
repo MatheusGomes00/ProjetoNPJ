@@ -4,59 +4,138 @@ import useAuth from "../Seguranca/UseAuth";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-// 🎨 Estilos (mantidos exatamente como você forneceu)
+// 🎨 Estilos completamente reimaginados
 const NotificacoesContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 20px;
-  width: 100%;
-  height: 50vh;
-  border: 1px solid #000000;
-  background: white;
+  align-items: center;
+  width: calc(106vh - 32px);
+  height: 440px;
+  padding: 40px;
+  border: 1px solid black;
+  border-radius: 0px;
+  background: #fff;
   box-sizing: border-box;
+`;
+
+const NotificacoesHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 16px;
+`;
+
+const NotificacoesTitle = styled.h2`
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 const NotificacoesList = styled.div`
   flex: 1;
+  width: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-`;
-
-const NotificacoesTitle = styled.h2`
-  font-family: "Poppins", sans-serif;
-  font-weight: 500;
-  font-size: 18px;
-  color: #333;
-  margin: 0 0 10px 0;
-  text-align: left;
+  gap: 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #e5e7eb;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #6b7280;
+    border-radius: 4px;
+    &:hover {
+      background: #4b5563;
+    }
+  }
 `;
 
 const NotificacaoItem = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  background: #f0f0f0;
-  border-radius: 5px;
-  font-size: 14px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 `;
 
-const MensagemErro = styled.p`
-  color: red;
-  font-weight: bold;
-  text-align: center;
-  font-size: 14px;
-  margin: 10px 0;
+const NotificacaoContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 `;
 
-const MensagemCarregando = styled.p`
-  color: #666;
+const NotificacaoMensagem = styled.span`
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #1f2937;
+`;
+
+const NotificacaoData = styled.span`
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: #6b7280;
+`;
+
+const NotificacaoIcon = styled.span`
+  font-size: 1.25rem;
+  color: #3b82f6;
+  margin-right: 12px;
+`;
+
+const MensagemErro = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #fef2f2;
+  border-radius: 8px;
+  color: #dc2626;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  width: 100%;
   text-align: center;
-  font-size: 14px;
-  margin: 10px 0;
+  gap: 8px;
+`;
+
+const MensagemCarregando = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  color: #4b5563;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  width: 100%;
+  text-align: center;
+  gap: 8px;
 `;
 
 function Notificacoes() {
@@ -205,24 +284,35 @@ function Notificacoes() {
 
   return (
     <NotificacoesContainer>
-      <NotificacoesTitle>🔔 Suas notificações:</NotificacoesTitle>
-
-      <button onClick={carregarNotificacoes}>🔄 Atualizar manualmente</button>
+      <NotificacoesHeader>
+        <NotificacoesTitle>
+          <span role="img" aria-label="bell">🔔</span> Notificações
+        </NotificacoesTitle>
+      </NotificacoesHeader>
 
       <NotificacoesList>
         {isLoading ? (
-          <MensagemCarregando>Carregando notificações...</MensagemCarregando>
+          <MensagemCarregando>
+            <span role="img" aria-label="loading">⏳</span> Carregando...
+          </MensagemCarregando>
         ) : mensagemErro ? (
-          <MensagemErro>{mensagemErro}</MensagemErro>
+          <MensagemErro>
+            <span role="img" aria-label="error">⚠️</span> {mensagemErro}
+          </MensagemErro>
         ) : notificacoes.length > 0 ? (
           notificacoes.map((notificacao) => (
             <NotificacaoItem key={notificacao.id}>
-              <span>{notificacao.mensagem}</span>
-              <span>{formatarData(notificacao.dataCriacao)}</span>
+              <NotificacaoIcon>📬</NotificacaoIcon>
+              <NotificacaoContent>
+                <NotificacaoMensagem>{notificacao.mensagem}</NotificacaoMensagem>
+                <NotificacaoData>{formatarData(notificacao.dataCriacao)}</NotificacaoData>
+              </NotificacaoContent>
             </NotificacaoItem>
           ))
         ) : (
-          <MensagemErro>Nenhuma notificação disponível.</MensagemErro>
+          <MensagemErro>
+            <span role="img" aria-label="empty">📭</span> Nenhuma notificação disponível
+          </MensagemErro>
         )}
       </NotificacoesList>
     </NotificacoesContainer>
