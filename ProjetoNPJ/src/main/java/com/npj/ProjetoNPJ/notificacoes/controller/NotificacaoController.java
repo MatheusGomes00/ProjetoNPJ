@@ -4,7 +4,9 @@ import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.notificacoes.entitie.Notificacao;
 import com.npj.ProjetoNPJ.notificacoes.service.NotificacaoService;
 import com.npj.ProjetoNPJ.security.JwtService;
+import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,4 +36,31 @@ public class NotificacaoController {
             throw new RuntimeException("Erro interno ao buscar notificações: " + e.getMessage(), e);
         }
     }
+    @GetMapping(value = "/getNaoLida")
+    public ResponseEntity<List<Notificacao>> getNotificacaoNaoLida(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String token = authorizationHeader.replace("Bearer ", "").trim();
+            String advogadoId = jwtService.extractId(token);
+            List<Notificacao> notificacoes = notificacaoService.buscarNotificacoesNaoLidas(advogadoId);
+            return ResponseEntity.ok(notificacoes);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro interno ao buscar notificações: " + e.getMessage(), e);
+        }
+    }
+
+    @PutMapping(value = "/end/{id}")
+    public ResponseEntity<Notificacao> finalizarTarefa(@PathVariable String id, @RequestHeader("Authorization") String authorizationHeader){
+
+        try {
+            Notificacao notificacaoAtualizada = notificacaoService.finalizar(id);
+            return ResponseEntity.ok(notificacaoAtualizada);
+        } catch (Exception e) {
+            System.err.println("Erro ao ler a notificacao " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+
+    }
+
 }

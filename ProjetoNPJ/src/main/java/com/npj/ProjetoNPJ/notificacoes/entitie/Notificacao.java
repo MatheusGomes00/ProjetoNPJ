@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.messaging.core.MessagePostProcessor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,5 +20,6 @@ public class Notificacao {
    private String id;
    private String advogadoId;
    private String mensagem;
-    private LocalDateTime dataCriacao;
+   private LocalDateTime dataCriacao;
+   private boolean lida;
 }
