@@ -44,6 +44,8 @@ public class TarefasController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+
+
     @PostMapping(value = "/create")
     public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody  DtoTarefas tarefaDto, @RequestHeader("Authorization") String authorizationHeader) {
 
@@ -60,7 +62,7 @@ public class TarefasController {
 
         String mensagem = "Uma nova Tarefa foi atribuída a voce: " + tarefa.getNomeTarefa();
 
-        Notificacao notificacao = notificacaoService.criarNotificacao(mensagem, advogadoId);
+        Notificacao notificacao = notificacaoService.criarNotificacao(mensagem, advogadoId, tarefa.getId());
 
         messagingTemplate.convertAndSend("/topic/notificacoes/" + advogadoId, notificacao );
 
@@ -122,4 +124,5 @@ public class TarefasController {
 
         return ResponseEntity.ok(tarefaAtualiza);
     }
+    
 }

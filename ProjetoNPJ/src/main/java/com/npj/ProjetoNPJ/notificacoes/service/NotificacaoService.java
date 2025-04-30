@@ -19,10 +19,11 @@ public class NotificacaoService{
     private NotificacaoRepository repository;
 
 
-    public Notificacao criarNotificacao(String mensagem, String advogadoId){
+    public Notificacao criarNotificacao(String mensagem, String advogadoId, String tarefaId){
         Notificacao notificacao = new Notificacao();
         notificacao.setAdvogadoId(advogadoId);
         notificacao.setMensagem(mensagem);
+        notificacao.setTarefaID(tarefaId);
         notificacao.setDataCriacao(LocalDateTime.now());
 
         return repository.save(notificacao);

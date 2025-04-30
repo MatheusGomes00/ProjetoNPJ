@@ -10,6 +10,6 @@ public interface NotificacaoRepository extends MongoRepository<Notificacao, Stri
 
     List<Notificacao> findByAdvogadoId(String advogadoId);
 
-    @Query("{ 'advogadoId': ?0, 'lida': true }")
+    @Query("{ 'advogadoId': ?0, 'lida': false }")
     List<Notificacao> findByAdvogadoAndLida(String advogadoId);
 }

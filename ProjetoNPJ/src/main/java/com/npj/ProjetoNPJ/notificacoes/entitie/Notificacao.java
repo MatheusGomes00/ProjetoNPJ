@@ -19,6 +19,7 @@ public class Notificacao {
    @Id
    private String id;
    private String advogadoId;
+   private String tarefaID;
    private String mensagem;
    private LocalDateTime dataCriacao;
    private boolean lida;
