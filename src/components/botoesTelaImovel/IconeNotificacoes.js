@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilos (novo design para dropdown)
+// Estilos
 const NotificacoesContainer = styled.div`
   position: relative;
   cursor: pointer;
@@ -23,6 +23,11 @@ const SinoIcon = styled(FaBell)`
   &:hover {
     color: #3b82f6;
     transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
   }
 `;
 
@@ -44,18 +49,9 @@ const Badge = styled.span`
   animation: pulse 1.5s infinite;
 
   @keyframes pulse {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.2);
-      opacity: 0.8;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
   }
 `;
 
@@ -73,6 +69,10 @@ const Dropdown = styled.div`
   z-index: 2000;
   padding: 16px;
   transform: translateZ(0);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  opacity: ${props => props.isVisible ? 1 : 0};
+  transform: ${props => props.isVisible ? 'translateY(0)' : 'translateY(-10px)'};
+  pointer-events: ${props => props.isVisible ? 'auto' : 'none'};
 `;
 
 const DropdownHeader = styled.div`
@@ -94,6 +94,7 @@ const NotificacaoItem = styled.div`
   margin-bottom: 8px;
   transition: background 0.2s ease;
   font-family: "Inter", sans-serif;
+  cursor: pointer;
 
   &:hover {
     background: #eff6ff;
@@ -101,6 +102,10 @@ const NotificacaoItem = styled.div`
 
   &:last-child {
     margin-bottom: 0;
+  }
+
+  &:focus {
+    outline: 2px solid #3b82f6;
   }
 `;
 
@@ -160,13 +165,15 @@ const IconeNotificacoes = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
   const stompClientRef = useRef(null);
+  const dropdownRef = useRef(null);
   const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
 
-  // Função para formatar a data (idêntica ao Notificacoes.jsx)
-  const formatarData = (dataString) => {
+  // Função para formatar a data
+  const formatarData = useCallback((dataString) => {
     if (!dataString) return "Sem data";
     const data = new Date(dataString);
+    if (isNaN(data.getTime())) return "Data inválida";
     const dia = String(data.getDate()).padStart(2, "0");
     const mes = String(data.getMonth() + 1).padStart(2, "0");
     const ano = data.getFullYear();
@@ -174,9 +181,9 @@ const IconeNotificacoes = () => {
     const minutos = String(data.getMinutes()).padStart(2, "0");
     const segundos = String(data.getSeconds()).padStart(2, "0");
     return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
-  };
+  }, []);
 
-  // Função para carregar notificações (idêntica ao Notificacoes.jsx)
+  // Função para carregar notificações não lidas
   const carregarNotificacoes = useCallback(async () => {
     if (!isMountedRef.current || isLoading) return;
 
@@ -188,9 +195,7 @@ const IconeNotificacoes = () => {
         `http://localhost:8080/notificacao/getNaoLida`,
         {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         }
       );
 
@@ -202,7 +207,7 @@ const IconeNotificacoes = () => {
       const data = await response.json();
       if (isMountedRef.current) {
         setNotificacoes(data.length > 0 ? data : []);
-        setMensagemErro(data.length === 0 ? "Nenhuma notificação disponível." : "");
+        setMensagemErro(""); // Clear error message unless explicitly needed
       }
     } catch (error) {
       if (isMountedRef.current) {
@@ -210,8 +215,8 @@ const IconeNotificacoes = () => {
         setMensagemErro(`Erro ao carregar notificações: ${error.message}`);
         setNotificacoes([]);
         if (error.message.includes("401")) {
-          setMensagemErro("Sessão expirada. Redirecionando para login...");
-          logoutWithRedirect();
+          setMensagemErro("Sessão expirada. Redirecionando...");
+          setTimeout(logoutWithRedirect, 2000);
         }
       }
     } finally {
@@ -221,11 +226,54 @@ const IconeNotificacoes = () => {
     }
   }, [fetchAuthenticated, isLoading, logoutWithRedirect]);
 
-  // Carregar notificações iniciais (idêntico ao Notificacoes.jsx)
+  // Função para marcar notificação como lida
+  const marcarComoLida = useCallback(async (notificacaoId) => {
+    if (!isMountedRef.current) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetchAuthenticated(
+        `http://localhost:8080/notificacao/end/${notificacaoId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro ${response.status}: ${errorText}`);
+      }
+
+      if (isMountedRef.current) {
+        setNotificacoes((prev) => prev.filter((n) => n.id !== notificacaoId));
+        toast.success("Notificação marcada como lida!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      if (isMountedRef.current) {
+        console.error("Erro ao marcar notificação como lida:", error);
+        toast.error(`Erro ao marcar notificação: ${error.message}`, {
+          position: "top-right",
+          autoClose: 5000,
+        });
+        if (error.message.includes("401")) {
+          setMensagemErro("Sessão expirada. Redirecionando...");
+          setTimeout(logoutWithRedirect, 2000);
+        }
+      }
+    }
+  }, [fetchAuthenticated, logoutWithRedirect]);
+
+  // Carregar notificações iniciais
   useEffect(() => {
     isMountedRef.current = true;
     if (!hasLoadedRef.current) {
-      console.log("Carregando notificações iniciais");
       carregarNotificacoes();
       hasLoadedRef.current = true;
     }
@@ -235,17 +283,15 @@ const IconeNotificacoes = () => {
     };
   }, [carregarNotificacoes]);
 
-  // Configurar WebSocket (idêntico ao Notificacoes.jsx)
+  // Configurar WebSocket
   const setupWebSocket = useCallback(() => {
     const userId = getId();
-
     if (!userId) {
-      setMensagemErro("Usuário não autenticado. Faça login para receber notificações.");
+      setMensagemErro("Usuário não autenticado.");
       return;
     }
 
-    if (stompClientRef.current && stompClientRef.current.connected) {
-      console.log("WebSocket já conectado, ignorando nova conexão.");
+    if (stompClientRef.current?.connected) {
       return;
     }
 
@@ -264,15 +310,16 @@ const IconeNotificacoes = () => {
       client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
         if (!isMountedRef.current) return;
         const novaNotificacao = JSON.parse(message.body);
-        console.log("📩 Notificação recebida:", novaNotificacao);
-        setNotificacoes((prev) => {
-          if (prev.some((n) => n.id === novaNotificacao.id)) return prev;
-          return [novaNotificacao, ...prev];
-        });
-        toast.info(novaNotificacao.mensagem, {
-          position: "top-right",
-          autoClose: 5000,
-        });
+        if (!novaNotificacao.lida) {
+          setNotificacoes((prev) => {
+            if (prev.some((n) => n.id === novaNotificacao.id)) return prev;
+            return [novaNotificacao, ...prev];
+          });
+          toast.info(novaNotificacao.mensagem, {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
       });
       stompClientRef.current = client;
     };
@@ -280,7 +327,7 @@ const IconeNotificacoes = () => {
     client.onStompError = (frame) => {
       if (!isMountedRef.current) return;
       console.error("Erro no STOMP:", frame);
-      setMensagemErro("Erro ao conectar ao WebSocket: " + frame.headers?.message);
+      setMensagemErro("Erro na conexão de notificações.");
     };
 
     client.onWebSocketClose = () => {
@@ -292,7 +339,7 @@ const IconeNotificacoes = () => {
     client.activate();
 
     return () => {
-      if (client && client.connected) {
+      if (client?.connected) {
         client.deactivate();
         console.log("🔌 WebSocket desconectado");
         stompClientRef.current = null;
@@ -301,32 +348,53 @@ const IconeNotificacoes = () => {
   }, [getId]);
 
   useEffect(() => {
-    console.log("Configurando WebSocket");
     const cleanup = setupWebSocket();
     return cleanup;
   }, [setupWebSocket]);
 
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Toggle do dropdown
-  const toggleDropdown = () => {
-    console.log("Toggle dropdown chamado, novo estado:", !showDropdown);
-    setShowDropdown(!showDropdown);
-  };
+  const toggleDropdown = useCallback(() => {
+    setShowDropdown((prev) => !prev);
+  }, []);
 
   return (
     <NotificacoesContainer>
-      <SinoIcon onClick={toggleDropdown} />
-      {notificacoes.length > 0 && <Badge>{notificacoes.length}</Badge>}
-      {mensagemErro && !showDropdown && <MensagemErro>{mensagemErro}</MensagemErro>}
+      <SinoIcon
+        onClick={toggleDropdown}
+        onKeyDown={(e) => e.key === "Enter" && toggleDropdown()}
+        tabIndex={0}
+        role="button"
+        aria-label="Toggle notificações"
+      />
+      {notificacoes.length > 0 && <Badge>{Math.min(notificacoes.length, 99)}</Badge>}
       {showDropdown && (
-        <Dropdown>
-          {console.log("Renderizando dropdown, notificacoes:", notificacoes)}
+        <Dropdown ref={dropdownRef} isVisible={showDropdown}>
           <DropdownHeader>Notificações</DropdownHeader>
           {isLoading ? (
             <MensagemCarregando>Carregando...</MensagemCarregando>
           ) : notificacoes.length > 0 ? (
             notificacoes.map((notificacao) => (
-              <NotificacaoItem key={notificacao.id}>
-                <NotificacaoIcon>🔔</NotificacaoIcon>
+              <NotificacaoItem
+                key={notificacao.id}
+                onClick={() => marcarComoLida(notificacao.id)}
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && marcarComoLida(notificacao.id)}
+                role="button"
+                aria-label={`Marcar notificação como lida: ${notificacao.mensagem}`}
+              >
+                <NotificacaoIcon aria-hidden="true">🔔</NotificacaoIcon>
                 <NotificacaoContent>
                   <NotificacaoMensagem>{notificacao.mensagem}</NotificacaoMensagem>
                   <NotificacaoData>{formatarData(notificacao.dataCriacao)}</NotificacaoData>
@@ -334,9 +402,12 @@ const IconeNotificacoes = () => {
               </NotificacaoItem>
             ))
           ) : (
-            <MensagemErro>Nenhuma notificação disponível.</MensagemErro>
+            <MensagemErro>Nenhuma notificação não lida disponível.</MensagemErro>
           )}
         </Dropdown>
+      )}
+      {mensagemErro && !showDropdown && (
+        <MensagemErro>{mensagemErro}</MensagemErro>
       )}
       <ToastContainer />
     </NotificacoesContainer>
