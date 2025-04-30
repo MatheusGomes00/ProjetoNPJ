@@ -5,6 +5,7 @@ import Notificacoes from "./Notificacoes";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import styled from "styled-components";
 
+
 // Grid interno para o conteúdo principal
 const GridContainer = styled.div`
   height: calc(100% - 20px); /* Respeita o espaço do MainContent */
