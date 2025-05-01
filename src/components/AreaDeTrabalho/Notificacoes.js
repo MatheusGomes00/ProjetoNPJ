@@ -10,7 +10,7 @@ const NotificacoesContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: calc(106vh - 32px);
-  height: 440px;
+  height: 31vw;
   padding: 40px;
   border: 1px solid black;
   border-radius: 0px;

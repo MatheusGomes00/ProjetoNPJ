@@ -14,7 +14,7 @@ const ProcessosContainer = styled.div`
   gap: 10px;
   padding: 22px;
   width: 27vw;
-  max-height: 55vw;
+  height: 55vw;
   overflow-y: auto;
   border: none;
   background: linear-gradient(145deg, #f8fbff 0%, #e6f0fa 100%);

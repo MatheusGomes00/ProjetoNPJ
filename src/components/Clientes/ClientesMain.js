@@ -164,10 +164,6 @@ const ClientesMain = () => {
           status: normalizeStatus(cliente.status),
         }));
 
-        // Log para depuração
-        console.log("Clientes fetched:", data);
-        console.log("Status values:", data.map((c) => ({ id: c.id, status: c.status })));
-
         // Paginação no frontend
         const startIndex = currentPage * PAGE_SIZE;
         const paginatedData = data.slice(startIndex, startIndex + PAGE_SIZE);
@@ -258,8 +254,10 @@ const ClientesMain = () => {
   };
 
   // Função para lidar com o clique no card
-  const handleClienteClick = (clienteId) => {
-    navigate(`/clientes/${clienteId}`); // Navega para a tela de detalhes
+  const handleClienteClick = (clienteId, clienteNome) => {
+    navigate(`/clientes/${clienteId}`, {
+      state: { clientId: clienteId, clientName: clienteNome },
+    }); // Navega para a tela de detalhes com clientId e clientName
   };
 
   return (
@@ -310,7 +308,7 @@ const ClientesMain = () => {
                 {clientesFiltrados.map((cliente) => (
                   <ClienteCard
                     key={cliente.id}
-                    onClick={() => handleClienteClick(cliente.id)}
+                    onClick={() => handleClienteClick(cliente.id, cliente.cliente.nome)}
                     style={{ cursor: "pointer" }}
                   >
                     <ClienteNome>{cliente.cliente.nome}</ClienteNome>
