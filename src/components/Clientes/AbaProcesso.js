@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Importado para navegação
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 // Estilo para a tabela de processos
@@ -53,14 +53,69 @@ const Mensagem = styled.p`
   }
 `;
 
+// Estilo para o botão Criar Processo
+const BotaoCriarProcesso = styled.button`
+  background: #28a745;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-family: "Arial", sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  grid-column: span 2;
+  text-align: center;
+
+  &:hover {
+    background: #218838;
+  }
+
+  &:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    grid-column: span 1;
+  }
+`;
+
 const AbaProcessos = ({ fetchAuthenticated, id, abaAtiva }) => {
   const [processos, setProcessos] = useState([]);
   const [isLoadingProcessos, setIsLoadingProcessos] = useState(false);
   const [mensagemErroProcessos, setMensagemErroProcessos] = useState("");
   const [hasFetchedProcessos, setHasFetchedProcessos] = useState(false);
-  const navigate = useNavigate(); // Hook para navegação
+  const [clientName, setClientName] = useState("");
+  const [isLoadingClient, setIsLoadingClient] = useState(true);
+  const navigate = useNavigate();
 
-  // Buscar processos vinculados
+  // Fetch client name
+  const fetchClientName = useCallback(async () => {
+    try {
+      const response = await fetchAuthenticated(`http://localhost:8080/cad/get`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao buscar nome do cliente.");
+      }
+
+      const data = await response.json();
+      const cliente = data.find((c) => c.id === id);
+      setClientName(cliente ? cliente.cliente.nome : "Cliente Desconhecido");
+    } catch (error) {
+      console.error("Erro ao buscar nome do cliente:", error);
+      setClientName("Cliente Desconhecido");
+    } finally {
+      setIsLoadingClient(false);
+    }
+  }, [fetchAuthenticated, id]);
+
+  // Fetch processos vinculados
   useEffect(() => {
     const buscarProcessos = async () => {
       if (abaAtiva !== "processos" || hasFetchedProcessos) return;
@@ -103,11 +158,22 @@ const AbaProcessos = ({ fetchAuthenticated, id, abaAtiva }) => {
       }
     };
 
+    fetchClientName();
     buscarProcessos();
-  }, [id, fetchAuthenticated, abaAtiva, hasFetchedProcessos]);
+  }, [id, fetchAuthenticated, abaAtiva, hasFetchedProcessos, fetchClientName]);
 
   return (
     <>
+      <BotaoCriarProcesso
+        onClick={() =>
+          navigate("/clientes/criarProc", {
+            state: { clientId: id, clientName },
+          })
+        }
+        disabled={isLoadingClient || !clientName}
+      >
+        Criar Processo
+      </BotaoCriarProcesso>
       {isLoadingProcessos ? (
         <Mensagem>Carregando processos...</Mensagem>
       ) : mensagemErroProcessos ? (

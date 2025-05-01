@@ -10,6 +10,7 @@ import ClientesMain from "./components/Clientes/ClientesMain";
 import DetalhesClientes from "./components/Clientes/DetalhesClientes";
 import DetalhesProcesso from "./components/Processos/DetalhesProcessos";
 import CriarClientes from "./components/Clientes/CriarClientes";
+import CriarProcessosCliente from "./components/Clientes/CriarProcessosCliente";
 
 
 function App() {
@@ -58,6 +59,10 @@ function App() {
         <Route
           path="/processos/:id"
           element={isAuthenticated() ? <DetalhesProcesso /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/clientes/criarProc"
+          element={isAuthenticated() ? <CriarProcessosCliente /> : <Navigate to="/login" />}
         />
         
       </Routes>
