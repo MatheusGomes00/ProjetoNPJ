@@ -273,22 +273,21 @@ const TarefasMain = () => {
       const cacheKey = nome ? `${nome}_page${currentPage}` : `all_page${currentPage}`;
 
       if (!forceRefresh && cacheRef.current[cacheKey] && now - lastFetchTimeRef.current < minInterval) {
-        console.log(`Usando dados do cache para: ${cacheKey}`);
+        
         const tarefasDoCache = cacheRef.current[cacheKey];
         if (nome) {
           setTarefasBuscadas(tarefasDoCache);
-          console.log("Tarefas buscadas (cache):", tarefasDoCache);
+          
         } else {
           setTarefasOriginais(tarefasDoCache);
-          console.log("Tarefas iniciais (cache):", tarefasDoCache);
+          
         }
         setMensagemErro("");
         return;
       }
 
       if (isLoading) {
-        console.log("Requisição já em andamento, aguardando...");
-        return;
+        
       }
 
       setIsLoading(true);
@@ -316,7 +315,7 @@ const TarefasMain = () => {
             }
             setTotalPages(1); // Reseta o total de páginas
             cacheRef.current[cacheKey] = [];
-            console.log("Tarefas buscadas (404): []");
+           
             return;
           } else if (response.status === 500) {
             throw new Error("Erro interno no servidor. Tente novamente mais tarde.");
@@ -335,7 +334,7 @@ const TarefasMain = () => {
           }
           setTotalPages(1); // Reseta o total de páginas
           cacheRef.current[cacheKey] = [];
-          console.log("Tarefas buscadas (vazio): []");
+          
           return;
         }
 
@@ -344,10 +343,10 @@ const TarefasMain = () => {
 
         if (nome) {
           setTarefasBuscadas(tarefas);
-          console.log("Tarefas buscadas (servidor):", tarefas);
+          
         } else {
           setTarefasOriginais(tarefas);
-          console.log("Tarefas iniciais (carregamento):", tarefas);
+        
         }
         setTotalPages(totalPaginas);
         setMensagemErro("");
@@ -362,7 +361,7 @@ const TarefasMain = () => {
           setTarefasOriginais([]);
         }
         setTotalPages(1); // Reseta o total de páginas em caso de erro
-        console.log("Tarefas buscadas (erro): []");
+        
       } finally {
         setIsLoading(false);
       }
@@ -490,12 +489,12 @@ const TarefasMain = () => {
           setIsSearching(false);
           setMensagemErro("");
           setCurrentPage(0); // Reseta para a primeira página quando a busca é limpa
-          console.log("Tarefas filtradas (menos de 4 letras):", tarefasOriginais);
+          
         }
       }, 500),
     [buscarTarefasPorNome, tarefasOriginais]
   );
-
+//Teste
   const handleBusca = (e) => {
     const nome = e.target.value;
     setNomeBusca(nome);
