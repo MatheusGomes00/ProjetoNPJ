@@ -21,6 +21,7 @@ export const login = async (username, password) => {
 
     const response = await fetch(`${API_BASE_URL}/login`, {
           method: 'POST',
+          credentials: 'include',
           headers: {
               'Content-Type': 'application/json',
           },
@@ -51,6 +52,7 @@ export const refreshToken = async () => {
       const response = await fetch(`${API_BASE_URL}/refresh-token`, {
           method: 'POST',
           credentials: 'include', // Envia o cookie refreshToken automaticamente
+          headers: { 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) {
@@ -69,8 +71,15 @@ export const refreshToken = async () => {
       return newAccessToken; 
   } catch (error) {
       console.error('Erro ao renovar o token:', error.message);
-      
       sessionStorage.removeItem('accessToken');
+
+      //  import Alert from '@mui/material/Alert';
+      // <Alert variant="filled" severity="warning">
+      // This is a filled warning Alert.
+      // </Alert>
+
+
+      // window.location.href = '/login';
       throw error;
   }
 };
@@ -82,6 +91,7 @@ export const logout = async () => {
         credentials: 'include', // Envia o cookie refreshToken para o backend
       });
       clearAccessToken();
+      // window.location.href = '/login';
   } catch (error) {
       console.error('Erro no logout:', error.message);
       
@@ -94,30 +104,62 @@ export const isAuthenticated = () => {
   return !!sessionStorage.getItem("accessToken");
 };
 
+let isRefreshing = false;
+
+let refreshPromise = null;
 
 export const fetchWithToken = async (url, options = {}) => {
-    const token = getAccessToken();
-    console.log("Fazendo requisição com token:", token ? "Presente" : "Ausente");
-  
-    const headers = {
-      ...options.headers,
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-    };
-  
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      });
-      console.log(`Resposta da requisição ${url}: ${response.status}`);
-      return response;
-    } catch (error) {
-      console.error(`Erro na requisição ${url}:`, error.message);
-      throw error;
-    }
+  const token = getAccessToken();
+
+  const headers = {
+    ...options.headers,
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
   };
 
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    if (response.status === 401) {
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshPromise = refreshToken()
+          .then((newAccessToken) => {
+            isRefreshing = false;
+            refreshPromise = null;
+            return newAccessToken;
+          })
+          .catch((error) => {
+            isRefreshing = false;
+            refreshPromise = null;
+            throw error;
+          });
+      }
+
+      // Aguarda a renovação do token
+      const newAccessToken = await refreshPromise;
+
+      // Repete a requisição com o novo token
+      const newHeaders = {
+        ...headers,
+        Authorization: `Bearer ${newAccessToken}`,
+      };
+
+      return await fetch(url, {
+        ...options,
+        headers: newHeaders,
+      });
+    }
+
+    return response;
+  } catch (error) {
+    console.error(`Erro na requisição ${url}:`, error.message);
+    throw error;
+  }
+};
 const tokenManager = {
     getAccessToken, login, logout, isAuthenticated, fetchWithToken
 }
