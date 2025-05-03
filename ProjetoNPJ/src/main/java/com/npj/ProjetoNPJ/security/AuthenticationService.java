@@ -50,11 +50,11 @@ public class AuthenticationService {
             LocalDateTime expiration = jwtService.extractExpirationAsLocalDateTime(refreshToken);
 
             if (existsRefreshToken == null || !existsRefreshToken.isActive()) {
-                RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, authenticatedUsername, expiration.minusHours(3));
+                RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, authenticatedUsername, expiration);
                 tokenRepository.save(refreshTokenEntity);
             } else {
                 existsRefreshToken.setToken(refreshToken);
-                existsRefreshToken.setExpiresAt(expiration.minusHours(3));
+                existsRefreshToken.setExpiresAt(expiration);
                 tokenRepository.save(existsRefreshToken);
             }
             return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
@@ -95,7 +95,7 @@ public class AuthenticationService {
         tokenRepository.save(storedToken);
 
         LocalDateTime newExpiration = jwtService.extractExpirationAsLocalDateTime(newRefresh);
-        RefreshToken newTokenEntity = new RefreshToken(newRefresh, username, newExpiration.minusHours(3));
+        RefreshToken newTokenEntity = new RefreshToken(newRefresh, username, newExpiration);
         tokenRepository.save(newTokenEntity);
 
         return Map.of("accessToken", newAccess, "refreshToken", newRefresh);
