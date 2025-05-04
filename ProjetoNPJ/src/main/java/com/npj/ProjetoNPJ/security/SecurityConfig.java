@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/refresh-token").permitAll()
+                        .requestMatchers("/auth/login", "/auth/refresh-token", "/auth/logout").permitAll()
                         //.requestMatchers("/adv/ins").permitAll()
                         .requestMatchers("/adv/ins").hasAuthority("ROLE_ADVOGADO")
                         .requestMatchers("/adv/**").authenticated()
