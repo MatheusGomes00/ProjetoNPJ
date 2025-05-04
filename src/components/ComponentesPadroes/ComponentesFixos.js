@@ -5,6 +5,8 @@ import SearchBarTop from "../ComponentesPadroes/SearchBarTop";
 import IconeLogOut from "../botoesTelaImovel/IconeLogOut";
 import IconeNotificacoes from "../botoesTelaImovel/IconeNotificacoes";
 import IconeNovaTarefa from "../botoesTelaImovel/IconeNovaTarefa";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Contêiner principal com CSS Grid
 const FixedGridContainer = styled.div`
@@ -46,6 +48,7 @@ const TopRightIcons = styled.div`
   z-index: 1000;
 `;
 
+
 const ComponentesFixos = ({ children }) => {
   return (
     <FixedGridContainer>
@@ -57,6 +60,19 @@ const ComponentesFixos = ({ children }) => {
       </TopRightIcons>
       <GridSidebar />
       <MainContent>{children}</MainContent>
+      <ToastContainer
+        position="top-center"
+        autoClose={7000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        style={{ zIndex: 10000 }}
+      />
     </FixedGridContainer>
   );
 };

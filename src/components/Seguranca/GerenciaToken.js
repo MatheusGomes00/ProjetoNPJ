@@ -10,6 +10,7 @@ const setAccessToken = (accessToken) => {
 
 const clearAccessToken = () => {
   sessionStorage.removeItem('accessToken');
+  localStorage.removeItem('token');
 };
 
 export const login = async (username, password) => {
@@ -135,7 +136,9 @@ export const fetchWithToken = async (url, options = {}) => {
           .catch((error) => {
             isRefreshing = false;
             refreshPromise = null;
-            throw error;
+            console.error('Erro ao renovar token:', error.message);
+            // Retorna uma resposta com status 401 para acionar logout
+            return new Response(null, { status: 401 });
           });
       }
 
