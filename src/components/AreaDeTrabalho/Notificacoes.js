@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
+import useAuth from "../Seguranca/UseAuth";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
-// Estilo do container de notificações
+// 🎨 Estilos
 const NotificacoesContainer = styled.div`
   display: flex;
-  flex-direction: column; /* Mantido para incluir o título */
+  flex-direction: column;
   gap: 10px;
   padding: 20px;
   width: 100%;
@@ -14,26 +17,23 @@ const NotificacoesContainer = styled.div`
   box-sizing: border-box;
 `;
 
-// Container para a lista de notificações (com rolagem)
 const NotificacoesList = styled.div`
-  flex: 1; /* Ocupa o espaço restante */
-  overflow-y: auto; /* Mantém a rolagem */
+  flex: 1;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
 `;
 
-// Estilo do título
 const NotificacoesTitle = styled.h2`
   font-family: "Poppins", sans-serif;
   font-weight: 500;
   font-size: 18px;
   color: #333;
-  margin: 0 0 10px 0; /* Espaço abaixo do título */
+  margin: 0 0 10px 0;
   text-align: left;
 `;
 
-// Estilo de cada item de notificação
 const NotificacaoItem = styled.div`
   display: flex;
   justify-content: space-between;
@@ -44,33 +44,159 @@ const NotificacaoItem = styled.div`
   font-size: 14px;
 `;
 
+const MensagemErro = styled.p`
+  color: red;
+  font-weight: bold;
+  text-align: center;
+  font-size: 14px;
+  margin: 10px 0;
+`;
+
+const MensagemCarregando = styled.p`
+  color: #666;
+  text-align: center;
+  font-size: 14px;
+  margin: 10px 0;
+`;
+
 function Notificacoes() {
-  // Exemplo de dados de notificações (você pode substituir por dados reais)
-  const notificacoes = [
-    { id: 1, mensagem: "Nova tarefa atribuída: Reunião com Bárbara", data: "10/03/2025, 14:30:00" },
-    { id: 2, mensagem: "Processo 101 finalizado", data: "10/03/2025, 07:00:00" },
-    { id: 3, mensagem: "Atualização no Processo 303", data: "09/03/2025, 19:15:00" },
-    { id: 4, mensagem: "Nova tarefa atribuída: Reunião com Bárbara", data: "10/03/2025, 14:30:00" },
-    { id: 5, mensagem: "Processo 101 finalizado", data: "10/03/2025, 07:00:00" },
-    { id: 6, mensagem: "Atualização no Processo 303", data: "09/03/2025, 19:15:00" },
-    { id: 7, mensagem: "Nova tarefa atribuída: Reunião com Bárbara", data: "10/03/2025, 14:30:00" },
-    { id: 8, mensagem: "Processo 101 finalizado", data: "10/03/2025, 07:00:00" },
-    { id: 9, mensagem: "Atualização no Processo 303", data: "09/03/2025, 19:15:00" },
-  ];
+  const { fetchAuthenticated, user, loading } = useAuth();
+  const [notificacoes, setNotificacoes] = useState([]);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [mensagemErro, setMensagemErro] = useState("");
+  const [stompClient, setStompClient] = useState(null);
+
+  const formatarData = (dataString) => {
+    if (!dataString) return "Sem data";
+    const data = new Date(dataString);
+    const dia = String(data.getDate()).padStart(2, "0");
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const ano = data.getFullYear();
+    const horas = String(data.getHours()).padStart(2, "0");
+    const minutos = String(data.getMinutes()).padStart(2, "0");
+    const segundos = String(data.getSeconds()).padStart(2, "0");
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+  };
+
+  const carregarNotificacoes = useCallback(
+    async (forceRefresh = false) => {
+      const now = Date.now();
+      const minInterval = 5000;
+
+      if (!forceRefresh && now - lastFetchTime < minInterval && notificacoes.length > 0) {
+        return;
+      }
+
+      setIsLoading(true);
+      setMensagemErro("");
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/notificacao/get`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ao buscar notificações: ${response.status} ${errorText}`);
+        }
+
+        const data = await response.json();
+        setNotificacoes(data.length > 0 ? data : []);
+        setMensagemErro(data.length === 0 ? "Nenhuma notificação disponível." : "");
+        setLastFetchTime(now);
+      } catch (error) {
+        console.error("Erro ao buscar notificações:", error);
+        setMensagemErro("Erro ao carregar notificações: " + error.message);
+        setNotificacoes([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [fetchAuthenticated, lastFetchTime, notificacoes.length]
+  );
+
+  // WebSocket
+  useEffect(() => {
+    if (loading || !user?.id) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setMensagemErro("Token não encontrado. Faça login novamente.");
+      return;
+    }
+
+    const socket = new SockJS("http://localhost:8080/ws");
+    const client = new Client({
+      webSocketFactory: () => socket,
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      debug: (str) => console.log(str),
+    });
+
+    client.onConnect = () => {
+      console.log("✅ Conectado ao WebSocket");
+
+      client.subscribe(`/topic/notificacoes/${user.id}`, (message) => {
+        const novaNotificacao = JSON.parse(message.body);
+        console.log("📩 Notificação recebida:", novaNotificacao);
+        setNotificacoes((prev) => {
+          if (prev.some((n) => n.id === novaNotificacao.id)) return prev;
+          return [novaNotificacao, ...prev];
+        });
+      });
+
+      setStompClient(client);
+    };
+
+    client.onStompError = (error) => {
+      console.error("Erro na conexão WebSocket:", error);
+      setMensagemErro("Erro ao conectar ao WebSocket.");
+    };
+
+    client.activate();
+
+    return () => {
+      if (client.connected) {
+        client.deactivate();
+        console.log("🔌 WebSocket desconectado");
+      }
+    };
+  }, [user?.id, loading]);
+
+  useEffect(() => {
+    if (isInitialLoad && !loading) {
+      carregarNotificacoes(true);
+      setIsInitialLoad(false);
+    }
+  }, [isInitialLoad, loading, carregarNotificacoes]);
 
   return (
     <NotificacoesContainer>
-      <NotificacoesTitle>Suas notificações:</NotificacoesTitle>
+      <NotificacoesTitle>🔔 Suas notificações:</NotificacoesTitle>
+
+      <button onClick={() => carregarNotificacoes(true)}>🔄 Atualizar manualmente</button>
+
       <NotificacoesList>
-        {notificacoes.length > 0 ? (
+        {isLoading ? (
+          <MensagemCarregando>Carregando notificações...</MensagemCarregando>
+        ) : mensagemErro ? (
+          <MensagemErro>{mensagemErro}</MensagemErro>
+        ) : notificacoes.length > 0 ? (
           notificacoes.map((notificacao) => (
             <NotificacaoItem key={notificacao.id}>
               <span>{notificacao.mensagem}</span>
-              <span>{notificacao.data}</span>
+              <span>{formatarData(notificacao.dataCriacao)}</span>
             </NotificacaoItem>
           ))
         ) : (
-          <p>Nenhuma notificação disponível.</p>
+          <MensagemErro>Nenhuma notificação disponível.</MensagemErro>
         )}
       </NotificacoesList>
     </NotificacoesContainer>
