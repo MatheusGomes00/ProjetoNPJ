@@ -8,6 +8,8 @@ import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,11 +27,21 @@ public class NotificacaoController {
     @Autowired
     private JwtService jwtService;
 
+    public String getAuthenticatedUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername(); // username do usuário autenticado
+        } else {
+            return principal.toString(); // Caso seja um token simples
+        }
+    }
+
     @GetMapping(value = "/get")
     public ResponseEntity<List<Notificacao>> getNotificacao(@RequestHeader("Authorization") String authorizationHeader) {
         try {
-            String token = authorizationHeader.replace("Bearer ", "").trim();
-            String advogadoId = jwtService.extractId(token);
+            // String token = authorizationHeader.replace("Bearer ", "").trim();
+            String advogadoId = getAuthenticatedUsername();
             List<Notificacao> notificacoes = notificacaoService.buscarNotificacoesPorAdvogado(advogadoId);
             return ResponseEntity.ok(notificacoes);
         } catch (Exception e) {
@@ -39,8 +51,8 @@ public class NotificacaoController {
     @GetMapping(value = "/getNaoLida")
     public ResponseEntity<List<Notificacao>> getNotificacaoNaoLida(@RequestHeader("Authorization") String authorizationHeader) {
         try {
-            String token = authorizationHeader.replace("Bearer ", "").trim();
-            String advogadoId = jwtService.extractId(token);
+            // String token = authorizationHeader.replace("Bearer ", "").trim();
+            String advogadoId = getAuthenticatedUsername();
             List<Notificacao> notificacoes = notificacaoService.buscarNotificacoesNaoLidas(advogadoId);
             return ResponseEntity.ok(notificacoes);
         } catch (Exception e) {
