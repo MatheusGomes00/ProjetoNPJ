@@ -165,9 +165,11 @@ const IconeNotificacoes = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
   const stompClientRef = useRef(null);
+  const subscriptionRef = useRef(null); // Track WebSocket subscription
   const dropdownRef = useRef(null);
   const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
+  const processedNotificationIds = useRef(new Set());
 
   // Função para formatar a data
   const formatarData = useCallback((dataString) => {
@@ -206,8 +208,19 @@ const IconeNotificacoes = () => {
 
       const data = await response.json();
       if (isMountedRef.current) {
-        setNotificacoes(data.length > 0 ? data : []);
-        setMensagemErro(""); // Clear error message unless explicitly needed
+        const uniqueNotificacoes = data.filter(
+          (notificacao) => !processedNotificationIds.current.has(notificacao.id)
+        );
+        uniqueNotificacoes.forEach((notificacao) => {
+          console.log(`Fetched notification: ${notificacao.id}`);
+          processedNotificationIds.current.add(notificacao.id);
+        });
+        setNotificacoes(uniqueNotificacoes.length > 0 ? uniqueNotificacoes : []);
+        setMensagemErro(
+          uniqueNotificacoes.length === 0
+            ? "Nenhuma notificação não lida disponível."
+            : ""
+        );
       }
     } catch (error) {
       if (isMountedRef.current) {
@@ -227,48 +240,57 @@ const IconeNotificacoes = () => {
   }, [fetchAuthenticated, isLoading, logoutWithRedirect]);
 
   // Função para marcar notificação como lida
-  const marcarComoLida = useCallback(async (notificacaoId) => {
-    if (!isMountedRef.current) return;
+  const marcarComoLida = useCallback(
+    async (notificacaoId) => {
+      if (!isMountedRef.current || !notificacaoId) {
+        console.warn("marcarComoLida aborted: Invalid notificacaoId or component unmounted");
+        return;
+      }
 
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetchAuthenticated(
-        `http://localhost:8080/notificacao/end/${notificacaoId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/notificacao/end/${notificacaoId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
         }
-      );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erro ${response.status}: ${errorText}`);
-      }
-
-      if (isMountedRef.current) {
-        setNotificacoes((prev) => prev.filter((n) => n.id !== notificacaoId));
-        toast.success("Notificação marcada como lida!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-      }
-    } catch (error) {
-      if (isMountedRef.current) {
-        console.error("Erro ao marcar notificação como lida:", error);
-        toast.error(`Erro ao marcar notificação: ${error.message}`, {
-          position: "top-right",
-          autoClose: 5000,
-        });
-        if (error.message.includes("401")) {
-          setMensagemErro("Sessão expirada. Redirecionando...");
-          setTimeout(logoutWithRedirect, 2000);
+        if (isMountedRef.current) {
+          setNotificacoes((prev) => {
+            const updated = prev.filter((n) => n.id !== notificacaoId);
+            console.log(`Notificação ${notificacaoId} marcada como lida. Notificações restantes: ${updated.length}`);
+            return updated;
+          });
+          processedNotificationIds.current.delete(notificacaoId);
+          toast.success("Notificação marcada como lida!", {
+            position: "top-right",
+            autoClose: 3000,
+            toastId: `success-${notificacaoId}`,
+          });
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao marcar notificação como lida:", error);
+          toast.error(`Erro ao marcar notificação: ${error.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            toastId: `error-${notificacaoId}`,
+          });
+          if (error.message.includes("401")) {
+            setMensagemErro("Sessão expirada. Redirecionando...");
+            setTimeout(logoutWithRedirect, 2000);
+          }
         }
       }
-    }
-  }, [fetchAuthenticated, logoutWithRedirect]);
+    },
+    [fetchAuthenticated, logoutWithRedirect]
+  );
 
   // Carregar notificações iniciais
   useEffect(() => {
@@ -288,10 +310,12 @@ const IconeNotificacoes = () => {
     const userId = getId();
     if (!userId) {
       setMensagemErro("Usuário não autenticado.");
+      console.error("No userId found for WebSocket subscription");
       return;
     }
 
     if (stompClientRef.current?.connected) {
+      console.log("WebSocket already connected, skipping setup");
       return;
     }
 
@@ -306,19 +330,41 @@ const IconeNotificacoes = () => {
 
     client.onConnect = () => {
       if (!isMountedRef.current) return;
-      console.log("✅ Conectado ao WebSocket");
-      client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
+      console.log(`✅ Conectado ao WebSocket para userId: ${userId}`);
+
+      // Unsubscribe previous subscription if it exists
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        console.log("Unsubscribed previous WebSocket subscription");
+      }
+
+      // Create new subscription
+      subscriptionRef.current = client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
         if (!isMountedRef.current) return;
-        const novaNotificacao = JSON.parse(message.body);
-        if (!novaNotificacao.lida) {
-          setNotificacoes((prev) => {
-            if (prev.some((n) => n.id === novaNotificacao.id)) return prev;
-            return [novaNotificacao, ...prev];
-          });
-          toast.info(novaNotificacao.mensagem, {
-            position: "top-right",
-            autoClose: 5000,
-          });
+        try {
+          const novaNotificacao = JSON.parse(message.body);
+          console.log(`Received WebSocket notification: ${novaNotificacao.id}, lida: ${novaNotificacao.lida}`);
+          if (!novaNotificacao.lida && !processedNotificationIds.current.has(novaNotificacao.id)) {
+            processedNotificationIds.current.add(novaNotificacao.id);
+            setNotificacoes((prev) => {
+              if (prev.some((n) => n.id === novaNotificacao.id)) {
+                console.log(`Notificação ${novaNotificacao.id} já existe, ignorando`);
+                return prev;
+              }
+              console.log(`Adicionando nova notificação: ${novaNotificacao.id}`);
+              return [novaNotificacao, ...prev];
+            });
+            toast.info(novaNotificacao.mensagem, {
+              position: "top-right",
+              autoClose: 5000,
+              toastId: `info-${novaNotificacao.id}`,
+              onClose: () => console.log(`Toast ${novaNotificacao.id} closed`),
+            });
+          } else {
+            console.log(`Ignoring notification: ${novaNotificacao.id} (lida: ${novaNotificacao.lida}, processed: ${processedNotificationIds.current.has(novaNotificacao.id)})`);
+          }
+        } catch (error) {
+          console.error("Erro ao processar mensagem WebSocket:", error);
         }
       });
       stompClientRef.current = client;
@@ -334,15 +380,21 @@ const IconeNotificacoes = () => {
       if (!isMountedRef.current) return;
       console.log("🔌 Conexão WebSocket fechada");
       stompClientRef.current = null;
+      subscriptionRef.current = null;
     };
 
     client.activate();
 
     return () => {
       if (client?.connected) {
+        if (subscriptionRef.current) {
+          subscriptionRef.current.unsubscribe();
+          console.log("Unsubscribed WebSocket subscription on cleanup");
+        }
         client.deactivate();
         console.log("🔌 WebSocket desconectado");
         stompClientRef.current = null;
+        subscriptionRef.current = null;
       }
     };
   }, [getId]);
@@ -355,7 +407,11 @@ const IconeNotificacoes = () => {
   // Fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !event.target.closest("svg")
+      ) {
         setShowDropdown(false);
       }
     };
@@ -379,37 +435,42 @@ const IconeNotificacoes = () => {
         aria-label="Toggle notificações"
       />
       {notificacoes.length > 0 && <Badge>{Math.min(notificacoes.length, 99)}</Badge>}
-      {showDropdown && (
-        <Dropdown ref={dropdownRef} isVisible={showDropdown}>
-          <DropdownHeader>Notificações</DropdownHeader>
-          {isLoading ? (
-            <MensagemCarregando>Carregando...</MensagemCarregando>
-          ) : notificacoes.length > 0 ? (
-            notificacoes.map((notificacao) => (
-              <NotificacaoItem
-                key={notificacao.id}
-                onClick={() => marcarComoLida(notificacao.id)}
-                tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && marcarComoLida(notificacao.id)}
-                role="button"
-                aria-label={`Marcar notificação como lida: ${notificacao.mensagem}`}
-              >
-                <NotificacaoIcon aria-hidden="true">🔔</NotificacaoIcon>
-                <NotificacaoContent>
-                  <NotificacaoMensagem>{notificacao.mensagem}</NotificacaoMensagem>
-                  <NotificacaoData>{formatarData(notificacao.dataCriacao)}</NotificacaoData>
-                </NotificacaoContent>
-              </NotificacaoItem>
-            ))
-          ) : (
-            <MensagemErro>Nenhuma notificação não lida disponível.</MensagemErro>
-          )}
-        </Dropdown>
-      )}
-      {mensagemErro && !showDropdown && (
-        <MensagemErro>{mensagemErro}</MensagemErro>
-      )}
-      <ToastContainer />
+      <Dropdown ref={dropdownRef} isVisible={showDropdown}>
+        <DropdownHeader>Notificações</DropdownHeader>
+        {isLoading ? (
+          <MensagemCarregando>Carregando...</MensagemCarregando>
+        ) : notificacoes.length > 0 ? (
+          notificacoes.map((notificacao) => (
+            <NotificacaoItem
+              key={notificacao.id}
+              onClick={() => marcarComoLida(notificacao.id)}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && marcarComoLida(notificacao.id)}
+              role="button"
+              aria-label={`Marcar notificação como lida: ${notificacao.mensagem}`}
+            >
+              <NotificacaoIcon aria-hidden="true">🔔</NotificacaoIcon>
+              <NotificacaoContent>
+                <NotificacaoMensagem>{notificacao.mensagem}</NotificacaoMensagem>
+                <NotificacaoData>{formatarData(notificacao.dataCriacao)}</NotificacaoData>
+              </NotificacaoContent>
+            </NotificacaoItem>
+          ))
+        ) : (
+          <MensagemErro>Nenhuma notificação não lida disponível.</MensagemErro>
+        )}
+      </Dropdown>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </NotificacoesContainer>
   );
 };
