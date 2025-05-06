@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/refresh-token", "/auth/logout").permitAll()
+                        .requestMatchers("/ws/**", "/ws/info/**").permitAll()
                         //.requestMatchers("/adv/ins").permitAll()
                         .requestMatchers("/adv/ins").hasAuthority("ROLE_ADVOGADO")
                         .requestMatchers("/adv/**").authenticated()

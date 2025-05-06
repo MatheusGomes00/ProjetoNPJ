@@ -1,16 +1,16 @@
-package com.npj.ProjetoNPJ.notificacoes;
+package com.npj.ProjetoNPJ.notificacoes.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 
-@Document(collection = "notificaoes")
 @Getter
 @Setter
-public class NotificacoesMain {
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class NotificacoesDto {
 
     @Id
     private String id;
@@ -26,3 +26,5 @@ public class NotificacoesMain {
     private LocalDate dataCriacao;
 
 }
+
+

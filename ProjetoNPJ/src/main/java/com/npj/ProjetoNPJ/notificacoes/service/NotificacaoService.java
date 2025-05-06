@@ -1,37 +1,52 @@
 package com.npj.ProjetoNPJ.notificacoes.service;
 
-import com.npj.ProjetoNPJ.notificacoes.NotificacoesMain;
+
+import com.npj.ProjetoNPJ.advogados.entity.Advogado;
+import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
+import com.npj.ProjetoNPJ.notificacoes.entitie.Notificacao;
 import com.npj.ProjetoNPJ.notificacoes.repository.NotificacaoRepository;
+import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
-public class NotificacaoService {
+public class NotificacaoService{
 
     @Autowired
     private NotificacaoRepository repository;
 
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    public Notificacao criarNotificacao(String mensagem, String advogadoId, String tarefaId){
+        Notificacao notificacao = new Notificacao();
+        notificacao.setAdvogadoId(advogadoId);
+        notificacao.setMensagem(mensagem);
+        notificacao.setTarefaID(tarefaId);
+        notificacao.setDataCriacao(LocalDateTime.now());
 
-    public void criarNotificacao(String advogadoId, String mensagem, String tarefaId){
-
-        NotificacoesMain notificacoesMain = new NotificacoesMain();
-        notificacoesMain.setAdvogadoId(advogadoId);
-        notificacoesMain.setMensagem(mensagem);
-        notificacoesMain.setTarefaId(tarefaId);
-        notificacoesMain.setLida(false);
-        notificacoesMain.setDataCriacao(LocalDate.now());
-
-        repository.save(notificacoesMain);
-
-        messagingTemplate.convertAndSend("/topic/notificacoes/" + advogadoId, notificacoesMain );
-
+        return repository.save(notificacao);
     }
 
-}
+    public List<Notificacao> buscarNotificacoesPorAdvogado(String advogadoId){
+        return repository.findByAdvogadoId(advogadoId);
+    }
 
+    public List<Notificacao> buscarNotificacoesNaoLidas(String advogadoId){
+
+        return repository.findByAdvogadoAndLida(advogadoId);
+    }
+
+    public Notificacao finalizar(String id){
+         Notificacao notificacao = repository.findById(id).orElseThrow(()-> new RecursoNaoEncontradoException("Notificacao não encontrada"));
+
+
+        notificacao.setLida(true);
+
+        repository.save(notificacao);
+        return notificacao;
+    }
+
+
+}

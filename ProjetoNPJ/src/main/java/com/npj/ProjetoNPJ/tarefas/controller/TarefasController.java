@@ -5,6 +5,8 @@ package com.npj.ProjetoNPJ.tarefas.controller;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
+import com.npj.ProjetoNPJ.notificacoes.entitie.Notificacao;
+
 import com.npj.ProjetoNPJ.notificacoes.service.NotificacaoService;
 import com.npj.ProjetoNPJ.security.JwtService;
 import com.npj.ProjetoNPJ.security.JwtService.*;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +41,11 @@ public class TarefasController {
     @Autowired
     private NotificacaoService notificacaoService;
 
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
+
+
     @PostMapping(value = "/create")
     public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody  DtoTarefas tarefaDto, @RequestHeader("Authorization") String authorizationHeader) {
 
@@ -52,14 +60,12 @@ public class TarefasController {
 
         DtoTarefas tarefa = service.insert(tarefaDto);
 
-        // Criar notificações para cada responsável
-        for (String responsavelId : tarefaDto.getResponsaveisId()) {
-            notificacaoService.criarNotificacao(
-                    responsavelId,
-                    "Uma tarefa foi atribuída a você: " + tarefaDto.getNomeTarefa(),
-                    tarefa.getId()
-            );
-        }
+        String mensagem = "Uma nova Tarefa foi atribuída a voce: " + tarefa.getNomeTarefa();
+
+        Notificacao notificacao = notificacaoService.criarNotificacao(mensagem, advogadoId, tarefa.getId());
+
+        messagingTemplate.convertAndSend("/topic/notificacoes/" + advogadoId, notificacao );
+
         return ResponseEntity.ok().body(tarefa);
     }
 
@@ -118,4 +124,5 @@ public class TarefasController {
 
         return ResponseEntity.ok(tarefaAtualiza);
     }
+    
 }
