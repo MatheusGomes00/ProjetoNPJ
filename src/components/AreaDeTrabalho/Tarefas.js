@@ -169,7 +169,7 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 10000;
+  z-index: 100;
   background: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;
@@ -308,22 +308,6 @@ const BotaoFechar = styled.button`
   font-size: 18px;
   cursor: pointer;
   color: #666;
-`;
-
-const NomeTarefa = styled.h3`
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  margin-bottom: 10px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  line-clamp: 3;
-  overflow: auto;
-  text-overflow: ellipsis;
-  word-break: break-word;
-  max-width: 100%;
 `;
 
 const DetalheItem = styled.div`

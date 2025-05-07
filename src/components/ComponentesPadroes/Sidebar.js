@@ -18,6 +18,7 @@ const SidebarContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   overflow-y: auto;
+  z-index = 100000;
 `;
 
 // Estilo do título
