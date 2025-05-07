@@ -6,6 +6,7 @@ import { Client } from "@stomp/stompjs";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAuth from "../Seguranca/UseAuth";
+import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
 
 // Estilos
 const NotificacoesContainer = styled.div`
@@ -164,8 +165,10 @@ const IconeNotificacoes = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const [selectedTarefa, setSelectedTarefa] = useState(null);
+  const [selectedNotificacaoId, setSelectedNotificacaoId] = useState(null);
   const stompClientRef = useRef(null);
-  const subscriptionRef = useRef(null); // Track WebSocket subscription
+  const subscriptionRef = useRef(null);
   const dropdownRef = useRef(null);
   const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
@@ -212,7 +215,7 @@ const IconeNotificacoes = () => {
           (notificacao) => !processedNotificationIds.current.has(notificacao.id)
         );
         uniqueNotificacoes.forEach((notificacao) => {
-          console.log(`Fetched notification: ${notificacao.id}`);
+          console.log(`Fetched notification: ${notificacao.id}, tarefaID: ${notificacao.tarefaID}`);
           processedNotificationIds.current.add(notificacao.id);
         });
         setNotificacoes(uniqueNotificacoes.length > 0 ? uniqueNotificacoes : []);
@@ -292,6 +295,140 @@ const IconeNotificacoes = () => {
     [fetchAuthenticated, logoutWithRedirect]
   );
 
+  // Função para buscar detalhes da tarefa
+  const fetchTarefa = useCallback(
+    async (tarefaId, notificacaoId) => {
+      if (!isMountedRef.current || !tarefaId) return;
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/task/${tarefaId}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        if (isMountedRef.current) {
+          console.log(`Tarefa fetched: ${tarefaId}`, data);
+          setSelectedTarefa(data);
+          setSelectedNotificacaoId(notificacaoId);
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao buscar tarefa:", error);
+          toast.error(`Erro ao carregar tarefa: ${error.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            toastId: `error-tarefa-${tarefaId}`,
+          });
+        }
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  // Função para finalizar tarefa
+  const finalizarTarefa = useCallback(
+    async (tarefaId) => {
+      if (!isMountedRef.current || !tarefaId) return;
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/tarefas/finalizar/${tarefaId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+
+        if (isMountedRef.current) {
+          setSelectedTarefa(null);
+          if (selectedNotificacaoId) {
+            await marcarComoLida(selectedNotificacaoId);
+          }
+          toast.success("Tarefa finalizada com sucesso!", {
+            position: "top-right",
+            autoClose: 3000,
+            toastId: `success-tarefa-${tarefaId}`,
+          });
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao finalizar tarefa:", error);
+          toast.error(`Erro ao finalizar tarefa: ${error.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            toastId: `error-tarefa-${tarefaId}`,
+          });
+        }
+      }
+    },
+    [fetchAuthenticated, marcarComoLida, selectedNotificacaoId]
+  );
+
+  // Função para reativar tarefa
+  const reativarTarefa = useCallback(
+    async (tarefaId) => {
+      if (!isMountedRef.current || !tarefaId) return;
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/tarefas/reativar/${tarefaId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+
+        if (isMountedRef.current) {
+          setSelectedTarefa(null);
+          toast.success("Tarefa reativada com sucesso!", {
+            position: "top-right",
+            autoClose: 3000,
+            toastId: `success-reativar-${tarefaId}`,
+          });
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao reativar tarefa:", error);
+          toast.error(`Erro ao reativar tarefa: ${error.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            toastId: `error-reativar-${tarefaId}`,
+          });
+        }
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  // Função para editar tarefa (placeholder)
+  const editarTarefa = useCallback((tarefa) => {
+    console.log("Editar tarefa:", tarefa);
+    toast.info("Funcionalidade de edição ainda não implementada.", {
+      position: "top-right",
+      autoClose: 3000,
+      toastId: `info-editar-${tarefa.id}`,
+    });
+  }, []);
+
   // Carregar notificações iniciais
   useEffect(() => {
     isMountedRef.current = true;
@@ -332,18 +469,16 @@ const IconeNotificacoes = () => {
       if (!isMountedRef.current) return;
       console.log(`✅ Conectado ao WebSocket para userId: ${userId}`);
 
-      // Unsubscribe previous subscription if it exists
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
         console.log("Unsubscribed previous WebSocket subscription");
       }
 
-      // Create new subscription
       subscriptionRef.current = client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
         if (!isMountedRef.current) return;
         try {
           const novaNotificacao = JSON.parse(message.body);
-          console.log(`Received WebSocket notification: ${novaNotificacao.id}, lida: ${novaNotificacao.lida}`);
+          console.log(`Received WebSocket notification: ${novaNotificacao.id}, tarefaID: ${novaNotificacao.tarefaID}, lida: ${novaNotificacao.lida}`);
           if (!novaNotificacao.lida && !processedNotificationIds.current.has(novaNotificacao.id)) {
             processedNotificationIds.current.add(novaNotificacao.id);
             setNotificacoes((prev) => {
@@ -425,6 +560,30 @@ const IconeNotificacoes = () => {
     setShowDropdown((prev) => !prev);
   }, []);
 
+  // Fechar modal
+  const closeModal = useCallback(() => {
+    setSelectedTarefa(null);
+    setSelectedNotificacaoId(null);
+  }, []);
+
+  // Abrir modal ao clicar na notificação
+  const handleNotificacaoClick = useCallback(
+    (notificacao) => {
+      if (notificacao.tarefaID) {
+        console.log(`Opening modal for tarefaID: ${notificacao.tarefaID}, notificacaoId: ${notificacao.id}`);
+        fetchTarefa(notificacao.tarefaID, notificacao.id);
+      } else {
+        console.warn("Notificação sem tarefaID:", notificacao);
+        toast.error("Não foi possível carregar a tarefa.", {
+          position: "top-right",
+          autoClose: 5000,
+          toastId: `error-no-tarefa-${notificacao.id}`,
+        });
+      }
+    },
+    [fetchTarefa]
+  );
+
   return (
     <NotificacoesContainer>
       <SinoIcon
@@ -443,11 +602,11 @@ const IconeNotificacoes = () => {
           notificacoes.map((notificacao) => (
             <NotificacaoItem
               key={notificacao.id}
-              onClick={() => marcarComoLida(notificacao.id)}
+              onClick={() => handleNotificacaoClick(notificacao)}
               tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && marcarComoLida(notificacao.id)}
+              onKeyDown={(e) => e.key === "Enter" && handleNotificacaoClick(notificacao)}
               role="button"
-              aria-label={`Marcar notificação como lida: ${notificacao.mensagem}`}
+              aria-label={`Ver detalhes da tarefa: ${notificacao.mensagem}`}
             >
               <NotificacaoIcon aria-hidden="true">🔔</NotificacaoIcon>
               <NotificacaoContent>
@@ -460,6 +619,16 @@ const IconeNotificacoes = () => {
           <MensagemErro>Nenhuma notificação não lida disponível.</MensagemErro>
         )}
       </Dropdown>
+      {selectedTarefa && (
+        <ModalTarefa
+          tarefa={selectedTarefa}
+          onClose={closeModal}
+          onFinalizar={finalizarTarefa}
+          onReabrir={reativarTarefa}
+          onEditar={editarTarefa}
+          marcarComoLida={() => selectedNotificacaoId && marcarComoLida(selectedNotificacaoId)}
+        />
+      )}
       <ToastContainer
         position="top-right"
         autoClose={5000}
