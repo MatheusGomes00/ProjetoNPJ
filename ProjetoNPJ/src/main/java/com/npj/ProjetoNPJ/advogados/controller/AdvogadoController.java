@@ -54,7 +54,7 @@ public class AdvogadoController {
     @PatchMapping(value = "/del/{id}")
     public ResponseEntity<Void> excluir(@PathVariable String id){
 
-        service.delete(id);
+        service.alterarStatus(id);
         return ResponseEntity.ok().build();
     }
 

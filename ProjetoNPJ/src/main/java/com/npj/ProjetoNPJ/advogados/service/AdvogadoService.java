@@ -118,7 +118,7 @@ public class AdvogadoService {
         repository.save(advogado);
     }
 
-    public void delete(String id) {
+    public void alterarStatus(String id) {
         Advogado advogado = repository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
         advogado.setStatus(!advogado.getStatus());
         repository.save(advogado);
