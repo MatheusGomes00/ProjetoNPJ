@@ -44,7 +44,8 @@ public class TarefasController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-
+    @Autowired
+    private TarefefasService services;
 
     @PostMapping(value = "/create")
     public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody  DtoTarefas tarefaDto, @RequestHeader("Authorization") String authorizationHeader) {
@@ -110,6 +111,11 @@ public class TarefasController {
         List<DtoTarefas> dto = service.getTarefasAutenticado();
         return ResponseEntity.ok(dto);
     }
+    @GetMapping(value = "/{id}")
+    public ResponseEntity <DtoTarefas> listarTarefaNotifi(@PathVariable String id){
+        DtoTarefas dto = services.findById(id);
+        return ResponseEntity.ok(dto);
+    }
 
     @GetMapping(value = "/search/{nome}")
     public ResponseEntity<List<DtoTarefas>> buscarPorNome(@PathVariable String nome){
@@ -124,5 +130,8 @@ public class TarefasController {
 
         return ResponseEntity.ok(tarefaAtualiza);
     }
-    
+
+
+
+
 }

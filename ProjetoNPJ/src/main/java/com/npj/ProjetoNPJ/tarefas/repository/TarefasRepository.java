@@ -22,6 +22,7 @@ public interface TarefasRepository extends MongoRepository<Tarefas, String> {
     List<Tarefas> findByNome(String nome);
 
 
+
     @Query("{'responsaveis.id': ?0 }")
     Page<Tarefas> findAllPageable(String id, Pageable pageable);
 

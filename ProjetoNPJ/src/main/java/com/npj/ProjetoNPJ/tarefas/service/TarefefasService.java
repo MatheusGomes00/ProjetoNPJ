@@ -138,4 +138,12 @@ public class TarefefasService {
 
         return tarefaDtoPage;
     }
+
+    public DtoTarefas findById(String id){
+
+        Tarefas tarefas = repository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
+
+        return TarefasMapper.toDto(tarefas);
+
+    }
 }
