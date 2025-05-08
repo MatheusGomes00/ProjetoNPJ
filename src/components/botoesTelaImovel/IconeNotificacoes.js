@@ -5,7 +5,6 @@ import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { debounce } from "lodash";
 import useAuth from "../Seguranca/UseAuth";
 import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
 
@@ -174,27 +173,22 @@ const IconeNotificacoes = () => {
   const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
   const processedNotificationIds = useRef(new Set());
+  const toastCounter = useRef(0); // Contador para IDs únicos
 
   // Função para gerar IDs únicos para toasts
-  const generateUniqueToastId = (prefix, id) => `${prefix}-${id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const generateUniqueToastId = (prefix, id) => `${prefix}-${id}-${toastCounter.current++}`;
 
-  // Função centralizada para exibir toasts
-  const showToast = useCallback((type, message, id, options = {}) => {
-    toast.dismiss(); // Fecha qualquer toast existente
-    const toastId = generateUniqueToastId(type, id);
-    toast[type](message, {
+  // Função para exibir toasts de notificação
+  const showNotificationToast = useCallback((notificacao) => {
+    console.log(`Exibindo toast para notificação ${notificacao.id}: ${notificacao.mensagem}`);
+    toast.dismiss(); // Fecha qualquer toast anterior
+    toast.info(notificacao.mensagem, {
       position: "top-right",
       autoClose: 5000,
-      toastId,
-      onClose: () => console.log(`Toast ${toastId} dismissed`),
-      ...options,
+      toastId: generateUniqueToastId("create", notificacao.id),
+      onClose: () => console.log(`Toast create-${notificacao.id} closed`),
     });
   }, []);
-
-  // Função debounced para exibir toasts de notificação do WebSocket
-  const showNotificationToast = debounce((notificacao) => {
-    showToast("info", notificacao.mensagem, notificacao.id);
-  }, 500);
 
   // Função para formatar a data
   const formatarData = useCallback((dataString) => {
@@ -293,12 +287,16 @@ const IconeNotificacoes = () => {
             return updated;
           });
           processedNotificationIds.current.delete(notificacaoId);
-          showToast("success", "Notificação marcada como lida!", notificacaoId, { autoClose: 3000 });
         }
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao marcar notificação como lida:", error);
-          showToast("error", `Erro ao marcar notificação: ${error.message}`, notificacaoId);
+          toast.error(`Erro ao marcar notificação: ${error.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            toastId: generateUniqueToastId("error", notificacaoId),
+            onClose: () => console.log(`Toast error-${notificacaoId} dismissed`),
+          });
           if (error.message.includes("401")) {
             setMensagemErro("Sessão expirada. Redirecionando...");
             setTimeout(logoutWithRedirect, 2000);
@@ -306,7 +304,7 @@ const IconeNotificacoes = () => {
         }
       }
     },
-    [fetchAuthenticated, logoutWithRedirect, showToast]
+    [fetchAuthenticated, logoutWithRedirect]
   );
 
   // Função para buscar detalhes da tarefa
@@ -337,11 +335,16 @@ const IconeNotificacoes = () => {
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao buscar tarefa:", error);
-          showToast("error", `Erro ao carregar tarefa: ${error.message}`, tarefaId);
+          toast.error(`Erro ao carregar tarefa: ${error.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            toastId: generateUniqueToastId("error", tarefaId),
+            onClose: () => console.log(`Toast tarefa-${tarefaId} dismissed`),
+          });
         }
       }
     },
-    [fetchAuthenticated, showToast]
+    [fetchAuthenticated]
   );
 
   // Função para finalizar tarefa
@@ -365,17 +368,26 @@ const IconeNotificacoes = () => {
 
         if (isMountedRef.current) {
           setSelectedTarefa(null);
-          setSelectedNotificacaoId(null);
-          showToast("success", "Tarefa finalizada com sucesso!", tarefaId, { autoClose: 3000 });
+          toast.success("Tarefa finalizada com sucesso!", {
+            position: "top-right",
+            autoClose: 3000,
+            toastId: generateUniqueToastId("success", tarefaId),
+            onClose: () => console.log(`Toast tarefa-${tarefaId} dismissed`),
+          });
         }
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao finalizar tarefa:", error);
-          showToast("error", `Erro ao finalizar tarefa: ${error.message}`, tarefaId);
+          toast.error(`Erro ao finalizar tarefa: ${error.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            toastId: generateUniqueToastId("error", tarefaId),
+            onClose: () => console.log(`Toast tarefa-${tarefaId} dismissed`),
+          });
         }
       }
     },
-    [fetchAuthenticated, showToast]
+    [fetchAuthenticated]
   );
 
   // Função para reativar tarefa
@@ -399,23 +411,38 @@ const IconeNotificacoes = () => {
 
         if (isMountedRef.current) {
           setSelectedTarefa(null);
-          showToast("success", "Tarefa reativada com sucesso!", tarefaId, { autoClose: 3000 });
+          toast.success("Tarefa reativada com sucesso!", {
+            position: "top-right",
+            autoClose: 3000,
+            toastId: generateUniqueToastId("success", tarefaId),
+            onClose: () => console.log(`Toast reativar-${tarefaId} dismissed`),
+          });
         }
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao reativar tarefa:", error);
-          showToast("error", `Erro ao reativar tarefa: ${error.message}`, tarefaId);
+          toast.error(`Erro ao reativar tarefa: ${error.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            toastId: generateUniqueToastId("error", tarefaId),
+            onClose: () => console.log(`Toast reativar-${tarefaId} dismissed`),
+          });
         }
       }
     },
-    [fetchAuthenticated, showToast]
+    [fetchAuthenticated]
   );
 
   // Função para editar tarefa (placeholder)
   const editarTarefa = useCallback((tarefa) => {
     console.log("Editar tarefa:", tarefa);
-    showToast("info", "Funcionalidade de edição ainda não implementada.", tarefa.id, { autoClose: 3000 });
-  }, [showToast]);
+    toast.info("Funcionalidade de edição ainda não implementada.", {
+      position: "top-right",
+      autoClose: 3000,
+      toastId: generateUniqueToastId("info", tarefa.id),
+      onClose: () => console.log(`Toast editar-${tarefa.id} dismissed`),
+    });
+  }, []);
 
   // Carregar notificações iniciais
   useEffect(() => {
@@ -479,9 +506,12 @@ const IconeNotificacoes = () => {
                 return prev;
               }
               console.log(`Adicionando nova notificação: ${novaNotificacao.id}`);
-              return [novaNotificacao, ...prev];
+              const updated = [novaNotificacao, ...prev];
+              showNotificationToast(novaNotificacao);
+              return updated;
             });
-            showNotificationToast(novaNotificacao);
+          } else {
+            console.log(`Notificação ${novaNotificacao.id} já processada, ignorando`);
           }
         } catch (error) {
           console.error("Erro ao processar mensagem WebSocket:", error);
@@ -501,6 +531,7 @@ const IconeNotificacoes = () => {
       console.log("🔌 Conexão WebSocket fechada");
       stompClientRef.current = null;
       subscriptionRef.current = null;
+      processedNotificationIds.current.clear(); // Limpa IDs processados ao desconectar
     };
 
     client.activate();
@@ -515,9 +546,10 @@ const IconeNotificacoes = () => {
         console.log("🔌 WebSocket desconectado");
         stompClientRef.current = null;
         subscriptionRef.current = null;
+        processedNotificationIds.current.clear(); // Limpa IDs processados ao desmontar
       }
     };
-  }, [getId]);
+  }, [getId, showNotificationToast]);
 
   useEffect(() => {
     const cleanup = setupWebSocket();
@@ -556,19 +588,29 @@ const IconeNotificacoes = () => {
     (notificacao) => {
       if (!notificacao?.id) {
         console.warn("Notificação inválida:", notificacao);
-        showToast("error", "Notificação inválida.", "invalid-notificacao");
+        toast.error("Notificação inválida.", {
+          position: "top-right",
+          autoClose: 5000,
+          toastId: generateUniqueToastId("error", "invalid-notificacao"),
+          onClose: () => console.log("Toast invalid-notificacao dismissed"),
+        });
         return;
       }
       if (notificacao.tarefaID) {
         console.log(`Opening modal for tarefaID: ${notificacao.tarefaID}, notificacaoId: ${notificacao.id}`);
         fetchTarefa(notificacao.tarefaID, notificacao.id);
-        marcarComoLida(notificacao.id); // Marca a notificação como lida apenas aqui
+        marcarComoLida(notificacao.id);
       } else {
         console.warn("Notificação sem tarefaID:", notificacao);
-        showToast("error", "Não foi possível carregar a tarefa.", notificacao.id);
+        toast.error("Não foi possível carregar a tarefa.", {
+          position: "top-right",
+          autoClose: 5000,
+          toastId: generateUniqueToastId("error", notificacao.id),
+          onClose: () => console.log(`Toast no-tarefa-${notificacao.id} dismissed`),
+        });
       }
     },
-    [fetchTarefa, marcarComoLida, showToast]
+    [fetchTarefa, marcarComoLida]
   );
 
   return (
@@ -620,10 +662,11 @@ const IconeNotificacoes = () => {
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop
-        closeOnClick={true}
+      
         rtl={false}
         pauseOnFocusLoss
         draggable
+        limit={1}
       />
     </NotificacoesContainer>
   );
