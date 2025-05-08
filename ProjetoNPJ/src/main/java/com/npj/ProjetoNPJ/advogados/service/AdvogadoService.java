@@ -52,13 +52,14 @@ public class AdvogadoService {
         return cpf.replaceAll("[.\\-\\s]", "");
     }
 
-    public void insert(DtoAdvogado dto){
+    public ResponseAdvogadoDto insert(DtoAdvogado dto){
         dto.setCpf(normalizarCpf(dto.getCpf()));
         validarCpf(dto.getCpf());
         dto.setStatus(true);
         dto.setSenha(passwordEncoder.encode(dto.getSenha()));
         Advogado newAdvogado = AdvogadoMapper.toEntitie(dto);
         repository.insert(newAdvogado);
+        return AdvogadoMapper.responseDto(newAdvogado);
     }
 
     public void update(UpdateRequestDto dto, String id){
