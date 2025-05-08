@@ -10,7 +10,7 @@ import {
   FormSelect,
   Mensagem,
   Popup,
-} from './EstilosAdvogados';
+} from './EditarStyles';
 
 
 const FormInputPassword = ({ label, name, value, onChange, showPassword, toggleShowPassword }) => (

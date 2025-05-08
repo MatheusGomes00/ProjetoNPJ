@@ -1,5 +1,3 @@
-import { TextField, InputAdornment, IconButton } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
 import styled from "styled-components";
 
 // Estilo do título da seção
