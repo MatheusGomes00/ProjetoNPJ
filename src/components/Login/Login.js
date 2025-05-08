@@ -113,10 +113,9 @@ const Login = () => {
     try {
       
       await login(username, password);
-      console.log("Login bem-sucedido, token salvo: ", sessionStorage.getItem("accessToken"));
       
       if (isAuthenticated()) {
-        console.log("Login bem-sucedido, redirecionando para /workspace");
+        
         navigate("/workspace", {replace: true});
         setTimeout(() => {
           if (window.location.pathname !== "/workspace") {
