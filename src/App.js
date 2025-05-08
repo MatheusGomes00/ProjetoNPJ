@@ -2,8 +2,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login/Login";
 import AreaDeTrabalho from "./components/AreaDeTrabalho/AreaDeTrabalho";
 import TarefasMain from "./components/Tarefas/TarefasMain";
-import AdvogadosTela from "./components/Advogados/AdvogadosTela";
-import SearchBar from "./components/Advogados/Searchbar";
+import AdvogadosMain from "./components/Advogados/AdvogadosMain";
+import CriarAdvogados from "./components/Advogados/CriarAdvogados";
+import DetalhesAdvogados from "./components/Advogados/DetalhesAdvogados";
 import { isAuthenticated } from "./components/Seguranca/GerenciaToken";
 import Processos from "./components/Processos/ProcessosMain";
 import ClientesMain from "./components/Clientes/ClientesMain";
@@ -37,11 +38,15 @@ function App() {
         />
         <Route
           path="/advogados"
-          element={isAuthenticated() ? <AdvogadosTela /> : <Navigate to="/login" />}
+          element={isAuthenticated() ? <AdvogadosMain /> : <Navigate to="/login" />}
         />
         <Route
-          path="/search"
-          element={isAuthenticated() ? <SearchBar /> : <Navigate to="/login" />}
+          path="/advogados/criar"
+          element={isAuthenticated() ? <CriarAdvogados /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/advogados/:id"
+          element={isAuthenticated() ? <DetalhesAdvogados /> : <Navigate to="/login" />}
         />
         <Route
           path="/clientes"
