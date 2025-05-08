@@ -52,6 +52,7 @@ public class AdvogadoService {
         return cpf.replaceAll("[.\\-\\s]", "");
     }
 
+
     public ResponseAdvogadoDto insert(DtoAdvogado dto){
         dto.setCpf(normalizarCpf(dto.getCpf()));
         validarCpf(dto.getCpf());
