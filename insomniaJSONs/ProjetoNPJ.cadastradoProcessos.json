@@ -1,0 +1,81 @@
+[{
+  "_id": {
+    "$oid": "67ec7df58b5f1a4e463a40e4"
+  },
+  "situacao": "FINALIZADO",
+  "_class": "com.npj.ProjetoNPJ.processos.entity.Processos"
+},
+{
+  "_id": {
+    "$oid": "67ec7cb61b8226781de072fe"
+  },
+  "situacao": "INICIADO",
+  "numeroProcesso": "1007217-37.2024.8.26.0196",
+  "pasta": "Distribuído",
+  "tipoAcaoClasse": "Procedimento Comum Cível - Guarda",
+  "representanteLegal": "CAROLYNE GUIMARÃES LOPES DA COSTA",
+  "requerido": "WELLIGTON RODRIGUES MOREIRA",
+  "vara": "3ª Vara de Família e das Sucessões",
+  "valorCausa": "R$ 8.472,00",
+  "advogadosResponsaveis": [
+    "67abe806104c212f07b1dc5c"
+  ],
+  "_class": "com.npj.ProjetoNPJ.processos.entity.Processos"
+},
+{
+  "_id": {
+    "$oid": "67edd2f9be8cc417a025829d"
+  },
+  "situacao": "INICIADO",
+  "numeroProcesso": "1007217-37.2024.8.26.0196",
+  "pasta": "Distribuído",
+  "tipoAcaoClasse": "Procedimento Comum Cível - Guarda",
+  "representanteLegal": "CAROLYNE GUIMARÃES LOPES DA COSTA",
+  "requerido": "WELLIGTON RODRIGUES MOREIRA",
+  "vara": "3ª Vara de Família e das Sucessões",
+  "valorCausa": "R$ 8.472,00",
+  "advogadosResponsaveis": [
+    "67abe806104c212f07b1dc5c"
+  ],
+  "_class": "com.npj.ProjetoNPJ.processos.entity.Processos"
+},
+{
+  "_id": {
+    "$oid": "67edd644e73f677075437884"
+  },
+  "situacao": "INICIADO",
+  "numeroProcesso": "1007217-37.2024.8.26.0196",
+  "pasta": "Distribuído",
+  "tipoAcaoClasse": "Procedimento Comum Cível - Guarda",
+  "representanteLegal": "CAROLYNE GUIMARÃES LOPES DA COSTA",
+  "requerido": "WELLIGTON RODRIGUES MOREIRA",
+  "vara": "3ª Vara de Família e das Sucessões",
+  "valorCausa": "R$ 8.472,00",
+  "cliente": [
+    "67edd609e73f677075437883"
+  ],
+  "advogadosResponsaveis": [
+    "67abe806104c212f07b1dc5c"
+  ],
+  "_class": "com.npj.ProjetoNPJ.processos.entity.Processos"
+},
+{
+  "_id": {
+    "$oid": "67edd64fe73f677075437885"
+  },
+  "situacao": "INICIADO",
+  "numeroProcesso": "1007217-37.2024.8.26.0196",
+  "pasta": "Distribuído",
+  "tipoAcaoClasse": "Procedimento Comum Cível - Guarda",
+  "representanteLegal": "CAROLYNE GUIMARÃES LOPES DA COSTA",
+  "requerido": "WELLIGTON RODRIGUES MOREIRA",
+  "vara": "3ª Vara de Família e das Sucessões",
+  "valorCausa": "R$ 8.472,00",
+  "cliente": [
+    "67edd609e73f677075437883"
+  ],
+  "advogadosResponsaveis": [
+    "67abe806104c212f07b1dc5c"
+  ],
+  "_class": "com.npj.ProjetoNPJ.processos.entity.Processos"
+}]

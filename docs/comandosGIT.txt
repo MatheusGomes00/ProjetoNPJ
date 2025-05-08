@@ -1,0 +1,43 @@
+Para fazer o merge você vai precisar de duas branchs 
+O ideal é sempre deixar a branch superior sem alterações e fazer as alterações em uma branch de teste
+Se estiver tudo beleza na branch de teste, você retorna para a branch superior e faz o merge
+Para mudar de branch precisa fazer o commit, e NÃO git stash...
+O merge vai ser feito de uma branch superior com a branch de teste
+Exemplo:
+	temos a branch 'superior' developer, ela não listou nada com git status;
+	para evitar erros, realizamos o git pull para deixar ela atualizada e não impedir o fluxo final;
+	alteramos para um branch de teste tipo feature/clientes;
+	fazemos as alterações e salvamos com o commit;
+	voltamos para a branch superior developer;
+	realizamos o merge;
+	depois finalizamos com o push;
+obs	pode dar erro no merge, pedindo para verificar, só abrir a IDE que os arquivos já vão estar selecionados;
+	pode dar erro no push se tiver alterações não recuperadas do repositorio remoto;
+
+
+*** COMANDOS PARA FAZER O MERGE ***
+
+criar branch e mudar para a branch criada... ****para mudar de branch não pode ter arquivos listados com 'git status', precisa adicionar e fazer o commit***
+
+	git checkout -b nomeDaNovaBranch
+
+
+se já tiver branch criada, listar as branchs
+	
+	git branch
+
+
+mudar de branch, APÓS COMMIT FEITO na branch de teste criada ou já existente*** 
+	
+	git switch nomeDaBranch
+
+
+fazer o merge da branch atual com outra branch
+
+	git merge -m "merge nome da branch atual com nome da branch desejada" nomeDaBranchDesejada
+
+ex:	git merge -m "merge da branch developer com a branch feature/advogados" feature/advogados
+
+
+depois é só fazer o push
+

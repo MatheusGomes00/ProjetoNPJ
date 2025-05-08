@@ -1,0 +1,762 @@
+type: collection.insomnia.rest/5.0
+name: My Collection
+meta:
+  id: wrk_89fd8b7f0a874a59ba68f158d09d836d
+  created: 1738972072737
+  modified: 1738972072737
+collection:
+  - name: Agenda
+    meta:
+      id: fld_1a09019bf98c4e8ab26ae4d4ebf611a3
+      created: 1743635731234
+      modified: 1743635731234
+      sortKey: -1743635731234
+    children:
+      - url: http://localhost:8080/agenda/insert
+        name: Inserir Agendamento
+        meta:
+          id: req_96f07dab259948b7a2f2f5889a277e39
+          created: 1743634416512
+          modified: 1743636878790
+          isPrivate: false
+          sortKey: -1743635733075
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "João Silva Pereira",
+              "cpf": "123.456.789-00",
+              "dataAgendamento": "2025-04-15",
+              "casoTipo": "td",
+              "responsaveis": [
+                "67abe806104c212f07b1dc5c"
+              ]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2MzQ0NjAsImV4cCI6MTc0MzYzODA2MH0.cJ7qbnur8UgNSsS6qLfl2NRxavmMtS3UB7Eu88hN1DQbmf8YQtxpQ0Zh0ojKuXGOGPBsuUx0NmtY2-Xp7Avo7A
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/agenda/upd/67edc323d2f22630b6433a0f
+        name: Editar Agendamento
+        meta:
+          id: req_9dda50bf26954c189d6cbe446e8b21c0
+          created: 1743635480037
+          modified: 1743635734463
+          isPrivate: false
+          sortKey: -1743635732975
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nome": "João Silva Pereira",
+              "cpf": "123.456.789-00",
+              "dataAgendamento": "2025-04-15",
+              "casoTipo": "Guardaaaaaa",
+              "responsaveis": [
+                "67abe806104c212f07b1dc5c"
+              ]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2MzU1MjcsImV4cCI6MTc0MzYzOTEyN30.2QVqOihpEFDcFgx3dahsiTn-Zs0ZSWeNmC7xUgVDaiW2tmaOPM6-rTBdzLINHJ_Omv2S0vdGlX09uIhMZXNSJw
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - name: Buscar Agendamento por ID
+        meta:
+          id: req_ef294cf9102a431ca778877344f613aa
+          created: 1743635714340
+          modified: 1743635733142
+          isPrivate: false
+          sortKey: -1743635732875
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/agenda/buscarPorId/67edc98fe6926b15be829a7a
+        name: Buscar Agendamento por ID
+        meta:
+          id: req_1307258ffd154d55b95c26dbcf0aef70
+          created: 1743635795871
+          modified: 1743637268119
+          isPrivate: false
+          sortKey: -1743635795871
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2MzYwMjMsImV4cCI6MTc0MzYzOTYyM30.1CRkJ-95wvCWdiMmjCHUGXNKCjUCW7glskLaWHB1gD7i0iTC4rArmydkofhfnUpqQwOoLkxdKECTLkHhcIBBbg
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/agenda/todos
+        name: Buscar Todos os agendamentos
+        meta:
+          id: req_468c423af89943d18562f5ffe73be96f
+          created: 1743636081018
+          modified: 1743636125536
+          isPrivate: false
+          sortKey: -1743636081018
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2MzYxMDYsImV4cCI6MTc0MzYzOTcwNn0.hRJbv5NWXY-f4zq79EKSftBkG4qwox8E_-hOw0zexPU7u8W7hhfrOqjCWoZRKnqkRxo4FmEwKqigKJ0R2KvrgQ
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/agenda/nome/Maria
+        name: Buscar Agendamento por Nome
+        meta:
+          id: req_e7872e8f01ab4d13b5e6c7a9a3b7daf8
+          created: 1743636271526
+          modified: 1743636516799
+          isPrivate: false
+          sortKey: -1743636271526
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2MzYxMDYsImV4cCI6MTc0MzYzOTcwNn0.hRJbv5NWXY-f4zq79EKSftBkG4qwox8E_-hOw0zexPU7u8W7hhfrOqjCWoZRKnqkRxo4FmEwKqigKJ0R2KvrgQ
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/agenda/cpf/11111111111
+        name: Buscar Agendamento por CPF
+        meta:
+          id: req_e4f63f63facb45b1a14e8c871d0c0b20
+          created: 1743636777244
+          modified: 1743636811164
+          isPrivate: false
+          sortKey: -1743636777244
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2MzY4MDcsImV4cCI6MTc0MzY0MDQwN30.UuWUHEdpG5k8FjKO_0oWW8vkhq7xaGKgw1CMsCFPcEkbjIUwnKTNLmfxgoY_vGWpfMTve9dklf0wG_VFZq5Mlw
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Processos
+    meta:
+      id: fld_d6829f162ad94cbea7423b2fa889dd69
+      created: 1743635742467
+      modified: 1743638214448
+      sortKey: -1743635742467
+    children:
+      - url: http://localhost:8080/task/upd/{id}
+        name: New Request
+        meta:
+          id: req_f126e6629a264dbca4c1c597000f2acc
+          created: 1741204096497
+          modified: 1743635773263
+          isPrivate: false
+          sortKey: -1743635750513.25
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/10.3.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/task/search/teste
+        name: New Request
+        meta:
+          id: req_a07bf7a2f4bc489bb84dd05dbedb5eb2
+          created: 1742517957895
+          modified: 1743635769960
+          isPrivate: false
+          sortKey: -1743635750482
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsInN1YiI6IjExMTEyMzEyMzAwIiwiaWF0IjoxNzQyNTE3OTYyLCJleHAiOjE3NDI1MjE1NjJ9.C9gcHZ96k8VpC_q6ttWz19PhEQYjpLE9gWrjdO6KUIPZfO5v_BsFKBLFw9vfIu5z95VtuESVL1dVvskEwLV-9A
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/proc/newProc
+        name: Novo processo
+        meta:
+          id: req_4a4163f763dd4c1780237736676026fe
+          created: 1743548657279
+          modified: 1743640120525
+          isPrivate: false
+          sortKey: -1743635750544.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              
+              "situacao": "INICIADO",
+              "numeroProcesso": "1007217-37.2024.8.26.0196",
+              "pasta": "Distribuído",
+              "tipoAcaoClasse": "Procedimento Comum Cível - Guarda",
+              "requerente": null,
+              "representanteLegal": "CAROLYNE GUIMARÃES LOPES DA COSTA",
+              "requerido": "WELLIGTON RODRIGUES MOREIRA",
+              "npjRepresentando": null,
+              "vara": "3ª Vara de Família e das Sucessões",
+              "valorCausa": "R$ 8.472,00",
+              "cliente": ["67edd609e73f677075437883"],
+            	"advogadosResponsaveis": [
+                "67abe806104c212f07b1dc5c"
+              ]
+              
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2MzkyNDQsImV4cCI6MTc0MzY0Mjg0NH0.RZ0bfmIRMggLBpWhgx72zQhXYSzEQ1Z0_paLQ7S9KO8x1Vi14qdY9xru7SOLRXNA4zWUiQEwV7ErEK8AXXhGqQ
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/proc/updProc/67ec7cb61b8226781de072fe
+        name: Editar Processo
+        meta:
+          id: req_eab0b23198c44adea7482bae722c1575
+          created: 1743554007003
+          modified: 1743635761966
+          isPrivate: false
+          sortKey: -1743635750519.5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "situacao": "INICIADO",
+              "numeroProcesso": "1007217-37.2024.8.26.0196",
+              "pasta": "Distribuído",
+              "tipoAcaoClasse": "Procedimento Comum Cível - Guarda",
+              "requerente": null,
+              "representanteLegal": "CAROLYNE GUIMARÃES LOPES DA COSTA",
+              "requerido": "WELLIGTON RODRIGUES MOREIRA",
+              "npjRepresentando": null,
+              "vara": "3ª Vara de Família e das Sucessões",
+              "valorCausa": "R$ 9.472,00",
+              "cliente": null
+              
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM1NTQ0NDUsImV4cCI6MTc0MzU1ODA0NX0.j0YlWwwcOXRudUqGzwpPit8I5a6ampelbGSb4wYwfyJMhC-0g0PXSTw6dAapLEpkEggaT_4m82_ZjEyY_m2vDg
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/proc/searchProc/1007217-37.2024.8.26.0196
+        name: Buscar Processo por numero
+        meta:
+          id: req_4957ae062390420baf2604a14674aafc
+          created: 1743554976572
+          modified: 1743635760461
+          isPrivate: false
+          sortKey: -1743635750532
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2Mjk2MzQsImV4cCI6MTc0MzYzMzIzNH0.m_1cQzA6Hvbjeq-3SPZwAjfhiVnOuZ8iwwTDSt3FKWQmxUBFHWxctzYdkEoWz2o-zePdAUq-gqP3an64ybeN0A
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/proc/findAll
+        name: Buscar Todos os processos
+        meta:
+          id: req_e789fc39824144e685cb57a55c572c7d
+          created: 1743630706865
+          modified: 1743640302154
+          isPrivate: false
+          sortKey: -1743635750507
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2Mzk5MDQsImV4cCI6MTc0MzY0MzUwNH0.LgtNRquwl4eqPanXegdzOiHQik4f5_D1Opg9w0A6TanztOMXK0cMnc6Pcdfk3ZsA_4I5YqBMopdc_8G3lzGBdw
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/proc/finalizar/67ec7df58b5f1a4e463a40e4
+        name: Excluir Processo
+        meta:
+          id: req_6f1ab728deb440828fe657fb49004ac6
+          created: 1743631498430
+          modified: 1743635756493
+          isPrivate: false
+          sortKey: -1743635750557
+        method: PUT
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2MzE1MjQsImV4cCI6MTc0MzYzNTEyNH0.UCdlLpnATOVRLhzorBYe7dncCL2cOkyQoSeRNABwxhSXwnncShaqmI-aIXYDDBoDhII21TXC69G9zU2ttl55iQ
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/proc/porId/67ec7df58b5f1a4e463a40e4
+        name: Buscar Processo por ID
+        meta:
+          id: req_ba8bb7638ed54918a6f0e918585a280a
+          created: 1743632483515
+          modified: 1743635750672
+          isPrivate: false
+          sortKey: -1743635750457
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2MzI1MTMsImV4cCI6MTc0MzYzNjExM30.Qlh8i0torW2Armx_Fs7RjgdzgQZA6l51KRI_eYfc3peRByG4oTxBvcIoQlWr_-Pwd5DLUZIyg9Lyw8JmEUrLGg
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Clientes
+    meta:
+      id: fld_4a9d4eca9e134349a999236667d62b3d
+      created: 1743639796868
+      modified: 1743639796868
+      sortKey: -1743639796868
+    children:
+      - url: http://localhost:8080/cad/ins
+        name: Cadastrar Cliente
+        meta:
+          id: req_9d3e13d43165424fbbdac1e124240f14
+          created: 1743639800007
+          modified: 1743640070527
+          isPrivate: false
+          sortKey: -1743639800007
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "id": null,
+              "status": true,
+              "cliente": {
+                "nome": "João Silva Pereira",
+                "cpf": "123.456.789-00",
+                "endereco": {
+                  "rua": "Rua das Flores",
+                  "numero": "123",
+                  "complemento": "Apto 45",
+                  "bairro": "Centro",
+                  "cidade": "São Paulo",
+                  "cep": "01001-000"
+                },
+                "contato": {
+                  "telefone": "(11) 3333-4444",
+                  "celular": "(11) 98765-4321",
+                  "email": "joao.pereira@email.com"
+                }
+              },
+              "representante": {
+                "nome": "Maria Oliveira",
+                "cpf": "987.654.321-00"
+              },
+              "parteContraria": {
+                "nome": "José Santos"
+              },
+              "dadosProcessuais": {
+                "numeroProcesso": "1007217-37.2024.8.26.0196",
+                "vara": "3ª Vara de Família e das Sucessões"
+              },
+              "natureza": {
+                "tipo": "Guarda"
+              },
+              "responsaveis": {
+                "ids": [
+                  "67abe806104c212f07b1dc5c",
+                  "advogado002"
+                ]
+              }
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.0.0
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2Mzk5MDQsImV4cCI6MTc0MzY0MzUwNH0.LgtNRquwl4eqPanXegdzOiHQik4f5_D1Opg9w0A6TanztOMXK0cMnc6Pcdfk3ZsA_4I5YqBMopdc_8G3lzGBdw
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - url: http://localhost:8080/task/create
+    name: New Request
+    meta:
+      id: req_501f86c3e39840219c275307bdb111d9
+      created: 1738972074893
+      modified: 1741729389425
+      isPrivate: false
+      sortKey: -1738972074893
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "responsaveisId": ["67b6627259a08aa15f0f17f2"],
+          "prioridade": "alta",
+          "nomeTarefa": "Reuniao com Barbara",
+          "responsaveisNome": ["Bob Esponja" ],
+          "descricao": "Definir as metas para o próximo trimestre.",
+          "prazoLimite": "2000-08-12"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/10.2.0
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsInN1YiI6IjExMTEyMzEyMzAwIiwiaWF0IjoxNzQxNzI5MzgxLCJleHAiOjE3NDE3NTgxODF9.JSjUWRG9pr21ImEYqfK9EHuky0QCMvbArMXvTgzeAP0Dr-uNyf_8DDWPOi-a0jAHC9O2JdjB8LOKtzun_8zrxg
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/adv/ins
+    name: New Request
+    meta:
+      id: req_7bbf1945f1464e2db2761301e274cf20
+      created: 1739317207452
+      modified: 1740007747113
+      isPrivate: false
+      sortKey: -1739317207452
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "datanasc": "1985-04-12",
+          "registroOab": "1234567",
+          "secaoOab": "SP",
+          "cpf": "123.493.589-00",
+          "nome": "AErick"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/10.3.0
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsInN1YiI6IjExMTEyMzEyMzAwIiwiaWF0IjoxNzQwMDA3NzQxLCJleHAiOjE3NDAwMDgzNDF9.350v_4tHgipJXfYGyWsbZcC2saclJ9X56zvu3P3zDtdDxP3-KXJYrkcf5C7ojRZIMKVNVgsPhSbHiNZjhOHaBw
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/task/get
+    name: New Request
+    meta:
+      id: req_b1394a6c468c413081aa8bc801d260e4
+      created: 1739317663992
+      modified: 1741733931597
+      isPrivate: false
+      sortKey: -1739317663992
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/10.3.0
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsInN1YiI6IjExMTEyMzEyMzAwIiwiaWF0IjoxNzQxNzMzOTI2LCJleHAiOjE3NDE3NjI3MjZ9.VbC_1pbZybl4pGapWAvKGQzKVEC3egNC6YyyiDKjA5IPpaYX-IRgMQ2Ve7RfruCKr4YU4ESOTfcI1C7yVWmmMA
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/adv/buscarTodos
+    name: New Request
+    meta:
+      id: req_c3fad637b6a94e0c946ed1e8bd16e42e
+      created: 1739403600579
+      modified: 1740612242984
+      isPrivate: false
+      sortKey: -1739403600579
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/10.3.0
+    authentication:
+      type: bearer
+      disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/adv/buscacpf
+    name: New Request
+    meta:
+      id: req_63d0f63e542346edb60d860883803eea
+      created: 1739833199061
+      modified: 1739833733801
+      isPrivate: false
+      sortKey: -1739833199061
+    method: POST
+    body:
+      mimeType: application/json
+      text: '{"cpf": 12349378900}'
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/10.3.1
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/auth/login
+    name: Logar
+    meta:
+      id: req_fef8f3b1b1ee4d30b409e00166a9354d
+      created: 1740006008387
+      modified: 1740007822874
+      isPrivate: false
+      sortKey: -1740006008387
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "username": "11112312300",
+          "password": "teste12345"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/10.3.1
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/task/upd/67abe9279189b90415f5b895
+    name: New Request
+    meta:
+      id: req_cfedef73691042d094d0b6aeaec6e238
+      created: 1740611639028
+      modified: 1740612899938
+      isPrivate: false
+      sortKey: -1740611639028
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {	
+          "responsavelId": "67abe9279189b90415f5b895",
+          "prioridade": "alta",
+          "nomeTarefa": "Reuniao com Baraabara",
+          "responsavelNome": "Andre",
+          "descricao": "Definir as metas para o próximo trimestre.",
+          "prazoLimite": "2000-08-12"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/10.3.1
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsInN1YiI6IjExMTEyMzEyMzAwIiwiaWF0IjoxNzQwNjExNjcxLCJleHAiOjE3NDA2NDA0NzF9.NoK94_5iyz32kicpq9n9Mu2JT7j68H39aCSyGWRH176vvR40_gAkcLMEQFng9He624Y9J_k-c5QDq6bLmAKVAA
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/task/end/67abe9279189b90415f5b895
+    name: Finalizar
+    meta:
+      id: req_31b63585f4fa41c58dd2dd85a07c514d
+      created: 1740699485064
+      modified: 1743635785409
+      isPrivate: false
+      sortKey: -1740308823707.5
+    method: PUT
+    headers:
+      - name: User-Agent
+        value: insomnia/10.3.1
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsInN1YiI6IjExMTEyMzEyMzAwIiwiaWF0IjoxNzQyNjAxMTMyLCJleHAiOjE3NDI2MDQ3MzJ9.Z2hY4Ijjr9b-xZ5rM5mVTOTRPb-ALkp4jMkx07CsnJcbttE4dArKxgRWxkpTom_UdQNx5I_qa0iYDKUuz_uheA
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_1adc9ec2663ae39bcbcbd6c80ed0d18d1e7dcba8
+    created: 1738972072744
+    modified: 1743639905016
+  cookies:
+    - key: refreshToken
+      value: eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiUk9MRV9BRFZPR0FETyIsImlkIjoiNjdiNjYyNzI1OWEwOGFhMTVmMGYxN2YyIiwic3ViIjoiMTExMTIzMTIzMDAiLCJpYXQiOjE3NDM2Mzk5MDQsImV4cCI6MTc0MzY2ODcwNH0.xu9jtT5N5P3b4NmDYnXwbobDS2YdPaQGgbIxbeiG64Vm_CDtNQSS2OT4_iFc5lvnDUgJnPNOHVUHK3foaKxkcA
+      maxAge: 21600
+      domain: localhost
+      path: /
+      secure: true
+      httpOnly: true
+      hostOnly: true
+      creation: 2025-03-19T18:05:26.135Z
+      lastAccessed: 2025-04-03T00:25:05.015Z
+      sameSite: strict
+      id: 67708027-8889-4397-b10a-e281615a594b
+environments:
+  name: Base Environment
+  meta:
+    id: env_1adc9ec2663ae39bcbcbd6c80ed0d18d1e7dcba8
+    created: 1738972072741
+    modified: 1738972072741
+    isPrivate: false
