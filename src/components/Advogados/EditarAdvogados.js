@@ -1,138 +1,60 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import useAuth from "../Seguranca/UseAuth";
+import { TextField, InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  SectionTitle,
+  FormRow,
+  FormLabel,
+  FormInput,
+  FormSelect,
+  Mensagem,
+  Popup,
+} from './EstilosAdvogados';
 
-// Estilo do título da seção
-const SectionTitle = styled.h3`
-  font-family: "Arial", sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e3c72;
-  margin: 0 0 10px;
-  padding-bottom: 5px;
-  border-bottom: 1px solid #e0e4e8;
-  grid-column: span 2;
 
-  @media (max-width: 768px) {
-    grid-column: span 1;
-  }
-`;
+const FormInputPassword = ({ label, name, value, onChange, showPassword, toggleShowPassword }) => (
+  <FormRow>
+    <FormLabel>{label}</FormLabel>
+    <TextField
+      type={showPassword ? 'text' : 'password'}
+      name={name}
+      value={value}
+      onChange={onChange}
+      variant="outlined"
+      size="small"
+      sx={{
+        flex: 1,
+        '& .MuiOutlinedInput-root': {
+          borderRadius: '8px',
+          fontFamily: '"Arial", sans-serif',
+          fontSize: '16px',
+          color: '#333',
+          '&:hover fieldset': {
+            borderColor: '#007bff',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: '#007bff',
+          },
+        },
+      }}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton
+              onClick={toggleShowPassword}
+              edge="end"
+              aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+            >
+              {showPassword ? <VisibilityOff /> : <Visibility />}
+            </IconButton>
+          </InputAdornment>
+        ),
+      }}
+    />
+  </FormRow>
+);
 
-// Estilo para os campos de formulário
-const FormRow = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-
-  @media (max-width: 480px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
-`;
-
-const FormLabel = styled.label`
-  font-family: "Arial", sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e3c72;
-  width: 120px;
-  margin-right: 10px;
-
-  @media (max-width: 480px) {
-    width: 100%;
-    margin-right: 0;
-  }
-`;
-
-const FormInput = styled.input`
-  flex: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  font-family: "Arial", sans-serif;
-  color: #333;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-
-  @media (max-width: 480px) {
-    width: 100%;
-  }
-`;
-
-const FormSelect = styled.select`
-  flex: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  font-family: "Arial", sans-serif;
-  color: #333;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-
-  @media (max-width: 480px) {
-    width: 100%;
-  }
-`;
-
-// Estilo para mensagens
-const Mensagem = styled.p`
-  font-family: "Arial", sans-serif;
-  font-size: 16px;
-  color: #7f8c8d;
-  text-align: center;
-  margin: 20px 0;
-  grid-column: span 2;
-
-  @media (max-width: 768px) {
-    grid-column: span 1;
-  }
-`;
-
-// Estilo para o pop-up de feedback
-const Popup = styled.div`
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #28a745;
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  font-family: "Arial", sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  z-index: 1000;
-  animation: fadeInOut 2s ease-in-out;
-
-  @keyframes fadeInOut {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    10% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    90% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    100% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-  }
-`;
 
 const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving }) => {
   const [advogado, setAdvogado] = useState(null);
@@ -142,6 +64,75 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
   const [formData, setFormData] = useState({});
   const [showPopup, setShowPopup] = useState(false);
   const API_URL = process.env.REACT_APP_API_URL;
+  const { getRole, getId } = useAuth(); 
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [novaSenha, setNovaSenha] = useState('');
+  const [repeteSenha, setRepeteSenha] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [showNovaSenha, setShowNovaSenha] = useState(false);
+  const [showRepeteSenha, setShowRepeteSenha] = useState(false);
+
+  // Função para lidar com a mudança nos campos de senha
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'novaSenha') {
+      setNovaSenha(value);
+    } else if (name === 'repeteSenha') {
+      setRepeteSenha(value);
+    }
+    setPasswordError(''); // Limpa erro ao digitar
+  };
+
+  // Função para validar e salvar a nova senha
+  const handleAlterarSenha = async () => {
+    if (!novaSenha || !repeteSenha) {
+      setPasswordError('Senha e Repetir Senha precisam ser preenchidos.');
+      return;
+    }
+    if (novaSenha !== repeteSenha) {
+      setPasswordError('As senhas não conferem.');
+      return;
+    }
+
+    setIsLoading(true);
+    setPasswordError('');
+
+    try {
+      const response = await fetchAuthenticated(
+        `${process.env.REACT_APP_API_URL}adv/upd`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            novaSenha,
+            repeteSenha,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Sessão expirada. Faça login novamente.');
+        }
+        throw new Error(`Erro ao atualizar senha: ${response.status}`);
+      }
+
+      setShowPopup(true);
+      setTimeout(() => {
+        setShowPopup(false);
+      }, 2000);
+      setNovaSenha('');
+      setRepeteSenha('');
+      setShowPasswordFields(false);
+    } catch (error) {
+      console.error('Erro ao alterar senha:', error);
+      setPasswordError(error.message || 'Erro ao alterar a senha.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Buscar dados do advogado
   useEffect(() => {
@@ -184,6 +175,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
           registroOab: advogadoSelecionado.registroOab || "",
           secaoOab: advogadoSelecionado.secaoOab || "",
           role: advogadoSelecionado.role || "",
+          senha: '',
         });
       } catch (error) {
         console.error("Erro ao buscar advogado:", error);
@@ -228,6 +220,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
       registroOab: formData.registroOab,
       secaoOab: formData.secaoOab,
       role: formData.role,
+      ...(formData.senha && { senha: formData.senha }),
     };
   
     try {
@@ -259,6 +252,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
         registroOab: updatedAdvogado.registroOab || '',
         secaoOab: updatedAdvogado.secaoOab || '',
         role: updatedAdvogado.role || '',
+        senha: '',
       });
       setShowPopup(true);
       setTimeout(() => {
@@ -351,6 +345,71 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
             <option value="false">Inativo</option>
           </FormSelect>
         </FormRow>
+        {(getId() === id || getRole() === 'ADVOGADO') && (
+          <>
+            <FormRow>
+              <FormLabel>Alterar Senha</FormLabel>
+              <button
+                type="button"
+                onClick={() => setShowPasswordFields(!showPasswordFields)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#1976d2',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                {showPasswordFields ? 'Ocultar' : 'Alterar Senha'}
+              </button>
+            </FormRow>
+            {showPasswordFields && (
+              <>
+                <FormInputPassword
+                  label="Nova Senha"
+                  name="novaSenha"
+                  value={novaSenha}
+                  onChange={handlePasswordChange}
+                  showPassword={showNovaSenha}
+                  toggleShowPassword={() => setShowNovaSenha(!showNovaSenha)}
+                />
+                <FormInputPassword
+                  label="Repetir Senha"
+                  name="repeteSenha"
+                  value={repeteSenha}
+                  onChange={handlePasswordChange}
+                  showPassword={showRepeteSenha}
+                  toggleShowPassword={() => setShowRepeteSenha(!showRepeteSenha)}
+                />
+                {passwordError && (
+                  <FormRow>
+                    <Mensagem style={{ color: 'red', marginLeft: '150px' }}>
+                      {passwordError}
+                    </Mensagem>
+                  </FormRow>
+                )}
+                <FormRow>
+                  <FormLabel />
+                  <button
+                    type="button"
+                    onClick={handleAlterarSenha}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Salvar Senha
+                  </button>
+                </FormRow>
+              </>
+            )}
+          </>
+        )}
         <button id="save-advogado" onClick={handleSalvar} style={{ display: 'none' }} />
       </>
       ) : (

@@ -30,7 +30,7 @@ const debounce = (func, delay) => {
 };
 
 const AdvogadosMain = () => {
-  const { fetchAuthenticated, getId } = useAuth();
+  const { fetchAuthenticated, getId, getRole } = useAuth();
   const [advogadosOriginais, setAdvogadosOriginais] = useState([]);
   const [advogadosBuscados, setAdvogadosBuscados] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -250,14 +250,14 @@ const AdvogadosMain = () => {
   };
 
   const handleAdicionarAdvogado = () => {
-    navigate("/advogados/criar"); // Navega para a tela de criação de cliente
+    navigate("/advogados/criar"); 
   };
 
   // Função para lidar com o clique no card
   const handleClienteClick = (advogadoId, advogadoNome) => {
     navigate(`/advogados/${advogadoId}`, {
       state: { id: advogadoId, nome: advogadoNome },
-    }); // Navega para a tela de detalhes com clientId e clientName
+    });
   };
 
   return (
@@ -265,7 +265,9 @@ const AdvogadosMain = () => {
       <MainContainer>
         <Header>
           <Titulo>Gerenciamento de Andvogados</Titulo>
-          <BotaoAdicionar onClick={handleAdicionarAdvogado}>Adicionar Advogados</BotaoAdicionar>
+          {getRole() === 'ADVOGADO' && (
+            <BotaoAdicionar onClick={handleAdicionarAdvogado}>Adicionar Advogados</BotaoAdicionar>
+          )}
         </Header>
 
         <CampoBusca
