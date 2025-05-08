@@ -278,8 +278,8 @@ const BotaoSalvar = styled.button`
 // Estilo para mensagens de erro
 const MensagemErro = styled.p`
   color: #e74c3c;
-  text-align: center;
-  margin-top: 10px;
+  font-size: 14px;
+  margin-top: 5px;
 `;
 
 const CriarTarefa = ({ carregarTarefas }) => {
@@ -299,6 +299,7 @@ const CriarTarefa = ({ carregarTarefas }) => {
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
   const [erros, setErros] = useState({});
+  const [dataError, setDataError] = useState("");
 
   // Função para buscar advogados
   const fetchAdvogados = useCallback(async () => {
@@ -351,16 +352,63 @@ const CriarTarefa = ({ carregarTarefas }) => {
     });
     setMensagemErro("");
     setErros({});
+    setDataError("");
   };
 
-  // Função para lidar com mudanças nos campos
+  // Função para validar o ano
+  const validateYear = (value) => {
+    if (!value) return true; // Allow empty input
+    const year = value.split("-")[0];
+    if (year.length > 4) {
+      setDataError("O ano deve ter no máximo 4 dígitos.");
+      setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+      return false;
+    }
+    if (year.length === 4) {
+      if (!/^\d{4}$/.test(year)) {
+        setDataError("O ano deve ser um número de 4 dígitos (ex.: 2025).");
+        setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+        return false;
+      }
+      const yearNum = parseInt(year, 10);
+      if (yearNum < 1900 || yearNum > 9999) {
+        setDataError("O ano deve estar entre 1900 e 9999.");
+        setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+        return false;
+      }
+    }
+    setDataError("");
+    setErros((prevErros) => ({ ...prevErros, prazoLimite: false }));
+    return true;
+  };
+
+  // Função para lidar com mudanças no campo de data
+  const handleDataChange = (e) => {
+    const { name, value } = e.target;
+    setNovaTarefa((prevTarefa) => ({
+      ...prevTarefa,
+      [name]: value,
+    }));
+    // Clear error while typing, validation happens on blur or save
+    setDataError("");
+    setErros((prevErros) => ({ ...prevErros, prazoLimite: false }));
+  };
+
+  // Função para validar data ao sair do campo
+  const handleDataBlur = (e) => {
+    const { value } = e.target;
+    if (value) {
+      validateYear(value);
+    }
+  };
+
+  // Função para lidar com mudanças nos outros campos
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNovaTarefa((prevTarefa) => ({
       ...prevTarefa,
       [name]: value,
     }));
-    // Limpar erro do campo quando o usuário começa a preencher
     setErros((prevErros) => ({
       ...prevErros,
       [name]: false,
@@ -372,7 +420,7 @@ const CriarTarefa = ({ carregarTarefas }) => {
     setNovaTarefa((prevTarefa) => {
       const isSelected = prevTarefa.responsaveisId.includes(advogado.id);
       let newResponsaveisId, newResponsaveisNome;
-      
+
       if (isSelected) {
         newResponsaveisId = prevTarefa.responsaveisId.filter((id) => id !== advogado.id);
         newResponsaveisNome = prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome);
@@ -387,7 +435,6 @@ const CriarTarefa = ({ carregarTarefas }) => {
         responsaveisNome: newResponsaveisNome,
       };
     });
-    // Atualizar erro de responsáveis
     setErros((prevErros) => ({
       ...prevErros,
       responsaveis: false,
@@ -409,7 +456,6 @@ const CriarTarefa = ({ carregarTarefas }) => {
         responsaveisNome: novosNomes,
       };
     });
-    // Atualizar erro de responsáveis
     setErros((prevErros) => ({
       ...prevErros,
       responsaveis: false,
@@ -426,21 +472,41 @@ const CriarTarefa = ({ carregarTarefas }) => {
       prazoHora: !novaTarefa.prazoHora,
       responsaveis: novaTarefa.responsaveisId.length === 0,
     };
-    
+
+    if (novaTarefa.prazoLimite) {
+      const isYearValid = validateYear(novaTarefa.prazoLimite);
+      novosErros.prazoLimite = novosErros.prazoLimite || !isYearValid;
+    }
+
     setErros(novosErros);
     return !Object.values(novosErros).some((erro) => erro);
   };
 
   // Função para criar a tarefa
   const handleCriarTarefa = async () => {
+    // Validar o ano antes de prosseguir
+    if (novaTarefa.prazoLimite) {
+      const year = novaTarefa.prazoLimite.split("-")[0];
+      if (year.length !== 4 || !/^\d{4}$/.test(year)) {
+        setDataError("O ano deve ser um número de 4 dígitos (ex.: 2025).");
+        setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+        return;
+      }
+      const yearNum = parseInt(year, 10);
+      if (yearNum < 1900 || yearNum > 9999) {
+        setDataError("O ano deve estar entre 1900 e 9999.");
+        setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+        return;
+      }
+    }
+
     if (!validarCampos()) {
-      setMensagemErro("Por favor, preencha todos os campos obrigatórios.");
+      setMensagemErro("Por favor, preencha todos os campos obrigatórios corretamente.");
       return;
     }
 
     try {
-      // Combinar data e hora
-      const prazoCompleto = novaTarefa.prazoLimite && novaTarefa.prazoHora 
+      const prazoCompleto = novaTarefa.prazoLimite && novaTarefa.prazoHora
         ? `${novaTarefa.prazoLimite}T${novaTarefa.prazoHora}:00`
         : null;
 
@@ -486,8 +552,8 @@ const CriarTarefa = ({ carregarTarefas }) => {
         responsaveisNome: [],
       });
       setErros({});
+      setDataError("");
 
-      // Chama a função carregarTarefas para atualizar a lista de tarefas no componente pai
       if (carregarTarefas) {
         await carregarTarefas(true);
       }
@@ -504,6 +570,7 @@ const CriarTarefa = ({ carregarTarefas }) => {
       novaTarefa.descricao.trim() &&
       novaTarefa.prioridade &&
       novaTarefa.prazoLimite &&
+      !erros.prazoLimite &&
       novaTarefa.prazoHora &&
       novaTarefa.responsaveisId.length > 0
     );
@@ -511,10 +578,8 @@ const CriarTarefa = ({ carregarTarefas }) => {
 
   return (
     <div>
-      {/* Botão para abrir o modal de criação */}
       <BotaoCriar onClick={abrirModal}>Criar Tarefa</BotaoCriar>
 
-      {/* Modal de Criação */}
       {showModal && (
         <ModalOverlay onClick={fecharModal}>
           <ModalContainer onClick={(e) => e.stopPropagation()}>
@@ -570,24 +635,28 @@ const CriarTarefa = ({ carregarTarefas }) => {
                 <Label>
                   Prazo: <span className={erros.prazoLimite || erros.prazoHora ? "required" : ""}></span>
                 </Label>
-                <PrazoContainer>
-                  <Input
-                    type="date"
-                    name="prazoLimite"
-                    value={novaTarefa.prazoLimite}
-                    onChange={handleChange}
-                    error={erros.prazoLimite}
-                    style={{ flex: 1 }}
-                  />
-                  <Input
-                    type="time"
-                    name="prazoHora"
-                    value={novaTarefa.prazoHora}
-                    onChange={handleChange}
-                    error={erros.prazoHora}
-                    style={{ flex: 1 }}
-                  />
-                </PrazoContainer>
+                <div style={{ width: "100%" }}>
+                  <PrazoContainer>
+                    <Input
+                      type="date"
+                      name="prazoLimite"
+                      value={novaTarefa.prazoLimite}
+                      onChange={handleDataChange}
+                      onBlur={handleDataBlur}
+                      error={erros.prazoLimite}
+                      style={{ flex: 1 }}
+                    />
+                    <Input
+                      type="time"
+                      name="prazoHora"
+                      value={novaTarefa.prazoHora}
+                      onChange={handleChange}
+                      error={erros.prazoHora}
+                      style={{ flex: 1 }}
+                    />
+                  </PrazoContainer>
+                  {dataError && <MensagemErro>{dataError}</MensagemErro>}
+                </div>
               </DetalheItem>
 
               <DetalheItem>
