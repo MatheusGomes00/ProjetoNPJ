@@ -52,20 +52,20 @@ public class ProcessosController {
         return ResponseEntity.ok(processos);
     }
 
-//    @GetMapping(value = "/findAll")
-//    public ResponseEntity<List<DtoProcessos>> findAll(){
-//
-//        try {
-//            List<DtoProcessos> novoProcesso = service.findAll();
-//
-//            return ResponseEntity.ok(novoProcesso);
-//        } catch (Exception e) {
-//            System.err.println("Erro ao procurar processos: " + e.getMessage());
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(null);
-//        }
-//    }
+    @GetMapping(value = "/findAll")
+    public ResponseEntity<List<DtoProcessos>> findAll(){
+
+        try {
+            List<DtoProcessos> novoProcesso = service.findAll();
+
+            return ResponseEntity.ok(novoProcesso);
+        } catch (Exception e) {
+            System.err.println("Erro ao procurar processos: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
 
     @PutMapping(value = "/finalizar/{id}")
     public ResponseEntity<Processos> excluirProc(@PathVariable String id){
