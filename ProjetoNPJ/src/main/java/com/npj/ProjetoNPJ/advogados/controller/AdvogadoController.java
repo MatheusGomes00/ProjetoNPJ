@@ -32,9 +32,9 @@ public class AdvogadoController {
     }
 
     @PostMapping(value = "/ins")
-    public ResponseEntity<Void> criarAdvogado(@RequestBody @Valid DtoAdvogado advogadoDto){
-        service.insert(advogadoDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<ResponseAdvogadoDto> criarAdvogado(@RequestBody @Valid DtoAdvogado advogadoDto){
+        ResponseAdvogadoDto advogado = service.insert(advogadoDto);
+        return ResponseEntity.ok(advogado);
     }
 
     @PutMapping(value = "/upd/{id}")
@@ -54,7 +54,7 @@ public class AdvogadoController {
     @PatchMapping(value = "/del/{id}")
     public ResponseEntity<Void> excluir(@PathVariable String id){
 
-        service.delete(id);
+        service.alterarStatus(id);
         return ResponseEntity.ok().build();
     }
 
