@@ -187,7 +187,7 @@ const ProcessosAreaDeTrabalho = () => {
     return () => {
       console.log("Componente ProcessosAreaDeTrabalho desmontado");
     };
-  }, []); // Dependência vazia para rodar apenas na montagem
+  }, ); // Dependência vazia para rodar apenas na montagem
 
   const mapearStatus = (situacao) => {
     switch (situacao) {

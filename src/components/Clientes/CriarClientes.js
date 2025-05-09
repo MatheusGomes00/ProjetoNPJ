@@ -47,24 +47,6 @@ const Titulo = styled.h1`
   }
 `;
 
-// Estilo dos botões
-const BotaoVoltar = styled.button`
-  padding: 10px 20px;
-  background: #fff;
-  color: #007bff;
-  border: 2px solid #007bff;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #007bff;
-    color: #fff;
-  }
-`;
-
 const BotaoSalvar = styled.button`
   padding: 10px 20px;
   background: #007bff;

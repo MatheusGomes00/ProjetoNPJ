@@ -37,7 +37,7 @@ function AdvogadosTela() {
       }
     };
     buscarAutenticado();
-  }, [id]);
+  }, [id, fetchAuthenticated]);
 
   
   const handleSearch = async (query) => {
