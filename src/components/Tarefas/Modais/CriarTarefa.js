@@ -90,25 +90,33 @@ const DetalheItem = styled.div`
   align-items: center;
 `;
 
-// Estilo do label
+// Estilo do label com asterisco
 const Label = styled.label`
   font-weight: 600;
   width: 120px;
   color: #555;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .required::after {
+    content: "*";
+    color: #e74c3c;
+  }
 `;
 
 // Estilo do input
 const Input = styled.input`
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid ${(props) => (props.error ? "#e74c3c" : "#ddd")};
   width: 100%;
   font-size: 16px;
   color: #333;
   transition: border-color 0.3s ease;
 
   &:focus {
-    border-color: #007bff;
+    border-color: ${(props) => (props.error ? "#e74c3c" : "#007bff")};
     outline: none;
   }
 `;
@@ -117,16 +125,23 @@ const Input = styled.input`
 const Select = styled.select`
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid ${(props) => (props.error ? "#e74c3c" : "#ddd")};
   width: 100%;
   font-size: 16px;
   color: #333;
   transition: border-color 0.3s ease;
 
   &:focus {
-    border-color: #007bff;
+    border-color: ${(props) => (props.error ? "#e74c3c" : "#007bff")};
     outline: none;
   }
+`;
+
+// Estilo do container de prazo
+const PrazoContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  width: 100%;
 `;
 
 // Estilo do container do dropdown
@@ -140,7 +155,7 @@ const DropdownButton = styled.button`
   width: 100%;
   padding: 12px 15px;
   border-radius: 8px;
-  border: 1px solid #dfe6e9;
+  border: 1px solid ${(props) => (props.error ? "#e74c3c" : "#dfe6e9")};
   background: #f9fbfc;
   font-size: 16px;
   color: #2d3436;
@@ -242,18 +257,19 @@ const BotaoSalvar = styled.button`
   padding: 12px 20px;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   font-weight: 600;
   transition: background 0.3s ease, transform 0.2s;
   width: 100%;
   margin-top: 20px;
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #218838;
     transform: translateY(-2px);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     background: #1e7e34;
     transform: translateY(0);
   }
@@ -262,8 +278,8 @@ const BotaoSalvar = styled.button`
 // Estilo para mensagens de erro
 const MensagemErro = styled.p`
   color: #e74c3c;
-  text-align: center;
-  margin-top: 10px;
+  font-size: 14px;
+  margin-top: 5px;
 `;
 
 const CriarTarefa = ({ carregarTarefas }) => {
@@ -275,12 +291,15 @@ const CriarTarefa = ({ carregarTarefas }) => {
     status: true,
     prioridade: "baixa",
     prazoLimite: "",
+    prazoHora: "",
     responsaveisId: [],
     responsaveisNome: [],
   });
   const [advogados, setAdvogados] = useState([]);
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const [erros, setErros] = useState({});
+  const [dataError, setDataError] = useState("");
 
   // Função para buscar advogados
   const fetchAdvogados = useCallback(async () => {
@@ -327,18 +346,72 @@ const CriarTarefa = ({ carregarTarefas }) => {
       status: true,
       prioridade: "baixa",
       prazoLimite: "",
+      prazoHora: "",
       responsaveisId: [],
       responsaveisNome: [],
     });
     setMensagemErro("");
+    setErros({});
+    setDataError("");
   };
 
-  // Função para lidar com mudanças nos campos
+  // Função para validar o ano
+  const validateYear = (value) => {
+    if (!value) return true; // Allow empty input
+    const year = value.split("-")[0];
+    if (year.length > 4) {
+      setDataError("O ano deve ter no máximo 4 dígitos.");
+      setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+      return false;
+    }
+    if (year.length === 4) {
+      if (!/^\d{4}$/.test(year)) {
+        setDataError("O ano deve ser um número de 4 dígitos (ex.: 2025).");
+        setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+        return false;
+      }
+      const yearNum = parseInt(year, 10);
+      if (yearNum < 1900 || yearNum > 9999) {
+        setDataError("O ano deve estar entre 1900 e 9999.");
+        setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+        return false;
+      }
+    }
+    setDataError("");
+    setErros((prevErros) => ({ ...prevErros, prazoLimite: false }));
+    return true;
+  };
+
+  // Função para lidar com mudanças no campo de data
+  const handleDataChange = (e) => {
+    const { name, value } = e.target;
+    setNovaTarefa((prevTarefa) => ({
+      ...prevTarefa,
+      [name]: value,
+    }));
+    // Clear error while typing, validation happens on blur or save
+    setDataError("");
+    setErros((prevErros) => ({ ...prevErros, prazoLimite: false }));
+  };
+
+  // Função para validar data ao sair do campo
+  const handleDataBlur = (e) => {
+    const { value } = e.target;
+    if (value) {
+      validateYear(value);
+    }
+  };
+
+  // Função para lidar com mudanças nos outros campos
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNovaTarefa((prevTarefa) => ({
       ...prevTarefa,
       [name]: value,
+    }));
+    setErros((prevErros) => ({
+      ...prevErros,
+      [name]: false,
     }));
   };
 
@@ -346,20 +419,26 @@ const CriarTarefa = ({ carregarTarefas }) => {
   const toggleSelecionarAdvogado = (advogado) => {
     setNovaTarefa((prevTarefa) => {
       const isSelected = prevTarefa.responsaveisId.includes(advogado.id);
+      let newResponsaveisId, newResponsaveisNome;
+
       if (isSelected) {
-        return {
-          ...prevTarefa,
-          responsaveisId: prevTarefa.responsaveisId.filter((id) => id !== advogado.id),
-          responsaveisNome: prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome),
-        };
+        newResponsaveisId = prevTarefa.responsaveisId.filter((id) => id !== advogado.id);
+        newResponsaveisNome = prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome);
       } else {
-        return {
-          ...prevTarefa,
-          responsaveisId: [...prevTarefa.responsaveisId, advogado.id],
-          responsaveisNome: [...prevTarefa.responsaveisNome, advogado.nome],
-        };
+        newResponsaveisId = [...prevTarefa.responsaveisId, advogado.id];
+        newResponsaveisNome = [...prevTarefa.responsaveisNome, advogado.nome];
       }
+
+      return {
+        ...prevTarefa,
+        responsaveisId: newResponsaveisId,
+        responsaveisNome: newResponsaveisNome,
+      };
     });
+    setErros((prevErros) => ({
+      ...prevErros,
+      responsaveis: false,
+    }));
   };
 
   // Função para remover um responsável
@@ -368,10 +447,8 @@ const CriarTarefa = ({ carregarTarefas }) => {
       const index = prevTarefa.responsaveisId.indexOf(id);
       if (index === -1) return prevTarefa;
 
-      const novoIdRemovido = prevTarefa.responsaveisId[index];
-      const novoNomeRemovido = prevTarefa.responsaveisNome[index];
       const novosIds = prevTarefa.responsaveisId.filter((rid) => rid !== id);
-      const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== novoNomeRemovido);
+      const novosNomes = prevTarefa.responsaveisNome.filter((_, i) => i !== index);
 
       return {
         ...prevTarefa,
@@ -379,20 +456,66 @@ const CriarTarefa = ({ carregarTarefas }) => {
         responsaveisNome: novosNomes,
       };
     });
+    setErros((prevErros) => ({
+      ...prevErros,
+      responsaveis: false,
+    }));
+  };
+
+  // Função para validar campos
+  const validarCampos = () => {
+    const novosErros = {
+      nomeTarefa: !novaTarefa.nomeTarefa.trim(),
+      descricao: !novaTarefa.descricao.trim(),
+      prioridade: !novaTarefa.prioridade,
+      prazoLimite: !novaTarefa.prazoLimite,
+      prazoHora: !novaTarefa.prazoHora,
+      responsaveis: novaTarefa.responsaveisId.length === 0,
+    };
+
+    if (novaTarefa.prazoLimite) {
+      const isYearValid = validateYear(novaTarefa.prazoLimite);
+      novosErros.prazoLimite = novosErros.prazoLimite || !isYearValid;
+    }
+
+    setErros(novosErros);
+    return !Object.values(novosErros).some((erro) => erro);
   };
 
   // Função para criar a tarefa
   const handleCriarTarefa = async () => {
+    // Validar o ano antes de prosseguir
+    if (novaTarefa.prazoLimite) {
+      const year = novaTarefa.prazoLimite.split("-")[0];
+      if (year.length !== 4 || !/^\d{4}$/.test(year)) {
+        setDataError("O ano deve ser um número de 4 dígitos (ex.: 2025).");
+        setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+        return;
+      }
+      const yearNum = parseInt(year, 10);
+      if (yearNum < 1900 || yearNum > 9999) {
+        setDataError("O ano deve estar entre 1900 e 9999.");
+        setErros((prevErros) => ({ ...prevErros, prazoLimite: true }));
+        return;
+      }
+    }
+
+    if (!validarCampos()) {
+      setMensagemErro("Por favor, preencha todos os campos obrigatórios corretamente.");
+      return;
+    }
+
     try {
-      // Formatar prazoLimite (enviar apenas a data, como no BotaoEditarComponent)
-      const prazoLimiteFormatado = novaTarefa.prazoLimite || null;
+      const prazoCompleto = novaTarefa.prazoLimite && novaTarefa.prazoHora
+        ? `${novaTarefa.prazoLimite}T${novaTarefa.prazoHora}:00`
+        : null;
 
       const novaTarefaComData = {
         nomeTarefa: novaTarefa.nomeTarefa,
         descricao: novaTarefa.descricao,
         status: novaTarefa.status,
         prioridade: novaTarefa.prioridade,
-        prazoLimite: prazoLimiteFormatado,
+        prazoLimite: prazoCompleto,
         dataCriacao: new Date().toISOString(),
         responsaveisId: novaTarefa.responsaveisId,
         responsaveisNome: novaTarefa.responsaveisNome,
@@ -424,11 +547,13 @@ const CriarTarefa = ({ carregarTarefas }) => {
         status: true,
         prioridade: "baixa",
         prazoLimite: "",
+        prazoHora: "",
         responsaveisId: [],
         responsaveisNome: [],
       });
+      setErros({});
+      setDataError("");
 
-      // Chama a função carregarTarefas para atualizar a lista de tarefas no componente pai
       if (carregarTarefas) {
         await carregarTarefas(true);
       }
@@ -438,12 +563,23 @@ const CriarTarefa = ({ carregarTarefas }) => {
     }
   };
 
+  // Verificar se todos os campos estão preenchidos
+  const isFormValido = () => {
+    return (
+      novaTarefa.nomeTarefa.trim() &&
+      novaTarefa.descricao.trim() &&
+      novaTarefa.prioridade &&
+      novaTarefa.prazoLimite &&
+      !erros.prazoLimite &&
+      novaTarefa.prazoHora &&
+      novaTarefa.responsaveisId.length > 0
+    );
+  };
+
   return (
     <div>
-      {/* Botão para abrir o modal de criação */}
       <BotaoCriar onClick={abrirModal}>Criar Tarefa</BotaoCriar>
 
-      {/* Modal de Criação */}
       {showModal && (
         <ModalOverlay onClick={fecharModal}>
           <ModalContainer onClick={(e) => e.stopPropagation()}>
@@ -454,31 +590,40 @@ const CriarTarefa = ({ carregarTarefas }) => {
               {mensagemErro && <MensagemErro>{mensagemErro}</MensagemErro>}
 
               <DetalheItem>
-                <Label>Nome:</Label>
+                <Label>
+                  Nome: <span className={erros.nomeTarefa ? "required" : ""}></span>
+                </Label>
                 <Input
                   type="text"
                   name="nomeTarefa"
                   value={novaTarefa.nomeTarefa}
                   onChange={handleChange}
+                  error={erros.nomeTarefa}
                 />
               </DetalheItem>
 
               <DetalheItem>
-                <Label>Descrição:</Label>
+                <Label>
+                  Descrição: <span className={erros.descricao ? "required" : ""}></span>
+                </Label>
                 <Input
                   type="text"
                   name="descricao"
                   value={novaTarefa.descricao}
                   onChange={handleChange}
+                  error={erros.descricao}
                 />
               </DetalheItem>
 
               <DetalheItem>
-                <Label>Prioridade:</Label>
+                <Label>
+                  Prioridade: <span className={erros.prioridade ? "required" : ""}></span>
+                </Label>
                 <Select
                   name="prioridade"
                   value={novaTarefa.prioridade}
                   onChange={handleChange}
+                  error={erros.prioridade}
                 >
                   <option value="alta">Alta</option>
                   <option value="media">Média</option>
@@ -487,20 +632,43 @@ const CriarTarefa = ({ carregarTarefas }) => {
               </DetalheItem>
 
               <DetalheItem>
-                <Label>Prazo:</Label>
-                <Input
-                  type="date"
-                  name="prazoLimite"
-                  value={novaTarefa.prazoLimite}
-                  onChange={handleChange}
-                />
+                <Label>
+                  Prazo: <span className={erros.prazoLimite || erros.prazoHora ? "required" : ""}></span>
+                </Label>
+                <div style={{ width: "100%" }}>
+                  <PrazoContainer>
+                    <Input
+                      type="date"
+                      name="prazoLimite"
+                      value={novaTarefa.prazoLimite}
+                      onChange={handleDataChange}
+                      onBlur={handleDataBlur}
+                      error={erros.prazoLimite}
+                      style={{ flex: 1 }}
+                    />
+                    <Input
+                      type="time"
+                      name="prazoHora"
+                      value={novaTarefa.prazoHora}
+                      onChange={handleChange}
+                      error={erros.prazoHora}
+                      style={{ flex: 1 }}
+                    />
+                  </PrazoContainer>
+                  {dataError && <MensagemErro>{dataError}</MensagemErro>}
+                </div>
               </DetalheItem>
 
               <DetalheItem>
-                <Label>Responsáveis:</Label>
+                <Label>
+                  Responsáveis: <span className={erros.responsaveis ? "required" : ""}></span>
+                </Label>
                 <div style={{ width: "100%" }}>
                   <DropdownContainer>
-                    <DropdownButton onClick={() => setDropdownAberto(!dropdownAberto)}>
+                    <DropdownButton
+                      onClick={() => setDropdownAberto(!dropdownAberto)}
+                      error={erros.responsaveis}
+                    >
                       Selecione Advogados <span>▼</span>
                     </DropdownButton>
                     {dropdownAberto && (
@@ -542,7 +710,9 @@ const CriarTarefa = ({ carregarTarefas }) => {
                 </div>
               </DetalheItem>
 
-              <BotaoSalvar onClick={handleCriarTarefa}>Criar Tarefa</BotaoSalvar>
+              <BotaoSalvar onClick={handleCriarTarefa} disabled={!isFormValido()}>
+                Criar Tarefa
+              </BotaoSalvar>
             </TarefaCriacaoModal>
           </ModalContainer>
         </ModalOverlay>

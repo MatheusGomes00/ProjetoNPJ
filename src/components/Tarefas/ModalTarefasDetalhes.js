@@ -15,7 +15,7 @@ const ModalOverlay = styled.div`
   z-index: 999;
 `;
 
-// Estilo base do modal (equivalente a ModalContent)
+// Estilo base do modal
 const ModalContent = styled.div`
   background: #ffffff;
   padding: 30px;
@@ -55,8 +55,7 @@ const ModalContent = styled.div`
   }
 `;
 
-
-// Estilo específico do modal de tarefas (equivalente a TarefaDetalhesModal)
+// Estilo específico do modal de tarefas
 const TarefaDetalhesModal = styled(ModalContent)`
   width: 520px;
   min-height: 20vh;
@@ -105,11 +104,10 @@ const DetalheItemNome = styled.div`
   font-size: 16px;
   color: #333;
   max-height: 180px;
-  min-height: 100px; /* Altura mínima para evitar que o campo fique muito pequeno */
-  word-wrap: break-word; /* Quebra de palavras para evitar transbordo horizontal */
-  overflow-y: auto; /* Barra de rolagem vertical apenas */
-  
-  box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
+  min-height: 100px;
+  word-wrap: break-word;
+  overflow-y: auto;
+  box-sizing: border-box;
 `;
 
 const DetalheItemDescr = styled.div`
@@ -120,12 +118,12 @@ const DetalheItemDescr = styled.div`
   border-radius: 8px;
   font-size: 16px;
   color: #333;
-  max-height: 180px; /* Altura máxima de 120px */
-  min-height: 180px; /* Altura mínima para evitar que o campo fique muito pequeno */
-  word-wrap: break-word; /* Quebra de palavras para evitar transbordo horizontal */
-  overflow-y: auto; /* Barra de rolagem vertical apenas */
-  overflow-x: hidden; /* Evita barra de rolagem horizontal */
-  box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
+  max-height: 180px;
+  min-height: 180px;
+  word-wrap: break-word;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 `;
 
 const DetalheItem = styled.div`
@@ -218,8 +216,8 @@ const formatarData = (dataString) => {
   return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 };
 
-const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar }) => {
-  console.log("Props recebidas no ModalTarefa:", { onReabrir }); // Log para depuração
+const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar, marcarComoLida }) => {
+  console.log("Props recebidas no ModalTarefa:", { tarefa, onReabrir, marcarComoLida });
 
   if (!tarefa) return null;
 
@@ -232,10 +230,27 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar }) => {
     }
   };
 
+  // Função para lidar com o fechamento do modal
+  const handleClose = () => {
+    if (typeof marcarComoLida === "function") {
+      marcarComoLida(); // Mark notification as read on close
+    }
+    onClose();
+  };
+
+  // Função para lidar com a finalização da tarefa
+  const handleFinalizar = () => {
+    if (typeof onFinalizar === "function") {
+      onFinalizar(tarefa.id);
+    } else {
+      console.error("onFinalizar não é uma função:", onFinalizar);
+    }
+  };
+
   return (
-    <ModalOverlay onClick={onClose}>
+    <ModalOverlay onClick={handleClose}>
       <TarefaDetalhesModal onClick={(e) => e.stopPropagation()}>
-        <BotaoFechar onClick={onClose}>×</BotaoFechar>
+        <BotaoFechar onClick={handleClose}>×</BotaoFechar>
         <ModalTitulo>Detalhes da Tarefa</ModalTitulo>
         <DetalheItemNome>
           <strong>Nome:</strong> {tarefa.nomeTarefa}
@@ -279,12 +294,8 @@ const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar }) => {
         )}
         {tarefa.status && (
           <>
-            <BotaoFinalizar onClick={() => onFinalizar(tarefa.id)}>
-              Finalizar Tarefa
-            </BotaoFinalizar>
-            <BotaoEditar onClick={() => onEditar(tarefa)}>
-              Editar Tarefa
-            </BotaoEditar>
+            <BotaoFinalizar onClick={handleFinalizar}>Finalizar Tarefa</BotaoFinalizar>
+            <BotaoEditar onClick={() => onEditar(tarefa)}>Editar Tarefa</BotaoEditar>
           </>
         )}
       </TarefaDetalhesModal>
