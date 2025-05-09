@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom"; // Importado para navegação
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import useAuth from "../Seguranca/UseAuth";
@@ -20,7 +20,6 @@ const MainContainer = styled.div`
   }
 `;
 
-// Estilo do cabeçalho
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
@@ -29,7 +28,6 @@ const Header = styled.header`
   width: 100%;
 `;
 
-// Estilo do título
 const Titulo = styled.h1`
   font-family: "Arial", sans-serif;
   font-size: 28px;
@@ -38,7 +36,6 @@ const Titulo = styled.h1`
   margin: 0;
 `;
 
-// Estilo do botão de criar processo
 const BotaoCriar = styled.button`
   padding: 10px 20px;
   background-color: #007bff;
@@ -54,7 +51,6 @@ const BotaoCriar = styled.button`
   }
 `;
 
-// Estilo do campo de busca
 const CampoBusca = styled.input`
   padding: 10px;
   border: 1px solid #ccc;
@@ -64,7 +60,6 @@ const CampoBusca = styled.input`
   margin-bottom: 20px;
 `;
 
-// Estilo do container de filtros
 const FiltrosContainer = styled.div`
   display: flex;
   align-items: center;
@@ -73,7 +68,6 @@ const FiltrosContainer = styled.div`
   flex-wrap: wrap;
 `;
 
-// Estilo dos botões de filtro de situação
 const BotaoFiltroSituacao = styled.button`
   padding: 8px 16px;
   border: 1px solid #ccc;
@@ -89,7 +83,6 @@ const BotaoFiltroSituacao = styled.button`
   }
 `;
 
-// Estilo da tabela de processos
 const ProcessosTable = styled.table`
   width: 100%;
   border-collapse: collapse;
@@ -113,7 +106,7 @@ const TableRow = styled.tr`
   &:hover {
     background-color: #f0f0f0;
   }
-  cursor: pointer; /* Indica que a linha é clicável */
+  cursor: pointer;
 `;
 
 const TableCell = styled.td`
@@ -122,7 +115,6 @@ const TableCell = styled.td`
   color: #555;
 `;
 
-// Estilo para o valor borrado e o botão de visibilidade
 const ValorCausaContainer = styled.div`
   display: flex;
   align-items: center;
@@ -148,7 +140,6 @@ const BotaoVisibilidade = styled.button`
   }
 `;
 
-// Estilo para mensagens
 const Mensagem = styled.p`
   font-family: "Arial", sans-serif;
   font-size: 16px;
@@ -159,7 +150,7 @@ const Mensagem = styled.p`
 
 const ProcessosMain = () => {
   const { fetchAuthenticated } = useAuth();
-  const navigate = useNavigate(); // Hook para navegação
+  const navigate = useNavigate();
   const [processosOriginais, setProcessosOriginais] = useState([]);
   const [processosBuscados, setProcessosBuscados] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -169,12 +160,12 @@ const ProcessosMain = () => {
   const [filtroSituacao, setFiltroSituacao] = useState(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [lastFetchTime, setLastFetchTime] = useState(0);
-  const [valoresVisiveis, setValoresVisiveis] = useState({}); // Estado para controlar visibilidade dos valores
+  const [valoresVisiveis, setValoresVisiveis] = useState({});
 
   const buscarTodosProcessos = useCallback(
     async (forceRefresh = false) => {
       const now = Date.now();
-      const minInterval = 5000; // 5 segundos
+      const minInterval = 5000;
 
       if (!forceRefresh && now - lastFetchTime < minInterval && processosOriginais.length > 0) {
         console.log("Usando dados em memória, evitando requisição desnecessária.");
@@ -308,7 +299,9 @@ const ProcessosMain = () => {
       <MainContainer>
         <Header>
           <Titulo>Gerenciamento de Processos</Titulo>
-          <BotaoCriar>Criar Processo</BotaoCriar>
+          <BotaoCriar onClick={() => navigate("/clientes/criarProc")}>
+            Criar Processo
+          </BotaoCriar>
         </Header>
 
         <CampoBusca
@@ -363,7 +356,7 @@ const ProcessosMain = () => {
                 return (
                   <TableRow
                     key={processo.id}
-                    onClick={() => navigate(`/processos/${processo.id}`)} // Navega para DetalhesProcesso
+                    onClick={() => navigate(`/processos/${processo.id}`)}
                   >
                     <TableCell>{processo.numeroProcesso || "N/A"}</TableCell>
                     <TableCell>{processo.situacao || "N/A"}</TableCell>
@@ -378,7 +371,7 @@ const ProcessosMain = () => {
                         </ValorCausa>
                         <BotaoVisibilidade
                           onClick={(e) => {
-                            e.stopPropagation(); // Impede que o clique no botão acione a navegação
+                            e.stopPropagation();
                             toggleVisibilidadeValor(processo.id);
                           }}
                         >

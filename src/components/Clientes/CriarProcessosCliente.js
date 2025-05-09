@@ -4,7 +4,6 @@ import styled from "styled-components";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilo do container principal
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -22,7 +21,6 @@ const MainContainer = styled.div`
   }
 `;
 
-// Estilo do cabeçalho
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
@@ -35,7 +33,6 @@ const Header = styled.header`
   color: #fff;
 `;
 
-// Estilo do título
 const Titulo = styled.h1`
   font-family: "Arial", sans-serif;
   font-size: 28px;
@@ -47,10 +44,9 @@ const Titulo = styled.h1`
   }
 `;
 
-// Estilo dos botões
 const BotaoSalvar = styled.button`
   padding: 10px 20px;
-  background: #007bff;
+  background:rgb(18, 224, 28);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -93,7 +89,6 @@ const BotaoCancelar = styled.button`
   }
 `;
 
-// Estilo das seções
 const Section = styled.section`
   background: #fff;
   border-radius: 12px;
@@ -361,28 +356,54 @@ const CriarProcessosCliente = () => {
     npjRepresentando: "",
     vara: "",
     valorCausa: "",
-    responsaveis: [], // Array of objects with IDs
+    responsaveis: [],
     responsaveisNome: [],
-    clienteId: clientId ? [String(clientId)] : [], // Changed to List<String>
+    clienteId: clientId ? [String(clientId)] : [],
     clienteNome: clientName ? [clientName] : [],
   });
+  const [clientes, setClientes] = useState([]);
   const [advogados, setAdvogados] = useState([]);
   const [dropdownAberto, setDropdownAberto] = useState(false);
+  const [dropdownClientesAberto, setDropdownClientesAberto] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [hasFetchedAdvogados, setHasFetchedAdvogados] = useState(false);
+  const [hasFetchedClientes, setHasFetchedClientes] = useState(false);
 
-  // Fetch client name if not provided
-  const fetchClientName = useCallback(async () => {
-    if (!clientId) {
-      setMensagemErro("ID do cliente não fornecido.");
-      return;
-    }
+  const fetchClientes = useCallback(async () => {
+    if (hasFetchedClientes) return;
 
     try {
       setIsLoading(true);
-      const response = await fetchAuthenticated(`http://localhost:8080/cad/get`, {
+      const response = await fetchAuthenticated("http://localhost:8080/cad/get", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao buscar clientes.");
+      }
+
+      const data = await response.json();
+      setClientes(data);
+      setHasFetchedClientes(true);
+    } catch (error) {
+      console.error("Erro ao buscar clientes:", error);
+      setMensagemErro("Erro ao carregar lista de clientes.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchAuthenticated, hasFetchedClientes]);
+
+  const fetchClientName = useCallback(async () => {
+    if (!clientId || clientName) return;
+
+    try {
+      setIsLoading(true);
+      const response = await fetchAuthenticated("http://localhost:8080/cad/get", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -394,7 +415,6 @@ const CriarProcessosCliente = () => {
       }
 
       const data = await response.json();
-      console.log("Clientes fetched:", data); // Debug log
       const clienteSelecionado = data.find((c) => String(c.id) === String(clientId));
 
       if (!clienteSelecionado) {
@@ -412,9 +432,8 @@ const CriarProcessosCliente = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchAuthenticated, clientId]);
+  }, [fetchAuthenticated, clientId, clientName]);
 
-  // Fetch advogados
   const fetchAdvogados = useCallback(async () => {
     if (hasFetchedAdvogados) return;
 
@@ -425,7 +444,6 @@ const CriarProcessosCliente = () => {
       });
       if (!response.ok) throw new Error("Erro ao buscar advogados");
       const data = await response.json();
-      console.log("Advogados fetched:", data); // Debug log
       setAdvogados(Array.isArray(data) ? data.filter((adv) => adv.id != null) : []);
       setHasFetchedAdvogados(true);
     } catch (error) {
@@ -438,15 +456,13 @@ const CriarProcessosCliente = () => {
   }, [fetchAuthenticated, hasFetchedAdvogados]);
 
   useEffect(() => {
+    fetchAdvogados();
     if (!clientId) {
-      setMensagemErro("Informações do cliente não fornecidas.");
-      return;
-    }
-    if (!clientName) {
+      fetchClientes();
+    } else {
       fetchClientName();
     }
-    fetchAdvogados();
-  }, [fetchClientName, fetchAdvogados, clientId, clientName]);
+  }, [fetchAdvogados, fetchClientes, fetchClientName, clientId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -456,9 +472,18 @@ const CriarProcessosCliente = () => {
     }));
   };
 
+  const handleClienteChange = (cliente) => {
+    setFormData((prev) => ({
+      ...prev,
+      clienteId: cliente.id ? [String(cliente.id)] : [],
+      clienteNome: cliente.cliente?.nome ? [cliente.cliente.nome] : [],
+    }));
+    setDropdownClientesAberto(false);
+  };
+
   const toggleSelecionarAdvogado = (advogado) => {
     if (!advogado.id) {
-      console.warn("Advogado sem ID:", advogado); // Debug log
+      console.warn("Advogado sem ID:", advogado);
       return;
     }
     setFormData((prev) => {
@@ -470,7 +495,6 @@ const CriarProcessosCliente = () => {
           responsaveisNome: prev.responsaveisNome.filter((_, i) => prev.responsaveis[i].id !== advogado.id),
         };
       } else {
-        console.log("Adicionando advogado:", { id: advogado.id, nome: advogado.nome }); // Debug log
         return {
           ...prev,
           responsaveis: [...prev.responsaveis, { id: advogado.id }],
@@ -481,7 +505,6 @@ const CriarProcessosCliente = () => {
   };
 
   const removerResponsavel = (id) => {
-    console.log("Removendo responsável com ID:", id); // Debug log
     setFormData((prev) => ({
       ...prev,
       responsaveis: prev.responsaveis.filter((resp) => resp.id !== id),
@@ -492,34 +515,28 @@ const CriarProcessosCliente = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
-      !formData.clienteNome.length ||
+      !formData.clienteId.length ||
       !formData.numeroProcesso ||
-      !formData.responsaveis.length ||
-      !formData.clienteId.length
+      !formData.responsaveis.length
     ) {
       setMensagemErro("Campos obrigatórios: Cliente, Número do Processo e Responsáveis.");
       return;
     }
 
-    // Validate responsaveis IDs
     const responsaveisIds = formData.responsaveis.map((resp) => String(resp.id));
-    console.log("Responsaveis IDs:", responsaveisIds); // Debug log
     if (responsaveisIds.some((id) => !id)) {
       const invalidIds = responsaveisIds.filter((id) => !id);
-      console.error("IDs inválidos encontrados:", invalidIds); // Debug log
       setMensagemErro(`IDs dos responsáveis inválidos: ${invalidIds.join(", ")}`);
       return;
     }
 
-    // Prepare payload matching DtoProcessos
     const payload = {
       ...formData,
-      responsaveisId: responsaveisIds, // ["67b6627259a08aa15f0f17f2", ...]
-      clienteId: formData.clienteId, // ["clientId"]
-      responsaveis: undefined, // Remove original responsaveis field
-      cliente: undefined, // Remove original cliente field
+      responsaveisId: responsaveisIds,
+      clienteId: formData.clienteId,
+      responsaveis: undefined,
+      cliente: undefined,
     };
-    console.log("Payload enviado:", payload); // Debug log
 
     setIsLoading(true);
     setMensagemErro("");
@@ -541,11 +558,10 @@ const CriarProcessosCliente = () => {
         );
       }
 
-      const novoProcesso = await response.json();
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
-        navigate(`/clientes/${clientId}`);
+        navigate(formData.clienteId.length ? `/clientes/${formData.clienteId[0]}` : "/processos");
       }, 2000);
     } catch (error) {
       console.error("Erro ao criar processo:", error);
@@ -554,16 +570,6 @@ const CriarProcessosCliente = () => {
       setIsLoading(false);
     }
   };
-
-  if (!clientId || (!clientName && !formData.clienteNome.length && mensagemErro)) {
-    return (
-      <ComponentesFixos>
-        <MainContainer>
-          <MensagemErro>Erro: Informações do cliente não fornecidas.</MensagemErro>
-        </MainContainer>
-      </ComponentesFixos>
-    );
-  }
 
   return (
     <ComponentesFixos>
@@ -575,7 +581,7 @@ const CriarProcessosCliente = () => {
               {isLoading ? "Criando..." : "Salvar"}
             </BotaoSalvar>
             <BotaoCancelar
-              onClick={() => navigate(`/clientes/${clientId}`)}
+              onClick={() => navigate(formData.clienteId.length ? `/clientes/${formData.clienteId[0]}` : "/processos")}
               disabled={isLoading}
             >
               Cancelar
@@ -588,8 +594,37 @@ const CriarProcessosCliente = () => {
         <Section>
           <SectionTitle>Informações Gerais</SectionTitle>
           <FormRow>
-            <FormLabel>Cliente</FormLabel>
-            <FormInput value={formData.clienteNome[0] || ""} disabled />
+            <FormLabel>Cliente *</FormLabel>
+            {clientId ? (
+              <FormInput value={formData.clienteNome[0] || ""} disabled />
+            ) : (
+              <DropdownContainer>
+                <DropdownButton
+                  onClick={() => setDropdownClientesAberto(!dropdownClientesAberto)}
+                  disabled={isLoading}
+                >
+                  {formData.clienteNome[0] || "Selecione um Cliente"} <span>▼</span>
+                </DropdownButton>
+                {dropdownClientesAberto && (
+                  <DropdownContent>
+                    {clientes.length > 0 ? (
+                      clientes.map((cliente) => (
+                        <DropdownItem
+                          key={cliente.id}
+                          onClick={() => handleClienteChange(cliente)}
+                        >
+                          {cliente.cliente?.nome || "Sem Nome"}
+                        </DropdownItem>
+                      ))
+                    ) : (
+                      <p style={{ color: "#7f8c8d", padding: "8px" }}>
+                        Nenhum cliente cadastrado
+                      </p>
+                    )}
+                  </DropdownContent>
+                )}
+              </DropdownContainer>
+            )}
           </FormRow>
           <FormRow>
             <FormLabel>Número do Processo *</FormLabel>
@@ -610,9 +645,13 @@ const CriarProcessosCliente = () => {
               disabled={isLoading}
             >
               <option value="">Selecione</option>
-              <option value="ATIVO">Ativo</option>
-              <option value="SUSPENSO">Suspenso</option>
+              <option value="INICIADO">Iniciado</option>
+              <option value="EM_ANDAMENTO">Em Andamento</option>
+              <option value="FINALIZADO">Finalizado</option>
               <option value="ARQUIVADO">Arquivado</option>
+              <option value="SUSPENSO">Suspenso</option>
+              <option value="AGUARDANDO_DISTRIBUICAO">Aguardando Distribuição</option>
+              <option value="EM_RECURSO">Em Recurso</option>
             </FormSelect>
           </FormRow>
           <FormRow>
