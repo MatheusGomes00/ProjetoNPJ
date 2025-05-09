@@ -164,9 +164,9 @@ const IconeNotificacoes = () => {
   const [notificacoes, setNotificacoes] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [mensagemErro, setMensagemErro] = useState("");
+  const [, setMensagemErro] = useState("");
   const [selectedTarefa, setSelectedTarefa] = useState(null);
-  const [selectedNotificacaoId, setSelectedNotificacaoId] = useState(null);
+  const [, setSelectedNotificacaoId] = useState(null);
   const stompClientRef = useRef(null);
   const subscriptionRef = useRef(null);
   const dropdownRef = useRef(null);

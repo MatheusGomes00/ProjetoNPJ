@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import BotaoEditar from "./BotaoEditar";
 import useAuth from "../Seguranca/UseAuth";
 
@@ -477,28 +477,17 @@ const MensagemErro = styled.p`
   text-align: center;
 `;
 
-const piscar = keyframes`
-  0% { border-color: red; }
-  50% { border-color: transparent; }
-  100% { border-color: red; }
-`;
-
-const InputErro = styled.input`
-  border: 2px solid red;
-  animation: ${piscar} 0.5s infinite;
-`;
-
 function Tarefas() {
   const [tarefas, setTarefas] = useState([]);
   const [advogados, setAdvogados] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showDetalhesModal, setShowDetalhesModal] = useState(false);
-  const { fetchAuthenticated, user } = useAuth();
+  const { fetchAuthenticated } = useAuth();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [lastFetchTime, setLastFetchTime] = useState(0);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [mensagemErro, setMensagemErro] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
   const [dropdownAberto, setDropdownAberto] = useState(false);
@@ -599,7 +588,7 @@ function Tarefas() {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, lastFetchTime, tarefaSelecionada]
+    [fetchAuthenticated, lastFetchTime, tarefaSelecionada, tarefas.length]
   );
 
   const buscarAdvogados = useCallback(
@@ -637,14 +626,12 @@ function Tarefas() {
     try {
       const url = `http://localhost:8080/task/end/${id}`;
 
-      const response = await fetchAuthenticated(url, {
+      await fetchAuthenticated(url, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
       });
-
-      const tarefaAtualizada = await response.json();
 
       setTarefas((tarefasAntigas) =>
         tarefasAntigas.filter((tarefa) => tarefa.id !== id)

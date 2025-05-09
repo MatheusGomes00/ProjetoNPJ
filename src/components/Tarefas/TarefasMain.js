@@ -241,8 +241,8 @@ const TarefasMain = () => {
   const [tarefasBuscadas, setTarefasBuscadas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [mensagemSucesso, setMensagemSucesso] = useState("");
-  const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
+  const [ setMensagemSucesso] = useState("");
+  const [ setIsLoadingFinalizar] = useState(false);
   const [nomeBusca, setNomeBusca] = useState("");
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
   const [showModalEdicao, setShowModalEdicao] = useState(false);
