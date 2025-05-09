@@ -104,13 +104,6 @@ const Label = styled.label`
   color: #555;
 `;
 
-const EditableLabel = styled.label`
-  color: black; /* Texto em preto */
-  font-size: ${props => props.fontSize || '1.5em'}; /* Tamanho da fonte controlado via prop */
-  position: absolute; /* Posicionamento absoluto */
-  top: ${props => props.top || '50px'}; /* Posição top via prop */
-  left: ${props => props.left || '20px'}; /* Posição left via prop */
-`;
 
 const Input = styled.input`
   padding: 10px;

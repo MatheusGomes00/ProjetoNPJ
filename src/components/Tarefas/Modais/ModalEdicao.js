@@ -404,7 +404,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
       const index = prevTarefa.responsaveisId.indexOf(id);
       if (index === -1) return prevTarefa;
 
-      const novoIdRemovido = prevTarefa.responsaveisId[index];
+    
       const novoNomeRemovido = prevTarefa.responsaveisNome[index];
       const novosIds = prevTarefa.responsaveisId.filter((rid) => rid !== id);
       const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== novoNomeRemovido);
