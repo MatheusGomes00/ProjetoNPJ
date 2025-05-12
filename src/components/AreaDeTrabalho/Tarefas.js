@@ -3,18 +3,18 @@ import styled from "styled-components";
 import BotaoEditar from "./BotaoEditar";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilização
 const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: calc(106vh - 32px);
+  width: calc(106vh - 25px);
   height: 440px;
   padding: 40px;
-  border: 1px solid black;
+  border: 0px solid black;
   border-radius: 0px;
   background: #fff;
   box-sizing: border-box;
+  z-index: 1;
 `;
 
 const TituloTarefas = styled.h2`
@@ -85,7 +85,7 @@ const ListaTarefas = styled.div`
   gap: 30px;
   justify-content: center;
   align-items: flex-start;
-  width: 100%;
+  width: 106%;
   max-width: 250%;
   max-height: 380px;
   overflow-y: auto;

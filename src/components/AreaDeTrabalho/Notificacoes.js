@@ -9,10 +9,10 @@ const NotificacoesContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: calc(106vh - 32px);
+  width: calc(106vh - 25px);
   height: 31vw;
   padding: 40px;
-  border: 1px solid black;
+  
   border-radius: 0px;
   background: #fff;
   box-sizing: border-box;
