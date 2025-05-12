@@ -19,7 +19,7 @@ const ProcessosContainer = styled.div`
   border: 1px solid black;
   background: linear-gradient(145deg, #f8fbff 0%, #e6f0fa 100%);
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
-  border-radius: 12px;
+  
  
   @media (max-width: 768px) {
     width: 100%;

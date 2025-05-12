@@ -40,7 +40,7 @@ const SidebarButton = styled.button`
   justify-content: flex-start;
   font-size: 16px;
   padding: 12px;
-  margin: 5px 0;
+  margin: 10px 0;
   background-color: white;
   color: black;
   text-decoration: none;
