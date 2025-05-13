@@ -29,6 +29,12 @@ public class NotificacaoService{
         return repository.save(notificacao);
     }
 
+    public List<Notificacao> criarNotificacoesParaResponsaveis(String mensagem, List<String> advogadoIds, String tarefaId) {
+        return advogadoIds.stream()
+                .map(advogadoId -> criarNotificacao(mensagem, advogadoId, tarefaId))
+                .toList();
+    }
+
     public List<Notificacao> buscarNotificacoesPorAdvogado(String advogadoId){
         return repository.findByAdvogadoId(advogadoId);
     }

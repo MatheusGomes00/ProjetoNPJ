@@ -5,16 +5,12 @@ package com.npj.ProjetoNPJ.tarefas.controller;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
-import com.npj.ProjetoNPJ.notificacoes.entitie.Notificacao;
-
 import com.npj.ProjetoNPJ.notificacoes.service.NotificacaoService;
 import com.npj.ProjetoNPJ.security.JwtService;
 import com.npj.ProjetoNPJ.security.JwtService.*;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.service.TarefefasService;
-import io.jsonwebtoken.Jwt;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,11 +20,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping(value = "/task")
 public class TarefasController {
 
+    private static final Logger LOGGER = Logger.getLogger(TarefasController.class.getName());
     @Autowired
     private TarefefasService service;
 
@@ -61,16 +59,25 @@ public class TarefasController {
 
         DtoTarefas tarefa = service.insert(tarefaDto);
 
-        String mensagem = "Uma nova Tarefa foi atribuída a voce: " + tarefa.getNomeTarefa();
+        String mensagem = "Uma nova tarefa foi atribuída a você: " + tarefa.getNomeTarefa();
+        List<String> responsaveisId = tarefa.getResponsaveisId();
+        if (responsaveisId != null && !responsaveisId.isEmpty()) {
+            try {
+                notificacaoService.criarNotificacoesParaResponsaveis(mensagem, responsaveisId, tarefa.getId())
+                        .forEach(notificacao -> {
+                            messagingTemplate.convertAndSend(
+                                    "/topic/notificacoes/" + notificacao.getAdvogadoId(),
+                                    notificacao
+                            );
+                        });
+            } catch (Exception e) {
+                LOGGER.severe("Erro ao criar notificações: " + e.getMessage());
+                // Continue to return the task, as notification failure shouldn’t block creation
+            }
 
-        Notificacao notificacao = notificacaoService.criarNotificacao(mensagem, advogadoId, tarefa.getId());
-
-        messagingTemplate.convertAndSend("/topic/notificacoes/" + advogadoId, notificacao );
-
+        }
         return ResponseEntity.ok().body(tarefa);
     }
-
-
     @PutMapping(value = "/upd/{id}")
     public ResponseEntity<Tarefas> update(@PathVariable String id, @RequestBody DtoTarefas dto) {
         if (id == null || id.isEmpty()) {
