@@ -5,6 +5,7 @@ import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import useAuth from "../Seguranca/UseAuth";
 import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
+import ModalEdicao from "../Tarefas/Modais/ModalEdicao";
 
 // Estilos
 const NotificacoesContainer = styled.div`
@@ -164,6 +165,8 @@ const IconeNotificacoes = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTarefa, setSelectedTarefa] = useState(null);
   const [selectedNotificacaoId, setSelectedNotificacaoId] = useState(null);
+  const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
+  // useRef para WebSocket, dropdown e controle de montagem
   const stompClientRef = useRef(null);
   const subscriptionRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -372,11 +375,43 @@ const IconeNotificacoes = () => {
     [fetchAuthenticated]
   );
 
-  // Função para editar tarefa (placeholder)
+  // Função para editar tarefa
   const editarTarefa = useCallback((tarefa) => {
-    console.log("Editar tarefa:", tarefa);
-    console.log("Funcionalidade de edição ainda não implementada.");
+    console.log("Abrindo modal de edição para tarefa:", tarefa);
+    setTarefaParaEditar(tarefa);
   }, []);
+
+  // Função para fechar o modal de detalhes
+  const closeModal = useCallback(() => {
+    setSelectedTarefa(null);
+    setSelectedNotificacaoId(null);
+  }, []);
+
+  // Função para fechar o modal de edição
+  const closeEditModal = useCallback(() => {
+    setTarefaParaEditar(null);
+  }, []);
+
+  // Função para atualizar tarefa
+  const atualizarTarefa = useCallback((tarefaAtualizada) => {
+    console.log("Tarefa atualizada:", tarefaAtualizada);
+    // Atualizar selectedTarefa para refletir no ModalTarefa
+    setSelectedTarefa((prevTarefa) => {
+      if (prevTarefa && prevTarefa.id === tarefaAtualizada.id) {
+        return { ...prevTarefa, ...tarefaAtualizada };
+      }
+      return prevTarefa;
+    });
+    // Atualizar notificações, pois a edição pode gerar novas notificações
+    carregarNotificacoes();
+  }, [carregarNotificacoes]);
+
+  // Função para carregar tarefas (placeholder)
+  const carregarTarefas = useCallback(async () => {
+    console.log("Carregando tarefas após edição...");
+    // Pode ser implementado para recarregar notificações ou tarefas
+    carregarNotificacoes();
+  }, [carregarNotificacoes]);
 
   // Carregar notificações iniciais
   useEffect(() => {
@@ -507,12 +542,6 @@ const IconeNotificacoes = () => {
     setShowDropdown((prev) => !prev);
   }, []);
 
-  // Fechar modal
-  const closeModal = useCallback(() => {
-    setSelectedTarefa(null);
-    setSelectedNotificacaoId(null);
-  }, []);
-
   // Abrir modal e marcar notificação como lida ao clicar na notificação
   const handleNotificacaoClick = useCallback(
     (notificacao) => {
@@ -573,6 +602,14 @@ const IconeNotificacoes = () => {
           onFinalizar={finalizarTarefa}
           onReabrir={reativarTarefa}
           onEditar={editarTarefa}
+        />
+      )}
+      {tarefaParaEditar && (
+        <ModalEdicao
+          tarefa={tarefaParaEditar}
+          onClose={closeEditModal}
+          carregarTarefas={carregarTarefas}
+          atualizarTarefa={atualizarTarefa}
         />
       )}
     </NotificacoesContainer>

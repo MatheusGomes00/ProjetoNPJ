@@ -3,6 +3,8 @@ import styled from "styled-components";
 import useAuth from "../Seguranca/UseAuth";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
+import ModalEdicao from "../Tarefas/Modais/ModalEdicao";
 
 // 🎨 Estilos completamente reimaginados
 const NotificacoesContainer = styled.div`
@@ -12,7 +14,6 @@ const NotificacoesContainer = styled.div`
   width: calc(106vh - 25px);
   height: 31vw;
   padding: 40px;
-  
   border-radius: 0px;
   background: #fff;
   box-sizing: border-box;
@@ -143,13 +144,18 @@ function Notificacoes() {
   const [notificacoes, setNotificacoes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const [selectedTarefa, setSelectedTarefa] = useState(null);
+  const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
+  // useRef para WebSocket e controle de montagem
   const stompClientRef = useRef(null);
   const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
 
-  const formatarData = (dataString) => {
+  // Função para formatar a data
+  const formatarData = useCallback((dataString) => {
     if (!dataString) return "Sem data";
     const data = new Date(dataString);
+    if (isNaN(data.getTime())) return "Data inválida";
     const dia = String(data.getDate()).padStart(2, "0");
     const mes = String(data.getMonth() + 1).padStart(2, "0");
     const ano = data.getFullYear();
@@ -157,8 +163,9 @@ function Notificacoes() {
     const minutos = String(data.getMinutes()).padStart(2, "0");
     const segundos = String(data.getSeconds()).padStart(2, "0");
     return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
-  };
+  }, []);
 
+  // Função para carregar notificações
   const carregarNotificacoes = useCallback(async () => {
     if (!isMountedRef.current || isLoading) return;
 
@@ -203,6 +210,144 @@ function Notificacoes() {
     }
   }, [fetchAuthenticated, isLoading, logoutWithRedirect]);
 
+  // Função para buscar detalhes da tarefa
+  const fetchTarefa = useCallback(
+    async (tarefaId) => {
+      if (!isMountedRef.current || !tarefaId) return;
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/task/${tarefaId}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        if (isMountedRef.current) {
+          console.log(`Tarefa fetched: ${tarefaId}`, data);
+          setSelectedTarefa(data);
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao buscar tarefa:", error);
+          setMensagemErro(`Erro ao carregar tarefa: ${error.message}`);
+        }
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  // Função para finalizar tarefa
+  const finalizarTarefa = useCallback(
+    async (tarefaId) => {
+      if (!isMountedRef.current || !tarefaId) return;
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/tarefas/finalizar/${tarefaId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+
+        if (isMountedRef.current) {
+          setSelectedTarefa(null);
+          console.log("Tarefa finalizada com sucesso!");
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao finalizar tarefa:", error);
+          setMensagemErro(`Erro ao finalizar tarefa: ${error.message}`);
+        }
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  // Função para reativar tarefa
+  const reativarTarefa = useCallback(
+    async (tarefaId) => {
+      if (!isMountedRef.current || !tarefaId) return;
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/tarefas/reativar/${tarefaId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+
+        if (isMountedRef.current) {
+          setSelectedTarefa(null);
+          console.log("Tarefa reativada com sucesso!");
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao reativar tarefa:", error);
+          setMensagemErro(`Erro ao reativar tarefa: ${error.message}`);
+        }
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  // Função para editar tarefa
+  const editarTarefa = useCallback((tarefa) => {
+    console.log("Abrindo modal de edição para tarefa:", tarefa);
+    setTarefaParaEditar(tarefa);
+  }, []);
+
+  // Função para fechar o modal de detalhes
+  const closeModal = useCallback(() => {
+    setSelectedTarefa(null);
+  }, []);
+
+  // Função para fechar o modal de edição
+  const closeEditModal = useCallback(() => {
+    setTarefaParaEditar(null);
+  }, []);
+
+  // Função para atualizar tarefa
+  const atualizarTarefa = useCallback((tarefaAtualizada) => {
+    console.log("Tarefa atualizada:", tarefaAtualizada);
+    // Atualizar selectedTarefa para refletir no ModalTarefa
+    setSelectedTarefa((prevTarefa) => {
+      if (prevTarefa && prevTarefa.id === tarefaAtualizada.id) {
+        return { ...prevTarefa, ...tarefaAtualizada };
+      }
+      return prevTarefa;
+    });
+    // Atualizar notificações, pois a edição pode gerar novas notificações
+    carregarNotificacoes();
+  }, [carregarNotificacoes]);
+
+  // Função para carregar tarefas (placeholder)
+  const carregarTarefas = useCallback(async () => {
+    console.log("Carregando tarefas após edição...");
+    // Pode ser implementado para recarregar notificações ou tarefas
+    carregarNotificacoes();
+  }, [carregarNotificacoes]);
+
+  // Carregar notificações iniciais
   useEffect(() => {
     isMountedRef.current = true;
     if (!hasLoadedRef.current) {
@@ -216,6 +361,7 @@ function Notificacoes() {
     };
   }, [carregarNotificacoes]);
 
+  // Configurar WebSocket
   const setupWebSocket = useCallback(() => {
     const userId = getId();
 
@@ -282,6 +428,23 @@ function Notificacoes() {
     return cleanup;
   }, [setupWebSocket]);
 
+  // Função para lidar com clique na notificação
+  const handleNotificacaoClick = useCallback(
+    (notificacao) => {
+      if (!notificacao?.id) {
+        console.warn("Notificação inválida:", notificacao);
+        return;
+      }
+      if (notificacao.tarefaID) {
+        console.log(`Opening modal for tarefaID: ${notificacao.tarefaID}`);
+        fetchTarefa(notificacao.tarefaID);
+      } else {
+        console.warn("Notificação sem tarefaID:", notificacao);
+      }
+    },
+    [fetchTarefa]
+  );
+
   return (
     <NotificacoesContainer>
       <NotificacoesHeader>
@@ -301,7 +464,14 @@ function Notificacoes() {
           </MensagemErro>
         ) : notificacoes.length > 0 ? (
           notificacoes.map((notificacao) => (
-            <NotificacaoItem key={notificacao.id}>
+            <NotificacaoItem
+              key={notificacao.id}
+              onClick={() => handleNotificacaoClick(notificacao)}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && handleNotificacaoClick(notificacao)}
+              role="button"
+              aria-label={`Ver detalhes da tarefa: ${notificacao.mensagem}`}
+            >
               <NotificacaoIcon>📬</NotificacaoIcon>
               <NotificacaoContent>
                 <NotificacaoMensagem>{notificacao.mensagem}</NotificacaoMensagem>
@@ -315,6 +485,25 @@ function Notificacoes() {
           </MensagemErro>
         )}
       </NotificacoesList>
+
+      {selectedTarefa && (
+        <ModalTarefa
+          tarefa={selectedTarefa}
+          onClose={closeModal}
+          onFinalizar={finalizarTarefa}
+          onReabrir={reativarTarefa}
+          onEditar={editarTarefa}
+        />
+      )}
+
+      {tarefaParaEditar && (
+        <ModalEdicao
+          tarefa={tarefaParaEditar}
+          onClose={closeEditModal}
+          carregarTarefas={carregarTarefas}
+          atualizarTarefa={atualizarTarefa}
+        />
+      )}
     </NotificacoesContainer>
   );
 }
