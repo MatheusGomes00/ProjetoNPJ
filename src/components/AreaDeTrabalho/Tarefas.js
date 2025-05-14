@@ -520,7 +520,7 @@ function Tarefas() {
       if (isSelected) {
         const novosIds = prevTarefa.responsaveisId.filter((id) => id !== advogado.id);
         const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome);
-        console.log("Removendo advogado:", advogado.nome, "Novos IDs:", novosIds, "Novos Nomes:", novosNomes);
+        
         return {
           ...prevTarefa,
           responsaveisId: novosIds,
@@ -542,7 +542,7 @@ function Tarefas() {
       const minInterval = 5000;
 
       if (!forceRefresh && now - lastFetchTime < minInterval && tarefas.length > 0) {
-        console.log("Usando dados em memória, evitando requisição desnecessária.");
+       
         return;
       }
 
@@ -597,7 +597,7 @@ function Tarefas() {
       const minInterval = 5000;
 
       if (!forceRefresh && now - lastFetchTime < minInterval && advogados.length > 0) {
-        console.log("Usando advogados em memória, evitando requisição desnecessária.");
+       
         return;
       }
 
@@ -690,8 +690,7 @@ function Tarefas() {
         responsaveisNome: novaTarefa.responsaveisNome,
       };
 
-      console.log("Estado de novaTarefa antes do envio:", novaTarefa);
-      console.log("Payload enviado para a API:", JSON.stringify(novaTarefaComData));
+    
 
       const response = await fetchAuthenticated("http://localhost:8080/task/create", {
         method: "POST",
@@ -707,7 +706,7 @@ function Tarefas() {
       }
 
       const tarefaCriada = await response.json();
-      console.log("Tarefa criada retornada pela API:", tarefaCriada);
+      
 
       setShowModal(false);
       setNovaTarefa({

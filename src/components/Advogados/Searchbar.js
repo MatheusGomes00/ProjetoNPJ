@@ -115,10 +115,10 @@ function SearchBar({ onSearch }) {
 
   useEffect(() => {
     if (errorMessage) {
-      console.log("Erro definido:", errorMessage);
+      
       const timer = setTimeout(() => {
         setErrorMessage("");
-        console.log("Erro apagado.");
+    
       }, 3000);
 
       return () => clearTimeout(timer);

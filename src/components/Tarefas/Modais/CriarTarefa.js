@@ -316,7 +316,7 @@ const CriarTarefa = ({ carregarTarefas }) => {
       }
 
       const data = await response.json();
-      console.log("Advogados recebidos:", data);
+     
       setAdvogados(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Erro ao buscar advogados:", error);
@@ -521,8 +521,6 @@ const CriarTarefa = ({ carregarTarefas }) => {
         responsaveisNome: novaTarefa.responsaveisNome,
       };
 
-      console.log("Estado de novaTarefa antes do envio:", novaTarefa);
-      console.log("Payload enviado para a API:", JSON.stringify(novaTarefaComData));
 
       const response = await fetchAuthenticated("http://localhost:8080/task/create", {
         method: "POST",
@@ -538,7 +536,7 @@ const CriarTarefa = ({ carregarTarefas }) => {
       }
 
       const tarefaCriada = await response.json();
-      console.log("Tarefa criada retornada pela API:", tarefaCriada);
+      
 
       setShowModal(false);
       setNovaTarefa({

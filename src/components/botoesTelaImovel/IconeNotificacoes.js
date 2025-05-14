@@ -164,7 +164,7 @@ const IconeNotificacoes = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTarefa, setSelectedTarefa] = useState(null);
-  const [selectedNotificacaoId, setSelectedNotificacaoId] = useState(null);
+  const [, setSelectedNotificacaoId] = useState(null);
   const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
   // useRef para WebSocket, dropdown e controle de montagem
   const stompClientRef = useRef(null);
@@ -214,7 +214,7 @@ const IconeNotificacoes = () => {
           (notificacao) => !processedNotificationIds.current.has(notificacao.id)
         );
         uniqueNotificacoes.forEach((notificacao) => {
-          console.log(`Fetched notification: ${notificacao.id}, tarefaID: ${notificacao.tarefaID}`);
+          
           processedNotificationIds.current.add(notificacao.id);
         });
         setNotificacoes(uniqueNotificacoes.length > 0 ? uniqueNotificacoes : []);
@@ -259,7 +259,7 @@ const IconeNotificacoes = () => {
         if (isMountedRef.current) {
           setNotificacoes((prev) => {
             const updated = prev.filter((n) => n.id !== notificacaoId);
-            console.log(`Notificação ${notificacaoId} marcada como lida. Notificações restantes: ${updated.length}`);
+            
             return updated;
           });
           processedNotificationIds.current.delete(notificacaoId);
@@ -298,7 +298,7 @@ const IconeNotificacoes = () => {
 
         const data = await response.json();
         if (isMountedRef.current) {
-          console.log(`Tarefa fetched: ${tarefaId}`, data);
+         
           setSelectedTarefa(data);
           setSelectedNotificacaoId(notificacaoId);
         }
@@ -332,7 +332,7 @@ const IconeNotificacoes = () => {
 
         if (isMountedRef.current) {
           setSelectedTarefa(null);
-          console.log("Tarefa finalizada com sucesso!");
+          
         }
       } catch (error) {
         if (isMountedRef.current) {
@@ -364,7 +364,7 @@ const IconeNotificacoes = () => {
 
         if (isMountedRef.current) {
           setSelectedTarefa(null);
-          console.log("Tarefa reativada com sucesso!");
+          
         }
       } catch (error) {
         if (isMountedRef.current) {
@@ -377,7 +377,7 @@ const IconeNotificacoes = () => {
 
   // Função para editar tarefa
   const editarTarefa = useCallback((tarefa) => {
-    console.log("Abrindo modal de edição para tarefa:", tarefa);
+    ;
     setTarefaParaEditar(tarefa);
   }, []);
 
@@ -394,7 +394,7 @@ const IconeNotificacoes = () => {
 
   // Função para atualizar tarefa
   const atualizarTarefa = useCallback((tarefaAtualizada) => {
-    console.log("Tarefa atualizada:", tarefaAtualizada);
+    
     // Atualizar selectedTarefa para refletir no ModalTarefa
     setSelectedTarefa((prevTarefa) => {
       if (prevTarefa && prevTarefa.id === tarefaAtualizada.id) {
@@ -408,7 +408,7 @@ const IconeNotificacoes = () => {
 
   // Função para carregar tarefas (placeholder)
   const carregarTarefas = useCallback(async () => {
-    console.log("Carregando tarefas após edição...");
+   
     // Pode ser implementado para recarregar notificações ou tarefas
     carregarNotificacoes();
   }, [carregarNotificacoes]);
@@ -435,7 +435,7 @@ const IconeNotificacoes = () => {
     }
 
     if (stompClientRef.current?.connected) {
-      console.log("WebSocket already connected, skipping setup");
+      
       return;
     }
 
@@ -450,34 +450,34 @@ const IconeNotificacoes = () => {
 
     client.onConnect = () => {
       if (!isMountedRef.current) return;
-      console.log(`✅ Conectado ao WebSocket para userId: ${userId}`);
+      
 
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
-        console.log("Unsubscribed previous WebSocket subscription");
+        
       }
 
       subscriptionRef.current = client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
         if (!isMountedRef.current) return;
         try {
           const novaNotificacao = JSON.parse(message.body);
-          console.log(`Received WebSocket notification: ${novaNotificacao.id}, tarefaID: ${novaNotificacao.tarefaID}, lida: ${novaNotificacao.lida}`);
+          
           if (novaNotificacao.lida) {
-            console.log(`Notificação ${novaNotificacao.id} já está lida, ignorada.`);
+           
             return;
           }
           if (!processedNotificationIds.current.has(novaNotificacao.id)) {
             processedNotificationIds.current.add(novaNotificacao.id);
             setNotificacoes((prev) => {
               if (prev.some((n) => n.id === novaNotificacao.id)) {
-                console.log(`Notificação ${novaNotificacao.id} já existe, ignorando`);
+                
                 return prev;
               }
-              console.log(`Adicionando nova notificação: ${novaNotificacao.id}`);
+              
               return [novaNotificacao, ...prev];
             });
           } else {
-            console.log(`Notificação ${novaNotificacao.id} já processada, ignorando`);
+           
           }
         } catch (error) {
           console.error("Erro ao processar mensagem WebSocket:", error);
@@ -493,7 +493,7 @@ const IconeNotificacoes = () => {
 
     client.onWebSocketClose = () => {
       if (!isMountedRef.current) return;
-      console.log("🔌 Conexão WebSocket fechada");
+      
       stompClientRef.current = null;
       subscriptionRef.current = null;
       processedNotificationIds.current.clear();
@@ -505,10 +505,10 @@ const IconeNotificacoes = () => {
       if (client?.connected) {
         if (subscriptionRef.current) {
           subscriptionRef.current.unsubscribe();
-          console.log("Unsubscribed WebSocket subscription on cleanup");
+          
         }
         client.deactivate();
-        console.log("🔌 WebSocket desconectado");
+        
         stompClientRef.current = null;
         subscriptionRef.current = null;
         processedNotificationIds.current.clear();
@@ -550,7 +550,7 @@ const IconeNotificacoes = () => {
         return;
       }
       if (notificacao.tarefaID) {
-        console.log(`Opening modal for tarefaID: ${notificacao.tarefaID}, notificacaoId: ${notificacao.id}`);
+     
         fetchTarefa(notificacao.tarefaID, notificacao.id);
         marcarComoLida(notificacao.id);
       } else {

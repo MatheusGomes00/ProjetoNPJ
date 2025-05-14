@@ -286,7 +286,7 @@ function Notificacoes() {
         }
       );
 
-      console.log("Status da resposta DELETE:", response.status);
+      
       if (!response.ok) {
         if (response.status === 404) {
           setMensagemErro("Nenhuma notificação encontrada para este advogado.");
@@ -333,7 +333,7 @@ function Notificacoes() {
 
         const data = await response.json();
         if (isMountedRef.current) {
-          console.log(`Tarefa fetched: ${tarefaId}`, data);
+          
           setSelectedTarefa(data);
         }
       } catch (error) {
@@ -367,7 +367,7 @@ function Notificacoes() {
 
         if (isMountedRef.current) {
           setSelectedTarefa(null);
-          console.log("Tarefa finalizada com sucesso!");
+          
         }
       } catch (error) {
         if (isMountedRef.current) {
@@ -400,7 +400,7 @@ function Notificacoes() {
 
         if (isMountedRef.current) {
           setSelectedTarefa(null);
-          console.log("Tarefa reativada com sucesso!");
+         
         }
       } catch (error) {
         if (isMountedRef.current) {
@@ -414,7 +414,7 @@ function Notificacoes() {
 
   // Função para editar tarefa
   const editarTarefa = useCallback((tarefa) => {
-    console.log("Abrindo modal de edição para tarefa:", tarefa);
+    
     setTarefaParaEditar(tarefa);
   }, []);
 
@@ -430,7 +430,7 @@ function Notificacoes() {
 
   // Função para atualizar tarefa
   const atualizarTarefa = useCallback((tarefaAtualizada) => {
-    console.log("Tarefa atualizada:", tarefaAtualizada);
+    
     // Atualizar selectedTarefa para refletir no ModalTarefa
     setSelectedTarefa((prevTarefa) => {
       if (prevTarefa && prevTarefa.id === tarefaAtualizada.id) {
@@ -444,7 +444,7 @@ function Notificacoes() {
 
   // Função para carregar tarefas (placeholder)
   const carregarTarefas = useCallback(async () => {
-    console.log("Carregando tarefas após edição...");
+    
     // Pode ser implementado para recarregar notificações ou tarefas
     carregarNotificacoes();
   }, [carregarNotificacoes]);
@@ -453,7 +453,7 @@ function Notificacoes() {
   useEffect(() => {
     isMountedRef.current = true;
     if (!hasLoadedRef.current) {
-      console.log("Carregando notificações iniciais");
+     
       carregarNotificacoes();
       hasLoadedRef.current = true;
     }
@@ -473,7 +473,8 @@ function Notificacoes() {
     }
 
     if (stompClientRef.current && stompClientRef.current.connected) {
-      console.log("WebSocket já conectado, ignorando nova conexão.");
+     
+    
       return;
     }
 
@@ -488,11 +489,11 @@ function Notificacoes() {
 
     client.onConnect = () => {
       if (!isMountedRef.current) return;
-      console.log("✅ Conectado ao WebSocket");
+     
       client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
         if (!isMountedRef.current) return;
         const novaNotificacao = JSON.parse(message.body);
-        console.log("📩 Notificação recebida:", novaNotificacao);
+        
         setNotificacoes((prev) => {
           if (prev.some((n) => n.id === novaNotificacao.id)) return prev;
           return [novaNotificacao, ...prev];
@@ -509,7 +510,7 @@ function Notificacoes() {
 
     client.onWebSocketClose = () => {
       if (!isMountedRef.current) return;
-      console.log("🔌 Conexão WebSocket fechada");
+      
       stompClientRef.current = null;
     };
 
@@ -518,14 +519,14 @@ function Notificacoes() {
     return () => {
       if (client && client.connected) {
         client.deactivate();
-        console.log("🔌 WebSocket desconectado");
+        
         stompClientRef.current = null;
       }
     };
   }, [getId]);
 
   useEffect(() => {
-    console.log("Configurando WebSocket");
+    
     const cleanup = setupWebSocket();
     return cleanup;
   }, [setupWebSocket]);
@@ -538,7 +539,7 @@ function Notificacoes() {
         return;
       }
       if (notificacao.tarefaID) {
-        console.log(`Opening modal for tarefaID: ${notificacao.tarefaID}`);
+       
         fetchTarefa(notificacao.tarefaID);
       } else {
         console.warn("Notificação sem tarefaID:", notificacao);

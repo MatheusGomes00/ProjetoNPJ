@@ -159,14 +159,14 @@ const ProcessosAreaDeTrabalho = () => {
   const hasFetched = useRef(false);
 
   useEffect(() => {
-    console.log("Componente ProcessosAreaDeTrabalho montado");
+    
     if (hasFetched.current) {
-      console.log("Fetch já realizado, ignorando");
+      
       return;
     }
 
     const buscarProcessos = async () => {
-      console.log("Iniciando fetch para http://localhost:8080/proc/get/auth");
+      
       setIsLoading(true);
       setMensagemErro("");
       try {
@@ -176,10 +176,10 @@ const ProcessosAreaDeTrabalho = () => {
             "Content-Type": "application/json",
           },
         });
-        console.log("Status da resposta:", response.status);
+        
         if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
         const data = await response.json();
-        console.log("Dados recebidos:", data);
+        
 
         const processosMapeados = data.map((proc) => {
           const mapped = {
@@ -191,7 +191,7 @@ const ProcessosAreaDeTrabalho = () => {
           };
           return mapped;
         });
-        console.log("Processos mapeados:", processosMapeados);
+       
 
         setProcessos(processosMapeados);
         if (processosMapeados.length === 0) {
@@ -210,7 +210,7 @@ const ProcessosAreaDeTrabalho = () => {
     buscarProcessos();
 
     return () => {
-      console.log("Componente ProcessosAreaDeTrabalho desmontado");
+     
     };
   }, []); // Dependência vazia para rodar apenas na montagem
 

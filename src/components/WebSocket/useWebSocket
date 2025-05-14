@@ -6,9 +6,10 @@ import useAuth from './useAuth';
 const useWebSocket = () => {
     const { getAccessToken, getId, logoutWithRedirect } = useAuth();
     const [notifications, setNotifications] = useState([]);
-    const [client, setClient] = useState(null);
+    const [, setClient] = useState(null);
 
     useEffect(() => {
+        
         const token = getAccessToken();
         const userId = getId();
 

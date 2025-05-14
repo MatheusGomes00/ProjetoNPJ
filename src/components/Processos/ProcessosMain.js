@@ -168,7 +168,8 @@ const ProcessosMain = () => {
       const minInterval = 5000;
 
       if (!forceRefresh && now - lastFetchTime < minInterval && processosOriginais.length > 0) {
-        console.log("Usando dados em memória, evitando requisição desnecessária.");
+        
+
         return;
       }
 
@@ -183,7 +184,7 @@ const ProcessosMain = () => {
         });
         if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
         const data = await response.json();
-        console.log("Dados de /proc/findAll:", data);
+        
         setProcessosOriginais(data);
         if (data.length === 0) setMensagemErro("Nenhum processo cadastrado.");
         setLastFetchTime(now);
@@ -221,7 +222,7 @@ const ProcessosMain = () => {
           throw new Error(`Erro na requisição: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Dados de /proc/searchProc:", data);
+       
         setProcessosBuscados(data);
         if (data.length === 0) setMensagemErro("Nenhum processo encontrado com esse número.");
       } catch (error) {

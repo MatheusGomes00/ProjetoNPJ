@@ -46,7 +46,7 @@ export const handleInputChange = (e, setFormData) => {
         clienteNome: formData.clienteNome,
       };
   
-      console.log("DTO enviado para salvarAlteracoes:", JSON.stringify(dto, null, 2));
+     
   
       const response = await fetchAuthenticated(`http://localhost:8080/proc/updProc/${id}`, {
         method: "PUT",
@@ -62,7 +62,7 @@ export const handleInputChange = (e, setFormData) => {
       }
   
       const updatedProcesso = await response.json();
-      console.log("Dados retornados do servidor:", JSON.stringify(updatedProcesso, null, 2));
+   
   
       setProcesso(updatedProcesso);
       setFormData({
@@ -136,7 +136,7 @@ export const handleInputChange = (e, setFormData) => {
         clienteNome: formData.clienteNome,
       };
   
-      console.log("DTO enviado para adicionarResponsavel:", JSON.stringify(dto, null, 2));
+     
   
       const response = await fetchAuthenticated(`http://localhost:8080/proc/updProc/${id}`, {
         method: "PUT",
@@ -152,8 +152,6 @@ export const handleInputChange = (e, setFormData) => {
       }
   
       const updatedProcesso = await response.json();
-      console.log("Dados retornados do servidor (adicionar):", JSON.stringify(updatedProcesso, null, 2));
-  
       setProcesso(updatedProcesso);
       setFormData({
         numeroProcesso: updatedProcesso.numeroProcesso || "",
@@ -221,7 +219,7 @@ export const handleInputChange = (e, setFormData) => {
         clienteNome: formData.clienteNome,
       };
   
-      console.log("DTO enviado para removerResponsavel:", JSON.stringify(dto, null, 2));
+     
   
       const response = await fetchAuthenticated(`http://localhost:8080/proc/updProc/${id}`, {
         method: "PUT",
@@ -237,7 +235,7 @@ export const handleInputChange = (e, setFormData) => {
       }
   
       const updatedProcesso = await response.json();
-      console.log("Dados retornados do servidor (remover):", JSON.stringify(updatedProcesso, null, 2));
+      
   
       setProcesso(updatedProcesso);
       setFormData({

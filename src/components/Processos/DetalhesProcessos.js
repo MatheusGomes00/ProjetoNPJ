@@ -77,7 +77,7 @@ const DetalhesProcesso = () => {
         throw new Error(`Erro na requisição: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Dados do processo:", JSON.stringify(data, null, 2));
+      
       setProcesso(data);
       setFormData({
         numeroProcesso: data.numeroProcesso || "",

@@ -294,7 +294,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
   // Inicializar o estado tarefaEditada
   useEffect(() => {
     if (tarefa) {
-      console.log("Tarefa recebida:", tarefa);
+      
       setTarefaEditada({
         nomeTarefa: tarefa.nomeTarefa || "",
         descricao: tarefa.descricao || "",
@@ -323,7 +323,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
       }
 
       const data = await response.json();
-      console.log("Advogados recebidos:", data);
+      
       setAdvogados(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Erro ao buscar advogados:", error);
@@ -404,7 +404,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
       const index = prevTarefa.responsaveisId.indexOf(id);
       if (index === -1) return prevTarefa;
 
-      const novoIdRemovido = prevTarefa.responsaveisId[index];
+      
       const novoNomeRemovido = prevTarefa.responsaveisNome[index];
       const novosIds = prevTarefa.responsaveisId.filter((rid) => rid !== id);
       const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== novoNomeRemovido);
@@ -467,7 +467,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
         responsaveisNome: tarefaEditada.responsaveisNome ?? [],
       };
 
-      console.log("Dados enviados ao backend:", tarefaAtualizada);
+     
 
       const response = await fetchAuthenticated(`http://localhost:8080/task/upd/${tarefa.id}`, {
         method: "PUT",
@@ -493,7 +493,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
         tarefaAtualizadaDoBackend.prazoLimite = prazoLimiteFormatado;
       }
 
-      console.log("Tarefa retornada pelo backend:", tarefaAtualizadaDoBackend);
+      
 
       if (typeof atualizarTarefa === "function") {
         atualizarTarefa(tarefaAtualizadaDoBackend);
@@ -513,7 +513,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
   };
 
   if (!tarefa || !tarefaEditada) {
-    console.log("Tarefa ou tarefaEditada não definida:", { tarefa, tarefaEditada });
+    
     return null;
   }
 
