@@ -12,7 +12,7 @@ const NotificacoesContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: calc(106vh - 25px);
-  height: 31vw;
+  height: 35vw;
   padding: 40px;
   border-radius: 0px;
   background: #fff;
@@ -36,6 +36,59 @@ const NotificacoesTitle = styled.h2`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+const ClearNotificationsButton = styled.button`
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.3s ease;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+  }
+
+  &:hover:before {
+    left: 100%;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+  }
+
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
 `;
 
 const NotificacoesList = styled.div`
@@ -144,6 +197,7 @@ function Notificacoes() {
   const [notificacoes, setNotificacoes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const [isClearing, setIsClearing] = useState(false);
   const [selectedTarefa, setSelectedTarefa] = useState(null);
   const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
   // useRef para WebSocket e controle de montagem
@@ -209,6 +263,54 @@ function Notificacoes() {
       }
     }
   }, [fetchAuthenticated, isLoading, logoutWithRedirect]);
+
+  // Função para limpar notificações
+  const limparNotificacoes = useCallback(async () => {
+    const advogadoId = getId();
+    if (!advogadoId) {
+      setMensagemErro("Usuário não autenticado. Faça login novamente.");
+      return;
+    }
+
+    setIsClearing(true);
+    setMensagemErro("");
+
+    try {
+      const response = await fetchAuthenticated(
+        `http://localhost:8080/notificacao/delete/${advogadoId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Status da resposta DELETE:", response.status);
+      if (!response.ok) {
+        if (response.status === 404) {
+          setMensagemErro("Nenhuma notificação encontrada para este advogado.");
+          return;
+        }
+        const errorText = await response.text();
+        throw new Error(`Erro ${response.status}: ${errorText}`);
+      }
+
+      if (isMountedRef.current) {
+        setNotificacoes([]);
+        setMensagemErro("Notificações limpas com sucesso!");
+      }
+    } catch (error) {
+      if (isMountedRef.current) {
+        console.error("Erro ao limpar notificações:", error);
+        setMensagemErro(`Erro ao limpar notificações: ${error.message}`);
+      }
+    } finally {
+      if (isMountedRef.current) {
+        setIsClearing(false);
+      }
+    }
+  }, [fetchAuthenticated, getId]);
 
   // Função para buscar detalhes da tarefa
   const fetchTarefa = useCallback(
@@ -451,6 +553,12 @@ function Notificacoes() {
         <NotificacoesTitle>
           <span role="img" aria-label="bell">🔔</span> Notificações
         </NotificacoesTitle>
+        <ClearNotificationsButton
+          onClick={limparNotificacoes}
+          disabled={isClearing}
+        >
+          {isClearing ? "Limpando..." : "Limpar Notificações"}
+        </ClearNotificationsButton>
       </NotificacoesHeader>
 
       <NotificacoesList>

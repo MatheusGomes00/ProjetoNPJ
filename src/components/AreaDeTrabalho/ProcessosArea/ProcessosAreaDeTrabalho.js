@@ -13,14 +13,13 @@ const ProcessosContainer = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 22px;
-  width: 30vw;
-  height: 55vw;
+  width: 27vw;
+  height: 60vw;
   overflow-y: auto;
   border: 1px solid black;
   background: linear-gradient(145deg, #f8fbff 0%, #e6f0fa 100%);
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
   
- 
   @media (max-width: 768px) {
     width: 100%;
     max-height: none;
@@ -125,6 +124,32 @@ const Mensagem = styled.p`
   margin: 20px 0;
 `;
 
+const MostrarTodosButton = styled.button`
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+`;
+
 const ProcessosAreaDeTrabalho = () => {
   const { fetchAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -187,17 +212,17 @@ const ProcessosAreaDeTrabalho = () => {
     return () => {
       console.log("Componente ProcessosAreaDeTrabalho desmontado");
     };
-  }, ); // Dependência vazia para rodar apenas na montagem
+  }, []); // Dependência vazia para rodar apenas na montagem
 
   const mapearStatus = (situacao) => {
     switch (situacao) {
       case "INICIADO":
         return "Iniciado";
-      case "EM ANDAMENTO":
+      case "EM_ANDAMENTO":
         return "Em andamento";
       case "FINALIZADO":
         return "Finalizado";
-      case "AGUARDANDO RESPOSTA":
+      case "AGUARDANDO_DISTRIBUICAO":
         return "Aguardando resposta";
       default:
         return "Desconhecido";
@@ -216,19 +241,26 @@ const ProcessosAreaDeTrabalho = () => {
         ) : processos.length === 0 ? (
           <Mensagem>Nenhum processo encontrado.</Mensagem>
         ) : (
-          <ProcessosGrid>
-            {processos.map((processo) => (
-              <ProcessoCard
-                key={processo.id}
-                onClick={() => navigate(`/processos/${processo.id}`)}
-              >
-                <Status status={processo.status}>{processo.status}</Status>
-                <ProcessoNome>{processo.nome}</ProcessoNome>
-                <NumeroProcesso>Nº: {processo.numeroProcesso}</NumeroProcesso>
-                <ClienteNome>Cliente: {processo.clienteNome}</ClienteNome>
-              </ProcessoCard>
-            ))}
-          </ProcessosGrid>
+          <>
+            <ProcessosGrid>
+              {processos.slice(0, 4).map((processo) => (
+                <ProcessoCard
+                  key={processo.id}
+                  onClick={() => navigate(`/processos/${processo.id}`)}
+                >
+                  <Status status={processo.status}>{processo.status}</Status>
+                  <ProcessoNome>{processo.nome}</ProcessoNome>
+                  <NumeroProcesso>Nº: {processo.numeroProcesso}</NumeroProcesso>
+                  <ClienteNome>Cliente: {processo.clienteNome}</ClienteNome>
+                </ProcessoCard>
+              ))}
+            </ProcessosGrid>
+            {processos.length > 4 && (
+              <MostrarTodosButton onClick={() => navigate("/processos")}>
+                Mostrar Todos
+              </MostrarTodosButton>
+            )}
+          </>
         )}
       </ProcessosContainer>
     </>
