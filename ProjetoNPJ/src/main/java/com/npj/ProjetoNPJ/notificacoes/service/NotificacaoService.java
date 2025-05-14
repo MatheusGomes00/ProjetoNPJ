@@ -54,5 +54,11 @@ public class NotificacaoService{
         return notificacao;
     }
 
+    public void excluirNotificacoes(String advogadoId){
+
+        List<Notificacao> notificacao = repository.findByAdvogadoId(advogadoId);
+
+        repository.deleteAll(notificacao);
+    }
 
 }
