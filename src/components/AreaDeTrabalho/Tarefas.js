@@ -3,18 +3,18 @@ import styled from "styled-components";
 import BotaoEditar from "./BotaoEditar";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilização
 const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: calc(106vh - 32px);
+  width: calc(106vh - 25px);
   height: 440px;
   padding: 40px;
-  border: 1px solid black;
+  border: 0px solid black;
   border-radius: 0px;
   background: #fff;
   box-sizing: border-box;
+  z-index: 1;
 `;
 
 const TituloTarefas = styled.h2`
@@ -85,7 +85,7 @@ const ListaTarefas = styled.div`
   gap: 30px;
   justify-content: center;
   align-items: flex-start;
-  width: 100%;
+  width: 106%;
   max-width: 250%;
   max-height: 380px;
   overflow-y: auto;
@@ -520,7 +520,7 @@ function Tarefas() {
       if (isSelected) {
         const novosIds = prevTarefa.responsaveisId.filter((id) => id !== advogado.id);
         const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome);
-        console.log("Removendo advogado:", advogado.nome, "Novos IDs:", novosIds, "Novos Nomes:", novosNomes);
+        
         return {
           ...prevTarefa,
           responsaveisId: novosIds,
@@ -542,7 +542,7 @@ function Tarefas() {
       const minInterval = 5000;
 
       if (!forceRefresh && now - lastFetchTime < minInterval && tarefas.length > 0) {
-        console.log("Usando dados em memória, evitando requisição desnecessária.");
+       
         return;
       }
 
@@ -597,7 +597,7 @@ function Tarefas() {
       const minInterval = 5000;
 
       if (!forceRefresh && now - lastFetchTime < minInterval && advogados.length > 0) {
-        console.log("Usando advogados em memória, evitando requisição desnecessária.");
+       
         return;
       }
 
@@ -690,8 +690,7 @@ function Tarefas() {
         responsaveisNome: novaTarefa.responsaveisNome,
       };
 
-      console.log("Estado de novaTarefa antes do envio:", novaTarefa);
-      console.log("Payload enviado para a API:", JSON.stringify(novaTarefaComData));
+    
 
       const response = await fetchAuthenticated("http://localhost:8080/task/create", {
         method: "POST",
@@ -707,7 +706,7 @@ function Tarefas() {
       }
 
       const tarefaCriada = await response.json();
-      console.log("Tarefa criada retornada pela API:", tarefaCriada);
+      
 
       setShowModal(false);
       setNovaTarefa({

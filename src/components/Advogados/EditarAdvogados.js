@@ -57,7 +57,7 @@ const FormInputPassword = ({ label, name, value, onChange, showPassword, toggleS
 
 
 const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving }) => {
-  const [advogado, setAdvogado] = useState(null);
+  const [, setAdvogado] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
   const [hasFetched, setHasFetched] = useState(false);

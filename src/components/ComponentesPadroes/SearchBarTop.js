@@ -124,7 +124,7 @@ export default function SearchBarTop() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = () => {
-    console.log("Pesquisando por:", searchTerm);
+    
   };
 
   return (

@@ -3,10 +3,9 @@ import styled from "styled-components";
 import { FaBell } from "react-icons/fa";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import useAuth from "../Seguranca/UseAuth";
 import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
+import ModalEdicao from "../Tarefas/Modais/ModalEdicao";
 
 // Estilos
 const NotificacoesContainer = styled.div`
@@ -164,31 +163,16 @@ const IconeNotificacoes = () => {
   const [notificacoes, setNotificacoes] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [, setMensagemErro] = useState("");
   const [selectedTarefa, setSelectedTarefa] = useState(null);
   const [, setSelectedNotificacaoId] = useState(null);
+  const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
+  // useRef para WebSocket, dropdown e controle de montagem
   const stompClientRef = useRef(null);
   const subscriptionRef = useRef(null);
   const dropdownRef = useRef(null);
   const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
   const processedNotificationIds = useRef(new Set());
-  const toastCounter = useRef(0); // Contador para IDs únicos
-
-  // Função para gerar IDs únicos para toasts
-  const generateUniqueToastId = (prefix, id) => `${prefix}-${id}-${toastCounter.current++}`;
-
-  // Função para exibir toasts de notificação
-  const showNotificationToast = useCallback((notificacao) => {
-    console.log(`Exibindo toast para notificação ${notificacao.id}: ${notificacao.mensagem}`);
-    toast.dismiss(); // Fecha qualquer toast anterior
-    toast.info(notificacao.mensagem, {
-      position: "top-right",
-      autoClose: 5000,
-      toastId: generateUniqueToastId("create", notificacao.id),
-      onClose: () => console.log(`Toast create-${notificacao.id} closed`),
-    });
-  }, []);
 
   // Função para formatar a data
   const formatarData = useCallback((dataString) => {
@@ -209,7 +193,6 @@ const IconeNotificacoes = () => {
     if (!isMountedRef.current || isLoading) return;
 
     setIsLoading(true);
-    setMensagemErro("");
 
     try {
       const response = await fetchAuthenticated(
@@ -231,23 +214,16 @@ const IconeNotificacoes = () => {
           (notificacao) => !processedNotificationIds.current.has(notificacao.id)
         );
         uniqueNotificacoes.forEach((notificacao) => {
-          console.log(`Fetched notification: ${notificacao.id}, tarefaID: ${notificacao.tarefaID}`);
+          
           processedNotificationIds.current.add(notificacao.id);
         });
         setNotificacoes(uniqueNotificacoes.length > 0 ? uniqueNotificacoes : []);
-        setMensagemErro(
-          uniqueNotificacoes.length === 0
-            ? "Nenhuma notificação não lida disponível."
-            : ""
-        );
       }
     } catch (error) {
       if (isMountedRef.current) {
         console.error("Erro ao buscar notificações:", error);
-        setMensagemErro(`Erro ao carregar notificações: ${error.message}`);
-        setNotificacoes([]);
         if (error.message.includes("401")) {
-          setMensagemErro("Sessão expirada. Redirecionando...");
+          console.error("Sessão expirada. Redirecionando...");
           setTimeout(logoutWithRedirect, 2000);
         }
       }
@@ -283,7 +259,7 @@ const IconeNotificacoes = () => {
         if (isMountedRef.current) {
           setNotificacoes((prev) => {
             const updated = prev.filter((n) => n.id !== notificacaoId);
-            console.log(`Notificação ${notificacaoId} marcada como lida. Notificações restantes: ${updated.length}`);
+            
             return updated;
           });
           processedNotificationIds.current.delete(notificacaoId);
@@ -291,14 +267,8 @@ const IconeNotificacoes = () => {
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao marcar notificação como lida:", error);
-          toast.error(`Erro ao marcar notificação: ${error.message}`, {
-            position: "top-right",
-            autoClose: 5000,
-            toastId: generateUniqueToastId("error", notificacaoId),
-            onClose: () => console.log(`Toast error-${notificacaoId} dismissed`),
-          });
           if (error.message.includes("401")) {
-            setMensagemErro("Sessão expirada. Redirecionando...");
+            console.error("Sessão expirada. Redirecionando...");
             setTimeout(logoutWithRedirect, 2000);
           }
         }
@@ -328,19 +298,13 @@ const IconeNotificacoes = () => {
 
         const data = await response.json();
         if (isMountedRef.current) {
-          console.log(`Tarefa fetched: ${tarefaId}`, data);
+         
           setSelectedTarefa(data);
           setSelectedNotificacaoId(notificacaoId);
         }
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao buscar tarefa:", error);
-          toast.error(`Erro ao carregar tarefa: ${error.message}`, {
-            position: "top-right",
-            autoClose: 5000,
-            toastId: generateUniqueToastId("error", tarefaId),
-            onClose: () => console.log(`Toast tarefa-${tarefaId} dismissed`),
-          });
         }
       }
     },
@@ -368,22 +332,11 @@ const IconeNotificacoes = () => {
 
         if (isMountedRef.current) {
           setSelectedTarefa(null);
-          toast.success("Tarefa finalizada com sucesso!", {
-            position: "top-right",
-            autoClose: 3000,
-            toastId: generateUniqueToastId("success", tarefaId),
-            onClose: () => console.log(`Toast tarefa-${tarefaId} dismissed`),
-          });
+          
         }
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao finalizar tarefa:", error);
-          toast.error(`Erro ao finalizar tarefa: ${error.message}`, {
-            position: "top-right",
-            autoClose: 5000,
-            toastId: generateUniqueToastId("error", tarefaId),
-            onClose: () => console.log(`Toast tarefa-${tarefaId} dismissed`),
-          });
         }
       }
     },
@@ -411,38 +364,54 @@ const IconeNotificacoes = () => {
 
         if (isMountedRef.current) {
           setSelectedTarefa(null);
-          toast.success("Tarefa reativada com sucesso!", {
-            position: "top-right",
-            autoClose: 3000,
-            toastId: generateUniqueToastId("success", tarefaId),
-            onClose: () => console.log(`Toast reativar-${tarefaId} dismissed`),
-          });
+          
         }
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao reativar tarefa:", error);
-          toast.error(`Erro ao reativar tarefa: ${error.message}`, {
-            position: "top-right",
-            autoClose: 5000,
-            toastId: generateUniqueToastId("error", tarefaId),
-            onClose: () => console.log(`Toast reativar-${tarefaId} dismissed`),
-          });
         }
       }
     },
     [fetchAuthenticated]
   );
 
-  // Função para editar tarefa (placeholder)
+  // Função para editar tarefa
   const editarTarefa = useCallback((tarefa) => {
-    console.log("Editar tarefa:", tarefa);
-    toast.info("Funcionalidade de edição ainda não implementada.", {
-      position: "top-right",
-      autoClose: 3000,
-      toastId: generateUniqueToastId("info", tarefa.id),
-      onClose: () => console.log(`Toast editar-${tarefa.id} dismissed`),
-    });
+    ;
+    setTarefaParaEditar(tarefa);
   }, []);
+
+  // Função para fechar o modal de detalhes
+  const closeModal = useCallback(() => {
+    setSelectedTarefa(null);
+    setSelectedNotificacaoId(null);
+  }, []);
+
+  // Função para fechar o modal de edição
+  const closeEditModal = useCallback(() => {
+    setTarefaParaEditar(null);
+  }, []);
+
+  // Função para atualizar tarefa
+  const atualizarTarefa = useCallback((tarefaAtualizada) => {
+    
+    // Atualizar selectedTarefa para refletir no ModalTarefa
+    setSelectedTarefa((prevTarefa) => {
+      if (prevTarefa && prevTarefa.id === tarefaAtualizada.id) {
+        return { ...prevTarefa, ...tarefaAtualizada };
+      }
+      return prevTarefa;
+    });
+    // Atualizar notificações, pois a edição pode gerar novas notificações
+    carregarNotificacoes();
+  }, [carregarNotificacoes]);
+
+  // Função para carregar tarefas (placeholder)
+  const carregarTarefas = useCallback(async () => {
+   
+    // Pode ser implementado para recarregar notificações ou tarefas
+    carregarNotificacoes();
+  }, [carregarNotificacoes]);
 
   // Carregar notificações iniciais
   useEffect(() => {
@@ -461,20 +430,19 @@ const IconeNotificacoes = () => {
   const setupWebSocket = useCallback(() => {
     const userId = getId();
     if (!userId) {
-      setMensagemErro("Usuário não autenticado.");
       console.error("No userId found for WebSocket subscription");
       return;
     }
 
     if (stompClientRef.current?.connected) {
-      console.log("WebSocket already connected, skipping setup");
+      
       return;
     }
 
     const socket = new SockJS("http://localhost:8080/ws");
     const client = new Client({
       webSocketFactory: () => socket,
-      debug: (str) => console.log(str),
+    
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -482,36 +450,34 @@ const IconeNotificacoes = () => {
 
     client.onConnect = () => {
       if (!isMountedRef.current) return;
-      console.log(`✅ Conectado ao WebSocket para userId: ${userId}`);
+      
 
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
-        console.log("Unsubscribed previous WebSocket subscription");
+        
       }
 
       subscriptionRef.current = client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
         if (!isMountedRef.current) return;
         try {
           const novaNotificacao = JSON.parse(message.body);
-          console.log(`Received WebSocket notification: ${novaNotificacao.id}, tarefaID: ${novaNotificacao.tarefaID}, lida: ${novaNotificacao.lida}`);
+          
           if (novaNotificacao.lida) {
-            console.log(`Notificação ${novaNotificacao.id} já está lida, ignorada.`);
+           
             return;
           }
           if (!processedNotificationIds.current.has(novaNotificacao.id)) {
             processedNotificationIds.current.add(novaNotificacao.id);
             setNotificacoes((prev) => {
               if (prev.some((n) => n.id === novaNotificacao.id)) {
-                console.log(`Notificação ${novaNotificacao.id} já existe, ignorando`);
+                
                 return prev;
               }
-              console.log(`Adicionando nova notificação: ${novaNotificacao.id}`);
-              const updated = [novaNotificacao, ...prev];
-              showNotificationToast(novaNotificacao);
-              return updated;
+              
+              return [novaNotificacao, ...prev];
             });
           } else {
-            console.log(`Notificação ${novaNotificacao.id} já processada, ignorando`);
+           
           }
         } catch (error) {
           console.error("Erro ao processar mensagem WebSocket:", error);
@@ -523,15 +489,14 @@ const IconeNotificacoes = () => {
     client.onStompError = (frame) => {
       if (!isMountedRef.current) return;
       console.error("Erro no STOMP:", frame);
-      setMensagemErro("Erro na conexão de notificações.");
     };
 
     client.onWebSocketClose = () => {
       if (!isMountedRef.current) return;
-      console.log("🔌 Conexão WebSocket fechada");
+      
       stompClientRef.current = null;
       subscriptionRef.current = null;
-      processedNotificationIds.current.clear(); // Limpa IDs processados ao desconectar
+      processedNotificationIds.current.clear();
     };
 
     client.activate();
@@ -540,16 +505,16 @@ const IconeNotificacoes = () => {
       if (client?.connected) {
         if (subscriptionRef.current) {
           subscriptionRef.current.unsubscribe();
-          console.log("Unsubscribed WebSocket subscription on cleanup");
+          
         }
         client.deactivate();
-        console.log("🔌 WebSocket desconectado");
+        
         stompClientRef.current = null;
         subscriptionRef.current = null;
-        processedNotificationIds.current.clear(); // Limpa IDs processados ao desmontar
+        processedNotificationIds.current.clear();
       }
     };
-  }, [getId, showNotificationToast]);
+  }, [getId]);
 
   useEffect(() => {
     const cleanup = setupWebSocket();
@@ -577,37 +542,19 @@ const IconeNotificacoes = () => {
     setShowDropdown((prev) => !prev);
   }, []);
 
-  // Fechar modal
-  const closeModal = useCallback(() => {
-    setSelectedTarefa(null);
-    setSelectedNotificacaoId(null);
-  }, []);
-
   // Abrir modal e marcar notificação como lida ao clicar na notificação
   const handleNotificacaoClick = useCallback(
     (notificacao) => {
       if (!notificacao?.id) {
         console.warn("Notificação inválida:", notificacao);
-        toast.error("Notificação inválida.", {
-          position: "top-right",
-          autoClose: 5000,
-          toastId: generateUniqueToastId("error", "invalid-notificacao"),
-          onClose: () => console.log("Toast invalid-notificacao dismissed"),
-        });
         return;
       }
       if (notificacao.tarefaID) {
-        console.log(`Opening modal for tarefaID: ${notificacao.tarefaID}, notificacaoId: ${notificacao.id}`);
+     
         fetchTarefa(notificacao.tarefaID, notificacao.id);
         marcarComoLida(notificacao.id);
       } else {
         console.warn("Notificação sem tarefaID:", notificacao);
-        toast.error("Não foi possível carregar a tarefa.", {
-          position: "top-right",
-          autoClose: 5000,
-          toastId: generateUniqueToastId("error", notificacao.id),
-          onClose: () => console.log(`Toast no-tarefa-${notificacao.id} dismissed`),
-        });
       }
     },
     [fetchTarefa, marcarComoLida]
@@ -657,17 +604,14 @@ const IconeNotificacoes = () => {
           onEditar={editarTarefa}
         />
       )}
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop
-      
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        limit={1}
-      />
+      {tarefaParaEditar && (
+        <ModalEdicao
+          tarefa={tarefaParaEditar}
+          onClose={closeEditModal}
+          carregarTarefas={carregarTarefas}
+          atualizarTarefa={atualizarTarefa}
+        />
+      )}
     </NotificacoesContainer>
   );
 };

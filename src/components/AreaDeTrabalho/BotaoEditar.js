@@ -104,7 +104,6 @@ const Label = styled.label`
   color: #555;
 `;
 
-
 const Input = styled.input`
   padding: 10px;
   border-radius: 8px;
@@ -336,7 +335,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
         nome: tarefaSelecionada.responsaveisNome[index],
       }));
 
-      console.log("Inicializando tarefa com tarefaSelecionada:", tarefaSelecionada);
+   
 
       setTarefa({
         nomeTarefa: tarefaSelecionada.nomeTarefa || "",
@@ -364,13 +363,13 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Alterando ${name} para: ${value}`);
+   
     setTarefa((prevTarefa) => {
       const novaTarefa = {
         ...prevTarefa,
         [name]: value,
       };
-      console.log("Novo estado da tarefa:", novaTarefa);
+  
       return novaTarefa;
     });
   };
@@ -430,7 +429,6 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
         status: tarefa.status,
       };
 
-      console.log("Dados enviados ao backend:", tarefaAtualizada);
 
       const response = await fetchAuthenticated(
         `http://localhost:8080/task/upd/${tarefaSelecionada.id}`,
@@ -467,7 +465,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
         tarefaAtualizadaDoBackend.prazoLimite = `${tarefaAtualizada.prazoLimite}T20:00:00`;
       }
 
-      console.log("Tarefa retornada pelo backend:", tarefaAtualizadaDoBackend);
+      
 
       if (typeof atualizarTarefa === "function") {
         atualizarTarefa(tarefaAtualizadaDoBackend);

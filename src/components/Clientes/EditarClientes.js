@@ -152,24 +152,20 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
       setHasFetched(true);
 
       try {
-        const response = await fetchAuthenticated(`http://localhost:8080/cad/get`, {
+        const response = await fetchAuthenticated(`http://localhost:8080/cad/get/${id}`, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
         });
 
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error("Cliente não encontrado.");
           } else if (response.status === 401) {
-            throw new Error("Sessão expirada. Faça login novamente.");
-          }
-          throw new Error(`Erro na requisição: ${response.status}`);
+              throw new Error("Sessão expirada. Faça login novamente.");
+          } 
+            throw new Error(`Erro na requisição: ${response.status}`);
         }
 
-        const data = await response.json();
-        const clienteSelecionado = data.find((c) => c.id === id);
+        const clienteSelecionado = await response.json();
 
         if (!clienteSelecionado) {
           throw new Error("Cliente não encontrado.");
@@ -180,10 +176,15 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
           nome: clienteSelecionado.cliente.nome || "",
           status: clienteSelecionado.status,
           cpf: clienteSelecionado.cliente.cpf || "",
+          rg: clienteSelecionado.cliente.rg || "",
+          SSP: clienteSelecionado.cliente.ssp || "",
+          nascimento: clienteSelecionado.cliente.nascimento || "",
+          casaPropria: clienteSelecionado.cliente.casaPropria || "",
           rua: clienteSelecionado.cliente.endereco?.rua || "",
           numero: clienteSelecionado.cliente.endereco?.numero || "",
           bairro: clienteSelecionado.cliente.endereco?.bairro || "",
           cidade: clienteSelecionado.cliente.endereco?.cidade || "",
+          complemento: clienteSelecionado.cliente.endereco?.complemento || "",
           cep: clienteSelecionado.cliente.endereco?.cep || "",
           telefone: clienteSelecionado.cliente.contato?.telefone || "",
           celular: clienteSelecionado.cliente.contato?.celular || "",
@@ -229,13 +230,18 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
     const updatedCliente = {
       ...cliente,
       status: formData.status.toString(),
+      casaPropria: formData.casaPropria,
       cliente: {
         ...cliente.cliente,
         nome: formData.nome,
         cpf: formData.cpf,
+        rg: formData.rg,
+        ssp: formData.ssp,
+        nascimento: formData.nascimento,
         endereco: {
           ...cliente.cliente.endereco,
           rua: formData.rua,
+          complemento: formData.complemento,
           numero: formData.numero,
           bairro: formData.bairro,
           cidade: formData.cidade,
@@ -270,6 +276,8 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error("Sessão expirada. Faça login novamente.");
+        } else if (response.status === 409) {
+            throw new Error("CPF já cadastrado!");
         }
         throw new Error(`Erro ao atualizar cliente: ${response.status}`);
       }
@@ -280,6 +288,10 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
         nome: updatedData.cliente.nome || "",
         status: updatedData.status,
         cpf: updatedData.cliente.cpf || "",
+        rg: updatedData.cliente.rg || "",
+        ssp: updatedData.cliente.ssp || "",
+        nascimento: updatedData.cliente.nascimento || "",
+        casaPropria: updatedData.cliente.casaPropria || "",
         rua: updatedData.cliente.endereco?.rua || "",
         numero: updatedData.cliente.endereco?.numero || "",
         bairro: updatedData.cliente.endereco?.bairro || "",
@@ -332,6 +344,24 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
             />
           </FormRow>
           <FormRow>
+            <FormLabel>RG</FormLabel>
+            <FormInput
+              type="text"
+              name="rg"
+              value={formData.rg}
+              onChange={handleInputChange}
+            />
+          </FormRow>
+          <FormRow>
+            <FormLabel>SSP</FormLabel>
+            <FormInput
+              type="text"
+              name="ssp"
+              value={formData.ssp}
+              onChange={handleInputChange}
+            />
+          </FormRow>
+          <FormRow>
             <FormLabel>Status</FormLabel>
             <FormSelect
               name="status"
@@ -342,7 +372,26 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
               <option value="false">Inativo</option>
             </FormSelect>
           </FormRow>
-
+          <FormRow>
+            <FormLabel>Data Nascimento</FormLabel>
+            <FormInput
+              type="date"
+              name="nascimento"
+              value={formData.nascimento}
+              onChange={handleInputChange}
+            />
+          </FormRow>
+          <FormRow>
+            <FormLabel>Casa Própria</FormLabel>
+            <FormSelect
+              name="casaPropria"
+              value={formData.casaPropria.toString()}
+              onChange={handleStatusChange}
+            >
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </FormSelect>
+          </FormRow>
           <SectionTitle>Endereço</SectionTitle>
           <FormRow>
             <FormLabel>Rua</FormLabel>
@@ -359,6 +408,15 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
               type="text"
               name="numero"
               value={formData.numero}
+              onChange={handleInputChange}
+            />
+          </FormRow>
+          <FormRow>
+            <FormLabel>Complemento</FormLabel>
+            <FormInput
+              type="text"
+              name="complemento"
+              value={formData.complemento}
               onChange={handleInputChange}
             />
           </FormRow>

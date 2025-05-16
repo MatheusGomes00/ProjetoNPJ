@@ -3,16 +3,17 @@ import styled from "styled-components";
 import useAuth from "../Seguranca/UseAuth";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
+import ModalEdicao from "../Tarefas/Modais/ModalEdicao";
 
 // 🎨 Estilos completamente reimaginados
 const NotificacoesContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: calc(106vh - 32px);
-  height: 31vw;
+  width: calc(106vh - 25px);
+  height: 35vw;
   padding: 40px;
-  border: 1px solid black;
   border-radius: 0px;
   background: #fff;
   box-sizing: border-box;
@@ -35,6 +36,59 @@ const NotificacoesTitle = styled.h2`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+const ClearNotificationsButton = styled.button`
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.3s ease;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+  }
+
+  &:hover:before {
+    left: 100%;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+  }
+
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
 `;
 
 const NotificacoesList = styled.div`
@@ -143,13 +197,19 @@ function Notificacoes() {
   const [notificacoes, setNotificacoes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const [isClearing, setIsClearing] = useState(false);
+  const [selectedTarefa, setSelectedTarefa] = useState(null);
+  const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
+  // useRef para WebSocket e controle de montagem
   const stompClientRef = useRef(null);
   const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
 
-  const formatarData = (dataString) => {
+  // Função para formatar a data
+  const formatarData = useCallback((dataString) => {
     if (!dataString) return "Sem data";
     const data = new Date(dataString);
+    if (isNaN(data.getTime())) return "Data inválida";
     const dia = String(data.getDate()).padStart(2, "0");
     const mes = String(data.getMonth() + 1).padStart(2, "0");
     const ano = data.getFullYear();
@@ -157,8 +217,9 @@ function Notificacoes() {
     const minutos = String(data.getMinutes()).padStart(2, "0");
     const segundos = String(data.getSeconds()).padStart(2, "0");
     return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
-  };
+  }, []);
 
+  // Função para carregar notificações
   const carregarNotificacoes = useCallback(async () => {
     if (!isMountedRef.current || isLoading) return;
 
@@ -203,10 +264,196 @@ function Notificacoes() {
     }
   }, [fetchAuthenticated, isLoading, logoutWithRedirect]);
 
+  // Função para limpar notificações
+  const limparNotificacoes = useCallback(async () => {
+    const advogadoId = getId();
+    if (!advogadoId) {
+      setMensagemErro("Usuário não autenticado. Faça login novamente.");
+      return;
+    }
+
+    setIsClearing(true);
+    setMensagemErro("");
+
+    try {
+      const response = await fetchAuthenticated(
+        `http://localhost:8080/notificacao/delete/${advogadoId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          setMensagemErro("Nenhuma notificação encontrada para este advogado.");
+          return;
+        }
+        const errorText = await response.text();
+        throw new Error(`Erro ${response.status}: ${errorText}`);
+      }
+
+      if (isMountedRef.current) {
+        setNotificacoes([]);
+        setMensagemErro("Notificações limpas com sucesso!");
+      }
+    } catch (error) {
+      if (isMountedRef.current) {
+        console.error("Erro ao limpar notificações:", error);
+        setMensagemErro(`Erro ao limpar notificações: ${error.message}`);
+      }
+    } finally {
+      if (isMountedRef.current) {
+        setIsClearing(false);
+      }
+    }
+  }, [fetchAuthenticated, getId]);
+
+  // Função para buscar detalhes da tarefa
+  const fetchTarefa = useCallback(
+    async (tarefaId) => {
+      if (!isMountedRef.current || !tarefaId) return;
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/task/${tarefaId}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        if (isMountedRef.current) {
+          
+          setSelectedTarefa(data);
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao buscar tarefa:", error);
+          setMensagemErro(`Erro ao carregar tarefa: ${error.message}`);
+        }
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  // Função para finalizar tarefa
+  const finalizarTarefa = useCallback(
+    async (tarefaId) => {
+      if (!isMountedRef.current || !tarefaId) return;
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/tarefas/finalizar/${tarefaId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+
+        if (isMountedRef.current) {
+          setSelectedTarefa(null);
+          
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao finalizar tarefa:", error);
+          setMensagemErro(`Erro ao finalizar tarefa: ${error.message}`);
+        }
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  // Função para reativar tarefa
+  const reativarTarefa = useCallback(
+    async (tarefaId) => {
+      if (!isMountedRef.current || !tarefaId) return;
+
+      try {
+        const response = await fetchAuthenticated(
+          `http://localhost:8080/tarefas/reativar/${tarefaId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+
+        if (isMountedRef.current) {
+          setSelectedTarefa(null);
+         
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Erro ao reativar tarefa:", error);
+          setMensagemErro(`Erro ao reativar tarefa: ${error.message}`);
+        }
+      }
+    },
+    [fetchAuthenticated]
+  );
+
+  // Função para editar tarefa
+  const editarTarefa = useCallback((tarefa) => {
+    
+    setTarefaParaEditar(tarefa);
+  }, []);
+
+  // Função para fechar o modal de detalhes
+  const closeModal = useCallback(() => {
+    setSelectedTarefa(null);
+  }, []);
+
+  // Função para fechar o modal de edição
+  const closeEditModal = useCallback(() => {
+    setTarefaParaEditar(null);
+  }, []);
+
+  // Função para atualizar tarefa
+  const atualizarTarefa = useCallback((tarefaAtualizada) => {
+    
+    // Atualizar selectedTarefa para refletir no ModalTarefa
+    setSelectedTarefa((prevTarefa) => {
+      if (prevTarefa && prevTarefa.id === tarefaAtualizada.id) {
+        return { ...prevTarefa, ...tarefaAtualizada };
+      }
+      return prevTarefa;
+    });
+    // Atualizar notificações, pois a edição pode gerar novas notificações
+    carregarNotificacoes();
+  }, [carregarNotificacoes]);
+
+  // Função para carregar tarefas (placeholder)
+  const carregarTarefas = useCallback(async () => {
+    
+    // Pode ser implementado para recarregar notificações ou tarefas
+    carregarNotificacoes();
+  }, [carregarNotificacoes]);
+
+  // Carregar notificações iniciais
   useEffect(() => {
     isMountedRef.current = true;
     if (!hasLoadedRef.current) {
-      console.log("Carregando notificações iniciais");
+     
       carregarNotificacoes();
       hasLoadedRef.current = true;
     }
@@ -216,6 +463,7 @@ function Notificacoes() {
     };
   }, [carregarNotificacoes]);
 
+  // Configurar WebSocket
   const setupWebSocket = useCallback(() => {
     const userId = getId();
 
@@ -225,14 +473,15 @@ function Notificacoes() {
     }
 
     if (stompClientRef.current && stompClientRef.current.connected) {
-      console.log("WebSocket já conectado, ignorando nova conexão.");
+     
+    
       return;
     }
 
     const socket = new SockJS("http://localhost:8080/ws");
     const client = new Client({
       webSocketFactory: () => socket,
-      debug: (str) => console.log(str),
+    
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -240,11 +489,11 @@ function Notificacoes() {
 
     client.onConnect = () => {
       if (!isMountedRef.current) return;
-      console.log("✅ Conectado ao WebSocket");
+     
       client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
         if (!isMountedRef.current) return;
         const novaNotificacao = JSON.parse(message.body);
-        console.log("📩 Notificação recebida:", novaNotificacao);
+        
         setNotificacoes((prev) => {
           if (prev.some((n) => n.id === novaNotificacao.id)) return prev;
           return [novaNotificacao, ...prev];
@@ -261,7 +510,7 @@ function Notificacoes() {
 
     client.onWebSocketClose = () => {
       if (!isMountedRef.current) return;
-      console.log("🔌 Conexão WebSocket fechada");
+      
       stompClientRef.current = null;
     };
 
@@ -270,17 +519,34 @@ function Notificacoes() {
     return () => {
       if (client && client.connected) {
         client.deactivate();
-        console.log("🔌 WebSocket desconectado");
+        
         stompClientRef.current = null;
       }
     };
   }, [getId]);
 
   useEffect(() => {
-    console.log("Configurando WebSocket");
+    
     const cleanup = setupWebSocket();
     return cleanup;
   }, [setupWebSocket]);
+
+  // Função para lidar com clique na notificação
+  const handleNotificacaoClick = useCallback(
+    (notificacao) => {
+      if (!notificacao?.id) {
+        console.warn("Notificação inválida:", notificacao);
+        return;
+      }
+      if (notificacao.tarefaID) {
+       
+        fetchTarefa(notificacao.tarefaID);
+      } else {
+        console.warn("Notificação sem tarefaID:", notificacao);
+      }
+    },
+    [fetchTarefa]
+  );
 
   return (
     <NotificacoesContainer>
@@ -288,6 +554,12 @@ function Notificacoes() {
         <NotificacoesTitle>
           <span role="img" aria-label="bell">🔔</span> Notificações
         </NotificacoesTitle>
+        <ClearNotificationsButton
+          onClick={limparNotificacoes}
+          disabled={isClearing}
+        >
+          {isClearing ? "Limpando..." : "Limpar Notificações"}
+        </ClearNotificationsButton>
       </NotificacoesHeader>
 
       <NotificacoesList>
@@ -301,7 +573,14 @@ function Notificacoes() {
           </MensagemErro>
         ) : notificacoes.length > 0 ? (
           notificacoes.map((notificacao) => (
-            <NotificacaoItem key={notificacao.id}>
+            <NotificacaoItem
+              key={notificacao.id}
+              onClick={() => handleNotificacaoClick(notificacao)}
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && handleNotificacaoClick(notificacao)}
+              role="button"
+              aria-label={`Ver detalhes da tarefa: ${notificacao.mensagem}`}
+            >
               <NotificacaoIcon>📬</NotificacaoIcon>
               <NotificacaoContent>
                 <NotificacaoMensagem>{notificacao.mensagem}</NotificacaoMensagem>
@@ -315,6 +594,25 @@ function Notificacoes() {
           </MensagemErro>
         )}
       </NotificacoesList>
+
+      {selectedTarefa && (
+        <ModalTarefa
+          tarefa={selectedTarefa}
+          onClose={closeModal}
+          onFinalizar={finalizarTarefa}
+          onReabrir={reativarTarefa}
+          onEditar={editarTarefa}
+        />
+      )}
+
+      {tarefaParaEditar && (
+        <ModalEdicao
+          tarefa={tarefaParaEditar}
+          onClose={closeEditModal}
+          carregarTarefas={carregarTarefas}
+          atualizarTarefa={atualizarTarefa}
+        />
+      )}
     </NotificacoesContainer>
   );
 }

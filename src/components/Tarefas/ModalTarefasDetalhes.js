@@ -217,7 +217,7 @@ const formatarData = (dataString) => {
 };
 
 const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar, marcarComoLida }) => {
-  console.log("Props recebidas no ModalTarefa:", { tarefa, onReabrir, marcarComoLida });
+  
 
   if (!tarefa) return null;
 

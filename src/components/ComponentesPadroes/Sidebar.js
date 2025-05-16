@@ -9,7 +9,7 @@ const SidebarContainer = styled.div`
   top: 100px;
   left: 0;
   height: 50vw;
-  width: 200px;
+  width: 198px;
   background-color: #ffffff;
   border-right: 1px solid #000000;
   box-shadow: 2px 0 5px rgba(158, 78, 78, 0.1);
@@ -40,7 +40,7 @@ const SidebarButton = styled.button`
   justify-content: flex-start;
   font-size: 16px;
   padding: 12px;
-  margin: 5px 0;
+  margin: 10px 0;
   background-color: white;
   color: black;
   text-decoration: none;

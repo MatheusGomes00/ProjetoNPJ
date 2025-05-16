@@ -92,7 +92,7 @@ const ClientesMain = () => {
         cacheRef.current[cacheKey] &&
         now - lastFetchTimeRef.current < minInterval
       ) {
-        console.log(`Usando dados do cache para: ${cacheKey}`);
+       
         const clientesDoCache = cacheRef.current[cacheKey];
         if (nome) {
           setClientesBuscados(clientesDoCache);
@@ -104,7 +104,7 @@ const ClientesMain = () => {
       }
 
       if (isLoading) {
-        console.log("Requisição já em andamento, aguardando...");
+       
         return;
       }
 
