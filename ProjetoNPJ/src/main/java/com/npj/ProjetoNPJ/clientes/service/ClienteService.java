@@ -92,11 +92,19 @@ public class ClienteService {
         if (dto.getCliente() != null) {
             oldObj.getCliente().setNome(dto.getCliente().getNome());
             oldObj.getCliente().setRg(dto.getCliente().getRg());
+            oldObj.getCliente().setRg(dto.getCliente().getSsp());
+            oldObj.getCliente().setRg(dto.getCliente().getNascimento());
             oldObj.getCliente().setContato(dto.getCliente().getContato());
             oldObj.getCliente().setEndereco(dto.getCliente().getEndereco());
             oldObj.getCliente().setCasaPropria(dto.getCliente().getCasaPropria());
         }
 
+    }
+
+    public CadastroDto findById(String id) {
+        Cadastro cadastro = cadastroRepository.findById(id).orElseThrow(
+                () -> new RecursoNaoEncontradoException("Cliente não localizado."));
+        return CadastroMapper.toDto(cadastro);
     }
 
     public List<CadastroDto> findByNome(String nome) {

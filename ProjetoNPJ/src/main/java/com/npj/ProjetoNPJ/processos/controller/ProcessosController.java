@@ -5,6 +5,7 @@ import com.npj.ProjetoNPJ.processos.entity.Processos;
 import com.npj.ProjetoNPJ.processos.repository.ProcessosRepositorio;
 import com.npj.ProjetoNPJ.processos.service.ProcessosService;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class ProcessosController {
     private ProcessosRepositorio processosRepositorio;
 
     @PostMapping(value = "/newProc")
-    public ResponseEntity<DtoProcessos> insert(@RequestBody DtoProcessos dto, @RequestHeader("Authorization") String authorizationHeader){
+    public ResponseEntity<DtoProcessos> insert(@Valid @RequestBody DtoProcessos dto){
 
         try {
             DtoProcessos novoProcesso = service.insertProcesso(dto);
@@ -39,12 +40,13 @@ public class ProcessosController {
 
     }
     @PutMapping(value = "/updProc/{id}")
-    public ResponseEntity<Processos> atualizarProcesso(@PathVariable String id, @RequestBody DtoProcessos dto){
+    public ResponseEntity<Processos> atualizarProcesso(@Valid @PathVariable String id, @RequestBody DtoProcessos dto){
 
         Processos processo = service.update(dto, id);
 
         return ResponseEntity.ok().body(processo);
     }
+
     @GetMapping(value = "/searchProc/{numeroProcesso}")
     public ResponseEntity<List<DtoProcessos>> buscarPorNumero(@PathVariable String numeroProcesso){
 

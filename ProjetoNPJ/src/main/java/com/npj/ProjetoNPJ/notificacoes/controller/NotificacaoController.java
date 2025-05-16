@@ -75,4 +75,13 @@ public class NotificacaoController {
 
     }
 
+    @DeleteMapping(value = "/delete/{id}")
+    public ResponseEntity<Void> excluirNotificacao(@PathVariable String id){
+
+        notificacaoService.excluirNotificacoes(id);
+
+        return ResponseEntity.ok().build();
+
+    }
+
 }
