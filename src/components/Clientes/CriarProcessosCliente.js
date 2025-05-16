@@ -514,13 +514,9 @@ const CriarProcessosCliente = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !formData.clienteId.length ||
-      !formData.numeroProcesso ||
-      !formData.responsaveis.length
-    ) {
-      setMensagemErro("Campos obrigatórios: Cliente, Número do Processo e Responsáveis.");
-      return;
+    if (!formData.clienteId.length || !formData.numeroProcesso || !formData.responsaveis.length ) {
+        setMensagemErro("Campos obrigatórios: Cliente, Número do Processo e Responsáveis.");
+        return;
     }
 
     const responsaveisIds = formData.responsaveis.map((resp) => String(resp.id));
@@ -537,6 +533,11 @@ const CriarProcessosCliente = () => {
       responsaveis: undefined,
       cliente: undefined,
     };
+
+    if(!formData.situacao) {
+      setMensagemErro("O campo situação é obrigatório.");
+      return;
+    }
 
     setIsLoading(true);
     setMensagemErro("");
@@ -637,7 +638,7 @@ const CriarProcessosCliente = () => {
             />
           </FormRow>
           <FormRow>
-            <FormLabel>Situação</FormLabel>
+            <FormLabel>Situação *</FormLabel>
             <FormSelect
               name="situacao"
               value={formData.situacao}
