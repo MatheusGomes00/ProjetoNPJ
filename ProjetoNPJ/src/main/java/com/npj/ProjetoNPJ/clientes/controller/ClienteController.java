@@ -19,11 +19,8 @@ public class ClienteController {
     @Autowired
     private ClienteService service;
 
-
     @PostMapping(value = "/preCad")
     public ResponseEntity<PreCadastroDto> preCadastro(@RequestBody PreCadastroDto dto){
-
-
         PreCadastroDto clientePre = service.precadastro(dto);
         return ResponseEntity.ok(dto);
 
@@ -60,7 +57,11 @@ public class ClienteController {
         return ResponseEntity.ok().body(cadastros);
     }
 
-
+    @GetMapping(value = "/get/{id}")
+    public ResponseEntity<CadastroDto> getAll(@PathVariable String id) {
+        CadastroDto cadastro = service.findById(id);
+        return ResponseEntity.ok().body(cadastro);
+    }
 
     @PatchMapping(value = "/del/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
