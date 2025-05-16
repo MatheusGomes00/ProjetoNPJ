@@ -305,6 +305,10 @@ const CriarClientes = () => {
       );
       return;
     }
+    if (!formData.cliente.contato.celular) {
+      setMensagemErro("O campo Celular é obrigatório.");
+      return;
+    }
 
     try {
       const response = await fetchAuthenticated("http://localhost:8080/cad/ins", {
@@ -324,6 +328,8 @@ const CriarClientes = () => {
           return;
         } else if (response.status === 401) {
           throw new Error("Sessão expirada. Faça login novamente.");
+        } else if (response.status === 409) {
+          throw new Error("CPF já cadastrado!");
         }
         throw new Error(`Erro na requisição: ${response.status}`);
       }
@@ -548,7 +554,7 @@ const CriarClientes = () => {
             />
           </FormRow>
           <FormRow>
-            <FormLabel>Celular</FormLabel>
+            <FormLabel>Celular *</FormLabel>
             <FormInput
               type="text"
               value={formData.cliente.contato.celular}
