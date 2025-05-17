@@ -239,7 +239,7 @@ const TarefasMain = () => {
   const { fetchAuthenticated } = useAuth();
   const [tarefasOriginais, setTarefasOriginais] = useState([]);
   const [tarefasBuscadas, setTarefasBuscadas] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);  
   const [mensagemErro, setMensagemErro] = useState("");
   const [ setMensagemSucesso] = useState("");
   const [ setIsLoadingFinalizar] = useState(false);
