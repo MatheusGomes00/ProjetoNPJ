@@ -138,6 +138,13 @@ public class TarefasController {
         return ResponseEntity.ok(tarefaAtualiza);
     }
 
+    @GetMapping(value = "/search/{prioridade}")
+    public ResponseEntity<List<DtoTarefas>> buscaPorPrioridade(@PathVariable String prioridade){
+
+        List<DtoTarefas> tarefas = service.findByPrioridade(prioridade);
+        return ResponseEntity.ok(tarefas);
+    }
+
 
 
 

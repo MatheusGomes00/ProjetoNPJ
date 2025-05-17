@@ -29,5 +29,12 @@ public interface TarefasRepository extends MongoRepository<Tarefas, String> {
     @Query("{ 'prazoLimite': { $gte: ?0, $lte: ?1 } }")
     List<Tarefas> findByPrazoLimiteBetween(LocalDate start, LocalDate end);
 
+    @Query("{ 'prioridade': { $regex: ?0, $options: 'i' } }")
+    List<Tarefas> findByPrioridade(String prioridade);
 
+    @Query("{ $or: [ " +
+            "  { 'nomeTarefa': { $regex: ?0, $options: 'i' } }, " +
+            "  { 'prioridade': { $regex: ?1, $options: 'i' } } " +
+            "] }")
+    List<Tarefas> findByNomeOrPrioridade(String nome, String prioridade);
 }

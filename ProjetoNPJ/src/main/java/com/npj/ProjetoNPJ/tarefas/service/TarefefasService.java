@@ -129,6 +129,28 @@ public class TarefefasService {
         return TarefasMapper.toListDto(tarefas);
     }
 
+    public List<DtoTarefas> findByPrioridade(String prioridade){
+
+        List<Tarefas> tarefas = repository.findByPrioridade(prioridade);
+
+        if(tarefas.isEmpty()) {
+            throw new RecursoNaoEncontradoException("Sem tarefas cadastradas");
+        }
+        return TarefasMapper.toListDto(tarefas);
+    }
+
+    public List<Tarefas> findByNomeAndPrioridade(String nome, String prioridade) {
+        if (nome != null && prioridade != null) {
+            return repository.findByNomeOrPrioridade(nome, prioridade);
+        } else if (nome != null) {
+            return repository.findByNome(nome);
+        } else if (prioridade != null) {
+            return repository.findByPrioridade(prioridade);
+        } else {
+            return repository.findAll();
+        }
+    }
+
     public Page<DtoTarefas> getTarefasAutenticadoPage(Pageable page) {
 
         Advogado advogado = advogadoRepository.findById(getAuthenticatedUsername())
