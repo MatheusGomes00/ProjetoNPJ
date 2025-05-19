@@ -47,6 +47,41 @@ export const Header = styled.header`
   }
 `;
 
+export const Popup = styled.div`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #28a745;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-family: "Arial", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: fadeInOut 2s ease-in-out;
+
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    10% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    90% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+`;
+
 // Estilo do container de título e status
 export const TituloStatusContainer = styled.div`
   display: flex;
@@ -119,12 +154,10 @@ export const BotaoVoltar = styled.button`
   font-size: 16px;
   font-weight: 600;
   transition: all 0.2s ease;
-
   &:hover {
     background: #007bff;
     color: #fff;
   }
-
   @media (max-width: 768px) {
     align-self: flex-end;
   }
@@ -141,13 +174,9 @@ export const BotaoSalvar = styled.button`
   font-size: 16px;
   font-weight: 600;
   transition: all 0.2s ease;
-  margin-top: 20px;
-  align-self: flex-end;
-
   &:hover {
     background: #218838;
   }
-
   &:disabled {
     background: #6c757d;
     cursor: not-allowed;
