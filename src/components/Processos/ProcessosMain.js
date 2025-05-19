@@ -300,9 +300,6 @@ const ProcessosMain = () => {
       <MainContainer>
         <Header>
           <Titulo>Gerenciamento de Processos</Titulo>
-          <BotaoCriar onClick={() => navigate("/clientes/criarProc")}>
-            Criar Processo
-          </BotaoCriar>
         </Header>
 
         <CampoBusca
