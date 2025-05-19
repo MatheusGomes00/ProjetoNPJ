@@ -189,8 +189,8 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
           telefone: clienteSelecionado.cliente.contato?.telefone || "",
           celular: clienteSelecionado.cliente.contato?.celular || "",
           email: clienteSelecionado.cliente.contato?.email || "",
-          representanteNome: clienteSelecionado.representante?.nome || "",
-          representanteCpf: clienteSelecionado.representante?.cpf || "",
+          repNome: clienteSelecionado.cliente.repNome || "",
+          repCpf: clienteSelecionado.cliente.repCpf || "",
         });
       } catch (error) {
         console.error("Erro ao buscar cliente:", error);
@@ -238,6 +238,8 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
         rg: formData.rg,
         ssp: formData.ssp,
         nascimento: formData.nascimento,
+        repNome: formData.repNome,
+        repCpf: formData.repCpf,
         endereco: {
           ...cliente.cliente.endereco,
           rua: formData.rua,
@@ -253,11 +255,6 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
           celular: formData.celular,
           email: formData.email,
         },
-      },
-      representante: {
-        ...cliente.representante,
-        nome: formData.representanteNome,
-        cpf: formData.representanteCpf,
       },
     };
 
@@ -300,8 +297,8 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
         telefone: updatedData.cliente.contato?.telefone || "",
         celular: updatedData.cliente.contato?.celular || "",
         email: updatedData.cliente.contato?.email || "",
-        representanteNome: updatedData.representante?.nome || "",
-        representanteCpf: updatedData.representante?.cpf || "",
+        repNome: updatedData.cliente.repNome || "",
+        repCpf: updatedData.cliente.repCpf || "",
       });
       setShowPopup(true);
       setTimeout(() => {
@@ -482,8 +479,8 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
             <FormLabel>Nome</FormLabel>
             <FormInput
               type="text"
-              name="representanteNome"
-              value={formData.representanteNome}
+              name="repNome"
+              value={formData.repNome}
               onChange={handleInputChange}
             />
           </FormRow>
@@ -491,8 +488,8 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
             <FormLabel>CPF</FormLabel>
             <FormInput
               type="text"
-              name="representanteCpf"
-              value={formData.representanteCpf}
+              name="repCpf"
+              value={formData.repCpf}
               onChange={handleInputChange}
             />
           </FormRow>
