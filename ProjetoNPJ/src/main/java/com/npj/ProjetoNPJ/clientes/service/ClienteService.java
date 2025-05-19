@@ -97,8 +97,9 @@ public class ClienteService {
             oldObj.getCliente().setContato(dto.getCliente().getContato());
             oldObj.getCliente().setEndereco(dto.getCliente().getEndereco());
             oldObj.getCliente().setCasaPropria(dto.getCliente().getCasaPropria());
+            oldObj.getCliente().setRepNome(dto.getCliente().getRepNome());
+            oldObj.getCliente().setRepCpf(dto.getCliente().getRepCpf());
         }
-
     }
 
     public CadastroDto findById(String id) {

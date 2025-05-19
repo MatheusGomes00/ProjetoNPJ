@@ -25,6 +25,7 @@ public class Cliente {
     private String nascimento;
     private Contato contato;
     private Boolean casaPropria;
-    private List<String> processo;
+    private String repNome;
+    private String repCpf;
 
 }

@@ -38,7 +38,8 @@ public class ClienteDto {
 
     private Boolean casaPropria;
 
-    // private String representante;
+    private String repNome;
 
+    private String repCpf;
 
 }
