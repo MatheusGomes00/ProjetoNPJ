@@ -127,7 +127,7 @@ export const StatusBadge = styled.span`
   ${({ situacao }) =>
     situacao === "INICIADO" &&
     `
-    background: #007bff;
+    background:rgb(129, 136, 143);
   `}
   ${({ situacao }) =>
     situacao === "EM_ANDAMENTO" &&

@@ -346,7 +346,7 @@ const CriarProcessosCliente = () => {
   const { clientId, clientName } = location.state || {};
 
   const [formData, setFormData] = useState({
-    situacao: "",
+    situacao: "INICIADO",
     numeroProcesso: "",
     pasta: "",
     tipoAcaoClasse: "",
@@ -526,6 +526,11 @@ const CriarProcessosCliente = () => {
       return;
     }
 
+    if(!formData.situacao) {
+      setMensagemErro("O campo situação é obrigatório.");
+      return;
+    }
+
     const payload = {
       ...formData,
       responsaveisId: responsaveisIds,
@@ -533,11 +538,6 @@ const CriarProcessosCliente = () => {
       responsaveis: undefined,
       cliente: undefined,
     };
-
-    if(!formData.situacao) {
-      setMensagemErro("O campo situação é obrigatório.");
-      return;
-    }
 
     setIsLoading(true);
     setMensagemErro("");
@@ -645,14 +645,7 @@ const CriarProcessosCliente = () => {
               onChange={handleChange}
               disabled={isLoading}
             >
-              <option value="">Selecione</option>
               <option value="INICIADO">Iniciado</option>
-              <option value="EM_ANDAMENTO">Em Andamento</option>
-              <option value="FINALIZADO">Finalizado</option>
-              <option value="ARQUIVADO">Arquivado</option>
-              <option value="SUSPENSO">Suspenso</option>
-              <option value="AGUARDANDO_DISTRIBUICAO">Aguardando Distribuição</option>
-              <option value="EM_RECURSO">Em Recurso</option>
             </FormSelect>
           </FormRow>
           <FormRow>
@@ -755,7 +748,7 @@ const CriarProcessosCliente = () => {
                           onChange={() => toggleSelecionarAdvogado(advogado)}
                           disabled={isLoading || !advogado.id}
                         />
-                        {advogado.nome} (ID: {advogado.id})
+                        {advogado.nome}
                       </DropdownItem>
                     ))
                   ) : (

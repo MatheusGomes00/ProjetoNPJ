@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import useAuth from "../Seguranca/UseAuth";
@@ -42,6 +42,7 @@ import {
   handleInputChange,
   salvarAlteracoes,
   adicionarResponsavel,
+  adicionarComentario,
   removerResponsavel,
 } from "./EdicaoProcessos";
 
@@ -51,7 +52,21 @@ const DetalhesProcesso = () => {
   const navigate = useNavigate();
   const { fetchAuthenticated } = useAuth();
   const [processo, setProcesso] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    numeroProcesso: '',
+    pasta: '',
+    tipoAcaoClasse: '',
+    vara: '',
+    valorCausa: '',
+    representanteLegal: '',
+    requerido: '',
+    situacao: 'INICIADO', // Valor inicial fixado
+    comentarios: [],
+    responsaveisId: [],
+    responsaveisNome: [],
+    clienteId: [],
+    clienteNome: [],
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [mensagemErro, setMensagemErro] = useState("");
   const [advogados, setAdvogados] = useState([]);
@@ -59,9 +74,10 @@ const DetalhesProcesso = () => {
   const [novoResponsavelId, setNovoResponsavelId] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [novoComentario, setNovoComentario] = useState('');
 
   // Busca os dados do processo
-  const fetchProcesso = async () => {
+  const fetchProcesso = useCallback(async () => {
     setIsLoading(true);
     setMensagemErro("");
     try {
@@ -81,7 +97,10 @@ const DetalhesProcesso = () => {
       }
       const data = await response.json();
       
-      setProcesso(data);
+      setProcesso({
+        ...data,
+        comentarios: data.comentarios || { comentarios: [] }, // Normaliza ComentariosDto
+      });
       setFormData({
         numeroProcesso: data.numeroProcesso || "",
         pasta: data.pasta || "",
@@ -103,6 +122,7 @@ const DetalhesProcesso = () => {
         clienteNome: data.cliente
           ? data.cliente.map((c) => c.cliente?.nome || c.nome).filter(Boolean)
           : data.clienteNome || [],
+        comentarios: data.comentarios?.comentarios || [],
       });
     } catch (error) {
       console.error("Erro ao buscar processo:", error);
@@ -111,10 +131,10 @@ const DetalhesProcesso = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id,]);
 
   // Busca a lista de advogados
-  const fetchAdvogados = async () => {
+  const fetchAdvogados = useCallback(async () => {
     try {
       const response = await fetchAuthenticated(`http://localhost:8080/adv/buscarTodos`, {
         method: "GET",
@@ -129,12 +149,17 @@ const DetalhesProcesso = () => {
       console.error("Erro ao buscar advogados:", error);
       setMensagemErro("Erro ao carregar lista de advogados.");
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchProcesso();
     fetchAdvogados();
-  }, [id]);
+  }, [id, fetchProcesso, fetchAdvogados]);
+
+  // Renderização condicional para evitar erros durante o carregamento
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
 
   return (
     <ComponentesFixos>
@@ -162,7 +187,7 @@ const DetalhesProcesso = () => {
               <BotaoVoltar onClick={() => navigate(-1)}>Voltar</BotaoVoltar>
             </div>
             </Header>
-            {mensagemErro && <Mensagem erro>{mensagemErro}</Mensagem>}
+            {mensagemErro && <Mensagem erro={mensagemErro !== '' ? 'true' : 'false'}>{mensagemErro}</Mensagem>}
             {!processo ? (
               <Mensagem>Nenhum dado disponível para este processo.</Mensagem>
             ) : (
@@ -170,7 +195,7 @@ const DetalhesProcesso = () => {
                 <Section>
                   <SectionTitle>Informações do Processo</SectionTitle>
                   <InfoRow>
-                    <InfoLabel htmlFor="numeroProcesso">Número do Processo</InfoLabel>
+                    <InfoLabel htmlFor="numeroProcesso">Número do Processo *</InfoLabel>
                     <InfoInput
                       id="numeroProcesso"
                       name="numeroProcesso"
@@ -180,7 +205,7 @@ const DetalhesProcesso = () => {
                     />
                   </InfoRow>
                   <InfoRow>
-                    <InfoLabel htmlFor="tipoAcaoClasse">Tipo de Ação/Classe</InfoLabel>
+                    <InfoLabel htmlFor="tipoAcaoClasse">Tipo de Ação/Classe *</InfoLabel>
                     <InfoInput
                       id="tipoAcaoClasse"
                       name="tipoAcaoClasse"
@@ -190,7 +215,7 @@ const DetalhesProcesso = () => {
                     />
                   </InfoRow>
                   <InfoRow>
-                    <InfoLabel htmlFor="vara">Vara</InfoLabel>
+                    <InfoLabel htmlFor="vara">Vara *</InfoLabel>
                     <InfoInput
                       id="vara"
                       name="vara"
@@ -220,7 +245,7 @@ const DetalhesProcesso = () => {
                     />
                   </InfoRow>
                   <InfoRow>
-                    <InfoLabel htmlFor="situacao">Situação</InfoLabel>
+                    <InfoLabel htmlFor="situacao">Situação *</InfoLabel>
                     <InfoSelect
                       id="situacao"
                       name="situacao"
@@ -242,6 +267,55 @@ const DetalhesProcesso = () => {
                       ))}
                     </InfoSelect>
                   </InfoRow>
+                </Section>
+
+                <Section>
+                  <SectionTitle>Comentários</SectionTitle>
+                  <div style={{ marginBottom: "20px" }}>
+                    <InfoRow>
+                      <InfoLabel htmlFor="novoComentario">Novo Comentário</InfoLabel>
+                      <InfoInput
+                        id="novoComentario"
+                        value={novoComentario}
+                        onChange={(e) => setNovoComentario(e.target.value)}
+                        placeholder="Digite um comentário"
+                        disabled={isLoading || isSaving}
+                      />
+                    </InfoRow>
+                    <BotaoAcao
+                      onClick={() => adicionarComentario(novoComentario, id, setMensagemErro, setIsSaving, fetchAuthenticated, setFormData, setProcesso, setNovoComentario, setShowPopup,)}
+                      disabled={isLoading || isSaving || !novoComentario.trim()}
+                      style={{ marginTop: "10px" }}
+                    >
+                      Adicionar Comentário
+                    </BotaoAcao>
+                  </div>
+                  {Array.isArray(formData.comentarios) && formData.comentarios.length > 0 ? (
+                    <ResponsaveisTable>
+                      <thead>
+                        <tr>
+                          <TableHeader>Responsável</TableHeader>
+                          <TableHeader>Data</TableHeader>
+                          <TableHeader>Comentário</TableHeader>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {formData.comentarios.map((comentario, index) => (
+                          <TableRow key={comentario?.id || index}>
+                            <TableCell>{comentario?.responsavelNome || "N/A"}</TableCell>
+                            <TableCell>
+                              {comentario?.dataModif
+                                ? new Date(comentario.dataModif).toLocaleString("pt-BR")
+                                : "N/A"}
+                            </TableCell>
+                            <TableCell>{comentario?.comentarios || "N/A"}</TableCell>
+                          </TableRow>
+                        ))}
+                      </tbody>
+                    </ResponsaveisTable>
+                  ) : (
+                    <Mensagem>Nenhum comentário associado.</Mensagem>
+                  )}
                 </Section>
 
                 <Section>

@@ -29,6 +29,11 @@ export const salvarAlteracoes = async (
     return;
   }
 
+  if(!formData.situacao) {
+      setMensagemErro("O campo situação é obrigatório.");
+      return;
+  }
+
   setIsSaving(true);
   setMensagemErro("");
   try {
@@ -270,4 +275,63 @@ export const removerResponsavel = async (
     console.error("Erro ao remover responsável:", error);
     setMensagemErro(`Erro ao remover responsável: ${error.message}`);
   }
+};
+
+export const adicionarComentario = async (
+  novoComentario, 
+  id,
+  setMensagemErro, 
+  setIsSaving, 
+  fetchAuthenticated, 
+  setFormData, 
+  setProcesso, 
+  setNovoComentario, 
+  setShowPopup,
+  ) => {
+    if (!novoComentario.trim()) {
+      setMensagemErro('O comentário não pode estar vazio.');
+      return;
+    }
+
+    setIsSaving(true);
+    setMensagemErro('');
+    try {
+      const comentarioData = {
+        dataModif: new Date().toISOString(),
+        comentarios: novoComentario,
+      };
+
+      const response = await fetchAuthenticated(`http://localhost:8080/proc/${id}/add-comentario`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(comentarioData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro na requisição: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Comentário adicionado:', data);
+      setFormData((prev) => ({
+        ...prev,
+        comentarios: data.comentarios || prev.comentarios, // Usa a lista de ComentarioDto
+      }));
+      setProcesso((prev) => ({
+        ...prev,
+        comentarios: {
+          comentarios: [...(prev.comentarios?.comentarios || []), ...(data.comentarios || [])], // Concatena a lista de comentários
+        },
+      }));
+      setNovoComentario('');
+      setShowPopup(true);
+      setTimeout(() => setShowPopup(false), 2000); // Fecha o popup após 2 segundos
+    } catch (error) {
+      console.error('Erro ao adicionar comentário:', error);
+      setMensagemErro('Erro ao salvar o comentário. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
 };
