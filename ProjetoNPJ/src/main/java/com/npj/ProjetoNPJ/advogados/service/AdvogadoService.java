@@ -48,6 +48,12 @@ public class AdvogadoService {
         }
     }
 
+    public String buscarNomeAutenticado() {
+        Advogado advogado = repository.findById(getAuthenticatedUsername())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
+        return advogado.getNome();
+    }
+
     public String normalizarCpf(String cpf) {
         return cpf.replaceAll("[.\\-\\s]", "");
     }

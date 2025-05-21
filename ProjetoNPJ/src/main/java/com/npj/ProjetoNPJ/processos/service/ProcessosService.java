@@ -4,10 +4,13 @@ package com.npj.ProjetoNPJ.processos.service;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
+import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
 import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
 import com.npj.ProjetoNPJ.clientes.entitie.Cliente;
 import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
+import com.npj.ProjetoNPJ.processos.dtos.ComentarioDto;
+import com.npj.ProjetoNPJ.processos.dtos.ComentariosDto;
 import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
 import com.npj.ProjetoNPJ.processos.dtos.Situacao;
 import com.npj.ProjetoNPJ.processos.entity.Processos;
@@ -24,6 +27,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +41,9 @@ public class ProcessosService {
     private AdvogadoRepository advrepository;
 
     @Autowired
+    private AdvogadoService advService;
+
+    @Autowired
     private ProcessosRepositorio processosRepositorio;
 
     @Autowired
@@ -46,7 +54,7 @@ public class ProcessosService {
 
     public DtoProcessos insertProcesso(DtoProcessos dto) {
         dto.setSituacao(Situacao.INICIADO);
-        dto.setValorCausa(dto.getValorCausa());
+        // dto.setValorCausa(dto.getValorCausa());
         List<Advogado> advogados = dto.getResponsaveisId().stream()
                 .map(id -> advrepository.findById(String.valueOf(id))
                         .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
@@ -59,7 +67,7 @@ public class ProcessosService {
 
         Processos processo = ProcessosMapper.toEntity(dto, advogados, cliente);
 
-        processo.setSituacao(Situacao.INICIADO);
+        // processo.setSituacao(Situacao.INICIADO);
 
         Processos processoSalvo = processosRepositorio.save(processo);
         return ProcessosMapper.toDto(processoSalvo);
@@ -68,7 +76,7 @@ public class ProcessosService {
     public Processos update(DtoProcessos dto, String id){
 
         Processos processos = processosRepositorio.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada."));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Processo não encontrado."));
         updateData(processos, dto);
         processosRepositorio.save(processos);
 
@@ -87,6 +95,7 @@ public class ProcessosService {
         if (dto.getNpjRepresentando() != null) processos.setNpjRepresentando(dto.getNpjRepresentando());
         if (dto.getVara() != null) processos.setVara(dto.getVara());
         if (dto.getValorCausa() != null) processos.setValorCausa(dto.getValorCausa());
+        if (dto.getComentarios() != null) processos.setComentarios((ComentariosDto) dto.getComentarios());
 
         if (dto.getResponsaveisId() != null && !dto.getResponsaveisId().isEmpty()) {
             List<Advogado> advogados = dto.getResponsaveisId().stream()
@@ -181,6 +190,18 @@ public class ProcessosService {
         List<Processos> tarefa = processosRepositorio.findByAdvogadoId(advogado.getId());
 
         return ProcessosMapper.toListDto(tarefa);
+    }
+
+    public ComentariosDto criarComentario(ComentarioDto comentarioDto, String idProc) {
+        comentarioDto.setResponsavelId(advService.getAuthenticatedUsername());
+        comentarioDto.setResponsavelNome(advService.buscarNomeAutenticado());
+        Processos processo = processosRepositorio.findById(idProc)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Processo não localizado."));
+        ComentariosDto comentarios = processo.getComentarios();
+        comentarios.addComentario(comentarioDto);
+        processo.setComentarios(comentarios);
+        processosRepositorio.save(processo);
+        return processo.getComentarios();
     }
 }
 

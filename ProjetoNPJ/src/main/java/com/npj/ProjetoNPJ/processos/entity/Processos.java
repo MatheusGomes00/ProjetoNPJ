@@ -2,7 +2,7 @@ package com.npj.ProjetoNPJ.processos.entity;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
-import com.npj.ProjetoNPJ.clientes.entitie.Cliente;
+import com.npj.ProjetoNPJ.processos.dtos.ComentariosDto;
 import com.npj.ProjetoNPJ.processos.dtos.Situacao;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
@@ -42,6 +42,8 @@ public class Processos {
     private String vara;
 
     private String valorCausa;
+
+    private ComentariosDto comentarios;
 
     @DBRef(lazy = false)
     private List<Advogado> responsaveis;

@@ -3,12 +3,10 @@
 
     import com.npj.ProjetoNPJ.advogados.entity.Advogado;
     import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
-    import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
     import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
     import com.npj.ProjetoNPJ.processos.dtos.Situacao;
     import com.npj.ProjetoNPJ.processos.entity.Processos;
     import org.modelmapper.ModelMapper;
-    import org.springframework.beans.factory.annotation.Autowired;
 
     import java.util.List;
     import java.util.stream.Collectors;
@@ -27,6 +25,7 @@
             processo.setRequerido(dto.getRequerido());
             processo.setVara(dto.getVara());
             processo.setValorCausa(dto.getValorCausa());
+
             List<Advogado> responsaveis = advogados.stream()
                     .filter(advogado -> dto.getResponsaveisId().contains(advogado.getId()))
                     .collect(Collectors.toList());
@@ -55,6 +54,8 @@
             dto.setNpjRepresentando(null);
             dto.setVara(processo.getVara());
             dto.setValorCausa(processo.getValorCausa());
+
+
             if (processo.getResponsaveis() != null && !processo.getResponsaveis().isEmpty()) {
                 List<String> ids = processo.getResponsaveis().stream()
                         .map(Advogado::getId)

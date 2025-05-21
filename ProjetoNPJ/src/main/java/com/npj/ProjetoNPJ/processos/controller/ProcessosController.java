@@ -1,10 +1,11 @@
 package com.npj.ProjetoNPJ.processos.controller;
 
+import com.npj.ProjetoNPJ.processos.dtos.ComentarioDto;
+import com.npj.ProjetoNPJ.processos.dtos.ComentariosDto;
 import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
 import com.npj.ProjetoNPJ.processos.entity.Processos;
 import com.npj.ProjetoNPJ.processos.repository.ProcessosRepositorio;
 import com.npj.ProjetoNPJ.processos.service.ProcessosService;
-import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,6 +46,14 @@ public class ProcessosController {
         Processos processo = service.update(dto, id);
 
         return ResponseEntity.ok().body(processo);
+    }
+
+    @PostMapping(value = "/{idProc}/add-comentario")
+    public ResponseEntity<ComentariosDto> adicionarComentario(
+            @PathVariable String idProc, @RequestBody ComentarioDto comentarioDto) {
+
+        ComentariosDto comentario = service.criarComentario(comentarioDto, idProc);
+        return ResponseEntity.ok().body(comentario);
     }
 
     @GetMapping(value = "/searchProc/{numeroProcesso}")
