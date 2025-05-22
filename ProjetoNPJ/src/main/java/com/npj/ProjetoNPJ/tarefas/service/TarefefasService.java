@@ -10,14 +10,12 @@ import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
 import com.npj.ProjetoNPJ.tarefas.repository.TarefasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -129,37 +127,6 @@ public class TarefefasService {
         return TarefasMapper.toListDto(tarefas);
     }
 
-    public List<DtoTarefas> findByPrioridade(String prioridade){
-
-        List<Tarefas> tarefas = repository.findByPrioridade(prioridade);
-
-        if(tarefas.isEmpty()) {
-            throw new RecursoNaoEncontradoException("Sem tarefas cadastradas");
-        }
-        return TarefasMapper.toListDto(tarefas);
-    }
-
-    public List<Tarefas> findByNomeAndPrioridade(String nome, String prioridade) {
-        if (nome != null && prioridade != null) {
-            return repository.findByNomeOrPrioridade(nome, prioridade);
-        } else if (nome != null) {
-            return repository.findByNome(nome);
-        } else if (prioridade != null) {
-            return repository.findByPrioridade(prioridade);
-        } else {
-            return repository.findAll();
-        }
-    }
-
-    public Page<DtoTarefas> getTarefasAutenticadoPage(Pageable page) {
-
-        Advogado advogado = advogadoRepository.findById(getAuthenticatedUsername())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
-        Page<Tarefas> tarefa = repository.findAllPageable(advogado.getId(), page);
-        Page<DtoTarefas> tarefaDtoPage = tarefa.map(t -> TarefasMapper.toDto(t));
-
-        return tarefaDtoPage;
-    }
 
     public DtoTarefas findById(String id){
 

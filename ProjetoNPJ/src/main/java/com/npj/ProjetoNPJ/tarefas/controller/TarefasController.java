@@ -106,11 +106,6 @@ public class TarefasController {
         }
 
     }
-    @GetMapping("/page")
-    public ResponseEntity<Page<DtoTarefas>> listarTarefasPage(Pageable page){
-        Page<DtoTarefas> dto = service.getTarefasAutenticadoPage(page);
-        return ResponseEntity.ok(dto);
-    }
 
     @GetMapping("/get")
     public ResponseEntity<List<DtoTarefas>> listarTarefas() {
@@ -136,13 +131,6 @@ public class TarefasController {
         Tarefas tarefaAtualiza = service.reativarTarefa(id);
 
         return ResponseEntity.ok(tarefaAtualiza);
-    }
-
-    @GetMapping(value = "/search/{prioridade}")
-    public ResponseEntity<List<DtoTarefas>> buscaPorPrioridade(@PathVariable String prioridade){
-
-        List<DtoTarefas> tarefas = service.findByPrioridade(prioridade);
-        return ResponseEntity.ok(tarefas);
     }
 
 
