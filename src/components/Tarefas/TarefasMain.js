@@ -71,7 +71,7 @@ const CampoBusca = styled.input`
 
 // Estilo do botão de busca
 const BotaoBusca = styled.button`
-  background:rgb(4, 0, 255);
+  background: rgb(4, 0, 255);
   color: white;
   padding: 10px 20px;
   border: none;
@@ -103,8 +103,8 @@ const FiltrosContainer = styled.div`
   flex-wrap: wrap;
 `;
 
-// Estilo dos botões de filtro de status
-const BotaoFiltroStatus = styled.button`
+// Estilo dos botões de filtro (usado para status e prioridade)
+const BotaoFiltro = styled.button`
   padding: 8px 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -116,23 +116,6 @@ const BotaoFiltroStatus = styled.button`
 
   &:hover {
     background-color: ${({ ativo }) => (ativo ? "#0056b3" : "#f0f0f0")};
-  }
-`;
-
-// Estilo do dropdown de prioridade
-const SelectPrioridade = styled.select`
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #fff;
-  color: #333;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    border-color: #007bff;
-    outline: none;
   }
 `;
 
@@ -239,10 +222,10 @@ const TarefasMain = () => {
   const { fetchAuthenticated } = useAuth();
   const [tarefasOriginais, setTarefasOriginais] = useState([]);
   const [tarefasBuscadas, setTarefasBuscadas] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);  
+  const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [ setMensagemSucesso] = useState("");
-  const [ setIsLoadingFinalizar] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
   const [nomeBusca, setNomeBusca] = useState("");
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
   const [showModalEdicao, setShowModalEdicao] = useState(false);
@@ -251,7 +234,6 @@ const TarefasMain = () => {
   const [filtroStatus, setFiltroStatus] = useState(null); // "ativas", "inativas", ou null
   const [filtroPrioridade, setFiltroPrioridade] = useState(null); // "alta", "media", "baixa", ou null
   const [currentPage, setCurrentPage] = useState(0); // Página atual, começa em 0
-  const [totalPages, setTotalPages] = useState(1); // Total de páginas, começa em 1
   const PAGE_SIZE = 12; // Tamanho da página fixo (12 tarefas por página)
 
   // Usar useRef para cache e lastFetchTime
@@ -269,7 +251,7 @@ const TarefasMain = () => {
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
   };
 
-  // Função para aplicar os filtros localmente (status → prioridade)
+  // Função para aplicar os filtros localmente (status e prioridade)
   const aplicarFiltros = (tarefasData, status, prioridade) => {
     let tarefasFiltradas = [...tarefasData];
 
@@ -282,8 +264,8 @@ const TarefasMain = () => {
 
     // Filtro por prioridade
     if (prioridade) {
-      tarefasFiltradas = tarefasFiltradas.filter(
-        (tarefa) => tarefa.prioridade.toLowerCase() === prioridade.toLowerCase()
+      tarefasFiltradas = tarefasFiltradas.filter((tarefa) =>
+        tarefa.prioridade.toLowerCase() === prioridade.toLowerCase()
       );
     }
 
@@ -295,13 +277,12 @@ const TarefasMain = () => {
     async (nome = "", forceRefresh = false) => {
       const now = Date.now();
       const minInterval = 5000;
-      const cacheKey = nome ? `${nome}_search` : `all_page${currentPage}`;
+      const cacheKey = nome ? `${nome}_search` : `all`;
 
       if (!forceRefresh && cacheRef.current[cacheKey] && now - lastFetchTimeRef.current < minInterval) {
         const tarefasDoCache = cacheRef.current[cacheKey];
         if (nome) {
           setTarefasBuscadas(tarefasDoCache);
-          setTotalPages(Math.ceil(tarefasDoCache.length / PAGE_SIZE) || 1);
         } else {
           setTarefasOriginais(tarefasDoCache);
         }
@@ -317,12 +298,9 @@ const TarefasMain = () => {
       setMensagemErro("");
 
       try {
-        let url;
-        if (nome) {
-          url = `http://localhost:8080/task/search/${encodeURIComponent(nome)}`;
-        } else {
-          url = `http://localhost:8080/task/page?page=${currentPage}&size=${PAGE_SIZE}&sort=nomeTarefa,asc`;
-        }
+        const url = nome
+          ? `http://localhost:8080/task/search/${encodeURIComponent(nome)}`
+          : `http://localhost:8080/task/get`;
 
         const response = await fetchAuthenticated(url, {
           method: "GET",
@@ -332,79 +310,76 @@ const TarefasMain = () => {
         });
 
         if (!response.ok) {
-          if (response.status === 404) {
-            setMensagemErro("Nenhuma tarefa encontrada com esse nome.");
-            if (nome) {
-              setTarefasBuscadas([]);
-              setTotalPages(1);
-            } else {
-              setTarefasOriginais([]);
-            }
+          const errorText = await response.text();
+          if (response.status === 401) {
+            throw new Error(`Erro na requisição: 401 - Não autenticado, verifique o token!`);
+          } else if (response.status === 404) {
+            setMensagemErro("Nenhuma tarefa encontrada com esses critérios.");
+            setTarefasBuscadas([]);
+            setTarefasOriginais([]);
             cacheRef.current[cacheKey] = [];
             return;
           } else if (response.status === 500) {
-            throw new Error("Erro interno no servidor. Tente novamente mais tarde.");
+            throw new Error(`Erro interno no servidor: ${errorText}`);
           }
-          throw new Error(`Erro na requisição: ${response.status}`);
+          throw new Error(`Erro na requisição: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
 
-        if (!data || (nome && data.length === 0) || (!nome && !data.content)) {
-          setMensagemErro(nome ? "Nenhuma tarefa encontrada com esse nome." : "Nenhuma tarefa cadastrada.");
-          if (nome) {
-            setTarefasBuscadas([]);
-            setTotalPages(1);
-          } else {
-            setTarefasOriginais([]);
-          }
+        if (!data || data.length === 0) {
+          setMensagemErro(
+            nome
+              ? "Nenhuma tarefa encontrada com esses critérios."
+              : "Nenhuma tarefa cadastrada."
+          );
+          setTarefasBuscadas([]);
+          setTarefasOriginais([]);
           cacheRef.current[cacheKey] = [];
           return;
         }
 
         if (nome) {
-          // Search returns a flat list
           setTarefasBuscadas(data);
-          setTotalPages(Math.ceil(data.length / PAGE_SIZE) || 1);
           cacheRef.current[cacheKey] = data;
         } else {
-          // Non-search returns a paginated response
-          setTarefasOriginais(data.content);
-          setTotalPages(data.totalPages || 1);
-          cacheRef.current[cacheKey] = data.content;
+          setTarefasOriginais(data);
+          cacheRef.current[cacheKey] = data;
         }
 
         setMensagemErro("");
         lastFetchTimeRef.current = now;
       } catch (error) {
         console.error("Erro ao buscar tarefas:", error);
-        setMensagemErro(error.message);
-        if (nome) {
-          setTarefasBuscadas([]);
-          setTotalPages(1);
-        } else {
-          setTarefasOriginais([]);
-        }
+        setMensagemErro(error.message || "Não foi possível conectar ao servidor. Verifique se o backend está ativo.");
+        setTarefasBuscadas([]);
+        setTarefasOriginais([]);
       } finally {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, isLoading, currentPage]
+    [fetchAuthenticated, isLoading]
   );
 
-  // Memoizar as tarefas filtradas com paginação no lado do cliente para busca
-  const tarefasFiltradas = useMemo(() => {
+  // Memoizar as tarefas filtradas com paginação no lado do cliente
+  const { tarefasFiltradas, totalPages } = useMemo(() => {
     let baseTarefas = isSearching ? tarefasBuscadas : tarefasOriginais;
     let tarefas = aplicarFiltros(baseTarefas, filtroStatus, filtroPrioridade);
 
-    // Aplicar paginação no lado do cliente para resultados de busca
-    if (isSearching) {
-      const startIndex = currentPage * PAGE_SIZE;
-      const endIndex = startIndex + PAGE_SIZE;
-      return tarefas.slice(startIndex, endIndex);
+    // Calcular totalPages com base nas tarefas filtradas
+    const totalPages = Math.ceil(tarefas.length / PAGE_SIZE) || 1;
+
+    // Garantir que currentPage não exceda o número de páginas
+    if (currentPage >= totalPages) {
+      setCurrentPage(totalPages - 1);
     }
 
-    return tarefas;
+    // Aplicar paginação no lado do cliente
+    const startIndex = currentPage * PAGE_SIZE;
+    const endIndex = startIndex + PAGE_SIZE;
+    const tarefasPaginadas = tarefas.slice(startIndex, endIndex);
+
+    return { tarefasFiltradas: tarefasPaginadas, totalPages };
   }, [tarefasOriginais, tarefasBuscadas, isSearching, filtroStatus, filtroPrioridade, currentPage]);
 
   const finalizarTarefa = async (id) => {
@@ -506,12 +481,10 @@ const TarefasMain = () => {
     buscarTarefasPorNome("", true);
   };
 
-  // Carregar tarefas sempre que a página atual mudar (apenas para não-busca)
+  // Carregar tarefas ao montar o componente ou quando isSearching mudar
   useEffect(() => {
-    if (!isSearching) {
-      buscarTarefasPorNome("");
-    }
-  }, [currentPage, buscarTarefasPorNome, isSearching]);
+    buscarTarefasPorNome(isSearching ? nomeBusca.trim() : "");
+  }, [buscarTarefasPorNome, isSearching]);
 
   const handleBusca = (e) => {
     setNomeBusca(e.target.value);
@@ -543,9 +516,8 @@ const TarefasMain = () => {
     setCurrentPage(0); // Resetar página ao mudar filtro
   };
 
-  const handleFiltroPrioridade = (e) => {
-    const prioridade = e.target.value === "todas" ? null : e.target.value;
-    setFiltroPrioridade(prioridade);
+  const handleFiltroPrioridade = (prioridade) => {
+    setFiltroPrioridade((prev) => (prev === prioridade ? null : prioridade));
     setCurrentPage(0); // Resetar página ao mudar filtro
   };
 
@@ -584,30 +556,39 @@ const TarefasMain = () => {
         <FiltrosContainer>
           <div>
             <span>Mostrar apenas: </span>
-            <BotaoFiltroStatus
+            <BotaoFiltro
               ativo={filtroStatus === "ativas"}
               onClick={() => handleFiltroStatus("ativas")}
             >
               Ativas
-            </BotaoFiltroStatus>
-            <BotaoFiltroStatus
+            </BotaoFiltro>
+            <BotaoFiltro
               ativo={filtroStatus === "inativas"}
               onClick={() => handleFiltroStatus("inativas")}
             >
               Inativas
-            </BotaoFiltroStatus>
+            </BotaoFiltro>
           </div>
           <div>
             <span>Prioridade: </span>
-            <SelectPrioridade
-              value={filtroPrioridade || "todas"}
-              onChange={handleFiltroPrioridade}
+            <BotaoFiltro
+              ativo={filtroPrioridade === "alta"}
+              onClick={() => handleFiltroPrioridade("alta")}
             >
-              <option value="todas">Todas</option>
-              <option value="alta">Alta</option>
-              <option value="media">Média</option>
-              <option value="baixa">Baixa</option>
-            </SelectPrioridade>
+              Alta
+            </BotaoFiltro>
+            <BotaoFiltro
+              ativo={filtroPrioridade === "media"}
+              onClick={() => handleFiltroPrioridade("media")}
+            >
+              Média
+            </BotaoFiltro>
+            <BotaoFiltro
+              ativo={filtroPrioridade === "baixa"}
+              onClick={() => handleFiltroPrioridade("baixa")}
+            >
+              Baixa
+            </BotaoFiltro>
           </div>
         </FiltrosContainer>
 
