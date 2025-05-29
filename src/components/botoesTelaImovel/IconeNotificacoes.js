@@ -146,6 +146,18 @@ const MensagemErro = styled.div`
   margin: 8px 0;
 `;
 
+const MensagemSucesso = styled.div`
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #15803d;
+  text-align: center;
+  padding: 12px;
+  background: #f0fdf4;
+  border-radius: 8px;
+  margin: 8px 0;
+`;
+
 const MensagemCarregando = styled.div`
   font-family: "Inter", sans-serif;
   font-weight: 500;
@@ -163,10 +175,12 @@ const IconeNotificacoes = () => {
   const [notificacoes, setNotificacoes] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [mensagem, setMensagem] = useState("");
+  const [tipoMensagem, setTipoMensagem] = useState(""); // "success" ou "error"
   const [selectedTarefa, setSelectedTarefa] = useState(null);
   const [, setSelectedNotificacaoId] = useState(null);
   const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
-  // useRef para WebSocket, dropdown e controle de montagem
+  const mensagemTimeoutRef = useRef(null);
   const stompClientRef = useRef(null);
   const subscriptionRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -188,11 +202,24 @@ const IconeNotificacoes = () => {
     return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
   }, []);
 
+  // Função para limpar a mensagem após um tempo
+  const limparMensagem = useCallback(() => {
+    if (mensagemTimeoutRef.current) {
+      clearTimeout(mensagemTimeoutRef.current);
+    }
+    mensagemTimeoutRef.current = setTimeout(() => {
+      setMensagem("");
+      setTipoMensagem("");
+    }, 3000);
+  }, []);
+
   // Função para carregar notificações não lidas
   const carregarNotificacoes = useCallback(async () => {
     if (!isMountedRef.current || isLoading) return;
 
     setIsLoading(true);
+    setMensagem("");
+    setTipoMensagem("");
 
     try {
       const response = await fetchAuthenticated(
@@ -214,7 +241,6 @@ const IconeNotificacoes = () => {
           (notificacao) => !processedNotificationIds.current.has(notificacao.id)
         );
         uniqueNotificacoes.forEach((notificacao) => {
-          
           processedNotificationIds.current.add(notificacao.id);
         });
         setNotificacoes(uniqueNotificacoes.length > 0 ? uniqueNotificacoes : []);
@@ -222,8 +248,12 @@ const IconeNotificacoes = () => {
     } catch (error) {
       if (isMountedRef.current) {
         console.error("Erro ao buscar notificações:", error);
+        setMensagem(`Erro ao carregar notificações: ${error.message}`);
+        setTipoMensagem("error");
+        limparMensagem();
         if (error.message.includes("401")) {
-          console.error("Sessão expirada. Redirecionando...");
+          setMensagem("Sessão expirada. Redirecionando para login...");
+          setTipoMensagem("error");
           setTimeout(logoutWithRedirect, 2000);
         }
       }
@@ -232,7 +262,7 @@ const IconeNotificacoes = () => {
         setIsLoading(false);
       }
     }
-  }, [fetchAuthenticated, isLoading, logoutWithRedirect]);
+  }, [fetchAuthenticated, isLoading, logoutWithRedirect, limparMensagem]);
 
   // Função para marcar notificação como lida
   const marcarComoLida = useCallback(
@@ -259,7 +289,6 @@ const IconeNotificacoes = () => {
         if (isMountedRef.current) {
           setNotificacoes((prev) => {
             const updated = prev.filter((n) => n.id !== notificacaoId);
-            
             return updated;
           });
           processedNotificationIds.current.delete(notificacaoId);
@@ -267,20 +296,27 @@ const IconeNotificacoes = () => {
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao marcar notificação como lida:", error);
+          setMensagem(`Erro ao marcar notificação como lida: ${error.message}`);
+          setTipoMensagem("error");
+          limparMensagem();
           if (error.message.includes("401")) {
-            console.error("Sessão expirada. Redirecionando...");
+            setMensagem("Sessão expirada. Redirecionando para login...");
+            setTipoMensagem("error");
             setTimeout(logoutWithRedirect, 2000);
           }
         }
       }
     },
-    [fetchAuthenticated, logoutWithRedirect]
+    [fetchAuthenticated, logoutWithRedirect, limparMensagem]
   );
 
   // Função para buscar detalhes da tarefa
   const fetchTarefa = useCallback(
     async (tarefaId, notificacaoId) => {
       if (!isMountedRef.current || !tarefaId) return;
+
+      setMensagem("");
+      setTipoMensagem("");
 
       try {
         const response = await fetchAuthenticated(
@@ -298,27 +334,32 @@ const IconeNotificacoes = () => {
 
         const data = await response.json();
         if (isMountedRef.current) {
-         
           setSelectedTarefa(data);
           setSelectedNotificacaoId(notificacaoId);
         }
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao buscar tarefa:", error);
+          setMensagem(`Erro ao carregar tarefa: ${error.message}`);
+          setTipoMensagem("error");
+          limparMensagem();
         }
       }
     },
-    [fetchAuthenticated]
+    [fetchAuthenticated, limparMensagem]
   );
 
   // Função para finalizar tarefa
   const finalizarTarefa = useCallback(
     async (tarefaId) => {
-      if (!isMountedRef.current || !tarefaId) return;
+      if (!isMountedRef.current || !tarefaId) {
+        console.warn("Tarefa ID inválido ou componente desmontado:", tarefaId);
+        return;
+      }
 
       try {
         const response = await fetchAuthenticated(
-          `http://localhost:8080/tarefas/finalizar/${tarefaId}`,
+          `http://localhost:8080/task/end/${tarefaId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -330,27 +371,46 @@ const IconeNotificacoes = () => {
           throw new Error(`Erro ${response.status}: ${errorText}`);
         }
 
+        const tarefaAtualizada = await response.json();
         if (isMountedRef.current) {
-          setSelectedTarefa(null);
-          
+          console.log("Tarefa finalizada com sucesso:", tarefaId); // Debugging
+          setSelectedTarefa(tarefaAtualizada);
+          setMensagem("Tarefa finalizada com sucesso!");
+          setTipoMensagem("success");
+          carregarNotificacoes();
+          limparMensagem();
         }
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao finalizar tarefa:", error);
+          setMensagem(`Erro ao finalizar tarefa: ${error.message}`);
+          setTipoMensagem("error");
+          limparMensagem();
+          if (error.message.includes("401")) {
+            setMensagem("Sessão expirada. Redirecionando para login...");
+            setTipoMensagem("error");
+            setTimeout(logoutWithRedirect, 2000);
+          }
         }
       }
     },
-    [fetchAuthenticated]
+    [fetchAuthenticated, carregarNotificacoes, limparMensagem, logoutWithRedirect]
   );
 
   // Função para reativar tarefa
   const reativarTarefa = useCallback(
     async (tarefaId) => {
-      if (!isMountedRef.current || !tarefaId) return;
+      if (!isMountedRef.current || !tarefaId) {
+        console.warn("Tarefa ID inválido ou componente desmontado:", tarefaId);
+        return;
+      }
+
+      setMensagem("");
+      setTipoMensagem("");
 
       try {
         const response = await fetchAuthenticated(
-          `http://localhost:8080/tarefas/reativar/${tarefaId}`,
+          `http://localhost:8080/task/reopen/${tarefaId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -362,22 +422,34 @@ const IconeNotificacoes = () => {
           throw new Error(`Erro ${response.status}: ${errorText}`);
         }
 
+        const tarefaAtualizada = await response.json();
         if (isMountedRef.current) {
-          setSelectedTarefa(null);
-          
+          console.log("Tarefa reativada com sucesso:", tarefaId); // Debugging
+          setSelectedTarefa(tarefaAtualizada);
+          setMensagem("Tarefa reativada com sucesso!");
+          setTipoMensagem("success");
+          carregarNotificacoes();
+          limparMensagem();
         }
       } catch (error) {
         if (isMountedRef.current) {
           console.error("Erro ao reativar tarefa:", error);
+          setMensagem(`Erro ao reativar tarefa: ${error.message}`);
+          setTipoMensagem("error");
+          limparMensagem();
+          if (error.message.includes("401")) {
+            setMensagem("Sessão expirada. Redirecionando para login...");
+            setTipoMensagem("error");
+            setTimeout(logoutWithRedirect, 2000);
+          }
         }
       }
     },
-    [fetchAuthenticated]
+    [fetchAuthenticated, carregarNotificacoes, limparMensagem, logoutWithRedirect]
   );
 
   // Função para editar tarefa
   const editarTarefa = useCallback((tarefa) => {
-    ;
     setTarefaParaEditar(tarefa);
   }, []);
 
@@ -394,22 +466,20 @@ const IconeNotificacoes = () => {
 
   // Função para atualizar tarefa
   const atualizarTarefa = useCallback((tarefaAtualizada) => {
-    
-    // Atualizar selectedTarefa para refletir no ModalTarefa
     setSelectedTarefa((prevTarefa) => {
       if (prevTarefa && prevTarefa.id === tarefaAtualizada.id) {
         return { ...prevTarefa, ...tarefaAtualizada };
       }
       return prevTarefa;
     });
-    // Atualizar notificações, pois a edição pode gerar novas notificações
+    setMensagem("Tarefa atualizada com sucesso!");
+    setTipoMensagem("success");
     carregarNotificacoes();
-  }, [carregarNotificacoes]);
+    limparMensagem();
+  }, [carregarNotificacoes, limparMensagem]);
 
   // Função para carregar tarefas (placeholder)
   const carregarTarefas = useCallback(async () => {
-   
-    // Pode ser implementado para recarregar notificações ou tarefas
     carregarNotificacoes();
   }, [carregarNotificacoes]);
 
@@ -423,6 +493,9 @@ const IconeNotificacoes = () => {
 
     return () => {
       isMountedRef.current = false;
+      if (mensagemTimeoutRef.current) {
+        clearTimeout(mensagemTimeoutRef.current);
+      }
     };
   }, [carregarNotificacoes]);
 
@@ -430,19 +503,19 @@ const IconeNotificacoes = () => {
   const setupWebSocket = useCallback(() => {
     const userId = getId();
     if (!userId) {
-      console.error("No userId found for WebSocket subscription");
+      setMensagem("Usuário não autenticado. Faça login para receber notificações.");
+      setTipoMensagem("error");
+      limparMensagem();
       return;
     }
 
     if (stompClientRef.current?.connected) {
-      
       return;
     }
 
     const socket = new SockJS("http://localhost:8080/ws");
     const client = new Client({
       webSocketFactory: () => socket,
-    
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -450,34 +523,26 @@ const IconeNotificacoes = () => {
 
     client.onConnect = () => {
       if (!isMountedRef.current) return;
-      
 
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
-        
       }
 
       subscriptionRef.current = client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
         if (!isMountedRef.current) return;
         try {
           const novaNotificacao = JSON.parse(message.body);
-          
           if (novaNotificacao.lida) {
-           
             return;
           }
           if (!processedNotificationIds.current.has(novaNotificacao.id)) {
             processedNotificationIds.current.add(novaNotificacao.id);
             setNotificacoes((prev) => {
               if (prev.some((n) => n.id === novaNotificacao.id)) {
-                
                 return prev;
               }
-              
               return [novaNotificacao, ...prev];
             });
-          } else {
-           
           }
         } catch (error) {
           console.error("Erro ao processar mensagem WebSocket:", error);
@@ -489,11 +554,13 @@ const IconeNotificacoes = () => {
     client.onStompError = (frame) => {
       if (!isMountedRef.current) return;
       console.error("Erro no STOMP:", frame);
+      setMensagem("Erro ao conectar ao WebSocket: " + frame.headers?.message);
+      setTipoMensagem("error");
+      limparMensagem();
     };
 
     client.onWebSocketClose = () => {
       if (!isMountedRef.current) return;
-      
       stompClientRef.current = null;
       subscriptionRef.current = null;
       processedNotificationIds.current.clear();
@@ -505,16 +572,14 @@ const IconeNotificacoes = () => {
       if (client?.connected) {
         if (subscriptionRef.current) {
           subscriptionRef.current.unsubscribe();
-          
         }
         client.deactivate();
-        
         stompClientRef.current = null;
         subscriptionRef.current = null;
         processedNotificationIds.current.clear();
       }
     };
-  }, [getId]);
+  }, [getId, limparMensagem]);
 
   useEffect(() => {
     const cleanup = setupWebSocket();
@@ -550,7 +615,6 @@ const IconeNotificacoes = () => {
         return;
       }
       if (notificacao.tarefaID) {
-     
         fetchTarefa(notificacao.tarefaID, notificacao.id);
         marcarComoLida(notificacao.id);
       } else {
@@ -574,6 +638,12 @@ const IconeNotificacoes = () => {
         <DropdownHeader>Notificações</DropdownHeader>
         {isLoading ? (
           <MensagemCarregando>Carregando...</MensagemCarregando>
+        ) : mensagem ? (
+          tipoMensagem === "success" ? (
+            <MensagemSucesso>{mensagem}</MensagemSucesso>
+          ) : (
+            <MensagemErro>{mensagem}</MensagemErro>
+          )
         ) : notificacoes.length > 0 ? (
           notificacoes.map((notificacao) => (
             <NotificacaoItem
