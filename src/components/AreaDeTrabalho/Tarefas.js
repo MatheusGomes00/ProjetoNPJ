@@ -664,6 +664,23 @@ function Tarefas() {
     }
   };
 
+  const handlePrazoLimiteChange = (e) => {
+    const inputValue = e.target.value; // Formato: YYYY-MM-DDThh:mm
+    if (inputValue) {
+      const [datePart] = inputValue.split("T"); // Extrai YYYY-MM-DD
+      const [year] = datePart.split("-"); // Extrai o ano
+      if (year.length > 4) {
+        setMensagemErro("O ano deve ter exatamente 4 dígitos.");
+        setTimeout(() => setMensagemErro(""), 3000);
+        return; // Impede a atualização do estado
+      }
+    }
+    setNovaTarefa({
+      ...novaTarefa,
+      prazoLimite: inputValue,
+    });
+  };
+
   const handleSubmit = async () => {
     if (
       !novaTarefa.nomeTarefa.trim() ||
@@ -672,7 +689,17 @@ function Tarefas() {
       !novaTarefa.prazoLimite ||
       novaTarefa.responsaveisId.length === 0
     ) {
-      alert("Por favor, preencha todos os campos antes de cadastrar a tarefa.");
+      setMensagemErro("Por favor, preencha todos os campos antes de cadastrar a tarefa.");
+      setTimeout(() => setMensagemErro(""), 3000);
+      return;
+    }
+
+    // Validação do ano no prazoLimite
+    const [datePart] = novaTarefa.prazoLimite.split("T");
+    const [year] = datePart.split("-");
+    if (year.length !== 4) {
+      setMensagemErro("O ano deve ter exatamente 4 dígitos.");
+      setTimeout(() => setMensagemErro(""), 3000);
       return;
     }
 
@@ -689,8 +716,6 @@ function Tarefas() {
         responsaveisId: novaTarefa.responsaveisId,
         responsaveisNome: novaTarefa.responsaveisNome,
       };
-
-    
 
       const response = await fetchAuthenticated("http://localhost:8080/task/create", {
         method: "POST",
@@ -726,6 +751,7 @@ function Tarefas() {
     } catch (error) {
       console.error("Erro ao adicionar tarefa:", error);
       setMensagemErro(`Erro ao cadastrar tarefa: ${error.message}`);
+      setTimeout(() => setMensagemErro(""), 3000);
     }
   };
 
@@ -753,13 +779,6 @@ function Tarefas() {
   const fecharDetalhesModal = () => {
     setShowDetalhesModal(false);
     setTarefaSelecionada(null);
-  };
-
-  const handlePrazoLimiteChange = (e) => {
-    setNovaTarefa({
-      ...novaTarefa,
-      prazoLimite: e.target.value,
-    });
   };
 
   useEffect(() => {
@@ -854,6 +873,8 @@ function Tarefas() {
               type="datetime-local"
               value={novaTarefa.prazoLimite}
               onChange={handlePrazoLimiteChange}
+              min="2000-01-01T00:00"
+              max="2100-12-31T23:59"
             />
           </div>
 
