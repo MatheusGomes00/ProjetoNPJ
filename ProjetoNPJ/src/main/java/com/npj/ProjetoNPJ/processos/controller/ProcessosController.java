@@ -1,7 +1,7 @@
 package com.npj.ProjetoNPJ.processos.controller;
 
 import com.npj.ProjetoNPJ.processos.dtos.ComentarioDto;
-import com.npj.ProjetoNPJ.processos.dtos.ComentariosDto;
+import com.npj.ProjetoNPJ.processos.dtos.ComentarioId;
 import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
 import com.npj.ProjetoNPJ.processos.entity.Processos;
 import com.npj.ProjetoNPJ.processos.repository.ProcessosRepositorio;
@@ -49,12 +49,29 @@ public class ProcessosController {
     }
 
     @PostMapping(value = "/{idProc}/add-comentario")
-    public ResponseEntity<ComentariosDto> adicionarComentario(
+    public ResponseEntity<ComentarioDto> adicionarComentario(
             @PathVariable String idProc, @RequestBody ComentarioDto comentarioDto) {
 
-        ComentariosDto comentario = service.criarComentario(comentarioDto, idProc);
+        ComentarioDto comentario = service.criarComentario(comentarioDto, idProc);
         return ResponseEntity.ok().body(comentario);
     }
+
+    @PutMapping(value = "/{idProc}/upd-comentario")
+    public ResponseEntity<ComentarioDto> atualizarComentario(
+            @PathVariable String idProc, @RequestBody ComentarioDto comentarioDto) {
+
+        service.atualizarComentario(idProc, comentarioDto);
+        return ResponseEntity.ok().body(comentarioDto);
+    }
+
+    @DeleteMapping(value = "/{idProc}/del-comentario")
+    public ResponseEntity<ComentarioDto> deletarComentario(
+            @PathVariable String idProc, @RequestBody ComentarioId comentarioId) {
+
+        service.apagarComentario(idProc, comentarioId.getId());
+        return ResponseEntity.noContent().build();
+    }
+
 
     @GetMapping(value = "/searchProc/{numeroProcesso}")
     public ResponseEntity<List<DtoProcessos>> buscarPorNumero(@PathVariable String numeroProcesso){

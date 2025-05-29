@@ -4,11 +4,11 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class DtoProcessos {
@@ -36,7 +36,7 @@ public class DtoProcessos {
 
     private String valorCausa;
 
-    private List<ComentariosDto> comentarios;
+    private List<ComentarioDto> listaComentarios;
 
     @NotEmpty
     private List<String> responsaveisId;
@@ -49,4 +49,9 @@ public class DtoProcessos {
 
     @NotEmpty
     private List<String> clienteNome;
+
+
+    public DtoProcessos() {
+        this.listaComentarios = new ArrayList<>();
+    }
 }

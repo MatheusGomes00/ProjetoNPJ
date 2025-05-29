@@ -2,7 +2,7 @@ package com.npj.ProjetoNPJ.processos.entity;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
-import com.npj.ProjetoNPJ.processos.dtos.ComentariosDto;
+import com.npj.ProjetoNPJ.processos.dtos.ComentarioDto;
 import com.npj.ProjetoNPJ.processos.dtos.Situacao;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
@@ -10,11 +10,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Document(collection = "cadastradoProcessos")
@@ -43,7 +43,7 @@ public class Processos {
 
     private String valorCausa;
 
-    private ComentariosDto comentarios;
+    private List<ComentarioDto> listaComentarios;
 
     @DBRef(lazy = false)
     private List<Advogado> responsaveis;
@@ -55,4 +55,12 @@ public class Processos {
 
     @NotEmpty
     private List<String> clienteNome;
+
+    public Processos() {
+        this.listaComentarios = new ArrayList<>();
+    }
+
+    public void addComentario(ComentarioDto comentario) {
+        this.listaComentarios.add(comentario);
+    }
 }

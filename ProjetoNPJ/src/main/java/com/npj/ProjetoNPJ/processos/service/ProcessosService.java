@@ -1,38 +1,37 @@
 package com.npj.ProjetoNPJ.processos.service;
 
 
+import com.mongodb.client.result.UpdateResult;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
-import com.npj.ProjetoNPJ.advogados.mapper.AdvogadoMapper;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.advogados.service.AdvogadoService;
 import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
-import com.npj.ProjetoNPJ.clientes.entitie.Cliente;
 import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.processos.dtos.ComentarioDto;
-import com.npj.ProjetoNPJ.processos.dtos.ComentariosDto;
+import com.npj.ProjetoNPJ.processos.dtos.ComentarioId;
 import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
 import com.npj.ProjetoNPJ.processos.dtos.Situacao;
 import com.npj.ProjetoNPJ.processos.entity.Processos;
 import com.npj.ProjetoNPJ.processos.mapper.ProcessosMapper;
 import com.npj.ProjetoNPJ.processos.repository.ProcessosRepositorio;
 import com.npj.ProjetoNPJ.security.JwtService;
-import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
-import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
-import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.npj.ProjetoNPJ.processos.dtos.Situacao.FINALIZADO;
+
 
 @Service
 public class ProcessosService {
@@ -51,6 +50,13 @@ public class ProcessosService {
 
     @Autowired
     private JwtService jwtService;
+
+    private final MongoTemplate mongoTemplate;
+
+
+    public ProcessosService(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
     public DtoProcessos insertProcesso(DtoProcessos dto) {
         dto.setSituacao(Situacao.INICIADO);
@@ -72,6 +78,7 @@ public class ProcessosService {
         Processos processoSalvo = processosRepositorio.save(processo);
         return ProcessosMapper.toDto(processoSalvo);
     }
+
 
     public Processos update(DtoProcessos dto, String id){
 
@@ -95,7 +102,7 @@ public class ProcessosService {
         if (dto.getNpjRepresentando() != null) processos.setNpjRepresentando(dto.getNpjRepresentando());
         if (dto.getVara() != null) processos.setVara(dto.getVara());
         if (dto.getValorCausa() != null) processos.setValorCausa(dto.getValorCausa());
-        if (dto.getComentarios() != null) processos.setComentarios((ComentariosDto) dto.getComentarios());
+        if (dto.getListaComentarios() != null) processos.setListaComentarios(dto.getListaComentarios());
 
         if (dto.getResponsaveisId() != null && !dto.getResponsaveisId().isEmpty()) {
             List<Advogado> advogados = dto.getResponsaveisId().stream()
@@ -118,6 +125,8 @@ public class ProcessosService {
 
         }
     }
+
+
     public List<DtoProcessos> findByNumeroProcesso(String numeroProcesso){
 
         List<Processos> processos = processosRepositorio.findByNumeroProcesso(numeroProcesso);
@@ -127,10 +136,12 @@ public class ProcessosService {
         return ProcessosMapper.toListDto(processos);
     }
 
+
     public List<DtoProcessos> findAll() {
         List<Processos> processos = processosRepositorio.findAll();
         return ProcessosMapper.toListDto(processos);
     }
+
 
     public Processos excluir( String id){
 
@@ -141,24 +152,13 @@ public class ProcessosService {
         return excluirProc;
     }
 
+
     public Processos findById(String id){
 
-        Processos acharPorID = processosRepositorio.findById(id).
+        return processosRepositorio.findById(id).
                 orElseThrow(()-> new RecursoNaoEncontradoException("Processo nao encontrado"));
-
-        return acharPorID;
     }
 
-    public List<DtoProcessos> findByCliente(String clienteNome) {
-
-        List<Processos> processos = processosRepositorio.findByCliente(clienteNome);
-
-
-        if(processos.isEmpty()) {
-            throw new RecursoNaoEncontradoException("Processo Nao localizada");
-        }
-        return ProcessosMapper.toListDto(processos);
-    }
 
     public List<DtoProcessos> findByClienteId(String clienteId) {
 
@@ -167,12 +167,15 @@ public class ProcessosService {
         return ProcessosMapper.toListDto(processos);
     }
 
+
     public List<DtoProcessos> findByAdvogadoId(String advogadoID){
 
         List<Processos> processos = processosRepositorio.findByAdvogadoId(advogadoID);
 
         return ProcessosMapper.toListDto(processos);
     }
+
+
     public String getAuthenticatedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -183,6 +186,7 @@ public class ProcessosService {
         }
     }
 
+
     public List<DtoProcessos> getProcAutenticado() {
 
         Advogado advogado = advrepository.findById(getAuthenticatedUsername())
@@ -192,16 +196,61 @@ public class ProcessosService {
         return ProcessosMapper.toListDto(tarefa);
     }
 
-    public ComentariosDto criarComentario(ComentarioDto comentarioDto, String idProc) {
-        comentarioDto.setResponsavelId(advService.getAuthenticatedUsername());
-        comentarioDto.setResponsavelNome(advService.buscarNomeAutenticado());
-        Processos processo = processosRepositorio.findById(idProc)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Processo não localizado."));
-        ComentariosDto comentarios = processo.getComentarios();
-        comentarios.addComentario(comentarioDto);
-        processo.setComentarios(comentarios);
-        processosRepositorio.save(processo);
-        return processo.getComentarios();
+
+    public ComentarioDto criarComentario(ComentarioDto comentarioDto, String idProc) {
+        try{
+            comentarioDto.setId(UUID.randomUUID().toString());
+            comentarioDto.setResponsavelId(advService.getAuthenticatedUsername());
+            comentarioDto.setResponsavelNome(advService.buscarNomeAutenticado());
+            Processos processo = processosRepositorio.findById(idProc)
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Processo não localizado."));
+
+            List<ComentarioDto> comentarios = processo.getListaComentarios();
+            if (comentarios == null) {
+                comentarios = new ArrayList<>();
+                processo.setListaComentarios(comentarios);
+            }
+            processo.addComentario(comentarioDto);
+
+            Update update = new Update().push("listaComentarios", comentarioDto);
+            mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(idProc)), update, Processos.class);
+            return comentarioDto;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage() + " " + ex.getClass());
+        }
+    }
+
+
+    public void atualizarComentario(String processoId, ComentarioDto comentario) {
+        try {
+            Query query = new Query(Criteria
+                    .where("_id")
+                    .is(processoId)
+                    .and("listaComentarios.id")
+                    .is(comentario.getId()));
+            Update update = new Update()
+                    .set("listaComentarios.$.dataModif", comentario.getDataModif())
+                    .set("listaComentarios.$.responsavelId", comentario.getResponsavelId())
+                    .set("listaComentarios.$.responsavelNome", comentario.getResponsavelNome())
+                    .set("listaComentarios.$.comentarios", comentario.getComentarios());
+            UpdateResult result = mongoTemplate.updateFirst(query, update, Processos.class);
+            if (result.getMatchedCount() == 0) {
+                throw new RuntimeException("Processo ou comentário não encontrado");
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage() + " " + ex.getClass());
+        }
+    }
+
+    
+    public void apagarComentario(String processoId, String comentarioId) {
+        Query query = new Query(Criteria.where("_id").is(processoId));
+        Update update = new Update()
+                .pull("listaComentarios", new Query(Criteria.where("_id").is(comentarioId)));
+        UpdateResult result = mongoTemplate.updateFirst(query, update, Processos.class);
+        if (result.getMatchedCount() == 0) {
+            throw new RuntimeException("Processo ou comentário não encontrado");
+        }
     }
 }
 
