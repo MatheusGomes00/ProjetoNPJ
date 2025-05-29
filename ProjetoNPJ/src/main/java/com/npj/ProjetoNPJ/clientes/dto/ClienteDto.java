@@ -38,7 +38,7 @@ public class ClienteDto {
 
     private Boolean casaPropria;
 
-    // private String representante;
+
 
 
 }

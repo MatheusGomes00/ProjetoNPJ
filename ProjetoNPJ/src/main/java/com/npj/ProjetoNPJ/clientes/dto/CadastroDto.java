@@ -18,10 +18,6 @@ public class CadastroDto {
     private String status;
     @Valid
     private ClienteDto cliente;
-    //private RepresentanteDto representante;
-    //private ParteContrariaDto parteContraria;
-    //private DadosProcessuaisDto dadosProcessuais;
-    //private NaturezaDto natureza;
-   // private ResponsaveisDto responsaveis;
+
 
 }
