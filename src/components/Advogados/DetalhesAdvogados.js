@@ -3,8 +3,7 @@ import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import useAuth from "../Seguranca/UseAuth";
-import AbaProcessos from "./AbaProcesso";
-import EditarClientes from "./EditarClientes";
+import EditarAdvogados from "./EditarAdvogados";
 
 // Estilo do contêiner principal
 const MainContainer = styled.div`
@@ -129,21 +128,7 @@ const DetalhesContainer = styled.div`
   }
 `;
 
-// Estilo para mensagens
-const Mensagem = styled.p`
-  font-family: "Arial", sans-serif;
-  font-size: 16px;
-  color: #7f8c8d;
-  text-align: center;
-  margin: 20px 0;
-  grid-column: span 2;
-
-  @media (max-width: 768px) {
-    grid-column: span 1;
-  }
-`;
-
-const DetalhesClientes = () => {
+const DetalhesAdvogados = () => {
   const { id } = useParams();
   const { fetchAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -152,16 +137,16 @@ const DetalhesClientes = () => {
 
   // Voltar à tela anterior
   const handleVoltar = () => {
-    navigate("/clientes");
+    navigate("/advogados");
   };
 
   return (
     <ComponentesFixos>
       <MainContainer>
         <Header>
-          <Titulo>Detalhes do Cliente</Titulo>
+          <Titulo>Detalhes do Advogado</Titulo>
           <div style={{ display: "flex", gap: "10px" }}>
-            <BotaoSalvar onClick={() => document.getElementById("save-client").click()} disabled={isSaving}>
+            <BotaoSalvar onClick={() => document.getElementById("save-advogado").click()} disabled={isSaving}>
               {isSaving ? "Salvando..." : "Salvar"}
             </BotaoSalvar>
             <BotaoVoltar onClick={handleVoltar}>Voltar</BotaoVoltar>
@@ -173,25 +158,13 @@ const DetalhesClientes = () => {
             ativo={abaAtiva === "informacoes"}
             onClick={() => setAbaAtiva("informacoes")}
           >
-            Informações do Cliente
-          </BotaoAba>
-          <BotaoAba
-            ativo={abaAtiva === "documentos"}
-            onClick={() => setAbaAtiva("documentos")}
-          >
-            Documentos e Arquivos
-          </BotaoAba>
-          <BotaoAba
-            ativo={abaAtiva === "processos"}
-            onClick={() => setAbaAtiva("processos")}
-          >
-            Processos Vinculados
+            Informações do Advogado
           </BotaoAba>
         </AbasContainer>
 
         {abaAtiva === "informacoes" && (
           <DetalhesContainer>
-            <EditarClientes
+            <EditarAdvogados
               fetchAuthenticated={fetchAuthenticated}
               id={id}
               navigate={navigate}
@@ -200,23 +173,9 @@ const DetalhesClientes = () => {
             />
           </DetalhesContainer>
         )}
-        {abaAtiva === "documentos" && (
-          <DetalhesContainer>
-            <Mensagem>Seção de Documentos e Arquivos (em desenvolvimento)</Mensagem>
-          </DetalhesContainer>
-        )}
-        {abaAtiva === "processos" && (
-          <DetalhesContainer>
-            <AbaProcessos
-              fetchAuthenticated={fetchAuthenticated}
-              id={id}
-              abaAtiva={abaAtiva}
-            />
-          </DetalhesContainer>
-        )}
       </MainContainer>
     </ComponentesFixos>
   );
 };
 
-export default DetalhesClientes;
+export default DetalhesAdvogados;

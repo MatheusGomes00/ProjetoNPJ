@@ -25,38 +25,60 @@ const BotaoEditar = styled.button`
     transform: translateY(0);
   }
 `;
-
 const ModalOverlay = styled.div`
   position: fixed;
-  top: 0;
+  top: 25px;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000000;
+  z-index: 10000;
 `;
-
 const ModalContainer = styled.div`
-  background: #fff;
-  padding: 24px;
-  border-radius: 12px;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
   width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
+  max-width: 550px;
+  height: 95vh;
   overflow-y: auto;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-`;
+  gap: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  position: flex;
+  animation: slideIn 0.3s ease-out forwards;
 
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px;
+  }
+`;
 const BotaoFechar = styled.button`
   position: absolute;
-  top: 16px;
-  right: 60px;
+  top: 80px;
+  right: 30px;
   background: none;
   border: none;
   font-size: 22px;
@@ -313,7 +335,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
         nome: tarefaSelecionada.responsaveisNome[index],
       }));
 
-      console.log("Inicializando tarefa com tarefaSelecionada:", tarefaSelecionada);
+   
 
       setTarefa({
         nomeTarefa: tarefaSelecionada.nomeTarefa || "",
@@ -341,13 +363,13 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Alterando ${name} para: ${value}`);
+   
     setTarefa((prevTarefa) => {
       const novaTarefa = {
         ...prevTarefa,
         [name]: value,
       };
-      console.log("Novo estado da tarefa:", novaTarefa);
+  
       return novaTarefa;
     });
   };
@@ -407,7 +429,6 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
         status: tarefa.status,
       };
 
-      console.log("Dados enviados ao backend:", tarefaAtualizada);
 
       const response = await fetchAuthenticated(
         `http://localhost:8080/task/upd/${tarefaSelecionada.id}`,
@@ -444,7 +465,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
         tarefaAtualizadaDoBackend.prazoLimite = `${tarefaAtualizada.prazoLimite}T20:00:00`;
       }
 
-      console.log("Tarefa retornada pelo backend:", tarefaAtualizadaDoBackend);
+      
 
       if (typeof atualizarTarefa === "function") {
         atualizarTarefa(tarefaAtualizadaDoBackend);

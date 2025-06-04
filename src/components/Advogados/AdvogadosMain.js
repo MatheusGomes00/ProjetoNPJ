@@ -18,7 +18,7 @@ import {
   Mensagem,
   NavegacaoContainer,
   BotaoNavegacao,
-} from "./EstilosClientes";
+} from "../Clientes/EstilosClientes";
 
 // Função de debounce
 const debounce = (func, delay) => {
@@ -29,20 +29,20 @@ const debounce = (func, delay) => {
   };
 };
 
-const ClientesMain = () => {
-  const { fetchAuthenticated } = useAuth();
-  const [clientesOriginais, setClientesOriginais] = useState([]);
-  const [clientesBuscados, setClientesBuscados] = useState([]);
+const AdvogadosMain = () => {
+  const { fetchAuthenticated, getId, getRole } = useAuth();
+  const [advogadosOriginais, setAdvogadosOriginais] = useState([]);
+  const [advogadosBuscados, setAdvogadosBuscados] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
   const [nomeBusca, setNomeBusca] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [filtroStatus, setFiltroStatus] = useState(null); // "ativos", "inativos", ou null
+  const [filtroStatus, setFiltroStatus] = useState(null); 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const PAGE_SIZE = 12; // 12 clientes por página
+  const PAGE_SIZE = 12; 
 
-  const navigate = useNavigate(); // Hook para navegação
+  const navigate = useNavigate();
 
   // Cache e controle de tempo
   const cacheRef = useRef({});
@@ -59,28 +59,28 @@ const ClientesMain = () => {
   };
 
   // Função para aplicar filtros (status)
-  const aplicarFiltros = (clientesData, status, nome) => {
-    let clientesFiltrados = [...clientesData];
+  const aplicarFiltros = (advogadosData, status, nome) => {
+    let advogadosFiltrados = [...advogadosData];
 
     // Filtro por nome
     if (nome) {
-      clientesFiltrados = clientesFiltrados.filter((cliente) =>
-        cliente.cliente.nome.toLowerCase().includes(nome.toLowerCase())
+      advogadosFiltrados = advogadosFiltrados.filter((advogado) =>
+        advogado.nome.toLowerCase().includes(nome.toLowerCase())
       );
     }
 
     // Filtro por status
     if (status) {
-      clientesFiltrados = clientesFiltrados.filter((cliente) =>
-        status === "ativos" ? cliente.status : !cliente.status
+      advogadosFiltrados = advogadosFiltrados.filter((advogado) =>
+        status === "ativos" ? advogado.status : !advogado.status
       );
     }
 
-    return clientesFiltrados;
+    return advogadosFiltrados;
   };
 
-  // Função para buscar clientes
-  const buscarClientes = useCallback(
+  // Função para buscar advogados
+  const buscarAdvogados = useCallback(
     async (nome = "", forceRefresh = false) => {
       const now = Date.now();
       const minInterval = 5000; // 5 segundos
@@ -92,19 +92,19 @@ const ClientesMain = () => {
         cacheRef.current[cacheKey] &&
         now - lastFetchTimeRef.current < minInterval
       ) {
-       
+        console.log(`Usando dados do cache para: ${cacheKey}`);
         const clientesDoCache = cacheRef.current[cacheKey];
         if (nome) {
-          setClientesBuscados(clientesDoCache);
+          setAdvogadosBuscados(clientesDoCache);
         } else {
-          setClientesOriginais(clientesDoCache);
+          setAdvogadosOriginais(clientesDoCache);
         }
         setMensagemErro("");
         return;
       }
 
       if (isLoading) {
-       
+        console.log("Requisição já em andamento, aguardando...");
         return;
       }
 
@@ -113,8 +113,8 @@ const ClientesMain = () => {
 
       try {
         const url = nome
-          ? `http://localhost:8080/cad/nome/${encodeURIComponent(nome)}`
-          : `http://localhost:8080/cad/get`;
+          ? `${process.env.REACT_APP_API_URL}adv/buscanome/${encodeURIComponent(nome)}`
+          : `${process.env.REACT_APP_API_URL}adv/buscarTodos`;
 
         const response = await fetchAuthenticated(url, {
           method: "GET",
@@ -126,12 +126,12 @@ const ClientesMain = () => {
         if (!response.ok) {
           if (response.status === 404) {
             setMensagemErro(
-              nome ? "Nenhum cliente encontrado com esse nome." : "Nenhum cliente cadastrado."
+              nome ? "Nenhum advogado encontrado com esse nome." : "Nenhum advogado cadastrado."
             );
             if (nome) {
-              setClientesBuscados([]);
+              setAdvogadosBuscados([]);
             } else {
-              setClientesOriginais([]);
+              setAdvogadosOriginais([]);
             }
             setTotalPages(1);
             cacheRef.current[cacheKey] = [];
@@ -146,12 +146,12 @@ const ClientesMain = () => {
 
         if (!data || data.length === 0) {
           setMensagemErro(
-            nome ? "Nenhum cliente encontrado com esse nome." : "Nenhum cliente cadastrado."
+            nome ? "Nenhum advogado encontrado com esse nome." : "Nenhum advogado cadastrado."
           );
           if (nome) {
-            setClientesBuscados([]);
+            setAdvogadosBuscados([]);
           } else {
-            setClientesOriginais([]);
+            setAdvogadosOriginais([]);
           }
           setTotalPages(1);
           cacheRef.current[cacheKey] = [];
@@ -159,9 +159,9 @@ const ClientesMain = () => {
         }
 
         // Normalizar o status de cada cliente
-        data = data.map((cliente) => ({
-          ...cliente,
-          status: normalizeStatus(cliente.status),
+        data = data.map((advogado) => ({
+          ...advogado,
+          status: normalizeStatus(advogado.status),
         }));
 
         // Paginação no frontend
@@ -170,21 +170,21 @@ const ClientesMain = () => {
         const calculatedTotalPages = Math.ceil(data.length / PAGE_SIZE) || 1;
 
         if (nome) {
-          setClientesBuscados(paginatedData);
+          setAdvogadosBuscados(paginatedData);
         } else {
-          setClientesOriginais(paginatedData);
+          setAdvogadosOriginais(paginatedData);
         }
         setTotalPages(calculatedTotalPages);
         setMensagemErro("");
         lastFetchTimeRef.current = now;
         cacheRef.current[cacheKey] = paginatedData;
       } catch (error) {
-        console.error("Erro ao buscar clientes:", error);
-        setMensagemErro(error.message || "Erro ao carregar os clientes. Tente novamente.");
+        console.error("Erro ao buscar advogados:", error);
+        setMensagemErro(error.message || "Erro ao carregar os advogados. Tente novamente.");
         if (nome) {
-          setClientesBuscados([]);
+          setAdvogadosBuscados([]);
         } else {
-          setClientesOriginais([]);
+          setAdvogadosOriginais([]);
         }
         setTotalPages(1);
       } finally {
@@ -195,15 +195,15 @@ const ClientesMain = () => {
   );
 
   // Memoizar clientes filtrados
-  const clientesFiltrados = useMemo(() => {
-    let baseClientes = isSearching && nomeBusca.length >= 4 ? clientesBuscados : clientesOriginais;
-    return aplicarFiltros(baseClientes, filtroStatus, nomeBusca);
-  }, [clientesOriginais, clientesBuscados, isSearching, filtroStatus, nomeBusca]);
+  const advogadosFiltrados = useMemo(() => {
+    let baseAdvogados = isSearching && nomeBusca.length >= 4 ? advogadosBuscados : advogadosOriginais;
+    return aplicarFiltros(baseAdvogados, filtroStatus, nomeBusca);
+  }, [advogadosOriginais, advogadosBuscados, isSearching, filtroStatus, nomeBusca]);
 
   // Carregar clientes ao mudar a página
   useEffect(() => {
-    buscarClientes("");
-  }, [currentPage, buscarClientes]);
+    buscarAdvogados("");
+  }, [currentPage, buscarAdvogados]);
 
   // Debounce para busca
   const handleBuscaDebounced = useMemo(
@@ -211,14 +211,14 @@ const ClientesMain = () => {
       debounce((nome) => {
         if (nome.length >= 4) {
           setIsSearching(true);
-          buscarClientes(nome, true);
+          buscarAdvogados(nome, true);
         } else {
           setIsSearching(false);
           setMensagemErro("");
           setCurrentPage(0);
         }
       }, 500),
-    [buscarClientes]
+    [buscarAdvogados]
   );
 
   const handleBusca = (e) => {
@@ -231,7 +231,7 @@ const ClientesMain = () => {
     setFiltroStatus((prev) => (prev === status ? null : status));
     if (nomeBusca.length >= 4) {
       setIsSearching(true);
-      buscarClientes(nomeBusca, true);
+      buscarAdvogados(nomeBusca, true);
     } else {
       setIsSearching(false);
     }
@@ -249,30 +249,32 @@ const ClientesMain = () => {
     }
   };
 
-  const handleAdicionarCliente = () => {
-    navigate("/clientes/criar"); // Navega para a tela de criação de cliente
+  const handleAdicionarAdvogado = () => {
+    navigate("/advogados/criar"); 
   };
 
   // Função para lidar com o clique no card
-  const handleClienteClick = (clienteId, clienteNome) => {
-    navigate(`/clientes/${clienteId}`, {
-      state: { clientId: clienteId, clientName: clienteNome },
-    }); // Navega para a tela de detalhes com clientId e clientName
+  const handleClienteClick = (advogadoId, advogadoNome) => {
+    navigate(`/advogados/${advogadoId}`, {
+      state: { id: advogadoId, nome: advogadoNome },
+    });
   };
 
   return (
     <ComponentesFixos>
       <MainContainer>
         <Header>
-          <Titulo>Gerenciamento de Clientes</Titulo>
-          <BotaoAdicionar onClick={handleAdicionarCliente}>Adicionar Cliente</BotaoAdicionar>
+          <Titulo>Gerenciamento de Andvogados</Titulo>
+          {getRole() === 'ADVOGADO' && (
+            <BotaoAdicionar onClick={handleAdicionarAdvogado}>Adicionar Advogados</BotaoAdicionar>
+          )}
         </Header>
 
         <CampoBusca
           type="text"
           value={nomeBusca}
           onChange={handleBusca}
-          placeholder="Buscar por nome do cliente..."
+          placeholder="Buscar por nome do advogado..."
         />
 
         <FiltrosContainer>
@@ -295,28 +297,35 @@ const ClientesMain = () => {
 
         <ClientesContainer>
           {isLoading ? (
-            <Mensagem>Carregando clientes...</Mensagem>
+            <Mensagem>Carregando advogados...</Mensagem>
           ) : mensagemErro ? (
             <Mensagem>{mensagemErro}</Mensagem>
-          ) : clientesFiltrados.length === 0 && nomeBusca.length >= 4 ? (
-            <Mensagem>Nenhum cliente encontrado.</Mensagem>
-          ) : clientesFiltrados.length === 0 ? (
-            <Mensagem>Nenhum cliente corresponde aos filtros selecionados.</Mensagem>
+          ) : advogadosFiltrados.length === 0 && nomeBusca.length >= 4 ? (
+            <Mensagem>Nenhum advogado encontrado.</Mensagem>
+          ) : advogadosFiltrados.length === 0 ? (
+            <Mensagem>Nenhum advogado corresponde aos filtros selecionados.</Mensagem>
           ) : (
             <>
               <ClientesList>
-                {clientesFiltrados.map((cliente) => (
-                  <ClienteCard
-                    key={cliente.id}
-                    onClick={() => handleClienteClick(cliente.id, cliente.cliente.nome)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <ClienteNome>{cliente.cliente.nome}</ClienteNome>
-                    <Status ativo={cliente.status}>
-                      Status: {cliente.status ? "Ativo" : "Inativo"}
-                    </Status>
-                  </ClienteCard>
-                ))}
+                {advogadosFiltrados.map((advogado) => {
+                  const isAuthenticatedUser = advogado.id === getId();
+                  return (
+                    <ClienteCard
+                      key={advogado.id}
+                      onClick={() => handleClienteClick(advogado.id, advogado.nome)}
+                      style={{
+                        cursor: 'pointer',
+                        backgroundColor: isAuthenticatedUser ? '#e3f2fd' : 'transparent',
+                        border: isAuthenticatedUser ? '2px solid #1976d2' : '1px solid #ccc',
+                      }}
+                    >
+                      <ClienteNome>{advogado.nome}</ClienteNome>
+                      <Status ativo={advogado.status}>
+                        Status: {advogado.status ? 'Ativo' : 'Inativo'}
+                      </Status>
+                    </ClienteCard>
+                  );
+                })}
               </ClientesList>
 
               <NavegacaoContainer>
@@ -339,4 +348,4 @@ const ClientesMain = () => {
   );
 };
 
-export default ClientesMain;
+export default AdvogadosMain;

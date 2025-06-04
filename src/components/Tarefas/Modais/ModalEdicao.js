@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import useAuth from "../../Seguranca/UseAuth";
-import { BsTextareaT } from "react-icons/bs";
 
 // Estilo do overlay do modal
 const ModalOverlay = styled.div`
@@ -60,6 +59,8 @@ const ModalTitulo = styled.h3`
   text-align: center;
   margin-bottom: 10px;
 `;
+
+// Estilo do textarea
 const TextArea = styled.textarea`
   padding: 10px;
   border-radius: 8px;
@@ -256,20 +257,26 @@ const BotaoSalvar = styled.button`
   }
 `;
 
+// Estilo para mensagens de erro
+const ErrorMessage = styled.p`
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+`;
+
 const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
   const { fetchAuthenticated } = useAuth();
   const [advogados, setAdvogados] = useState([]);
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const [tarefaEditada, setTarefaEditada] = useState(null);
-  const [error, setError] = useState(""); // Estado para erros
+  const [error, setError] = useState(""); // Estado para erros gerais
+  const [dataError, setDataError] = useState(""); // Estado para erro de data
 
   // Função para formatar a data do backend para o formato do input datetime-local (yyyy-MM-ddTHH:mm)
   const formatarDataParaInput = (dataString) => {
     if (!dataString) return "";
     try {
-      // Criar o objeto Date a partir da string (assumindo que está em UTC)
       const data = new Date(dataString);
-      // Garantir que a data seja tratada como UTC
       const dataUTC = new Date(Date.UTC(
         data.getUTCFullYear(),
         data.getUTCMonth(),
@@ -277,7 +284,6 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
         data.getUTCHours(),
         data.getUTCMinutes()
       ));
-      // Retornar no formato yyyy-MM-ddTHH:mm (sem os segundos)
       return dataUTC.toISOString().slice(0, 16);
     } catch (err) {
       console.error("Erro ao formatar data:", err);
@@ -288,12 +294,12 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
   // Inicializar o estado tarefaEditada
   useEffect(() => {
     if (tarefa) {
-      console.log("Tarefa recebida:", tarefa); // Log para depuração
+      
       setTarefaEditada({
         nomeTarefa: tarefa.nomeTarefa || "",
         descricao: tarefa.descricao || "",
         prioridade: tarefa.prioridade || "baixa",
-        prazoLimite: formatarDataParaInput(tarefa.prazoLimite), // Formatar a data para o input
+        prazoLimite: formatarDataParaInput(tarefa.prazoLimite),
         dataCriacao: tarefa.dataCriacao || new Date().toISOString(),
         responsaveisId: tarefa.responsaveisId || [],
         responsaveisNome: tarefa.responsaveisNome || [],
@@ -317,7 +323,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
       }
 
       const data = await response.json();
-      console.log("Advogados recebidos:", data); // Log para depuração
+      
       setAdvogados(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Erro ao buscar advogados:", error);
@@ -326,14 +332,44 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
     }
   }, [fetchAuthenticated]);
 
-  // Carregar advogados ao abrir o modal, mas apenas se ainda não foram carregados
+  // Carregar advogados ao abrir o modal
   useEffect(() => {
     if (advogados.length === 0) {
       fetchAdvogados();
     }
   }, [advogados.length, fetchAdvogados]);
 
-  // Função para lidar com mudanças nos campos
+  // Função para validar e lidar com mudanças no campo de data
+  const handleDataChange = (e) => {
+    const { name, value } = e.target;
+
+    // Validar o ano (deve ter exatamente 4 dígitos)
+    if (value) {
+      const year = value.split("-")[0];
+      if (year.length > 4) {
+        setDataError("O ano deve ter exatamente 4 dígitos.");
+        return;
+      }
+      if (!/^\d{4}$/.test(year)) {
+        setDataError("O ano deve ser um número de 4 dígitos (ex.: 2025).");
+        return;
+      }
+      // Opcional: Restringir intervalo de anos (ex.: 1900 a 9999)
+      const yearNum = parseInt(year, 10);
+      if (yearNum < 1900 || yearNum > 9999) {
+        setDataError("O ano deve estar entre 1900 e 9999.");
+        return;
+      }
+    }
+
+    setDataError(""); // Limpar erro se a validação passar
+    setTarefaEditada((prevTarefa) => ({
+      ...prevTarefa,
+      [name]: value,
+    }));
+  };
+
+  // Função para lidar com mudanças nos outros campos
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTarefaEditada((prevTarefa) => ({
@@ -368,7 +404,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
       const index = prevTarefa.responsaveisId.indexOf(id);
       if (index === -1) return prevTarefa;
 
-      const novoIdRemovido = prevTarefa.responsaveisId[index];
+      
       const novoNomeRemovido = prevTarefa.responsaveisNome[index];
       const novosIds = prevTarefa.responsaveisId.filter((rid) => rid !== id);
       const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== novoNomeRemovido);
@@ -388,7 +424,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
       return;
     }
 
-    // Validação mais rigorosa
+    // Validação dos campos
     if (
       !tarefaEditada.nomeTarefa?.trim() ||
       !tarefaEditada.descricao?.trim() ||
@@ -402,24 +438,36 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
       return;
     }
 
+    // Validar novamente o ano antes de salvar
+    const year = tarefaEditada.prazoLimite.split("-")[0];
+    if (year.length !== 4 || !/^\d{4}$/.test(year)) {
+      setDataError("O ano deve ter exatamente 4 dígitos.");
+      return;
+    }
+    const yearNum = parseInt(year, 10);
+    if (yearNum < 1900 || yearNum > 9999) {
+      setDataError("O ano deve estar entre 1900 e 9999.");
+      return;
+    }
+
     try {
       // Formatar prazoLimite para o formato LocalDateTime (yyyy-MM-dd'T'HH:mm:ss)
       const prazoLimiteFormatado = tarefaEditada.prazoLimite
-        ? `${tarefaEditada.prazoLimite}:00` // Adiciona os segundos para o formato yyyy-MM-dd'T'HH:mm:ss
+        ? `${tarefaEditada.prazoLimite}:00`
         : null;
 
       const tarefaAtualizada = {
         nomeTarefa: tarefaEditada.nomeTarefa,
         descricao: tarefaEditada.descricao,
-        status: tarefaEditada.status ?? true, // Garantir que status tenha um valor
+        status: tarefaEditada.status ?? true,
         prioridade: tarefaEditada.prioridade,
         prazoLimite: prazoLimiteFormatado,
-        dataCriacao: tarefaEditada.dataCriacao ?? new Date().toISOString(), // Garantir que dataCriacao tenha um valor
-        responsaveisId: tarefaEditada.responsaveisId ?? [], // Garantir que não seja null
-        responsaveisNome: tarefaEditada.responsaveisNome ?? [], // Garantir que não seja null
+        dataCriacao: tarefaEditada.dataCriacao ?? new Date().toISOString(),
+        responsaveisId: tarefaEditada.responsaveisId ?? [],
+        responsaveisNome: tarefaEditada.responsaveisNome ?? [],
       };
 
-      console.log("Dados enviados ao backend:", tarefaAtualizada); // Log para depuração
+     
 
       const response = await fetchAuthenticated(`http://localhost:8080/task/upd/${tarefa.id}`, {
         method: "PUT",
@@ -431,36 +479,32 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.error("Erro na requisição:", response.status, errorData); // Log mais detalhado
+        console.error("Erro na requisição:", response.status, errorData);
         throw new Error(`Erro na requisição: ${response.status} - ${errorData || "Sem detalhes"}`);
       }
 
-      // Verificar se a resposta tem um corpo antes de tentar parsear
       const contentType = response.headers.get("content-type");
       let tarefaAtualizadaDoBackend = null;
       if (contentType && contentType.includes("application/json")) {
         tarefaAtualizadaDoBackend = await response.json();
-        // Não formatar o prazoLimite aqui, manter o formato completo (ex.: 2025-08-15T14:30:00)
       } else {
         console.warn("Resposta do backend não contém JSON. Usando dados enviados como fallback.");
         tarefaAtualizadaDoBackend = { ...tarefaAtualizada, id: tarefa.id };
-        // Ajustar o prazoLimite para o formato completo
         tarefaAtualizadaDoBackend.prazoLimite = prazoLimiteFormatado;
       }
 
-      console.log("Tarefa retornada pelo backend:", tarefaAtualizadaDoBackend); // Log para depuração
+      
 
-      // Atualizar a tarefa no estado do componente pai, se a prop atualizarTarefa estiver disponível
       if (typeof atualizarTarefa === "function") {
         atualizarTarefa(tarefaAtualizadaDoBackend);
       } else {
         console.warn("Prop atualizarTarefa não foi fornecida ou não é uma função.");
         if (typeof carregarTarefas === "function") {
-          await carregarTarefas("", true); // Recarrega as tarefas (passando "" para buscar todas)
+          await carregarTarefas("", true);
         }
       }
 
-      onClose(); // Fecha o modal após salvar
+      onClose();
       alert("Tarefa atualizada com sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar tarefa:", error);
@@ -469,8 +513,8 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
   };
 
   if (!tarefa || !tarefaEditada) {
-    console.log("Tarefa ou tarefaEditada não definida:", { tarefa, tarefaEditada });
-    return null; // Não renderiza o modal se não houver tarefa ou tarefaEditada
+    
+    return null;
   }
 
   return (
@@ -480,12 +524,11 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
         <TarefaDetalhesModal>
           <ModalTitulo>Editar Tarefa: {tarefa.nomeTarefa}</ModalTitulo>
 
-          {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
+          {error && <ErrorMessage>{error}</ErrorMessage>}
 
           <DetalheItem>
             <Label>Nome:</Label>
             <TextArea
-              type="text"
               name="nomeTarefa"
               value={tarefaEditada.nomeTarefa}
               onChange={handleChange}
@@ -495,7 +538,6 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
           <DetalheItem>
             <Label>Descrição:</Label>
             <TextArea
-              type="text"
               name="descricao"
               value={tarefaEditada.descricao}
               onChange={handleChange}
@@ -517,12 +559,15 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
 
           <DetalheItem>
             <Label>Prazo:</Label>
-            <Input
-              type="datetime-local"
-              name="prazoLimite"
-              value={tarefaEditada.prazoLimite}
-              onChange={handleChange}
-            />
+            <div style={{ width: "100%" }}>
+              <Input
+                type="datetime-local"
+                name="prazoLimite"
+                value={tarefaEditada.prazoLimite}
+                onChange={handleDataChange}
+              />
+              {dataError && <ErrorMessage>{dataError}</ErrorMessage>}
+            </div>
           </DetalheItem>
 
           <DetalheItem>

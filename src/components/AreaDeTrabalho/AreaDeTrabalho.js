@@ -1,9 +1,10 @@
 import React from "react";
 import Tarefas from "./Tarefas";
-import ProcessosAreaDeTrabalho from "./ProcessosAreaDeTrabalho";
+import ProcessosAreaDeTrabalho from "./ProcessosArea/ProcessosAreaDeTrabalho";
 import Notificacoes from "./Notificacoes";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import styled from "styled-components";
+
 
 // Grid interno para o conteúdo principal
 const GridContainer = styled.div`

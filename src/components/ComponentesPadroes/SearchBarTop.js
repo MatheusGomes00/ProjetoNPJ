@@ -1,5 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
+
+
 const GridContainer = styled.div`
   position: fixed;
   top: 0;
@@ -11,35 +13,24 @@ const GridContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 0; /* Menor que o z-index do modal */
-  overflow: hidden; 
+  z-index: 0;
+  overflow: hidden;
   box-sizing: border-box;
-  
-  /* Certificando-se de que o modal vai ficar abaixo do grid, independente da resolução */
+
   @media (max-width: 768px) {
-    height: 120px; /* Ajuste para telas menores, se necessário */
+    height: 120px;
   }
 `;
 
-const ContentWrapper = styled.div`
-  position: relative;
-  max-width: 600px;
-  width: 90%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-`;
 const CornerLabel = styled.div`
   position: absolute;
   top: 5px;
   left: 5px;
   font-family: Arial, sans-serif;
   color: #333;
-  font-size: clamp(8px, 1vw, 14px); /* Tamanho responsivo */
+  font-size: clamp(8px, 1vw, 14px);
   line-height: 1.1;
-  pointer-events: none; /* Evita interferência em cliques */
+  pointer-events: none;
 
   @media (max-width: 800px) {
     font-size: clamp(6px, 0.8vw, 10px);
@@ -60,10 +51,9 @@ const CornerLabel = styled.div`
   }
 `;
 
-/* Mantém a barra de pesquisa no mesmo lugar */
 const SearchBarContainer = styled.div`
   position: absolute;
-  top: clamp(30px, 5vh, 50px); /* Ajusta a posição vertical para evitar o label */
+  top: clamp(30px, 5vh, 50px);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -76,7 +66,7 @@ const SearchBarContainer = styled.div`
   border-radius: 8px;
   z-index: 1000;
 `;
-/* Campo de pesquisa */
+
 const SearchInput = styled.input`
   flex: 1;
   padding: 10px;
@@ -101,7 +91,6 @@ const SearchInput = styled.input`
   }
 `;
 
-/* Botão de pesquisa */
 const SearchButton = styled.button`
   padding: 10px 20px;
   background-color: #007bff;
@@ -135,7 +124,7 @@ export default function SearchBarTop() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = () => {
-    console.log("Pesquisando por:", searchTerm);
+    
   };
 
   return (

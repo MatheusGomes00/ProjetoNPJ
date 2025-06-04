@@ -41,14 +41,53 @@ const Titulo = styled.h1`
   margin: 0;
 `;
 
+// Estilo do container de busca
+const BuscaContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 350px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
 // Estilo do campo de busca
 const CampoBusca = styled.input`
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
-  width: 300px;
-  margin-bottom: 20px;
+  flex: 1;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+// Estilo do botão de busca
+const BotaoBusca = styled.button`
+  background:rgb(4, 0, 255);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: #218838;
+  }
+
+  &:active {
+    background: #1e7e34;
+  }
 
   @media (max-width: 768px) {
     width: 100%;
@@ -181,6 +220,7 @@ const BotaoNavegacao = styled.button`
     color: ${({ disabled }) => (disabled ? "#ccc" : "#0056b3")};
   }
 `;
+
 const NomeTarefa = styled.div`
   font-size: 15px;
   font-weight: 600;
@@ -194,14 +234,6 @@ const NomeTarefa = styled.div`
   max-height: 2.4em; /* 2 linhas x 1.2em */
   word-wrap: break-word; /* Quebra palavras longas */
 `;
-// Função de debounce manual
-const debounce = (func, delay) => {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-};
 
 const TarefasMain = () => {
   const { fetchAuthenticated } = useAuth();
@@ -209,8 +241,8 @@ const TarefasMain = () => {
   const [tarefasBuscadas, setTarefasBuscadas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [mensagemSucesso, setMensagemSucesso] = useState("");
-  const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
+  const [ setMensagemSucesso] = useState("");
+  const [ setIsLoadingFinalizar] = useState(false);
   const [nomeBusca, setNomeBusca] = useState("");
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
   const [showModalEdicao, setShowModalEdicao] = useState(false);
@@ -237,25 +269,18 @@ const TarefasMain = () => {
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
   };
 
-  // Função para aplicar os filtros localmente (nome → status → prioridade)
-  const aplicarFiltros = (tarefasData, status, prioridade, nome) => {
+  // Função para aplicar os filtros localmente (status → prioridade)
+  const aplicarFiltros = (tarefasData, status, prioridade) => {
     let tarefasFiltradas = [...tarefasData];
 
-    // 1. Filtro por nome (case-insensitive)
-    if (nome) {
-      tarefasFiltradas = tarefasFiltradas.filter((tarefa) =>
-        tarefa.nomeTarefa.toLowerCase().includes(nome.toLowerCase())
-      );
-    }
-
-    // 2. Filtro por status
+    // Filtro por status
     if (status) {
       tarefasFiltradas = tarefasFiltradas.filter((tarefa) =>
         status === "ativas" ? tarefa.status : !tarefa.status
       );
     }
 
-    // 3. Filtro por prioridade
+    // Filtro por prioridade
     if (prioridade) {
       tarefasFiltradas = tarefasFiltradas.filter(
         (tarefa) => tarefa.prioridade.toLowerCase() === prioridade.toLowerCase()
@@ -267,27 +292,24 @@ const TarefasMain = () => {
 
   // Função para buscar tarefas no servidor
   const buscarTarefasPorNome = useCallback(
-    async (nome, forceRefresh = false) => {
+    async (nome = "", forceRefresh = false) => {
       const now = Date.now();
       const minInterval = 5000;
-      const cacheKey = nome ? `${nome}_page${currentPage}` : `all_page${currentPage}`;
+      const cacheKey = nome ? `${nome}_search` : `all_page${currentPage}`;
 
       if (!forceRefresh && cacheRef.current[cacheKey] && now - lastFetchTimeRef.current < minInterval) {
-        console.log(`Usando dados do cache para: ${cacheKey}`);
         const tarefasDoCache = cacheRef.current[cacheKey];
         if (nome) {
           setTarefasBuscadas(tarefasDoCache);
-          console.log("Tarefas buscadas (cache):", tarefasDoCache);
+          setTotalPages(Math.ceil(tarefasDoCache.length / PAGE_SIZE) || 1);
         } else {
           setTarefasOriginais(tarefasDoCache);
-          console.log("Tarefas iniciais (cache):", tarefasDoCache);
         }
         setMensagemErro("");
         return;
       }
 
       if (isLoading) {
-        console.log("Requisição já em andamento, aguardando...");
         return;
       }
 
@@ -295,9 +317,12 @@ const TarefasMain = () => {
       setMensagemErro("");
 
       try {
-        const url = nome
-          ? `http://localhost:8080/task/search/${encodeURIComponent(nome)}?page=${currentPage}&size=${PAGE_SIZE}&sort=nomeTarefa,asc`
-          : `http://localhost:8080/task/page?page=${currentPage}&size=${PAGE_SIZE}&sort=nomeTarefa,asc`;
+        let url;
+        if (nome) {
+          url = `http://localhost:8080/task/search/${encodeURIComponent(nome)}`;
+        } else {
+          url = `http://localhost:8080/task/page?page=${currentPage}&size=${PAGE_SIZE}&sort=nomeTarefa,asc`;
+        }
 
         const response = await fetchAuthenticated(url, {
           method: "GET",
@@ -311,12 +336,11 @@ const TarefasMain = () => {
             setMensagemErro("Nenhuma tarefa encontrada com esse nome.");
             if (nome) {
               setTarefasBuscadas([]);
+              setTotalPages(1);
             } else {
               setTarefasOriginais([]);
             }
-            setTotalPages(1); // Reseta o total de páginas
             cacheRef.current[cacheKey] = [];
-            console.log("Tarefas buscadas (404): []");
             return;
           } else if (response.status === 500) {
             throw new Error("Erro interno no servidor. Tente novamente mais tarde.");
@@ -326,55 +350,62 @@ const TarefasMain = () => {
 
         const data = await response.json();
 
-        if (!data || !data.content || data.content.length === 0) {
+        if (!data || (nome && data.length === 0) || (!nome && !data.content)) {
           setMensagemErro(nome ? "Nenhuma tarefa encontrada com esse nome." : "Nenhuma tarefa cadastrada.");
           if (nome) {
             setTarefasBuscadas([]);
+            setTotalPages(1);
           } else {
             setTarefasOriginais([]);
           }
-          setTotalPages(1); // Reseta o total de páginas
           cacheRef.current[cacheKey] = [];
-          console.log("Tarefas buscadas (vazio): []");
           return;
         }
 
-        const tarefas = data.content; // Extrai a lista de tarefas do campo 'content'
-        const totalPaginas = data.totalPages || 1; // Extrai o total de páginas
-
         if (nome) {
-          setTarefasBuscadas(tarefas);
-          console.log("Tarefas buscadas (servidor):", tarefas);
+          // Search returns a flat list
+          setTarefasBuscadas(data);
+          setTotalPages(Math.ceil(data.length / PAGE_SIZE) || 1);
+          cacheRef.current[cacheKey] = data;
         } else {
-          setTarefasOriginais(tarefas);
-          console.log("Tarefas iniciais (carregamento):", tarefas);
+          // Non-search returns a paginated response
+          setTarefasOriginais(data.content);
+          setTotalPages(data.totalPages || 1);
+          cacheRef.current[cacheKey] = data.content;
         }
-        setTotalPages(totalPaginas);
+
         setMensagemErro("");
         lastFetchTimeRef.current = now;
-        cacheRef.current[cacheKey] = tarefas;
       } catch (error) {
         console.error("Erro ao buscar tarefas:", error);
         setMensagemErro(error.message);
         if (nome) {
           setTarefasBuscadas([]);
+          setTotalPages(1);
         } else {
           setTarefasOriginais([]);
         }
-        setTotalPages(1); // Reseta o total de páginas em caso de erro
-        console.log("Tarefas buscadas (erro): []");
       } finally {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, isLoading, currentPage] // Adiciona currentPage como dependência
+    [fetchAuthenticated, isLoading, currentPage]
   );
 
-  // Memoizar as tarefas filtradas, aplicando todos os filtros (nome → status → prioridade)
+  // Memoizar as tarefas filtradas com paginação no lado do cliente para busca
   const tarefasFiltradas = useMemo(() => {
-    let baseTarefas = isSearching && nomeBusca.length >= 4 ? tarefasBuscadas : tarefasOriginais;
-    return aplicarFiltros(baseTarefas, filtroStatus, filtroPrioridade, nomeBusca);
-  }, [tarefasOriginais, tarefasBuscadas, isSearching, filtroStatus, filtroPrioridade, nomeBusca]);
+    let baseTarefas = isSearching ? tarefasBuscadas : tarefasOriginais;
+    let tarefas = aplicarFiltros(baseTarefas, filtroStatus, filtroPrioridade);
+
+    // Aplicar paginação no lado do cliente para resultados de busca
+    if (isSearching) {
+      const startIndex = currentPage * PAGE_SIZE;
+      const endIndex = startIndex + PAGE_SIZE;
+      return tarefas.slice(startIndex, endIndex);
+    }
+
+    return tarefas;
+  }, [tarefasOriginais, tarefasBuscadas, isSearching, filtroStatus, filtroPrioridade, currentPage]);
 
   const finalizarTarefa = async (id) => {
     const confirmacao = window.confirm("Tem certeza que deseja finalizar a tarefa?");
@@ -475,31 +506,27 @@ const TarefasMain = () => {
     buscarTarefasPorNome("", true);
   };
 
-  // Carregar tarefas sempre que a página atual mudar
+  // Carregar tarefas sempre que a página atual mudar (apenas para não-busca)
   useEffect(() => {
-    buscarTarefasPorNome("");
-  }, [currentPage, buscarTarefasPorNome]); // Recarrega quando currentPage muda
-
-  const handleBuscaDebounced = useMemo(
-    () =>
-      debounce((nome) => {
-        if (nome.length >= 4) {
-          setIsSearching(true);
-          buscarTarefasPorNome(nome, true);
-        } else {
-          setIsSearching(false);
-          setMensagemErro("");
-          setCurrentPage(0); // Reseta para a primeira página quando a busca é limpa
-          console.log("Tarefas filtradas (menos de 4 letras):", tarefasOriginais);
-        }
-      }, 500),
-    [buscarTarefasPorNome, tarefasOriginais]
-  );
+    if (!isSearching) {
+      buscarTarefasPorNome("");
+    }
+  }, [currentPage, buscarTarefasPorNome, isSearching]);
 
   const handleBusca = (e) => {
-    const nome = e.target.value;
-    setNomeBusca(nome);
-    handleBuscaDebounced(nome);
+    setNomeBusca(e.target.value);
+  };
+
+  const handleBotaoBusca = () => {
+    if (nomeBusca.trim()) {
+      setIsSearching(true);
+      setCurrentPage(0); // Resetar para a primeira página
+      buscarTarefasPorNome(nomeBusca.trim(), true);
+    } else {
+      setIsSearching(false);
+      setCurrentPage(0);
+      buscarTarefasPorNome("", true);
+    }
   };
 
   const abrirModalDetalhes = (tarefa) => {
@@ -513,25 +540,13 @@ const TarefasMain = () => {
   // Funções para manipular os filtros
   const handleFiltroStatus = (status) => {
     setFiltroStatus((prev) => (prev === status ? null : status));
-    // Reavaliar a busca com o novo filtro de status
-    if (nomeBusca.length >= 4) {
-      setIsSearching(true);
-      buscarTarefasPorNome(nomeBusca, true);
-    } else {
-      setIsSearching(false);
-    }
+    setCurrentPage(0); // Resetar página ao mudar filtro
   };
 
   const handleFiltroPrioridade = (e) => {
     const prioridade = e.target.value === "todas" ? null : e.target.value;
     setFiltroPrioridade(prioridade);
-    // Sempre reavaliar a busca ao mudar a prioridade
-    if (nomeBusca.length >= 4) {
-      setIsSearching(true);
-      buscarTarefasPorNome(nomeBusca, true);
-    } else {
-      setIsSearching(false);
-    }
+    setCurrentPage(0); // Resetar página ao mudar filtro
   };
 
   // Funções de navegação entre páginas
@@ -555,12 +570,15 @@ const TarefasMain = () => {
           <CriarTarefa carregarTarefas={buscarTarefasPorNome} />
         </Header>
 
-        <CampoBusca
-          type="text"
-          value={nomeBusca}
-          onChange={handleBusca}
-          placeholder="Buscar tarefa por nome..."
-        />
+        <BuscaContainer>
+          <CampoBusca
+            type="text"
+            value={nomeBusca}
+            onChange={handleBusca}
+            placeholder="Buscar tarefa por nome..."
+          />
+          <BotaoBusca onClick={handleBotaoBusca}>Procurar</BotaoBusca>
+        </BuscaContainer>
 
         {/* Filtros */}
         <FiltrosContainer>
@@ -597,25 +615,25 @@ const TarefasMain = () => {
           <Mensagem>Carregando tarefas...</Mensagem>
         ) : mensagemErro ? (
           <Mensagem>{mensagemErro}</Mensagem>
-        ) : tarefasFiltradas.length === 0 && nomeBusca.length >= 4 ? (
+        ) : tarefasFiltradas.length === 0 && isSearching ? (
           <Mensagem>Nenhuma tarefa encontrada.</Mensagem>
         ) : tarefasFiltradas.length === 0 ? (
           <Mensagem>Nenhuma tarefa corresponde aos filtros selecionados.</Mensagem>
         ) : (
           <>
-           <TarefasGrid>
-  {tarefasFiltradas.map((tarefa) => (
-    <TarefaCard
-      key={tarefa.id}
-      onClick={() => abrirModalDetalhes(tarefa)}
-    >
-      <StatusTag prioridade={tarefa.prioridade} />
-      <NomeTarefa>{tarefa.nomeTarefa}</NomeTarefa>
-      <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
-      <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
-    </TarefaCard>
-  ))}
-</TarefasGrid>
+            <TarefasGrid>
+              {tarefasFiltradas.map((tarefa) => (
+                <TarefaCard
+                  key={tarefa.id}
+                  onClick={() => abrirModalDetalhes(tarefa)}
+                >
+                  <StatusTag prioridade={tarefa.prioridade} />
+                  <NomeTarefa>{tarefa.nomeTarefa}</NomeTarefa>
+                  <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
+                  <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
+                </TarefaCard>
+              ))}
+            </TarefasGrid>
 
             {/* Controles de Navegação */}
             <NavegacaoContainer>

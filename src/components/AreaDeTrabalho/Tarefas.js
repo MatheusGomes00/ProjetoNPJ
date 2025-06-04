@@ -1,20 +1,20 @@
 import React, { useEffect, useState, useCallback } from "react";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import BotaoEditar from "./BotaoEditar";
 import useAuth from "../Seguranca/UseAuth";
 
-// Estilização
 const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: calc(106vh - 32px);
+  width: calc(106vh - 25px);
   height: 440px;
   padding: 40px;
-  border: 1px solid black;
+  border: 0px solid black;
   border-radius: 0px;
   background: #fff;
   box-sizing: border-box;
+  z-index: 1;
 `;
 
 const TituloTarefas = styled.h2`
@@ -34,11 +34,10 @@ const DetalheItemNome = styled.div`
   font-size: 16px;
   color: #333;
   max-height: 180px;
-  min-height: 100px; /* Altura mínima para evitar que o campo fique muito pequeno */
-  word-wrap: break-word; /* Quebra de palavras para evitar transbordo horizontal */
-  overflow-y: auto; /* Barra de rolagem vertical apenas */
-  
-  box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
+  min-height: 100px;
+  word-wrap: break-word;
+  overflow-y: auto;
+  box-sizing: border-box;
 `;
 
 const TextArea = styled.textarea`
@@ -54,8 +53,8 @@ const TextArea = styled.textarea`
   max-height: 200px;
   overflow-y: auto;
   box-sizing: border-box;
-  background: #f8f9fa; /* Para manter consistência com DetalheItem */
-  cursor: default; /* Indica que não é editável */
+  background: #f8f9fa;
+  cursor: default;
 
   &:focus {
     border-color: #007bff;
@@ -66,17 +65,18 @@ const TextArea = styled.textarea`
 const NomeTarefaCard = styled.div`
   font-size: 15px;
   font-weight: 600;
-  color: #333;
+  color: #2c3e50;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* Reduzido para 2 linhas para evitar ocupar muito espaço */
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  line-clamp: 2; /* Padrão mais recente para compatibilidade */
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis; /* Adiciona reticências */
-  max-width: 100%; /* Evita transbordo horizontal */
+  text-overflow: ellipsis;
+  max-width: 100%;
   text-align: center;
-  line-height: 1.2em; /* Controla a altura da linha para consistência */
-  max-height: 2.4em; /* Limita a altura a 2 linhas (2 * 1.2em) */
+  line-height: 1.2em;
+  max-height: 2.4em;
 `;
 
 const ListaTarefas = styled.div`
@@ -85,7 +85,7 @@ const ListaTarefas = styled.div`
   gap: 30px;
   justify-content: center;
   align-items: flex-start;
-  width: 100%;
+  width: 106%;
   max-width: 250%;
   max-height: 380px;
   overflow-y: auto;
@@ -96,51 +96,54 @@ const ListaTarefas = styled.div`
 
 const TarefaCard = styled.div`
   font-size: 15px;
-  background-color: #f9f9f9;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   padding: 15px;
-  border-radius: 10px;
+  border-radius: 12px;
   width: 170px;
   height: 120px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
-  overflow: hidden; /* Garante que nada transborde do card */
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 
   &:hover {
-    transform: scale(1.05);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
   }
 
-  /* Estiliza os elementos filhos (status e prazo) para evitar transbordo */
   > div {
     font-size: 13px;
-    color: #666;
+    color: #5c6b80;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap; /* Garante que o texto de status e prazo fique em uma linha */
+    white-space: nowrap;
   }
 `;
 
 const StatusTag = styled.div`
   position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 10px;
-  height: 20px;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
   background-color: ${({ prioridade }) => {
     const prioridadeLower = prioridade.toLowerCase();
     return prioridadeLower === "baixa"
-      ? "green"
+      ? "#34c759"
       : prioridadeLower === "média" || prioridadeLower === "media"
-      ? "yellow"
-      : "red";
+      ? "#ffca28"
+      : "#ff3b30";
   }};
-  border-radius: 30%;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
 `;
 
 const BotaoAdicionar = styled.button`
@@ -166,13 +169,13 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 10000;
+  z-index: 100;
   background: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;
   backdrop-filter: blur(6px);
   transition: opacity 0.3s ease-in-out;
-  opacity: ${({ show }) => (show ? "1" : "0")};
+  opacity: ${({ show }) => (show ? 1 : 0)};
 `;
 
 const ModalContent = styled.div`
@@ -305,22 +308,6 @@ const BotaoFechar = styled.button`
   font-size: 18px;
   cursor: pointer;
   color: #666;
-`;
-
-const NomeTarefa = styled.h3`
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  margin-bottom: 10px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  line-clamp: 3;
-  overflow: auto;
-  text-overflow: ellipsis;
-  word-break: break-word;
-  max-width: 100%;
 `;
 
 const DetalheItem = styled.div`
@@ -490,28 +477,17 @@ const MensagemErro = styled.p`
   text-align: center;
 `;
 
-const piscar = keyframes`
-  0% { border-color: red; }
-  50% { border-color: transparent; }
-  100% { border-color: red; }
-`;
-
-const InputErro = styled.input`
-  border: 2px solid red;
-  animation: ${piscar} 0.5s infinite;
-`;
-
 function Tarefas() {
   const [tarefas, setTarefas] = useState([]);
   const [advogados, setAdvogados] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showDetalhesModal, setShowDetalhesModal] = useState(false);
-  const { fetchAuthenticated, user } = useAuth();
+  const { fetchAuthenticated } = useAuth();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [lastFetchTime, setLastFetchTime] = useState(0);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [mensagemErro, setMensagemErro] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
   const [dropdownAberto, setDropdownAberto] = useState(false);
@@ -544,7 +520,7 @@ function Tarefas() {
       if (isSelected) {
         const novosIds = prevTarefa.responsaveisId.filter((id) => id !== advogado.id);
         const novosNomes = prevTarefa.responsaveisNome.filter((nome) => nome !== advogado.nome);
-        console.log("Removendo advogado:", advogado.nome, "Novos IDs:", novosIds, "Novos Nomes:", novosNomes);
+        
         return {
           ...prevTarefa,
           responsaveisId: novosIds,
@@ -566,7 +542,7 @@ function Tarefas() {
       const minInterval = 5000;
 
       if (!forceRefresh && now - lastFetchTime < minInterval && tarefas.length > 0) {
-        console.log("Usando dados em memória, evitando requisição desnecessária.");
+       
         return;
       }
 
@@ -592,7 +568,6 @@ function Tarefas() {
         const tarefasAtivas = data.filter((tarefa) => tarefa.status === true);
         setTarefas(tarefasAtivas);
 
-        // Atualizar tarefaSelecionada, se existir
         if (tarefaSelecionada) {
           const updatedTarefa = tarefasAtivas.find((t) => t.id === tarefaSelecionada.id);
           if (updatedTarefa) {
@@ -613,7 +588,7 @@ function Tarefas() {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, lastFetchTime, tarefaSelecionada]
+    [fetchAuthenticated, lastFetchTime, tarefaSelecionada, tarefas.length]
   );
 
   const buscarAdvogados = useCallback(
@@ -622,7 +597,7 @@ function Tarefas() {
       const minInterval = 5000;
 
       if (!forceRefresh && now - lastFetchTime < minInterval && advogados.length > 0) {
-        console.log("Usando advogados em memória, evitando requisição desnecessária.");
+       
         return;
       }
 
@@ -651,14 +626,12 @@ function Tarefas() {
     try {
       const url = `http://localhost:8080/task/end/${id}`;
 
-      const response = await fetchAuthenticated(url, {
+      await fetchAuthenticated(url, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
       });
-
-      const tarefaAtualizada = await response.json();
 
       setTarefas((tarefasAntigas) =>
         tarefasAntigas.filter((tarefa) => tarefa.id !== id)
@@ -717,8 +690,7 @@ function Tarefas() {
         responsaveisNome: novaTarefa.responsaveisNome,
       };
 
-      console.log("Estado de novaTarefa antes do envio:", novaTarefa);
-      console.log("Payload enviado para a API:", JSON.stringify(novaTarefaComData));
+    
 
       const response = await fetchAuthenticated("http://localhost:8080/task/create", {
         method: "POST",
@@ -734,7 +706,7 @@ function Tarefas() {
       }
 
       const tarefaCriada = await response.json();
-      console.log("Tarefa criada retornada pela API:", tarefaCriada);
+      
 
       setShowModal(false);
       setNovaTarefa({
@@ -824,15 +796,15 @@ function Tarefas() {
       </ListaTarefas>
       <LegendaPrioridades>
         <TagLegenda>
-          <CorTag cor="red" />
+          <CorTag cor="#ff3b30" />
           <span>Alta</span>
         </TagLegenda>
         <TagLegenda>
-          <CorTag cor="yellow" />
+          <CorTag cor="#ffca28" />
           <span>Média</span>
         </TagLegenda>
         <TagLegenda>
-          <CorTag cor="green" />
+          <CorTag cor="#34c759" />
           <span>Baixa</span>
         </TagLegenda>
       </LegendaPrioridades>
@@ -946,55 +918,54 @@ function Tarefas() {
 
       {/* Modal de detalhes */}
       <ModalOverlay show={showDetalhesModal}>
-      <TarefaDetalhesModal>
-      <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
-      <DetalheItemNome>
-      <Label>Nome:</Label>
-        {tarefaSelecionada?.nomeTarefa || "Sem título"}
-        
-      </DetalheItemNome>
-      <DetalheItem>
-      <Label>Descrição:</Label>
-      <TextArea
-        value={tarefaSelecionada?.descricao || "Sem descrição"}
-        readOnly
-      />
-    </DetalheItem>
-    <DetalheItem>
-      <Label>Prioridade:</Label>
-      <Valor>{tarefaSelecionada?.prioridade || "Nenhuma"}</Valor>
-    </DetalheItem>
-    <DetalheItem>
-      <Label>Prazo:</Label>
-      <Valor>{formatarData(tarefaSelecionada?.prazoLimite)}</Valor>
-    </DetalheItem>
-    <DetalheItem>
-      <Label>Responsável:</Label>
-      <Valor>{tarefaSelecionada?.responsaveisNome?.join(", ") || "Nenhum responsável"}</Valor>
-    </DetalheItem>
-    <DetalheItem>
-      <Label>Status:</Label>
-      <Status ativo={tarefaSelecionada?.status}>
-        {tarefaSelecionada?.status ? "Ativa" : "Finalizada"}
-      </Status>
-    </DetalheItem>
-    {tarefaSelecionada?.status && (
-      <BotaoFinalizar
-        onClick={() => finalizarTarefa(tarefaSelecionada?.id)}
-        disabled={isLoadingFinalizar}
-      >
-        {isLoadingFinalizar ? "Finalizando..." : "Finalizar Tarefa"}
-      </BotaoFinalizar>
-    )}
-    {tarefaSelecionada && (
-      <BotaoEditar
-        tarefaSelecionada={tarefaSelecionada}
-        carregarTarefas={carregarTarefas}
-        atualizarTarefa={atualizarTarefa}
-      />
-    )}
-  </TarefaDetalhesModal>
-</ModalOverlay>
+        <TarefaDetalhesModal>
+          <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
+          <DetalheItemNome>
+            <Label>Nome:</Label>
+            {tarefaSelecionada?.nomeTarefa || "Sem título"}
+          </DetalheItemNome>
+          <DetalheItem>
+            <Label>Descrição:</Label>
+            <TextArea
+              value={tarefaSelecionada?.descricao || "Sem descrição"}
+              readOnly
+            />
+          </DetalheItem>
+          <DetalheItem>
+            <Label>Prioridade:</Label>
+            <Valor>{tarefaSelecionada?.prioridade || "Nenhuma"}</Valor>
+          </DetalheItem>
+          <DetalheItem>
+            <Label>Prazo:</Label>
+            <Valor>{formatarData(tarefaSelecionada?.prazoLimite)}</Valor>
+          </DetalheItem>
+          <DetalheItem>
+            <Label>Responsável:</Label>
+            <Valor>{tarefaSelecionada?.responsaveisNome?.join(", ") || "Nenhum responsável"}</Valor>
+          </DetalheItem>
+          <DetalheItem>
+            <Label>Status:</Label>
+            <Status ativo={tarefaSelecionada?.status}>
+              {tarefaSelecionada?.status ? "Ativa" : "Finalizada"}
+            </Status>
+          </DetalheItem>
+          {tarefaSelecionada?.status && (
+            <BotaoFinalizar
+              onClick={() => finalizarTarefa(tarefaSelecionada?.id)}
+              disabled={isLoadingFinalizar}
+            >
+              {isLoadingFinalizar ? "Finalizando..." : "Finalizar Tarefa"}
+            </BotaoFinalizar>
+          )}
+          {tarefaSelecionada && (
+            <BotaoEditar
+              tarefaSelecionada={tarefaSelecionada}
+              carregarTarefas={carregarTarefas}
+              atualizarTarefa={atualizarTarefa}
+            />
+          )}
+        </TarefaDetalhesModal>
+      </ModalOverlay>
     </TarefasContainer>
   );
 }
