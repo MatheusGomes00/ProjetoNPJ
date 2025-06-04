@@ -242,7 +242,7 @@ public class ProcessosService {
         }
     }
 
-    
+
     public void apagarComentario(String processoId, String comentarioId) {
         Query query = new Query(Criteria.where("_id").is(processoId));
         Update update = new Update()
