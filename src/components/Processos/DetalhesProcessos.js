@@ -61,7 +61,7 @@ const DetalhesProcesso = () => {
     representanteLegal: '',
     requerido: '',
     situacao: 'INICIADO', // Valor inicial fixado
-    comentarios: [],
+    listaComentarios: [],
     responsaveisId: [],
     responsaveisNome: [],
     clienteId: [],
@@ -99,7 +99,7 @@ const DetalhesProcesso = () => {
       
       setProcesso({
         ...data,
-        comentarios: data.comentarios || { comentarios: [] }, // Normaliza ComentariosDto
+        listaComentarios: data.listaComentarios || { listaComentarios: [] }, // Normaliza ComentariosDto
       });
       setFormData({
         numeroProcesso: data.numeroProcesso || "",
@@ -122,7 +122,7 @@ const DetalhesProcesso = () => {
         clienteNome: data.cliente
           ? data.cliente.map((c) => c.cliente?.nome || c.nome).filter(Boolean)
           : data.clienteNome || [],
-        comentarios: data.comentarios?.comentarios || [],
+        listaComentarios: data.listaComentarios || [],
       });
     } catch (error) {
       console.error("Erro ao buscar processo:", error);
@@ -131,7 +131,7 @@ const DetalhesProcesso = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [id,]);
+  }, [id]);
 
   // Busca a lista de advogados
   const fetchAdvogados = useCallback(async () => {
@@ -290,7 +290,7 @@ const DetalhesProcesso = () => {
                       Adicionar Comentário
                     </BotaoAcao>
                   </div>
-                  {Array.isArray(formData.comentarios) && formData.comentarios.length > 0 ? (
+                  {Array.isArray(formData.listaComentarios) && formData.listaComentarios.length > 0 ? (
                     <ResponsaveisTable>
                       <thead>
                         <tr>
@@ -300,15 +300,15 @@ const DetalhesProcesso = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {formData.comentarios.map((comentario, index) => (
-                          <TableRow key={comentario?.id || index}>
-                            <TableCell>{comentario?.responsavelNome || "N/A"}</TableCell>
+                        {formData.listaComentarios.map((objeto, index) => (
+                          <TableRow key={objeto?.id || index}>
+                            <TableCell>{objeto?.responsavelNome || "N/A"}</TableCell>
                             <TableCell>
-                              {comentario?.dataModif
-                                ? new Date(comentario.dataModif).toLocaleString("pt-BR")
+                              {objeto?.dataModif
+                                ? new Date(objeto.dataModif).toLocaleString("pt-BR")
                                 : "N/A"}
                             </TableCell>
-                            <TableCell>{comentario?.comentarios || "N/A"}</TableCell>
+                            <TableCell>{objeto?.comentarios || "N/A"}</TableCell>
                           </TableRow>
                         ))}
                       </tbody>

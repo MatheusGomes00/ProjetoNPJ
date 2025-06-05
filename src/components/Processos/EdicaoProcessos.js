@@ -279,7 +279,7 @@ export const removerResponsavel = async (
 
 export const adicionarComentario = async (
   novoComentario, 
-  id,
+  idProc,
   setMensagemErro, 
   setIsSaving, 
   fetchAuthenticated, 
@@ -298,10 +298,10 @@ export const adicionarComentario = async (
     try {
       const comentarioData = {
         dataModif: new Date().toISOString(),
-        comentarios: novoComentario,
+        listaComentarios: novoComentario,
       };
 
-      const response = await fetchAuthenticated(`http://localhost:8080/proc/${id}/add-comentario`, {
+      const response = await fetchAuthenticated(`http://localhost:8080/proc/${idProc}/add-comentario`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -317,12 +317,12 @@ export const adicionarComentario = async (
       console.log('Comentário adicionado:', data);
       setFormData((prev) => ({
         ...prev,
-        comentarios: data.comentarios || prev.comentarios, // Usa a lista de ComentarioDto
+        listaComentarios: data.listaComentarios || prev.listaComentarios, // Usa a lista de ComentarioDto
       }));
       setProcesso((prev) => ({
         ...prev,
-        comentarios: {
-          comentarios: [...(prev.comentarios?.comentarios || []), ...(data.comentarios || [])], // Concatena a lista de comentários
+        listaComentarios: {
+          ...(prev.listaComentarios || []), ...(data.listaComentarios || []), // Concatena a lista de comentários
         },
       }));
       setNovoComentario('');
