@@ -9,7 +9,6 @@ import com.npj.ProjetoNPJ.clientes.entitie.Cadastro;
 import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.processos.dtos.ComentarioDto;
-import com.npj.ProjetoNPJ.processos.dtos.ComentarioId;
 import com.npj.ProjetoNPJ.processos.dtos.DtoProcessos;
 import com.npj.ProjetoNPJ.processos.dtos.Situacao;
 import com.npj.ProjetoNPJ.processos.entity.Processos;
@@ -205,6 +204,9 @@ public class ProcessosService {
             Processos processo = processosRepositorio.findById(idProc)
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Processo não localizado."));
 
+            if (comentarioDto.getComentarios() == null || comentarioDto.getComentarios().isBlank()){
+                throw new RuntimeException("Comentário não pode estar nulo ou em branco2");
+            }
             List<ComentarioDto> comentarios = processo.getListaComentarios();
             if (comentarios == null) {
                 comentarios = new ArrayList<>();
@@ -221,24 +223,33 @@ public class ProcessosService {
     }
 
 
-    public void atualizarComentario(String processoId, ComentarioDto comentario) {
+    public ComentarioDto atualizarComentario(String processoId, String comentarioId, ComentarioDto comentario) {
         try {
             Query query = new Query(Criteria
-                    .where("_id")
-                    .is(processoId)
-                    .and("listaComentarios.id")
-                    .is(comentario.getId()));
+                    .where("_id").is(processoId)
+                    .and("listaComentarios.id").is(comentarioId));
             Update update = new Update()
                     .set("listaComentarios.$.dataModif", comentario.getDataModif())
-                    .set("listaComentarios.$.responsavelId", comentario.getResponsavelId())
-                    .set("listaComentarios.$.responsavelNome", comentario.getResponsavelNome())
                     .set("listaComentarios.$.comentarios", comentario.getComentarios());
             UpdateResult result = mongoTemplate.updateFirst(query, update, Processos.class);
             if (result.getMatchedCount() == 0) {
                 throw new RuntimeException("Processo ou comentário não encontrado");
             }
+
+            Processos processo = mongoTemplate.findOne(
+                    new Query(Criteria.where("_id").is(processoId)),
+                    Processos.class
+            );
+            if (processo == null || processo.getListaComentarios() == null) {
+                throw new RuntimeException("Processo não encontrado após atualização");
+            }
+            List<ComentarioDto> listaComentarios = processo.getListaComentarios();
+            return listaComentarios.stream()
+                    .filter(c -> comentarioId.equals(c.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Comentário não encontrado após atualização"));
         } catch (Exception ex) {
-            throw new RuntimeException(ex.getMessage() + " " + ex.getClass());
+            throw new RuntimeException("Erro ao atualizar comentário" + ex.getMessage() + " " + ex);
         }
     }
 
