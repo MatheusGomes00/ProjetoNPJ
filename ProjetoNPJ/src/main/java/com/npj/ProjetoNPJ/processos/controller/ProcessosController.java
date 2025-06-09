@@ -40,38 +40,14 @@ public class ProcessosController {
 
 
     }
+
     @PutMapping(value = "/updProc/{id}")
-    public ResponseEntity<Processos> atualizarProcesso(@Valid @PathVariable String id, @RequestBody DtoProcessos dto){
+    public ResponseEntity<Processos> atualizarProcesso(@Valid @RequestBody DtoProcessos dto, @PathVariable String id){
 
         Processos processo = service.update(dto, id);
 
         return ResponseEntity.ok().body(processo);
     }
-
-    @PostMapping(value = "/{idProc}/add-comentario")
-    public ResponseEntity<ComentarioDto> adicionarComentario(
-            @PathVariable String idProc, @RequestBody ComentarioDto comentarioDto) {
-
-        ComentarioDto comentario = service.criarComentario(comentarioDto, idProc);
-        return ResponseEntity.ok().body(comentario);
-    }
-
-    @PutMapping(value = "/{idProc}/upd-comentario")
-    public ResponseEntity<ComentarioDto> atualizarComentario(
-            @PathVariable String idProc, @RequestBody ComentarioDto comentarioDto) {
-
-        service.atualizarComentario(idProc, comentarioDto);
-        return ResponseEntity.ok().body(comentarioDto);
-    }
-
-    @DeleteMapping(value = "/{idProc}/del-comentario")
-    public ResponseEntity<ComentarioDto> deletarComentario(
-            @PathVariable String idProc, @RequestBody ComentarioId comentarioId) {
-
-        service.apagarComentario(idProc, comentarioId.getId());
-        return ResponseEntity.noContent().build();
-    }
-
 
     @GetMapping(value = "/searchProc/{numeroProcesso}")
     public ResponseEntity<List<DtoProcessos>> buscarPorNumero(@PathVariable String numeroProcesso){
@@ -144,6 +120,28 @@ public class ProcessosController {
         return ResponseEntity.ok(dto);
     }
 
+    @PostMapping(value = "/{idProc}/add-comentario")
+    public ResponseEntity<ComentarioDto> adicionarComentario(
+            @Valid @RequestBody ComentarioDto comentarioDto, @PathVariable String idProc) {
 
+        ComentarioDto comentario = service.criarComentario(comentarioDto, idProc);
+        return ResponseEntity.ok().body(comentario);
+    }
+
+    @PutMapping(value = "/{idProc}/upd-comentario/{comentarioId}")
+    public ResponseEntity<ComentarioDto> atualizarComentario(
+            @PathVariable String idProc, @PathVariable String comentarioId, @Valid @RequestBody ComentarioDto comentario) {
+
+        ComentarioDto comentarioDto = service.atualizarComentario(idProc, comentarioId, comentario);
+        return ResponseEntity.ok().body(comentarioDto);
+    }
+
+    @DeleteMapping(value = "/{idProc}/del-comentario")
+    public ResponseEntity<Void> deletarComentario(
+            @PathVariable String idProc, @Valid @RequestBody ComentarioId comentarioId) {
+
+        service.apagarComentario(idProc, comentarioId.getId());
+        return ResponseEntity.ok().build();
+    }
 
 }

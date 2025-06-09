@@ -16,7 +16,6 @@ public class ComentarioDto {
     private String dataModif;
     private String responsavelId;
     private String responsavelNome;
-    @NotBlank
+    @NotBlank(message = "Não pode ser nulo ou estar em banco!")
     private String comentarios;
-
 }
