@@ -50,9 +50,8 @@ export const salvarAlteracoes = async (
       responsaveisNome: formData.responsaveisNome,
       clienteId: formData.clienteId,
       clienteNome: formData.clienteNome,
+      listaComentarios: formData.listaComentarios
     };
-
-    
 
     const response = await fetchAuthenticated(`http://localhost:8080/proc/updProc/${id}`, {
       method: "PUT",
@@ -92,6 +91,7 @@ export const salvarAlteracoes = async (
       clienteNome: updatedProcesso.cliente
         ? updatedProcesso.cliente.map((c) => c.cliente?.nome || c.nome).filter(Boolean)
         : updatedProcesso.clienteNome || [],
+      listaComentarios: updatedProcesso.listaComentarios || [],
     });
     setShowPopup(true);
     setTimeout(() => {
@@ -283,8 +283,7 @@ export const adicionarComentario = async (
   setMensagemErro, 
   setIsSaving, 
   fetchAuthenticated, 
-  setFormData, 
-  setProcesso, 
+  setFormData,
   setNovoComentario, 
   setShowPopup,
   ) => {
@@ -298,7 +297,7 @@ export const adicionarComentario = async (
     try {
       const comentarioData = {
         dataModif: new Date().toISOString(),
-        listaComentarios: novoComentario,
+        comentarios: novoComentario,
       };
 
       const response = await fetchAuthenticated(`http://localhost:8080/proc/${idProc}/add-comentario`, {
@@ -314,16 +313,56 @@ export const adicionarComentario = async (
       }
 
       const data = await response.json();
-      console.log('Comentário adicionado:', data);
+      
+      setFormData((prev) => ({...prev, listaComentarios: [...(prev.listaComentarios || []), data] }));
+
+      setNovoComentario('');
+      setShowPopup(true);
+      setTimeout(() => setShowPopup(false), 2000); // Fecha o popup após 2 segundos
+    } catch (error) {
+      console.error('Erro ao adicionar comentário:', error);
+      setMensagemErro('Erro ao salvar o comentário. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
+};
+
+export const editarComentario = async ( 
+  idProc,comentarioId, textoEditado, setMensagemErro, setIsSaving, fetchAuthenticated, setFormData, setNovoComentario, setShowPopup
+  ) => {
+    if (!idProc || !textoEditado.trim() || !comentarioId) {
+      setMensagemErro('ID do processo, ID do comentário e texto são obrigatórios');
+      return;
+    }
+
+    const comentarioData = {
+        dataModif: new Date().toISOString(),
+        comentarios: textoEditado,
+      };
+    
+    setIsSaving(true);
+    setMensagemErro('');
+
+    try {
+      const response = await fetchAuthenticated(`http://localhost:8080/proc/${idProc}/upd-comentario/${comentarioId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(comentarioData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro na requisição: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
       setFormData((prev) => ({
         ...prev,
-        listaComentarios: data.listaComentarios || prev.listaComentarios, // Usa a lista de ComentarioDto
-      }));
-      setProcesso((prev) => ({
-        ...prev,
-        listaComentarios: {
-          ...(prev.listaComentarios || []), ...(data.listaComentarios || []), // Concatena a lista de comentários
-        },
+        listaComentarios: (prev.listaComentarios || []).map((item) =>
+          item.id === comentarioId ? { ...item, ...data } : item
+        ),
       }));
       setNovoComentario('');
       setShowPopup(true);
@@ -334,4 +373,49 @@ export const adicionarComentario = async (
     } finally {
       setIsSaving(false);
     }
+};
+
+export const excluirComentario = async ( 
+  idProc, comentarioId, setMensagemErro, setIsSaving, fetchAuthenticated, setFormData, setShowPopup
+) => {
+  if (!idProc || !comentarioId) {
+    setMensagemErro('ID do processo e ID do comentário são obrigatórios');
+    return;
+  }
+
+  setIsSaving(true);
+  setMensagemErro('');
+
+  try {
+    const response = await fetchAuthenticated(
+      `http://localhost:8080/proc/${idProc}/del-comentario`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: comentarioId }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Erro na requisição: ${response.status}`);
+    }
+
+    // Atualizar listaComentarios localmente, removendo o comentário
+    setFormData((prev) => ({
+      ...prev,
+      listaComentarios: (prev.listaComentarios || []).filter(
+        (item) => item.id !== comentarioId
+      ),
+    }));
+
+    setShowPopup(true);
+    setTimeout(() => setShowPopup(false), 2000); // Fecha o popup após 2 segundos
+  } catch (error) {
+    console.error('Erro ao excluir comentário:', error);
+    setMensagemErro('Erro ao excluir o comentário. Tente novamente.');
+  } finally {
+    setIsSaving(false);
+  }
 };

@@ -215,10 +215,13 @@ export const Section = styled.section`
   padding: 20px;
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+  transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.2s ease;
+  overflow: ${({ isCollapsed }) => (isCollapsed ? 'hidden' : 'visible')};
+  max-height: ${({ isCollapsed }) => (isCollapsed ? '0' : '1000px')}; /* Ajustar conforme conteúdo */
+  opacity: ${({ isCollapsed }) => (isCollapsed ? '0' : '1')};
 
   &:hover {
-    transform: translateY(-2px);
+    transform: ${({ isCollapsed }) => (isCollapsed ? 'none' : 'translateY(-2px)')};
   }
 `;
 
@@ -478,3 +481,4 @@ export const Mensagem = styled.p`
   text-align: center;
   margin: 20px 0;
 `;
+

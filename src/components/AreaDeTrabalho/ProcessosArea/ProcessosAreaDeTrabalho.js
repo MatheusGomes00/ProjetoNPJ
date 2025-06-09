@@ -16,7 +16,6 @@ const ProcessosContainer = styled.div`
   width: 27vw;
   height: 60vw;
   overflow-y: auto;
-  border: 1px solid black;
   background: linear-gradient(145deg, #f8fbff 0%, #e6f0fa 100%);
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
   

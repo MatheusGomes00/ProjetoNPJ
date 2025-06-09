@@ -38,17 +38,19 @@ import {
   Mensagem,
   formatarSituacao,
 } from "./EstilosDetalhesProcessos";
+
 import {
   handleInputChange,
   salvarAlteracoes,
   adicionarResponsavel,
-  adicionarComentario,
   removerResponsavel,
 } from "./EdicaoProcessos";
 
+import Comentarios from "./Comentarios";
+
 
 const DetalhesProcesso = () => {
-  const { id } = useParams();
+  const { id: idProc } = useParams();
   const navigate = useNavigate();
   const { fetchAuthenticated } = useAuth();
   const [processo, setProcesso] = useState(null);
@@ -74,14 +76,13 @@ const DetalhesProcesso = () => {
   const [novoResponsavelId, setNovoResponsavelId] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const [novoComentario, setNovoComentario] = useState('');
 
   // Busca os dados do processo
   const fetchProcesso = useCallback(async () => {
     setIsLoading(true);
     setMensagemErro("");
     try {
-      const response = await fetchAuthenticated(`http://localhost:8080/proc/porId/${id}`, {
+      const response = await fetchAuthenticated(`http://localhost:8080/proc/porId/${idProc}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -131,7 +132,7 @@ const DetalhesProcesso = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [idProc]);
 
   // Busca a lista de advogados
   const fetchAdvogados = useCallback(async () => {
@@ -154,7 +155,7 @@ const DetalhesProcesso = () => {
   useEffect(() => {
     fetchProcesso();
     fetchAdvogados();
-  }, [id, fetchProcesso, fetchAdvogados]);
+  }, [idProc, fetchProcesso, fetchAdvogados]);
 
   // Renderização condicional para evitar erros durante o carregamento
   if (isLoading) {
@@ -178,7 +179,7 @@ const DetalhesProcesso = () => {
             <div style={{ display: "flex", gap: "10px" }}>
               <BotaoSalvar
                 onClick={() =>
-                  salvarAlteracoes(formData, setProcesso, setFormData, setIsSaving, setMensagemErro, id, fetchAuthenticated, setShowPopup,)
+                  salvarAlteracoes(formData, setProcesso, setFormData, setIsSaving, setMensagemErro, idProc, fetchAuthenticated, setShowPopup,)
                 }
                 disabled={isSaving}
               >
@@ -268,55 +269,17 @@ const DetalhesProcesso = () => {
                     </InfoSelect>
                   </InfoRow>
                 </Section>
-
-                <Section>
-                  <SectionTitle>Comentários</SectionTitle>
-                  <div style={{ marginBottom: "20px" }}>
-                    <InfoRow>
-                      <InfoLabel htmlFor="novoComentario">Novo Comentário</InfoLabel>
-                      <InfoInput
-                        id="novoComentario"
-                        value={novoComentario}
-                        onChange={(e) => setNovoComentario(e.target.value)}
-                        placeholder="Digite um comentário"
-                        disabled={isLoading || isSaving}
-                      />
-                    </InfoRow>
-                    <BotaoAcao
-                      onClick={() => adicionarComentario(novoComentario, id, setMensagemErro, setIsSaving, fetchAuthenticated, setFormData, setProcesso, setNovoComentario, setShowPopup,)}
-                      disabled={isLoading || isSaving || !novoComentario.trim()}
-                      style={{ marginTop: "10px" }}
-                    >
-                      Adicionar Comentário
-                    </BotaoAcao>
-                  </div>
-                  {Array.isArray(formData.listaComentarios) && formData.listaComentarios.length > 0 ? (
-                    <ResponsaveisTable>
-                      <thead>
-                        <tr>
-                          <TableHeader>Responsável</TableHeader>
-                          <TableHeader>Data</TableHeader>
-                          <TableHeader>Comentário</TableHeader>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {formData.listaComentarios.map((objeto, index) => (
-                          <TableRow key={objeto?.id || index}>
-                            <TableCell>{objeto?.responsavelNome || "N/A"}</TableCell>
-                            <TableCell>
-                              {objeto?.dataModif
-                                ? new Date(objeto.dataModif).toLocaleString("pt-BR")
-                                : "N/A"}
-                            </TableCell>
-                            <TableCell>{objeto?.comentarios || "N/A"}</TableCell>
-                          </TableRow>
-                        ))}
-                      </tbody>
-                    </ResponsaveisTable>
-                  ) : (
-                    <Mensagem>Nenhum comentário associado.</Mensagem>
-                  )}
-                </Section>
+                
+                <Comentarios
+                  idProc={idProc} 
+                  isLoading={isLoading} 
+                  isSaving={isSaving}
+                  setIsSaving={setIsSaving}
+                  formData={formData} 
+                  setFormData={setFormData} 
+                  setMensagemErro={setMensagemErro} 
+                  setShowPopup={setShowPopup} 
+                />
 
                 <Section>
                   <SectionTitle>Partes Envolvidas</SectionTitle>
@@ -412,7 +375,7 @@ const DetalhesProcesso = () => {
                                     setFormData,
                                     setProcesso,
                                     setMensagemErro,
-                                    id,
+                                    idProc,
                                     fetchAuthenticated
                                   )
                                 }
@@ -492,7 +455,7 @@ const DetalhesProcesso = () => {
                               setShowModal,
                               setNovoResponsavelId,
                               setMensagemErro,
-                              id,
+                              idProc,
                               fetchAuthenticated
                             )
                           }
