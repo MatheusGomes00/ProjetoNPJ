@@ -70,10 +70,11 @@ const Dropdown = styled.div`
   padding: 16px;
   transform: translateZ(0);
   transition: opacity 0.2s ease, transform 0.2s ease;
-  opacity: ${props => props.isVisible ? 1 : 0};
-  transform: ${props => props.isVisible ? 'translateY(0)' : 'translateY(-10px)'};
-  pointer-events: ${props => props.isVisible ? 'auto' : 'none'};
+  opacity: ${props => props.$isVisible ? 1 : 0};
+  transform: ${props => props.$isVisible ? 'translateY(0)' : 'translateY(-10px)'};
+  pointer-events: ${props => props.$isVisible ? 'auto' : 'none'};
 `;
+
 
 const DropdownHeader = styled.div`
   font-family: "Inter", sans-serif;
@@ -634,7 +635,8 @@ const IconeNotificacoes = () => {
         aria-label="Toggle notificações"
       />
       {notificacoes.length > 0 && <Badge>{Math.min(notificacoes.length, 99)}</Badge>}
-      <Dropdown ref={dropdownRef} isVisible={showDropdown}>
+      <Dropdown ref={dropdownRef} $isVisible={showDropdown}>
+
         <DropdownHeader>Notificações</DropdownHeader>
         {isLoading ? (
           <MensagemCarregando>Carregando...</MensagemCarregando>

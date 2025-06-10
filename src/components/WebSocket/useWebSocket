@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import useAuth from './useAuth';
@@ -7,9 +7,9 @@ const useWebSocket = () => {
     const { getAccessToken, getId, logoutWithRedirect } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [, setClient] = useState(null);
+    const stompRef = useRef(null); // Guarda a instância entre renders
 
     useEffect(() => {
-        
         const token = getAccessToken();
         const userId = getId();
 
@@ -18,27 +18,22 @@ const useWebSocket = () => {
             return;
         }
 
-        // Configurar o cliente STOMP
-        const sock = new SockJS('http://localhost:8080/ws'); // Ajuste a URL para o seu backend
+        const sock = new SockJS('http://localhost:8080/ws');
         const stompClient = new Client({
             webSocketFactory: () => sock,
             connectHeaders: {
                 Authorization: `Bearer ${token}`,
             },
-            debug: (str) => {
-                console.log(str);
-            },
-            reconnectDelay: 5000, // Tenta reconectar a cada 5 segundos
+            debug: (str) => console.log(str),
+            reconnectDelay: 5000,
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
         });
 
         stompClient.onConnect = () => {
             console.log('Conectado ao WebSocket');
-            // Inscrever no tópico de notificações
             stompClient.subscribe('/topic/notifications', (message) => {
                 const notification = JSON.parse(message.body);
-                // Filtrar notificações pelo userId
                 if (notification.usuarioId === userId) {
                     setNotifications((prev) => [...prev, notification.mensagem]);
                 }
@@ -59,13 +54,24 @@ const useWebSocket = () => {
 
         stompClient.activate();
         setClient(stompClient);
+        stompRef.current = stompClient;
 
-        // Cleanup ao desmontar o componente
-        return () => {
-            if (stompClient) {
-                stompClient.deactivate();
-                console.log('Desconectado do WebSocket');
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                console.log('Aba oculta, desconectando WebSocket...');
+                stompRef.current?.deactivate();
+            } else if (document.visibilityState === 'visible') {
+                console.log('Aba visível novamente, reconectando WebSocket...');
+                stompRef.current?.activate();
             }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            stompRef.current?.deactivate();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            console.log('Desconectado do WebSocket');
         };
     }, [getAccessToken, getId, logoutWithRedirect]);
 

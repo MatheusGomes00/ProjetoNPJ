@@ -830,7 +830,7 @@ function Tarefas() {
       <BotaoAdicionar onClick={abrirModal}>Adicionar Tarefa</BotaoAdicionar>
 
       {/* Modal para adicionar tarefa */}
-      <ModalOverlay show={showModal}>
+      <ModalOverlay $show={showModal}>
         <ModalContent>
           <BotaoFechar onClick={fecharModal}>×</BotaoFechar>
           <h3>Cadastrar Nova Tarefa</h3>
@@ -938,7 +938,7 @@ function Tarefas() {
       </ModalOverlay>
 
       {/* Modal de detalhes */}
-      <ModalOverlay show={showDetalhesModal}>
+      <ModalOverlay $show={showDetalhesModal}>
         <TarefaDetalhesModal>
           <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
           <DetalheItemNome>
