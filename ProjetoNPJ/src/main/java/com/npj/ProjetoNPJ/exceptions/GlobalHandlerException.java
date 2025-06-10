@@ -88,6 +88,20 @@ public class GlobalHandlerException {
                 //.body(Map.of("error", "Unauthorized", "message", ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorMessage> invalidTokenHandleException(InvalidTokenException ex,
+                                                                    HttpServletRequest request) {
+        errorLog(ex);
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(
+                        request,
+                        HttpStatus.UNAUTHORIZED,
+                        ex.getMessage()
+                ));
+    }
+
     // exceção lançada pela validação dos campos incorretos do DTO
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> methodArgumentNotValidException(MethodArgumentNotValidException ex,

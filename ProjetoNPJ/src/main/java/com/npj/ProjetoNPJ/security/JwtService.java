@@ -55,7 +55,7 @@ public class JwtService {
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
         // String id = userDetails.getId();
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role); // Adiciona a role no refresh token
+        claims.put("role", role);
         return createToken(claims, username, refreshExpiration);
     }
 
@@ -66,7 +66,7 @@ public class JwtService {
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSigningKey()) // Assina o token com a chave
+                .signWith(getSigningKey())
                 .compact();
     }
 
@@ -107,16 +107,12 @@ public class JwtService {
         JwtParser jwtParser = Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build();
-
         Claims claims = jwtParser.parseSignedClaims(token).getPayload();
-
-
         String role = (String) claims.get("role"); // pega um Map<String, Object>, faz o cast para string
 
         if (role != null) {
             return List.of(new SimpleGrantedAuthority(role));
         }
-
         return Collections.emptyList();
     }
     

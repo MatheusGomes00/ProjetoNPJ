@@ -70,6 +70,7 @@ public class AuthController {
             return ResponseEntity.ok()
                     .header("Set-Cookie", cookieValue)
                     .body(Map.of("accessToken", tokens.get("accessToken")));
+
         } catch (CustomAuthenticationException ex) {
             logger.warn("Falha de autenticação: {}", ex.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -91,20 +92,13 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("message", "Refresh token não fornecido"));
             }
-            Map<String, String> tokens = authenticationService.refreshAccessToken(refreshToken);
-            if (tokens == null || tokens.get("refreshToken") == null || tokens.get("accessToken") == null) {
-                logger.error("Falha ao gerar novos tokens");
+            Map<String, String> token = authenticationService.refreshAccessToken(refreshToken);
+            if (token == null || token.get("accessToken") == null) {
+                logger.error("Falha ao gerar novo token");
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Map.of("message", "Falha ao gerar novos tokens"));
+                        .body(Map.of("message", "Falha ao gerar novo token"));
             }
-            long maxAgeInSeconds = refreshTokenExpiration / 1000;
-            String secureAttribute = isDevProfileActive() ? "" : "; Secure";
-            String cookieValue = String.format("refreshToken=%s; HttpOnly%s; SameSite=Strict; Path=/; Max-Age=%d",
-                    tokens.get("refreshToken"), secureAttribute, maxAgeInSeconds);
-            logger.info("Definindo novo cookie: {}", cookieValue);
-            return ResponseEntity.ok()
-                    .header("Set-Cookie", cookieValue)
-                    .body(Map.of("accessToken", tokens.get("accessToken")));
+            return ResponseEntity.ok().body(Map.of("accessToken", token.get("accessToken")));
         } catch (Exception e) {
             logger.error("Erro ao renovar token: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.FORBIDDEN)

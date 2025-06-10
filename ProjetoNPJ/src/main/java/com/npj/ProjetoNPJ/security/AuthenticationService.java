@@ -3,6 +3,7 @@ package com.npj.ProjetoNPJ.security;
 import com.npj.ProjetoNPJ.advogados.entity.RefreshToken;
 import com.npj.ProjetoNPJ.advogados.repository.TokenRepository;
 import com.npj.ProjetoNPJ.exceptions.CustomAuthenticationException;
+import com.npj.ProjetoNPJ.exceptions.InvalidTokenException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
@@ -73,33 +74,19 @@ public class AuthenticationService {
         if (refreshToken == null || refreshToken.trim().isEmpty()) {
             throw new IllegalArgumentException("Refresh token não pode ser nulo ou vazio!");
         }
-
         RefreshToken storedToken = tokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new RuntimeException("Refresh token não encontrado ou inválido"));
-
-        if(!storedToken.isActive() || storedToken.getExpiresAt().isBefore(LocalDateTime.now())){
-            throw new RuntimeException("Refresh token inválido ou expirado");
-        }
-
         if (!jwtService.validateToken(refreshToken)) {
             storedToken.setActive(false); // Invalida no banco se a assinatura estiver errada
             tokenRepository.save(storedToken);
-            throw new RuntimeException("Refresh token inválido ou expirado");
+            throw new InvalidTokenException("Refresh token inválido ou expirado");
         }
-
+        if(!storedToken.isActive() || storedToken.getExpiresAt().isBefore(LocalDateTime.now())){
+            throw new InvalidTokenException("Refresh token inválido ou expirado");
+        }
         String username = jwtService.extractUsername(refreshToken);
         String newAccess =  jwtService.generateAccessToken(username);
-        String newRefresh = jwtService.generateRefreshToken(username);
-
-        storedToken.setActive(false);
-        tokenRepository.save(storedToken);
-
-        LocalDateTime newExpiration = jwtService.extractExpirationAsLocalDateTime(newRefresh);
-        RefreshToken newTokenEntity = new RefreshToken(newRefresh, username, newExpiration);
-        tokenRepository.save(newTokenEntity);
-
-        return Map.of("accessToken", newAccess, "refreshToken", newRefresh);
-
+        return Map.of("accessToken", newAccess);
     }
 
     public void logout(String refreshToken) {
