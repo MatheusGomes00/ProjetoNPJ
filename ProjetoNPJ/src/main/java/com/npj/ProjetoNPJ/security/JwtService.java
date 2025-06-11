@@ -50,7 +50,6 @@ public class JwtService {
     }
 
     public String generateRefreshToken(String username) {
-
         UserAutenticado userDetails = (UserAutenticado) userDetailsService.loadUserByUsername(username);
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
         // String id = userDetails.getId();
@@ -60,7 +59,6 @@ public class JwtService {
     }
 
     private String createToken(Map<String, Object> claims, String username, long expiration) {
-        // claims.put("id", id);
         return Jwts.builder()
                 .claims(claims)
                 .subject(username)
@@ -86,7 +84,6 @@ public class JwtService {
     }
 
     public Date extractExpiration(String token) {
-
         return extractClaim(token, Claims::getExpiration);
     }
 

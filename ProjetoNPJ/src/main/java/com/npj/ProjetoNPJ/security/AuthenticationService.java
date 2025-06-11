@@ -1,12 +1,8 @@
 package com.npj.ProjetoNPJ.security;
 
-import com.npj.ProjetoNPJ.advogados.entity.RefreshToken;
-import com.npj.ProjetoNPJ.advogados.repository.TokenRepository;
 import com.npj.ProjetoNPJ.exceptions.CustomAuthenticationException;
 import com.npj.ProjetoNPJ.exceptions.InvalidTokenException;
-import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -16,7 +12,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,8 +21,6 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    @Autowired
-    private TokenRepository tokenRepository;
 
     public AuthenticationService(AuthenticationManager authenticationManager,
                                  JwtService jwtService) {
@@ -41,23 +34,9 @@ public class AuthenticationService {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
-
             String authenticatedUsername = authentication.getName();
             String accessToken = jwtService.generateAccessToken(authenticatedUsername);
-
-            RefreshToken existsRefreshToken = tokenRepository.findByUsername(authenticatedUsername);
-
             String refreshToken = jwtService.generateRefreshToken(authenticatedUsername);
-            LocalDateTime expiration = jwtService.extractExpirationAsLocalDateTime(refreshToken);
-
-            if (existsRefreshToken == null || !existsRefreshToken.isActive()) {
-                RefreshToken refreshTokenEntity = new RefreshToken(refreshToken, authenticatedUsername, expiration);
-                tokenRepository.save(refreshTokenEntity);
-            } else {
-                existsRefreshToken.setToken(refreshToken);
-                existsRefreshToken.setExpiresAt(expiration);
-                tokenRepository.save(existsRefreshToken);
-            }
             return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
         } catch (BadCredentialsException e) {
             throw new CustomAuthenticationException("Usuário ou senha inválidos");
@@ -74,35 +53,16 @@ public class AuthenticationService {
         if (refreshToken == null || refreshToken.trim().isEmpty()) {
             throw new IllegalArgumentException("Refresh token não pode ser nulo ou vazio!");
         }
-        RefreshToken storedToken = tokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new RuntimeException("Refresh token não encontrado ou inválido"));
         if (!jwtService.validateToken(refreshToken)) {
-            storedToken.setActive(false); // Invalida no banco se a assinatura estiver errada
-            tokenRepository.save(storedToken);
-            throw new InvalidTokenException("Refresh token inválido ou expirado");
+            throw new InvalidTokenException("Refresh token inválido.");
         }
-        if(!storedToken.isActive() || storedToken.getExpiresAt().isBefore(LocalDateTime.now())){
-            throw new InvalidTokenException("Refresh token inválido ou expirado");
+        if(jwtService.extractExpirationAsLocalDateTime(refreshToken).isBefore(LocalDateTime.now())) {
+            throw new InvalidTokenException("Refresh token expirado.");
         }
+
         String username = jwtService.extractUsername(refreshToken);
         String newAccess =  jwtService.generateAccessToken(username);
-        return Map.of("accessToken", newAccess);
-    }
-
-    public void logout(String refreshToken) {
-        if (refreshToken == null || refreshToken.trim().isEmpty()) {
-            throw new IllegalArgumentException("Refresh token não pode ser nulo ou vazio!");
-        }
-
-        Optional<RefreshToken> tokenOptional = tokenRepository.findByToken(refreshToken);
-        if (tokenOptional.isPresent()) {
-            RefreshToken storedToken = tokenOptional.get();
-            if (storedToken.isActive()) {
-                storedToken.setActive(false);
-                tokenRepository.save(storedToken);
-            }
-        } else {
-            throw new RuntimeException("Refresh token não encontrado");
-        }
+        String newRefreshToken = jwtService.generateRefreshToken(username);
+        return Map.of("accessToken", newAccess, "refreshToken", newRefreshToken);
     }
 }
