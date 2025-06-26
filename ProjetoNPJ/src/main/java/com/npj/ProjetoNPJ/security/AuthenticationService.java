@@ -1,8 +1,9 @@
 package com.npj.ProjetoNPJ.security;
 
+
 import com.npj.ProjetoNPJ.exceptions.CustomAuthenticationException;
 import com.npj.ProjetoNPJ.exceptions.InvalidTokenException;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -13,30 +14,30 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-
+    private final UserDetailsServiceImpl userDetailsService;
 
     public AuthenticationService(AuthenticationManager authenticationManager,
-                                 JwtService jwtService) {
+                                 JwtService jwtService, UserDetailsServiceImpl userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
     }
 
 
-    public Map<String, String> authenticate(String username, String password) {
+    public Map<String, String> autenticar(String username, String password) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
-            String authenticatedUsername = authentication.getName();
-            String accessToken = jwtService.generateAccessToken(authenticatedUsername);
-            String refreshToken = jwtService.generateRefreshToken(authenticatedUsername);
+            UserAutenticado user = (UserAutenticado) authentication.getPrincipal();
+            String accessToken = jwtService.generateAccessToken(user);
+            String refreshToken = jwtService.generateRefreshToken(user);
             return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
         } catch (BadCredentialsException e) {
             throw new CustomAuthenticationException("Usuário ou senha inválidos");
@@ -60,9 +61,11 @@ public class AuthenticationService {
             throw new InvalidTokenException("Refresh token expirado.");
         }
 
-        String username = jwtService.extractUsername(refreshToken);
-        String newAccess =  jwtService.generateAccessToken(username);
-        String newRefreshToken = jwtService.generateRefreshToken(username);
+        String userId = jwtService.extractUserId(refreshToken);
+        UserAutenticado user = (UserAutenticado) userDetailsService.loadUserById(userId);
+
+        String newAccess =  jwtService.generateAccessToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
         return Map.of("accessToken", newAccess, "refreshToken", newRefreshToken);
     }
 }

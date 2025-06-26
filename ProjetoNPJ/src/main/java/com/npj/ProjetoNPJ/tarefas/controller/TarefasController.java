@@ -7,7 +7,6 @@ import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.notificacoes.service.NotificacaoService;
 import com.npj.ProjetoNPJ.security.JwtService;
-import com.npj.ProjetoNPJ.security.JwtService.*;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.service.TarefefasService;
@@ -50,7 +49,7 @@ public class TarefasController {
 
         String token = authorizationHeader.replace("Bearer ", "");
 
-        String advogadoId = jwtService.extractUsername(token);
+        String advogadoId = jwtService.extractUserId(token);
 
         Advogado advogado = advogadoRepository.findById(advogadoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + advogadoId));
@@ -93,7 +92,7 @@ public class TarefasController {
         try {
             String token = authorizationHeader.replace("Bearer ", "");
 
-            String advogadoId = jwtService.extractUsername(token);
+            String advogadoId = jwtService.extractUserId(token);
 
             Tarefas tarefaAtualizada = service.finalizar(id, advogadoId);
 

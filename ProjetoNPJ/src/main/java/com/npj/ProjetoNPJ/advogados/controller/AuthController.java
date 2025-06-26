@@ -34,7 +34,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@Valid @RequestBody AuthRequest authRequest) {
         try {
-            Map<String, String> tokens = authenticationService.authenticate(authRequest.getUsername(), authRequest.getPassword());
+            Map<String, String> tokens = authenticationService.autenticar(authRequest.getUsername(), authRequest.getPassword());
             if (tokens == null || tokens.get("refreshToken") == null || tokens.get("accessToken") == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of("message", "Falha ao gerar tokens"));

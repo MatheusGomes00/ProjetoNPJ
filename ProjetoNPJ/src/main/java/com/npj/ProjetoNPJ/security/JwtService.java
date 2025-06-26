@@ -1,20 +1,16 @@
 package com.npj.ProjetoNPJ.security;
 
-import com.npj.ProjetoNPJ.exceptions.CustomAuthenticationException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -40,28 +36,26 @@ public class JwtService {
         this.userDetailsService = userDetailsService;
     }
 
-    public String generateAccessToken(String username) {
-        UserAutenticado userDetails = (UserAutenticado) userDetailsService.loadUserByUsername(username);
-        String role = userDetails.getAuthorities().iterator().next().getAuthority();
-        // String id = userDetails.getId();
+    public String generateAccessToken(UserAutenticado user) {
+        String role = user.getAuthorities().iterator().next().getAuthority();
+        String userId = user.getId();
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role); // Adiciona a role ao payload do token
-        return createToken(claims, username, accessExpiration);
+        return createToken(claims, userId, accessExpiration);
     }
 
-    public String generateRefreshToken(String username) {
-        UserAutenticado userDetails = (UserAutenticado) userDetailsService.loadUserByUsername(username);
-        String role = userDetails.getAuthorities().iterator().next().getAuthority();
-        // String id = userDetails.getId();
+    public String generateRefreshToken(UserAutenticado user) {
+        String role = user.getAuthorities().iterator().next().getAuthority();
+        String userId = user.getId();
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
-        return createToken(claims, username, refreshExpiration);
+        return createToken(claims, userId, refreshExpiration);
     }
 
-    private String createToken(Map<String, Object> claims, String username, long expiration) {
+    private String createToken(Map<String, Object> claims, String userId, long expiration) {
         return Jwts.builder()
                 .claims(claims)
-                .subject(username)
+                .subject(userId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
@@ -78,7 +72,7 @@ public class JwtService {
         }
     }
 
-    public String extractUsername(String token) {
+    public String extractUserId(String token) {
 
         return extractClaim(token, Claims::getSubject);
     }

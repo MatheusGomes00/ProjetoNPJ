@@ -18,16 +18,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String cpf) throws UsernameNotFoundException {
 
         Advogado advogado = repository
-                .findById(username)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Username nao localizado."));
+                .findByCpf(normalizarCpf(cpf))
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario nao localizado."));
 
         return new UserAutenticado(advogado);
     }
 
-//    public String normalizarCpf(String cpf) {
-//        return cpf.replaceAll("[.\\-\\s]", "");
-//    }
+    private String normalizarCpf(String cpf) {
+        return cpf.replaceAll("[.\\-\\s]", "");
+    }
+
+    public UserDetails loadUserById(String userId) {
+
+        Advogado advogado = repository.findById(userId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario nao localizado"));
+        return  new UserAutenticado(advogado);
+    }
 }

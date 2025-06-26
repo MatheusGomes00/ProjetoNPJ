@@ -30,7 +30,7 @@ public class UserAutenticado implements UserDetails {
 
     @Override
     public String getUsername() {
-        return advogado.getId();
+        return advogado.getCpf();
     }
 
     @Override
