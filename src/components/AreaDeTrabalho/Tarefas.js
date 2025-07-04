@@ -7,14 +7,16 @@ const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: calc(106vh - 25px);
-  height: 440px;
-  padding: 40px;
-  border: 0px solid black;
-  border-radius: 0px;
+  width: 100%;
+  max-width: 1200px;
+  min-width: 320px;
+  height: auto;
+  padding: 20px;
+  margin: 0 auto 32px auto;
+  border: 0;
+  border-radius: 0;
   background: #fff;
   box-sizing: border-box;
-  z-index: 1;
 `;
 
 const TituloTarefas = styled.h2`
@@ -22,7 +24,7 @@ const TituloTarefas = styled.h2`
   font-weight: bold;
   color: #333;
   text-align: center;
-  margin-top: -35px;
+  margin-top: -20px;
 `;
 
 const DetalheItemNome = styled.div`
@@ -85,8 +87,7 @@ const ListaTarefas = styled.div`
   gap: 30px;
   justify-content: center;
   align-items: flex-start;
-  width: 106%;
-  max-width: 250%;
+  width: 100%;
   max-height: 380px;
   overflow-y: auto;
   padding: 10px;
@@ -99,8 +100,10 @@ const TarefaCard = styled.div`
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   padding: 15px;
   border-radius: 12px;
-  width: 170px;
-  height: 120px;
+  min-width: 0;
+  width: 100%;
+  max-width: 220px;
+  min-height: 120px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
   text-align: center;
   display: flex;
@@ -111,6 +114,9 @@ const TarefaCard = styled.div`
   cursor: pointer;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.05);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-weight: 600;
+  color: #222;
 
   &:hover {
     transform: translateY(-4px);
@@ -119,11 +125,24 @@ const TarefaCard = styled.div`
 
   > div {
     font-size: 13px;
-    color: #5c6b80;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #222;
+    font-family: "Segoe UI", Arial, sans-serif;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-weight: 600;
+  }
+
+  @media (max-width: 900px) {
+    max-width: 48vw;
+    min-height: 110px;
+    padding: 10px;
+  }
+
+  @media (max-width: 600px) {
+    max-width: 98vw;
+    min-height: 80px;
+    padding: 8px;
   }
 `;
 
@@ -830,7 +849,7 @@ function Tarefas() {
       <BotaoAdicionar onClick={abrirModal}>Adicionar Tarefa</BotaoAdicionar>
 
       {/* Modal para adicionar tarefa */}
-      <ModalOverlay $show={showModal}>
+      <ModalOverlay show={showModal}>
         <ModalContent>
           <BotaoFechar onClick={fecharModal}>×</BotaoFechar>
           <h3>Cadastrar Nova Tarefa</h3>
@@ -938,7 +957,7 @@ function Tarefas() {
       </ModalOverlay>
 
       {/* Modal de detalhes */}
-      <ModalOverlay $show={showDetalhesModal}>
+      <ModalOverlay show={showDetalhesModal}>
         <TarefaDetalhesModal>
           <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
           <DetalheItemNome>

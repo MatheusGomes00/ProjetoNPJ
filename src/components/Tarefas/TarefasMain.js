@@ -198,7 +198,7 @@ const Mensagem = styled.p`
 // Estilo do container de navegação
 const NavegacaoContainer = styled.div`
   display: flex;
-  justify-content:Página 4 de 5 center;
+  justify-content: center;
   align-items: center;
   gap: 15px;
   margin-top: 20px;
@@ -514,6 +514,7 @@ const TarefasMain = () => {
       buscarTarefasPorNome("");
     }
   }, [buscarTarefasPorNome, isSearching]);
+
 
   const handleBusca = (e) => {
     setNomeBusca(e.target.value);
