@@ -22,12 +22,15 @@ public interface TarefasRepository extends MongoRepository<Tarefas, String> {
     List<Tarefas> findByNome(String nome);
 
 
-
     @Query("{'responsaveis.id': ?0 }")
     Page<Tarefas> findAllPageable(String id, Pageable pageable);
 
     @Query("{ 'prazoLimite': { $gte: ?0, $lte: ?1 } }")
     List<Tarefas> findByPrazoLimiteBetween(LocalDate start, LocalDate end);
 
+    @Query("{ 'prioridade': ?0 }")
+    List<Tarefas> findByPrioridade(String prioridade);
 
+    @Query("{ 'nomeTarefa': { $regex: ?0, $options: 'i' }, 'prioridade': { $regex: '^?1$', $options: 'i' } }")
+    List<Tarefas> findByNomeAndPrioridade(String nome, String prioridade);
 }
