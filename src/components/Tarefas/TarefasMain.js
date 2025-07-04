@@ -71,7 +71,7 @@ const CampoBusca = styled.input`
 
 // Estilo do botão de busca
 const BotaoBusca = styled.button`
-  background:rgb(4, 0, 255);
+  background: rgb(4, 0, 255);
   color: white;
   padding: 10px 20px;
   border: none;
@@ -198,7 +198,7 @@ const Mensagem = styled.p`
 // Estilo do container de navegação
 const NavegacaoContainer = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content:Página 4 de 5 center;
   align-items: center;
   gap: 15px;
   margin-top: 20px;
@@ -241,8 +241,8 @@ const TarefasMain = () => {
   const [tarefasBuscadas, setTarefasBuscadas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
-  const [ setMensagemSucesso] = useState("");
-  const [ setIsLoadingFinalizar] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
   const [nomeBusca, setNomeBusca] = useState("");
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
   const [showModalEdicao, setShowModalEdicao] = useState(false);
@@ -295,7 +295,7 @@ const TarefasMain = () => {
     async (nome = "", forceRefresh = false) => {
       const now = Date.now();
       const minInterval = 5000;
-      const cacheKey = nome ? `${nome}_search` : `all_page${currentPage}`;
+      const cacheKey = nome ? `${nome}_search` : `all_tasks`;
 
       if (!forceRefresh && cacheRef.current[cacheKey] && now - lastFetchTimeRef.current < minInterval) {
         const tarefasDoCache = cacheRef.current[cacheKey];
@@ -304,6 +304,7 @@ const TarefasMain = () => {
           setTotalPages(Math.ceil(tarefasDoCache.length / PAGE_SIZE) || 1);
         } else {
           setTarefasOriginais(tarefasDoCache);
+          setTotalPages(Math.ceil(tarefasDoCache.length / PAGE_SIZE) || 1);
         }
         setMensagemErro("");
         return;
@@ -317,12 +318,9 @@ const TarefasMain = () => {
       setMensagemErro("");
 
       try {
-        let url;
-        if (nome) {
-          url = `http://localhost:8080/task/search/${encodeURIComponent(nome)}`;
-        } else {
-          url = `http://localhost:8080/task/page?page=${currentPage}&size=${PAGE_SIZE}&sort=nomeTarefa,asc`;
-        }
+        let url = nome
+          ? `http://localhost:8080/task/search/${encodeURIComponent(nome)}`
+          : `http://localhost:8080/task/get`;
 
         const response = await fetchAuthenticated(url, {
           method: "GET",
@@ -339,6 +337,7 @@ const TarefasMain = () => {
               setTotalPages(1);
             } else {
               setTarefasOriginais([]);
+              setTotalPages(1);
             }
             cacheRef.current[cacheKey] = [];
             return;
@@ -350,13 +349,14 @@ const TarefasMain = () => {
 
         const data = await response.json();
 
-        if (!data || (nome && data.length === 0) || (!nome && !data.content)) {
+        if (!data || data.length === 0) {
           setMensagemErro(nome ? "Nenhuma tarefa encontrada com esse nome." : "Nenhuma tarefa cadastrada.");
           if (nome) {
             setTarefasBuscadas([]);
             setTotalPages(1);
           } else {
             setTarefasOriginais([]);
+            setTotalPages(1);
           }
           cacheRef.current[cacheKey] = [];
           return;
@@ -368,10 +368,10 @@ const TarefasMain = () => {
           setTotalPages(Math.ceil(data.length / PAGE_SIZE) || 1);
           cacheRef.current[cacheKey] = data;
         } else {
-          // Non-search returns a paginated response
-          setTarefasOriginais(data.content);
-          setTotalPages(data.totalPages || 1);
-          cacheRef.current[cacheKey] = data.content;
+          // /task/get returns a flat list
+          setTarefasOriginais(data);
+          setTotalPages(Math.ceil(data.length / PAGE_SIZE) || 1);
+          cacheRef.current[cacheKey] = data;
         }
 
         setMensagemErro("");
@@ -384,27 +384,24 @@ const TarefasMain = () => {
           setTotalPages(1);
         } else {
           setTarefasOriginais([]);
+          setTotalPages(1);
         }
       } finally {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, isLoading, currentPage]
+    [fetchAuthenticated, isLoading]
   );
 
-  // Memoizar as tarefas filtradas com paginação no lado do cliente para busca
+  // Memoizar as tarefas filtradas com paginação no lado do cliente
   const tarefasFiltradas = useMemo(() => {
     let baseTarefas = isSearching ? tarefasBuscadas : tarefasOriginais;
     let tarefas = aplicarFiltros(baseTarefas, filtroStatus, filtroPrioridade);
 
-    // Aplicar paginação no lado do cliente para resultados de busca
-    if (isSearching) {
-      const startIndex = currentPage * PAGE_SIZE;
-      const endIndex = startIndex + PAGE_SIZE;
-      return tarefas.slice(startIndex, endIndex);
-    }
-
-    return tarefas;
+    // Aplicar paginação no lado do cliente
+    const startIndex = currentPage * PAGE_SIZE;
+    const endIndex = startIndex + PAGE_SIZE;
+    return tarefas.slice(startIndex, endIndex);
   }, [tarefasOriginais, tarefasBuscadas, isSearching, filtroStatus, filtroPrioridade, currentPage]);
 
   const finalizarTarefa = async (id) => {
@@ -424,6 +421,11 @@ const TarefasMain = () => {
           "Content-Type": "application/json",
         },
       });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Erro na requisição: ${response.status} - ${errorData || "Sem detalhes"}`);
+      }
 
       const tarefaAtualizada = await response.json();
 
@@ -511,7 +513,7 @@ const TarefasMain = () => {
     if (!isSearching) {
       buscarTarefasPorNome("");
     }
-  }, [currentPage, buscarTarefasPorNome, isSearching]);
+  }, [buscarTarefasPorNome, isSearching]);
 
   const handleBusca = (e) => {
     setNomeBusca(e.target.value);
@@ -561,6 +563,13 @@ const TarefasMain = () => {
       setCurrentPage((prev) => prev + 1);
     }
   };
+
+  // Calcular totalPages com base nas tarefas filtradas
+  const filteredTotalPages = useMemo(() => {
+    const baseTarefas = isSearching ? tarefasBuscadas : tarefasOriginais;
+    const tarefas = aplicarFiltros(baseTarefas, filtroStatus, filtroPrioridade);
+    return Math.ceil(tarefas.length / PAGE_SIZE) || 1;
+  }, [tarefasOriginais, tarefasBuscadas, isSearching, filtroStatus, filtroPrioridade]);
 
   return (
     <ComponentesFixos>
@@ -615,6 +624,8 @@ const TarefasMain = () => {
           <Mensagem>Carregando tarefas...</Mensagem>
         ) : mensagemErro ? (
           <Mensagem>{mensagemErro}</Mensagem>
+        ) : mensagemSucesso ? (
+          <Mensagem style={{ color: "green" }}>{mensagemSucesso}</Mensagem>
         ) : tarefasFiltradas.length === 0 && isSearching ? (
           <Mensagem>Nenhuma tarefa encontrada.</Mensagem>
         ) : tarefasFiltradas.length === 0 ? (
@@ -640,8 +651,8 @@ const TarefasMain = () => {
               <BotaoNavegacao onClick={handlePreviousPage} disabled={currentPage === 0}>
                 ⬅️
               </BotaoNavegacao>
-              <span>Página {currentPage + 1} de {totalPages}</span>
-              <BotaoNavegacao onClick={handleNextPage} disabled={currentPage === totalPages - 1}>
+              <span>Página {currentPage + 1} de {filteredTotalPages}</span>
+              <BotaoNavegacao onClick={handleNextPage} disabled={currentPage === filteredTotalPages - 1}>
                 ➡️
               </BotaoNavegacao>
             </NavegacaoContainer>

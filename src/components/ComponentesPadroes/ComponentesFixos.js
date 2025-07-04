@@ -66,7 +66,6 @@ const ComponentesFixos = ({ children }) => {
         hideProgressBar={false}
         newestOnTop
         closeOnClick
-        rtl={false}
         pauseOnFocusLoss
         draggable
         pauseOnHover
