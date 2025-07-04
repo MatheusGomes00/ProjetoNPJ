@@ -12,9 +12,9 @@ import com.npj.ProjetoNPJ.exceptions.CpfUnicoException;
 import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.exceptions.SenhaInvalidaException;
+import com.npj.ProjetoNPJ.security.UserAutenticado;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,11 +30,11 @@ public class AdvogadoService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public String getAuthenticatedUsername() {
+    public String getAuthUserId() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername(); // username do usuário autenticado
+        if (principal instanceof UserAutenticado) {
+            return ((UserAutenticado) principal).getId(); // username do usuário autenticado
         } else {
             return principal.toString(); // Caso seja um token simples
         }
@@ -48,7 +48,7 @@ public class AdvogadoService {
     }
 
     public String buscarNomeAutenticado() {
-        Advogado advogado = repository.findById(getAuthenticatedUsername())
+        Advogado advogado = repository.findById(getAuthUserId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
         return advogado.getNome();
     }
@@ -113,7 +113,7 @@ public class AdvogadoService {
     public void updateSenha(UpdateSenhaDto senhaDto) {
         // String username = getAuthenticatedUsername();
         Advogado advogado = repository
-                .findById(getAuthenticatedUsername())
+                .findById(getAuthUserId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuario não localizado."));
 
         if (!senhaDto.getNovaSenha().equals(senhaDto.getRepeteSenha())) {

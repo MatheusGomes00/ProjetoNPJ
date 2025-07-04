@@ -4,6 +4,7 @@ import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.notificacoes.entitie.Notificacao;
 import com.npj.ProjetoNPJ.notificacoes.service.NotificacaoService;
 import com.npj.ProjetoNPJ.security.JwtService;
+import com.npj.ProjetoNPJ.security.UserAutenticado;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,8 +31,8 @@ public class NotificacaoController {
     public String getAuthenticatedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername(); // username do usuário autenticado
+        if (principal instanceof UserAutenticado) {
+            return ((UserAutenticado) principal).getId(); // username do usuário autenticado
         } else {
             return principal.toString(); // Caso seja um token simples
         }

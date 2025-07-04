@@ -112,6 +112,7 @@ public class TarefasController {
         List<DtoTarefas> dto = service.getTarefasAutenticado();
         return ResponseEntity.ok(dto);
     }
+
     @GetMapping(value = "/{id}")
     public ResponseEntity <DtoTarefas> listarTarefaNotifi(@PathVariable String id){
         DtoTarefas dto = services.findById(id);

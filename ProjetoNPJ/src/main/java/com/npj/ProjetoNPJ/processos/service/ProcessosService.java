@@ -15,10 +15,10 @@ import com.npj.ProjetoNPJ.processos.entity.Processos;
 import com.npj.ProjetoNPJ.processos.mapper.ProcessosMapper;
 import com.npj.ProjetoNPJ.processos.repository.ProcessosRepositorio;
 import com.npj.ProjetoNPJ.security.JwtService;
+import com.npj.ProjetoNPJ.security.UserAutenticado;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -178,8 +178,8 @@ public class ProcessosService {
     public String getAuthenticatedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
+        if (principal instanceof UserAutenticado) {
+            return ((UserAutenticado) principal).getId();
         } else {
             return principal.toString();
         }
@@ -189,7 +189,7 @@ public class ProcessosService {
     public List<DtoProcessos> getProcAutenticado() {
 
         Advogado advogado = advrepository.findById(getAuthenticatedUsername())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado"));
         List<Processos> tarefa = processosRepositorio.findByAdvogadoId(advogado.getId());
 
         return ProcessosMapper.toListDto(tarefa);
@@ -199,7 +199,7 @@ public class ProcessosService {
     public ComentarioDto criarComentario(ComentarioDto comentarioDto, String idProc) {
         try{
             comentarioDto.setId(UUID.randomUUID().toString());
-            comentarioDto.setResponsavelId(advService.getAuthenticatedUsername());
+            comentarioDto.setResponsavelId(advService.getAuthUserId());
             comentarioDto.setResponsavelNome(advService.buscarNomeAutenticado());
             Processos processo = processosRepositorio.findById(idProc)
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Processo não localizado."));

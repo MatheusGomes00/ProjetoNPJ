@@ -9,6 +9,7 @@ import com.npj.ProjetoNPJ.agendamentos.repository.AgendamentoRepository;
 import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
+import com.npj.ProjetoNPJ.security.UserAutenticado;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,8 +34,8 @@ public class AgendamentoService {
     public String getAuthenticatedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername(); // username do usuário autenticado
+        if (principal instanceof UserAutenticado) {
+            return ((UserAutenticado) principal).getId(); // username do usuário autenticado
         } else {
             return principal.toString(); // Caso seja um token simples
         }
