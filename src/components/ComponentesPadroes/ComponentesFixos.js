@@ -8,58 +8,81 @@ import IconeNovaTarefa from "../botoesTelaImovel/IconeNovaTarefa";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Contêiner principal com CSS Grid
-const FixedGridContainer = styled.div`
-  display: grid;
-  grid-template-areas:
-    "searchbar searchbar searchbar"
-    "sidebar main main"
-    "sidebar main main";
-  grid-template-rows: 100px 1fr 1fr;
-  grid-template-columns: 200px 1fr 1fr;
+// Altura da TopBar
+const TOPBAR_HEIGHT = 100;
+const SIDEBAR_WIDTH = 200;
+
+const LayoutContainer = styled.div`
+  display: flex;
   height: 100vh;
   width: 100vw;
-  position: fixed;
-  top: 0;
-  left: 0;
   overflow: hidden;
 `;
 
-const GridSearchBar = styled(SearchBarTop)`
-  grid-area: searchbar;
-`;
-
-const GridSidebar = styled(Sidebar)`
-  grid-area: sidebar;
-`;
-
-const MainContent = styled.div`
-  grid-area: main;
+const SidebarArea = styled.div`
+  width: ${SIDEBAR_WIDTH}px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  z-index: 10;
   position: relative;
-  overflow: auto;
+`;
+
+const MainArea = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+`;
+
+const TopBarArea = styled.div`
+  height: ${TOPBAR_HEIGHT}px;
+  background: #f8f9fa;
+  border-bottom: 2px solid #eee;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 `;
 
 const TopRightIcons = styled.div`
-  position: absolute;
-  top: 20px;
-  right: 20px;
   display: flex;
   gap: 10px;
-  z-index: 1000;
+  align-items: center;
+  margin-left: auto;
 `;
 
+const MainContent = styled.div`
+  flex: 1;
+  overflow: auto;
+  background: #f5f6fa;
+  padding: 0px;
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+`;
 
-const ComponentesFixos = ({ children }) => {
-  return (
-    <FixedGridContainer>
-      <GridSearchBar />
-      <TopRightIcons>
-        <IconeNotificacoes />
-        <IconeLogOut />
-        <IconeNovaTarefa />
-      </TopRightIcons>
-      <GridSidebar />
-      <MainContent>{children}</MainContent>
+const ComponentesFixos = ({ children }) => (
+  <LayoutContainer>
+    <SidebarArea>
+      <Sidebar />
+    </SidebarArea>
+    <MainArea>
+      <TopBarArea>
+        <SearchBarTop />
+        <TopRightIcons>
+          <IconeNotificacoes />
+          <IconeLogOut />
+          <IconeNovaTarefa />
+        </TopRightIcons>
+      </TopBarArea>
+      <MainContent>
+        {children}
+      </MainContent>
       <ToastContainer
         position="top-center"
         autoClose={7000}
@@ -72,8 +95,8 @@ const ComponentesFixos = ({ children }) => {
         theme="colored"
         style={{ zIndex: 10000 }}
       />
-    </FixedGridContainer>
-  );
-};
+    </MainArea>
+  </LayoutContainer>
+);
 
 export default ComponentesFixos;

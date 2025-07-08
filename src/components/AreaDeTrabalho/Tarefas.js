@@ -6,15 +6,12 @@ import useAuth from "../Seguranca/UseAuth";
 const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
-  max-width: 1200px;
-  min-width: 320px;
-  height: auto;
-  padding: 20px;
-  margin: 0 auto 32px auto;
+  height: 100%;
+  padding: 24px;
+  margin: 0;
   border: 0;
-  border-radius: 0;
   background: #fff;
   box-sizing: border-box;
 `;
@@ -40,6 +37,7 @@ const DetalheItemNome = styled.div`
   word-wrap: break-word;
   overflow-y: auto;
   box-sizing: border-box;
+
 `;
 
 const TextArea = styled.textarea`
@@ -62,6 +60,7 @@ const TextArea = styled.textarea`
     border-color: #007bff;
     outline: none;
   }
+
 `;
 
 const NomeTarefaCard = styled.div`
@@ -84,13 +83,14 @@ const NomeTarefaCard = styled.div`
 const ListaTarefas = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 30px;
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  max-height: 380px;
+  flex: 1; 
   overflow-y: auto;
-  padding: 10px;
+  min-height: 0; 
+  gap: 30px;
+  padding: 0px;
   border: 1px solid #ccc;
   border-radius: 8px;
 `;
@@ -173,6 +173,8 @@ const BotaoAdicionar = styled.button`
   margin-top: 20px;
   border-radius: 5px;
   cursor: pointer;
+  flex-shrink: 0; /* Evita que o botão seja espremido */
+  align-self: center; /* Mantém o botão centralizado horizontalmente */
   font-size: 16px;
   font-weight: bold;
 
@@ -303,6 +305,7 @@ const LegendaPrioridades = styled.div`
   width: 100%;
   font-size: 14px;
   color: #666;
+  flex-shrink: 0; /* Evita que a legenda seja espremida */
 `;
 
 const TagLegenda = styled.div`
@@ -749,8 +752,7 @@ function Tarefas() {
         throw new Error(`Erro na requisição: ${response.status} - ${JSON.stringify(errorData)}`);
       }
 
-      const tarefaCriada = await response.json();
-      
+      await response.json();
 
       setShowModal(false);
       setNovaTarefa({

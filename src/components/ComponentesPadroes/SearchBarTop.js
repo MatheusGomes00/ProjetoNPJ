@@ -3,17 +3,14 @@ import styled from "styled-components";
 
 
 const GridContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100px;
-  background-color: #f8f9fa;
-  border-bottom: 2px solid black;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 0;
+  background-color: #f8f9fa;
+  height: 100px;
+  position: relative;
+  z-index: 1;
   overflow: hidden;
   box-sizing: border-box;
 
@@ -22,49 +19,17 @@ const GridContainer = styled.div`
   }
 `;
 
-const CornerLabel = styled.div`
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  font-family: Arial, sans-serif;
-  color: #333;
-  font-size: clamp(8px, 1vw, 14px);
-  line-height: 1.1;
-  pointer-events: none;
-
-  @media (max-width: 800px) {
-    font-size: clamp(6px, 0.8vw, 10px);
-    top: 3px;
-    left: 3px;
-  }
-
-  @media (max-width: 600px) {
-    font-size: clamp(5px, 0.6vw, 8px);
-    top: 2px;
-    left: 2px;
-  }
-
-  @media (min-width: 1440px) {
-    font-size: clamp(12px, 1.5vw, 16px);
-    top: 8px;
-    left: 8px;
-  }
-`;
-
 const SearchBarContainer = styled.div`
-  position: absolute;
-  top: clamp(30px, 5vh, 50px);
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   max-width: 600px;
   width: 100%;
-  padding: 0;
+  margin: 0 auto;
   background-color: transparent;
   border-radius: 8px;
-  z-index: 1000;
+  z-index: 2;
+  padding: 0;
 `;
 
 const SearchInput = styled.input`
@@ -129,11 +94,6 @@ export default function SearchBarTop() {
 
   return (
     <GridContainer>
-      <CornerLabel>
-        <span className="corner-label-npj">NPJ</span>
-        <br />
-        <span className="corner-label-anhanguera">ANHANGUERA</span>
-      </CornerLabel>
       <SearchBarContainer>
         <SearchInput
           type="text"

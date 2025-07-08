@@ -18,7 +18,7 @@ const GridContainer = styled.div`
   width: 100%;
   max-width: 100vw;
   min-height: 100vh;
-  padding: 24px;
+  padding: 20px;
   box-sizing: border-box;
 
   @media (max-width: 1100px) {
