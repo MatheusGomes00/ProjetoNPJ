@@ -10,18 +10,12 @@ import EditarClientes from "./EditarClientes";
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 34px;
-  width: calc(100% - 34px);
-  min-height: 100vh;
-  background: #f4f7fa;
-  padding: 30px;
+  margin-left: 24px;
+  width: 100%;
+  height: 100%;
   box-sizing: border-box;
+  gap: 20px;
 
-  @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-    padding: 20px;
-  }
 `;
 
 // Estilo do cabeçalho
@@ -29,7 +23,7 @@ const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 8px;
   background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   padding: 20px;
   border-radius: 12px;
@@ -92,7 +86,7 @@ const BotaoVoltar = styled.button`
 const AbasContainer = styled.div`
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   border-bottom: 2px solid #e0e4e8;
 `;
 
@@ -121,8 +115,9 @@ const DetalhesContainer = styled.div`
   gap: 20px;
   background: #fff;
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 20px;
   border: 1px solid #e0e4e8;
+  
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;

@@ -327,12 +327,23 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
         )}
         <FormRow>
           <FormLabel>Cargo</FormLabel>
-          <FormInput
-            type="text"
-            name="role"
-            value={formData.role}
-            onChange={handleInputChange}
-          />
+          {getRole() === 'ADVOGADO' ? (
+              <FormSelect
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+              >
+                <option value="ADVOGADO">ADVOGADO</option>
+                <option value="ESTAGIARIO">ESTAGIARIO</option>
+              </FormSelect>
+            ) : (
+              <FormInput
+                type="text"
+                name="role"
+                value={formData.role}
+                readOnly
+              />
+            )} 
         </FormRow>
         <FormRow>
           <FormLabel>Status</FormLabel>

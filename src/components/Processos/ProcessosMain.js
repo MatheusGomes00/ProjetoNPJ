@@ -7,24 +7,18 @@ import useAuth from "../Seguranca/UseAuth";
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 34px;
-  width: calc(100% - 34px);
-  min-height: 100vh;
-  background: #f4f7fa;
-  padding: 30px;
+  margin-left: 24px;
+  width: 100%;
+  height: 100%;
   box-sizing: border-box;
+  gap: 20px;
 
-  @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-  }
 `;
 
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
   width: 100%;
 `;
 
@@ -36,35 +30,18 @@ const Titulo = styled.h1`
   margin: 0;
 `;
 
-const BotaoCriar = styled.button`
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
 const CampoBusca = styled.input`
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
   width: 300px;
-  margin-bottom: 20px;
 `;
 
 const FiltrosContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
-  margin-bottom: 20px;
   flex-wrap: wrap;
 `;
 
@@ -91,12 +68,12 @@ const ProcessosTable = styled.table`
 `;
 
 const TableHeader = styled.th`
-  padding: 12px;
-  background-color: #f5f5f5;
-  border-bottom: 2px solid #ddd;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border-bottom: 2px solid #e0e4e8;
   text-align: left;
   font-weight: bold;
-  color: #333;
 `;
 
 const TableRow = styled.tr`

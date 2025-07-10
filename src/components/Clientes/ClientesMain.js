@@ -40,7 +40,7 @@ const ClientesMain = () => {
   const [filtroStatus, setFiltroStatus] = useState(null); // "ativos", "inativos", ou null
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const PAGE_SIZE = 12; // 12 clientes por página
+  const PAGE_SIZE = 6; // 12 clientes por página
 
   const navigate = useNavigate(); // Hook para navegação
 

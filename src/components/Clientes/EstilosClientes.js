@@ -4,24 +4,18 @@ import styled from "styled-components";
 export const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 34px;
-  width: calc(100% - 34px);
-  min-height: 100vh;
-  background: #f4f7fa;
-  padding: 30px;
+  margin-left: 24px;
+  width: 100%;
+  height: 100%;
   box-sizing: border-box;
+  gap: 20px;
 
-  @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-  }
 `;
 
 export const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
   width: 100%;
 `;
 
@@ -86,7 +80,10 @@ export const BotaoFiltroStatus = styled.button`
 
 export const ClientesContainer = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
+  min-height: 0;
 `;
 
 export const ClientesList = styled.div`

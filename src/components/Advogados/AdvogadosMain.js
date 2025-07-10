@@ -40,7 +40,7 @@ const AdvogadosMain = () => {
   const [filtroStatus, setFiltroStatus] = useState(null); 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const PAGE_SIZE = 12; 
+  const PAGE_SIZE = 6; 
 
   const navigate = useNavigate();
 
