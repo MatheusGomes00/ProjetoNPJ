@@ -6,15 +6,14 @@ import useAuth from "../Seguranca/UseAuth";
 const TarefasContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: calc(106vh - 25px);
-  height: 440px;
-  padding: 40px;
-  border: 0px solid black;
-  border-radius: 0px;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  margin: 0;
+  border: 0;
   background: #fff;
   box-sizing: border-box;
-  z-index: 1;
 `;
 
 const TituloTarefas = styled.h2`
@@ -22,7 +21,7 @@ const TituloTarefas = styled.h2`
   font-weight: bold;
   color: #333;
   text-align: center;
-  margin-top: -35px;
+  margin-top: -20px;
 `;
 
 const DetalheItemNome = styled.div`
@@ -38,6 +37,7 @@ const DetalheItemNome = styled.div`
   word-wrap: break-word;
   overflow-y: auto;
   box-sizing: border-box;
+
 `;
 
 const TextArea = styled.textarea`
@@ -60,9 +60,10 @@ const TextArea = styled.textarea`
     border-color: #007bff;
     outline: none;
   }
+
 `;
 
-const NomeTarefaCard = styled.div`
+  const NomeTarefaCard = styled.div`
   font-size: 15px;
   font-weight: 600;
   color: #2c3e50;
@@ -82,14 +83,14 @@ const NomeTarefaCard = styled.div`
 const ListaTarefas = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 30px;
   justify-content: center;
   align-items: flex-start;
-  width: 106%;
-  max-width: 250%;
-  max-height: 380px;
+  width: 95%;
+  flex: 1; 
   overflow-y: auto;
-  padding: 10px;
+  min-height: 0; 
+  gap: 30px;
+  padding: 15px;
   border: 1px solid #ccc;
   border-radius: 8px;
 `;
@@ -98,9 +99,12 @@ const TarefaCard = styled.div`
   font-size: 15px;
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   padding: 15px;
+  margin: 0;
   border-radius: 12px;
-  width: 170px;
-  height: 120px;
+  min-width: 0;
+  width: 80%;
+  max-width: 220px;
+  min-height: 120px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
   text-align: center;
   display: flex;
@@ -111,6 +115,9 @@ const TarefaCard = styled.div`
   cursor: pointer;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.05);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-weight: 600;
+  color: #222;
 
   &:hover {
     transform: translateY(-4px);
@@ -119,11 +126,24 @@ const TarefaCard = styled.div`
 
   > div {
     font-size: 13px;
-    color: #5c6b80;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #222;
+    font-family: "Segoe UI", Arial, sans-serif;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-weight: 600;
+  }
+
+  @media (max-width: 900px) {
+    max-width: 48vw;
+    min-height: 110px;
+    padding: 10px;
+  }
+
+  @media (max-width: 600px) {
+    max-width: 98vw;
+    min-height: 80px;
+    padding: 8px;
   }
 `;
 
@@ -154,6 +174,8 @@ const BotaoAdicionar = styled.button`
   margin-top: 20px;
   border-radius: 5px;
   cursor: pointer;
+  flex-shrink: 0; /* Evita que o botão seja espremido */
+  align-self: center; /* Mantém o botão centralizado horizontalmente */
   font-size: 16px;
   font-weight: bold;
 
@@ -284,6 +306,7 @@ const LegendaPrioridades = styled.div`
   width: 100%;
   font-size: 14px;
   color: #666;
+  flex-shrink: 0; /* Evita que a legenda seja espremida */
 `;
 
 const TagLegenda = styled.div`
@@ -664,6 +687,23 @@ function Tarefas() {
     }
   };
 
+  const handlePrazoLimiteChange = (e) => {
+    const inputValue = e.target.value; // Formato: YYYY-MM-DDThh:mm
+    if (inputValue) {
+      const [datePart] = inputValue.split("T"); // Extrai YYYY-MM-DD
+      const [year] = datePart.split("-"); // Extrai o ano
+      if (year.length > 4) {
+        setMensagemErro("O ano deve ter exatamente 4 dígitos.");
+        setTimeout(() => setMensagemErro(""), 3000);
+        return; // Impede a atualização do estado
+      }
+    }
+    setNovaTarefa({
+      ...novaTarefa,
+      prazoLimite: inputValue,
+    });
+  };
+
   const handleSubmit = async () => {
     if (
       !novaTarefa.nomeTarefa.trim() ||
@@ -672,7 +712,17 @@ function Tarefas() {
       !novaTarefa.prazoLimite ||
       novaTarefa.responsaveisId.length === 0
     ) {
-      alert("Por favor, preencha todos os campos antes de cadastrar a tarefa.");
+      setMensagemErro("Por favor, preencha todos os campos antes de cadastrar a tarefa.");
+      setTimeout(() => setMensagemErro(""), 3000);
+      return;
+    }
+
+    // Validação do ano no prazoLimite
+    const [datePart] = novaTarefa.prazoLimite.split("T");
+    const [year] = datePart.split("-");
+    if (year.length !== 4) {
+      setMensagemErro("O ano deve ter exatamente 4 dígitos.");
+      setTimeout(() => setMensagemErro(""), 3000);
       return;
     }
 
@@ -690,8 +740,6 @@ function Tarefas() {
         responsaveisNome: novaTarefa.responsaveisNome,
       };
 
-    
-
       const response = await fetchAuthenticated("http://localhost:8080/task/create", {
         method: "POST",
         headers: {
@@ -705,8 +753,7 @@ function Tarefas() {
         throw new Error(`Erro na requisição: ${response.status} - ${JSON.stringify(errorData)}`);
       }
 
-      const tarefaCriada = await response.json();
-      
+      await response.json();
 
       setShowModal(false);
       setNovaTarefa({
@@ -726,6 +773,7 @@ function Tarefas() {
     } catch (error) {
       console.error("Erro ao adicionar tarefa:", error);
       setMensagemErro(`Erro ao cadastrar tarefa: ${error.message}`);
+      setTimeout(() => setMensagemErro(""), 3000);
     }
   };
 
@@ -753,13 +801,6 @@ function Tarefas() {
   const fecharDetalhesModal = () => {
     setShowDetalhesModal(false);
     setTarefaSelecionada(null);
-  };
-
-  const handlePrazoLimiteChange = (e) => {
-    setNovaTarefa({
-      ...novaTarefa,
-      prazoLimite: e.target.value,
-    });
   };
 
   useEffect(() => {
@@ -854,6 +895,8 @@ function Tarefas() {
               type="datetime-local"
               value={novaTarefa.prazoLimite}
               onChange={handlePrazoLimiteChange}
+              min="2000-01-01T00:00"
+              max="2100-12-31T23:59"
             />
           </div>
 

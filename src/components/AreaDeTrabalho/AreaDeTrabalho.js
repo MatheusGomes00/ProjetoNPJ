@@ -8,36 +8,50 @@ import styled from "styled-components";
 
 // Grid interno para o conteúdo principal
 const GridContainer = styled.div`
-  height: calc(100% - 20px); /* Respeita o espaço do MainContent */
-  width: calc(100% - 20px); /* Respeita o espaço do MainContent */
-  position: relative; /* Referência para os GridItems absolutos */
-  padding: 0; /* Sem padding no container */
+  display: grid;
+  grid-template-areas:
+    "tarefas processos"
+    "notificacoes processos";
+  grid-template-columns: 2fr 1.2fr;
+  grid-template-rows: 400px 1fr;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  box-sizing: border-box;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "tarefas"
+      "processos"
+      "notificacoes";
+    grid-template-rows: auto;
+  }
 `;
 
 const GridItemTarefas = styled.div`
-  background-color: rgb(226, 0, 0);
-  position: absolute;
-  top: 0px;
-  left: 32px;
-  width: calc(106vh - 32px);
-  height: 400px;
+  grid-area: tarefas;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  overflow: hidden;
 `;
 
 const GridItemProcessos = styled.div`
-  position: absolute;
-  top: 0px;
-  left: 107vh; 
-  width: calc(100% - 107vh); /* Atualizado para refletir o novo tamanho */
-  height: 595px; /* Atualizado para refletir o novo tamanho */
+  grid-area: processos;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  overflow: hidden;
 `;
 
 const GridItemNotificacoes = styled.div`
-  position: absolute;
-  top: 401px; /* 400px (altura do GridItemTarefas) + 20px (espaço) */
-  left: 32px; /* Mesmo left que o GridItemTarefas */
-  width: calc(106vh - 32px); /* Largura até encostar no GridItemProcessos */
-  height: 215px; /* Altura da telinha de notificações (ajuste conforme necessário) */
-  box-sizing: border-box;
+  grid-area: notificacoes;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  overflow: hidden;
 `;
 
 
