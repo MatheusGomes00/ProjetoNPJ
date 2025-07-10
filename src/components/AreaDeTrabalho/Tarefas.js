@@ -63,7 +63,7 @@ const TextArea = styled.textarea`
 
 `;
 
-const NomeTarefaCard = styled.div`
+  const NomeTarefaCard = styled.div`
   font-size: 15px;
   font-weight: 600;
   color: #2c3e50;
@@ -85,12 +85,12 @@ const ListaTarefas = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   justify-content: center;
   align-items: flex-start;
-  width: 100%;
+  width: 95%;
   flex: 1; 
   overflow-y: auto;
   min-height: 0; 
   gap: 30px;
-  padding: 0px;
+  padding: 15px;
   border: 1px solid #ccc;
   border-radius: 8px;
 `;
@@ -99,9 +99,10 @@ const TarefaCard = styled.div`
   font-size: 15px;
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   padding: 15px;
+  margin: 0;
   border-radius: 12px;
   min-width: 0;
-  width: 100%;
+  width: 80%;
   max-width: 220px;
   min-height: 120px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
