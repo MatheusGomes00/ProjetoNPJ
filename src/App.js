@@ -12,6 +12,7 @@ import DetalhesClientes from "./components/Clientes/DetalhesClientes";
 import DetalhesProcesso from "./components/Processos/DetalhesProcessos";
 import CriarClientes from "./components/Clientes/CriarClientes";
 import CriarProcessosCliente from "./components/Clientes/CriarProcessosCliente";
+import './App.css';
 
 
 function App() {

@@ -10,10 +10,11 @@ import ModalEdicao from "../Tarefas/Modais/ModalEdicao";
 const NotificacoesContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: calc(106vh - 25px);
-  height: 35vw;
-  padding: 40px;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  gap: 16px;
   border-radius: 0px;
   background: #fff;
   box-sizing: border-box;
@@ -24,7 +25,7 @@ const NotificacoesHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-bottom: 16px;
+  flex-shrink: 0;
 `;
 
 const NotificacoesTitle = styled.h2`

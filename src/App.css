@@ -58,3 +58,11 @@
   min-height: 600px; /* Garante que o conteúdo tenha uma altura mínima */
 }
 
+html, body, #root, .app-container {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
