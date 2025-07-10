@@ -13,11 +13,9 @@ const ProcessosContainer = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 22px;
-  width: 27vw;
-  height: 60vw;
-  overflow-y: auto;
-  background: linear-gradient(145deg, #f8fbff 0%, #e6f0fa 100%);
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
   
   @media (max-width: 768px) {
     width: 100%;
@@ -33,7 +31,7 @@ const ProcessosTitle = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0 0 10px 0;
-  text-align: left;
+  text-align: center;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
@@ -41,6 +39,26 @@ const ProcessosGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   gap: 15px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 8px;
+
+  /* Estilização da barra de rolagem para consistência */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #b0b8c5;
+    border-radius: 4px;
+    &:hover {
+      background: #8892a3;
+    }
+  }
 `;
 
 const ProcessoCard = styled.div`

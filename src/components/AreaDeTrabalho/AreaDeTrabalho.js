@@ -13,12 +13,11 @@ const GridContainer = styled.div`
     "tarefas processos"
     "notificacoes processos";
   grid-template-columns: 2fr 1.2fr;
-  grid-template-rows: 400px 215px;
+  grid-template-rows: 400px 1fr;
   gap: 16px;
   width: 100%;
-  max-width: 100vw;
-  min-height: 100vh;
-  padding: 20px;
+  height: 100%;
+  padding: 0;
   box-sizing: border-box;
 
   @media (max-width: 1100px) {

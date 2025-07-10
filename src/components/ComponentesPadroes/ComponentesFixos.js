@@ -32,7 +32,6 @@ const MainArea = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
   overflow: hidden;
 `;
 
@@ -58,12 +57,13 @@ const TopRightIcons = styled.div`
 
 const MainContent = styled.div`
   flex: 1;
+  display: flex;
   overflow: auto;
   background: #f5f6fa;
-  padding: 0px;
-  gap: 0;
+  padding: 24px; 
   min-width: 0;
   min-height: 0;
+  box-sizing: border-box;
 `;
 
 const ComponentesFixos = ({ children }) => (
