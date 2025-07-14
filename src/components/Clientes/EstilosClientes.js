@@ -133,11 +133,53 @@ export const ClienteNome = styled.div`
   }
 `;
 
-export const Status = styled.div`
+export const ProcNumero = styled.div`
+  font-family: "Arial", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e3c72;
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:before {
+    content: "📜";
+    font-size: 18px;
+  }
+
+  @media (max-width: 768px) {
+    grid-column: span 1;
+  }
+`;
+
+// função para definir cor com base na situação
+const getStatusColor = ($status) => {
+  switch ($status) {
+    case "INICIADO":
+      return "#52c41a"; // verde
+    case "EM_ANDAMENTO":
+      return "#1890ff"; // azul
+    case "FINALIZADO":
+      return "#8c8c8c"; // cinza
+    case "ARQUIVADO":
+      return "#d9d9d9"; // cinza claro
+    case "SUSPENSO":
+      return "#faad14"; // laranja
+    case "AGUARDANDO_DISTRIBUICAO":
+      return "#fa8c16"; // laranja forte
+    case "EM_RECURSO":
+      return "#722ed1"; // roxo
+    default:
+      return "#ff4d4f"; // vermelho para status indefinido
+  }
+};
+
+export const Situacao = styled.div`
   font-family: "Arial", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: ${(props) => (props.ativo ? "#52c41a" : "#ff4d4f")};
+  color: ${(props) => getStatusColor(props.$status)};
   display: flex;
   align-items: center;
   gap: 8px;
@@ -145,7 +187,23 @@ export const Status = styled.div`
   &:before {
     content: "●";
     font-size: 12px;
-    color: ${(props) => (props.ativo ? "#52c41a" : "#ff4d4f")};
+    color: ${(props) => getStatusColor(props.$status)};
+  }
+`;
+
+export const Status = styled.div`
+  font-family: "Arial", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${(props) => (props.$ativo ? "#52c41a" : "#ff4d4f")};
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:before {
+    content: "●";
+    font-size: 12px;
+    color: ${(props) => (props.$ativo ? "#52c41a" : "#ff4d4f")};
   }
 `;
 

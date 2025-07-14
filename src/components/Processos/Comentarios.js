@@ -43,14 +43,14 @@ const SectionTitle = styled.h3`
 const ToggleIcon = styled.span`
   font-size: 1.2rem;
   transition: transform 0.3s ease;
-  transform: ${({ isCollapsed }) => (isCollapsed ? 'rotate(0deg)' : 'rotate(90deg)')};
+  transform: ${({ $isCollapsed }) => ($isCollapsed ? 'rotate(0deg)' : 'rotate(90deg)')};
 `;
 
 const ContentWrapper = styled.div`
   transition: max-height 0.3s ease, opacity 0.3s ease;
   overflow: hidden;
-  max-height: ${({ isCollapsed }) => (isCollapsed ? '0' : '1000px')}; /* Ajustar conforme conteúdo */
-  opacity: ${({ isCollapsed }) => (isCollapsed ? '0' : '1')};
+  max-height: ${({ $isCollapsed }) => ($isCollapsed ? '0' : '1000px')}; /* Ajustar conforme conteúdo */
+  opacity: ${({ $isCollapsed }) => ($isCollapsed ? '0' : '1')};
 `
 
 const Comentarios = ({
@@ -191,10 +191,10 @@ const Comentarios = ({
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && toggleCollapse()}
       >
-        <ToggleIcon isCollapsed={isCollapsed}>▶</ToggleIcon>
+        <ToggleIcon $isCollapsed={isCollapsed}>▶</ToggleIcon>
         Comentários
       </SectionTitle>
-      <ContentWrapper isCollapsed={isCollapsed}>
+      <ContentWrapper $isCollapsed={isCollapsed}>
         <div style={{ marginBottom: '20px' }}>
           <InfoRow>
             <InfoLabel htmlFor="novoComentario">Novo Comentário</InfoLabel>

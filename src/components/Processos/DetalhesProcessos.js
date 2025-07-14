@@ -132,7 +132,7 @@ const DetalhesProcesso = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [idProc]);
+  }, [fetchAuthenticated, idProc]);
 
   // Busca a lista de advogados
   const fetchAdvogados = useCallback(async () => {
@@ -150,12 +150,25 @@ const DetalhesProcesso = () => {
       console.error("Erro ao buscar advogados:", error);
       setMensagemErro("Erro ao carregar lista de advogados.");
     }
-  }, []);
+  }, [fetchAuthenticated]);
 
   useEffect(() => {
-    fetchProcesso();
-    fetchAdvogados();
-  }, [idProc, fetchProcesso, fetchAdvogados]);
+    const loadData = async () => {
+      if (!isLoading) return;
+      setIsLoading(true);
+      try {
+        await fetchProcesso();
+        await fetchAdvogados();
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Erro no carregamento inicial:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+    
+  }, [fetchProcesso, fetchAdvogados, isLoading]);
 
   // Renderização condicional para evitar erros durante o carregamento
   if (isLoading) {
@@ -172,7 +185,7 @@ const DetalhesProcesso = () => {
             <Header>
             <TituloStatusContainer>
               <Titulo>{formData.numeroProcesso || "N/A"}</Titulo>
-              <StatusBadge situacao={formData.situacao}>
+              <StatusBadge $situacao={formData.situacao}>
                 {formatarSituacao(formData.situacao)}
               </StatusBadge>
             </TituloStatusContainer>
@@ -269,41 +282,8 @@ const DetalhesProcesso = () => {
                     </InfoSelect>
                   </InfoRow>
                 </Section>
-                
-                <Comentarios
-                  idProc={idProc} 
-                  isLoading={isLoading} 
-                  isSaving={isSaving}
-                  setIsSaving={setIsSaving}
-                  formData={formData} 
-                  setFormData={setFormData} 
-                  setMensagemErro={setMensagemErro} 
-                  setShowPopup={setShowPopup} 
-                />
 
-                <Section>
-                  <SectionTitle>Partes Envolvidas</SectionTitle>
-                  <InfoRow>
-                    <InfoLabel htmlFor="representanteLegal">Representante Legal</InfoLabel>
-                    <InfoInput
-                      id="representanteLegal"
-                      name="representanteLegal"
-                      value={formData.representanteLegal}
-                      onChange={(e) => handleInputChange(e, setFormData)}
-                      placeholder="Digite o representante legal"
-                    />
-                  </InfoRow>
-                  <InfoRow>
-                    <InfoLabel htmlFor="requerido">Requerido</InfoLabel>
-                    <InfoInput
-                      id="requerido"
-                      name="requerido"
-                      value={formData.requerido}
-                      onChange={(e) => handleInputChange(e, setFormData)}
-                      placeholder="Digite o requerido"
-                    />
-                  </InfoRow>
-                </Section>
+                
 
                 <Section>
                   <SectionTitle>Cliente</SectionTitle>
@@ -339,6 +319,41 @@ const DetalhesProcesso = () => {
                   ) : (
                     <Mensagem>Nenhum cliente associado.</Mensagem>
                   )}
+                </Section>
+                
+                <Comentarios
+                  idProc={idProc} 
+                  isLoading={isLoading} 
+                  isSaving={isSaving}
+                  setIsSaving={setIsSaving}
+                  formData={formData} 
+                  setFormData={setFormData} 
+                  setMensagemErro={setMensagemErro} 
+                  setShowPopup={setShowPopup} 
+                />
+
+                <Section>
+                  <SectionTitle>Partes Envolvidas</SectionTitle>
+                  <InfoRow>
+                    <InfoLabel htmlFor="representanteLegal">Representante Legal</InfoLabel>
+                    <InfoInput
+                      id="representanteLegal"
+                      name="representanteLegal"
+                      value={formData.representanteLegal}
+                      onChange={(e) => handleInputChange(e, setFormData)}
+                      placeholder="Digite o representante legal"
+                    />
+                  </InfoRow>
+                  <InfoRow>
+                    <InfoLabel htmlFor="requerido">Requerido</InfoLabel>
+                    <InfoInput
+                      id="requerido"
+                      name="requerido"
+                      value={formData.requerido}
+                      onChange={(e) => handleInputChange(e, setFormData)}
+                      placeholder="Digite o requerido"
+                    />
+                  </InfoRow>
                 </Section>
 
                 <Section>
