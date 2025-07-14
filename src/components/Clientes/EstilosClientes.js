@@ -67,14 +67,14 @@ export const BotaoFiltroStatus = styled.button`
   padding: 8px 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: ${({ ativo }) => (ativo ? "#007bff" : "#fff")};
-  color: ${({ ativo }) => (ativo ? "#fff" : "#333")};
+  background-color: ${({ $ativo }) => ($ativo ? "#007bff" : "#fff")};
+  color: ${({ $ativo }) => ($ativo ? "#fff" : "#333")};
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background-color: ${({ ativo }) => (ativo ? "#0056b3" : "#f0f0f0")};
+    background-color: ${({ $ativo }) => ($ativo ? "#0056b3" : "#f0f0f0")};
   }
 `;
 

@@ -93,8 +93,8 @@ const AbasContainer = styled.div`
 // Estilo dos botões de aba
 const BotaoAba = styled.button`
   padding: 10px 20px;
-  background-color: ${(props) => (props.ativo ? "#007bff" : "#f4f7fa")};
-  color: ${(props) => (props.ativo ? "#fff" : "#2c3e50")};
+  background-color: ${(props) => (props.$ativo ? "#007bff" : "#f4f7fa")};
+  color: ${(props) => (props.$ativo ? "#fff" : "#2c3e50")};
   border: none;
   border-radius: 8px 8px 0 0;
   font-family: "Arial", sans-serif;
@@ -104,7 +104,7 @@ const BotaoAba = styled.button`
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${(props) => (props.ativo ? "#0056b3" : "#e0e4e8")};
+    background-color: ${(props) => (props.$ativo ? "#0056b3" : "#e0e4e8")};
   }
 `;
 
@@ -165,19 +165,19 @@ const DetalhesClientes = () => {
 
         <AbasContainer>
           <BotaoAba
-            ativo={abaAtiva === "informacoes"}
+            $ativo={abaAtiva === "informacoes"}
             onClick={() => setAbaAtiva("informacoes")}
           >
             Informações do Cliente
           </BotaoAba>
           <BotaoAba
-            ativo={abaAtiva === "documentos"}
+            $ativo={abaAtiva === "documentos"}
             onClick={() => setAbaAtiva("documentos")}
           >
             Documentos e Arquivos
           </BotaoAba>
           <BotaoAba
-            ativo={abaAtiva === "processos"}
+            $ativo={abaAtiva === "processos"}
             onClick={() => setAbaAtiva("processos")}
           >
             Processos Vinculados

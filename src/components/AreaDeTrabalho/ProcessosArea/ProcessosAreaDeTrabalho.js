@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import useAuth from "../../Seguranca/UseAuth";
@@ -109,7 +109,6 @@ const getStatusGradient = (status) => {
   }
 };
 
-
 const Status = styled.div`
   align-self: center;
   padding: 5px 10px;
@@ -183,64 +182,9 @@ const ProcessosAreaDeTrabalho = () => {
   const navigate = useNavigate();
   const [processos, setProcessos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [mensagemErro, setMensagemErro] = useState("");
   const hasFetched = useRef(false);
-
-  useEffect(() => {
-    
-    if (hasFetched.current) {
-      
-      return;
-    }
-
-    const buscarProcessos = async () => {
-      
-      setIsLoading(true);
-      setMensagemErro("");
-      try {
-        const response = await fetchAuthenticated("http://localhost:8080/proc/get/auth", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        
-        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
-        const data = await response.json();
-        
-
-        const processosMapeados = data.map((proc) => {
-          const mapped = {
-            id: proc.id || "N/A",
-            nome: `Processo ${proc.numeroProcesso || "N/A"}`,
-            numeroProcesso: proc.numeroProcesso || "N/A",
-            status: mapearStatus(proc.situacao),
-            clienteNome: (proc.clienteNome || []).join(", ") || "N/A",
-          };
-          return mapped;
-        });
-       
-
-        setProcessos(processosMapeados);
-        if (processosMapeados.length === 0) {
-          setMensagemErro("Nenhum processo encontrado para este advogado.");
-        }
-      } catch (error) {
-        console.error("Erro ao buscar processos:", error);
-        setMensagemErro("Erro ao carregar processos. Tente novamente.");
-        setProcessos([]);
-      } finally {
-        setIsLoading(false);
-        hasFetched.current = true;
-      }
-    };
-
-    buscarProcessos();
-
-    return () => {
-     
-    };
-  }, []); // Dependência vazia para rodar apenas na montagem
 
   const mapearStatus = (situacao) => {
     switch (situacao) {
@@ -262,6 +206,64 @@ const ProcessosAreaDeTrabalho = () => {
         return "Desconhecido";
     }
   };
+
+  const loadInitialData = useCallback(async () => {
+    
+    setIsLoading(true);
+    setMensagemErro("");
+    try {
+      const response = await fetchAuthenticated("http://localhost:8080/proc/get/auth", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
+      const data = await response.json();
+
+      const processosMapeados = data.map((proc) => {
+        const mapped = {
+          id: proc.id || "N/A",
+          nome: `Processo ${proc.numeroProcesso || "N/A"}`,
+          numeroProcesso: proc.numeroProcesso || "N/A",
+          status: mapearStatus(proc.situacao),
+          clienteNome: (proc.clienteNome || []).join(", ") || "N/A",
+        };
+        return mapped;
+      });
+      
+      setProcessos(processosMapeados);
+      if (processosMapeados.length === 0) {
+        setMensagemErro("Nenhum processo encontrado para este advogado.");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar processos:", error);
+      setMensagemErro("Erro ao carregar processos. Tente novamente.");
+      setProcessos([]);
+    } finally {
+      setIsLoading(false);
+      hasFetched.current = true;
+    }
+  }, [fetchAuthenticated]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!isInitialLoad) return;
+      setIsLoading(true);
+      try {
+        await loadInitialData();
+        setIsInitialLoad(false);
+      } catch (error) {
+        console.error("Erro no carregamento inicial:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+    
+  }, [loadInitialData, isLoading, isInitialLoad]);
+
 
   return (
     <>

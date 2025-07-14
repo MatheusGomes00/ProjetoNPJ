@@ -108,14 +108,14 @@ const BotaoFiltroStatus = styled.button`
   padding: 8px 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: ${({ ativo }) => (ativo ? "#007bff" : "#fff")};
-  color: ${({ ativo }) => (ativo ? "#fff" : "#333")};
+  background-color: ${({ $ativo }) => ($ativo ? "#007bff" : "#fff")};
+  color: ${({ $ativo }) => ($ativo ? "#fff" : "#333")};
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background-color: ${({ ativo }) => (ativo ? "#0056b3" : "#f0f0f0")};
+    background-color: ${({ $ativo }) => ($ativo ? "#0056b3" : "#f0f0f0")};
   }
 `;
 
@@ -174,8 +174,8 @@ const StatusTag = styled.div`
   right: 5px;
   width: 10px;
   height: 20px;
-  background-color: ${({ prioridade }) => {
-    const prioridadeLower = prioridade.toLowerCase();
+  background-color: ${({ $prioridade }) => {
+    const prioridadeLower = $prioridade.toLowerCase();
     return prioridadeLower === "baixa"
       ? "green"
       : prioridadeLower === "média" || prioridadeLower === "media"
@@ -595,13 +595,13 @@ const TarefasMain = () => {
           <div>
             <span>Mostrar apenas: </span>
             <BotaoFiltroStatus
-              ativo={filtroStatus === "ativas"}
+              $ativo={filtroStatus === "ativas"}
               onClick={() => handleFiltroStatus("ativas")}
             >
               Ativas
             </BotaoFiltroStatus>
             <BotaoFiltroStatus
-              ativo={filtroStatus === "inativas"}
+              $ativo={filtroStatus === "inativas"}
               onClick={() => handleFiltroStatus("inativas")}
             >
               Inativas
@@ -639,7 +639,7 @@ const TarefasMain = () => {
                   key={tarefa.id}
                   onClick={() => abrirModalDetalhes(tarefa)}
                 >
-                  <StatusTag prioridade={tarefa.prioridade} />
+                  <StatusTag $prioridade={tarefa.prioridade} />
                   <NomeTarefa>{tarefa.nomeTarefa}</NomeTarefa>
                   <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
                   <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>

@@ -281,13 +281,13 @@ const AdvogadosMain = () => {
           <div>
             <span>Mostrar apenas: </span>
             <BotaoFiltroStatus
-              ativo={filtroStatus === "ativos"}
+              $ativo={filtroStatus === "ativos"}
               onClick={() => handleFiltroStatus("ativos")}
             >
               Ativos
             </BotaoFiltroStatus>
             <BotaoFiltroStatus
-              ativo={filtroStatus === "inativos"}
+              $ativo={filtroStatus === "inativos"}
               onClick={() => handleFiltroStatus("inativos")}
             >
               Inativos
@@ -320,7 +320,7 @@ const AdvogadosMain = () => {
                       }}
                     >
                       <ClienteNome>{advogado.nome}</ClienteNome>
-                      <Status ativo={advogado.status}>
+                      <Status $ativo={advogado.status}>
                         Status: {advogado.status ? 'Ativo' : 'Inativo'}
                       </Status>
                     </ClienteCard>
