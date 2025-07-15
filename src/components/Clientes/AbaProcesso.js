@@ -10,6 +10,7 @@ const TabelaProcessos = styled.table`
   font-size: 14px;
   color: #2c3e50;
   grid-column: span 2;
+  
 
   @media (max-width: 768px) {
     grid-column: span 1;
@@ -63,7 +64,7 @@ const BotaoCriarProcesso = styled.button`
   font-family: "Arial", sans-serif;
   font-size: 14px;
   cursor: pointer;
-  margin-bottom: 20px;
+  
   grid-column: span 2;
   text-align: center;
 

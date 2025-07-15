@@ -173,7 +173,7 @@ const BotaoEditar = styled.button`
   transition: background 0.3s ease;
 
   &:hover {
-    background: #c0392b;
+    background:#28a745;
   }
 
   &:disabled {

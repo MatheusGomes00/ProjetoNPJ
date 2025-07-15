@@ -153,8 +153,8 @@ const StatusTag = styled.div`
   right: 8px;
   width: 12px;
   height: 12px;
-  background-color: ${({ prioridade }) => {
-    const prioridadeLower = prioridade.toLowerCase();
+  background-color: ${({ $prioridade }) => {
+    const prioridadeLower = $prioridade.toLowerCase();
     return prioridadeLower === "baixa"
       ? "#34c759"
       : prioridadeLower === "média" || prioridadeLower === "media"
@@ -185,7 +185,7 @@ const BotaoAdicionar = styled.button`
 `;
 
 const ModalOverlay = styled.div`
-  display: ${({ show }) => (show ? "flex" : "none")};
+  display: ${({ $show }) => ($show ? "flex" : "none")};
   position: fixed;
   top: 0;
   left: 0;
@@ -197,7 +197,7 @@ const ModalOverlay = styled.div`
   align-items: center;
   backdrop-filter: blur(6px);
   transition: opacity 0.3s ease-in-out;
-  opacity: ${({ show }) => (show ? 1 : 0)};
+  opacity: ${({ $show }) => ($show ? 1 : 0)};
 `;
 
 const ModalContent = styled.div`
@@ -319,7 +319,7 @@ const CorTag = styled.div`
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: ${({ cor }) => cor};
+  background-color: ${({ $cor }) => $cor};
 `;
 
 const BotaoFechar = styled.button`
@@ -361,8 +361,8 @@ const Status = styled.span`
   font-size: 16px;
   padding: 5px 10px;
   border-radius: 5px;
-  background: ${(props) => (props.ativo ? "#d4edda" : "#f8d7da")};
-  color: ${(props) => (props.ativo ? "#155724" : "#721c24")};
+  background: ${(props) => (props.$ativo ? "#d4edda" : "#f8d7da")};
+  color: ${(props) => (props.$ativo ? "#155724" : "#721c24")};
   display: inline-block;
 `;
 
@@ -828,7 +828,7 @@ function Tarefas() {
       <ListaTarefas>
         {tarefas.map((tarefa) => (
           <TarefaCard key={tarefa.id} onClick={() => abrirDetalhesModal(tarefa)}>
-            <StatusTag prioridade={tarefa.prioridade} />
+            <StatusTag $prioridade={tarefa.prioridade} />
             <NomeTarefaCard>{tarefa.nomeTarefa}</NomeTarefaCard>
             <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
             <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
@@ -837,22 +837,22 @@ function Tarefas() {
       </ListaTarefas>
       <LegendaPrioridades>
         <TagLegenda>
-          <CorTag cor="#ff3b30" />
+          <CorTag $cor="#ff3b30" />
           <span>Alta</span>
         </TagLegenda>
         <TagLegenda>
-          <CorTag cor="#ffca28" />
+          <CorTag $cor="#ffca28" />
           <span>Média</span>
         </TagLegenda>
         <TagLegenda>
-          <CorTag cor="#34c759" />
+          <CorTag $cor="#34c759" />
           <span>Baixa</span>
         </TagLegenda>
       </LegendaPrioridades>
       <BotaoAdicionar onClick={abrirModal}>Adicionar Tarefa</BotaoAdicionar>
 
       {/* Modal para adicionar tarefa */}
-      <ModalOverlay show={showModal}>
+      <ModalOverlay $show={showModal}>
         <ModalContent>
           <BotaoFechar onClick={fecharModal}>×</BotaoFechar>
           <h3>Cadastrar Nova Tarefa</h3>
@@ -960,7 +960,7 @@ function Tarefas() {
       </ModalOverlay>
 
       {/* Modal de detalhes */}
-      <ModalOverlay show={showDetalhesModal}>
+      <ModalOverlay $show={showDetalhesModal}>
         <TarefaDetalhesModal>
           <BotaoFechar onClick={fecharDetalhesModal}>X</BotaoFechar>
           <DetalheItemNome>
@@ -988,7 +988,7 @@ function Tarefas() {
           </DetalheItem>
           <DetalheItem>
             <Label>Status:</Label>
-            <Status ativo={tarefaSelecionada?.status}>
+            <Status $ativo={tarefaSelecionada?.status}>
               {tarefaSelecionada?.status ? "Ativa" : "Finalizada"}
             </Status>
           </DetalheItem>

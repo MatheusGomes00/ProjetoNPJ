@@ -58,6 +58,11 @@ export const FormInput = styled.input`
     outline: none;
   }
 
+  &:read-only {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+  }
+
   @media (max-width: 480px) {
     width: 100%;
   }

@@ -113,28 +113,37 @@ export const Titulo = styled.h1`
   }
 `;
 
+const getStatusColor = (status) => {
+  switch (status) {
+    case "INICIADO":
+      return "#52c41a"; // verde
+    case "EM_ANDAMENTO":
+      return "#1890ff"; // azul
+    case "FINALIZADO":
+      return "#8c8c8c"; // cinza
+    case "ARQUIVADO":
+      return "#d9d9d9"; // cinza claro
+    case "SUSPENSO":
+      return "#faad14"; // laranja
+    case "AGUARDANDO_DISTRIBUICAO":
+      return "#fa8c16"; // laranja forte
+    case "EM_RECURSO":
+      return "#722ed1"; // roxo
+    default:
+      return "#ff4d4f"; // vermelho padrão
+  }
+};
+
 // Estilo do status
 export const StatusBadge = styled.span`
   padding: 8px 16px;
-  background: #28a745;
   border-radius: 16px;
   font-size: 14px;
   font-weight: 600;
   color: #fff;
   min-width: 100px;
   text-align: center;
-
-  ${({ situacao }) =>
-    situacao === "INICIADO" &&
-    `
-    background:rgb(129, 136, 143);
-  `}
-  ${({ situacao }) =>
-    situacao === "EM_ANDAMENTO" &&
-    `
-    background: #ffc107;
-    color: #333;
-  `}
+  background: ${({ $situacao }) => getStatusColor($situacao)};
 
   @media (max-width: 768px) {
     min-width: 80px;
@@ -216,12 +225,12 @@ export const Section = styled.section`
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.2s ease;
-  overflow: ${({ isCollapsed }) => (isCollapsed ? 'hidden' : 'visible')};
-  max-height: ${({ isCollapsed }) => (isCollapsed ? '0' : '1000px')}; /* Ajustar conforme conteúdo */
-  opacity: ${({ isCollapsed }) => (isCollapsed ? '0' : '1')};
+  overflow: ${({ $isCollapsed }) => ($isCollapsed ? 'hidden' : 'visible')};
+  max-height: ${({ $isCollapsed }) => ($isCollapsed ? '0' : '1000px')}; /* Ajustar conforme conteúdo */
+  opacity: ${({ $isCollapsed }) => ($isCollapsed ? '0' : '1')};
 
   &:hover {
-    transform: ${({ isCollapsed }) => (isCollapsed ? 'none' : 'translateY(-2px)')};
+    transform: ${({ $isCollapsed }) => ($isCollapsed ? 'none' : 'translateY(-2px)')};
   }
 `;
 

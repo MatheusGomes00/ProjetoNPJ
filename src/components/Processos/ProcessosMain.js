@@ -3,28 +3,23 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import useAuth from "../Seguranca/UseAuth";
+import * as style from "../Clientes/EstilosClientes";
 
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 34px;
-  width: calc(100% - 34px);
-  min-height: 100vh;
-  background: #f4f7fa;
-  padding: 30px;
+  margin-left: 24px;
+  width: 100%;
+  height: 100%;
   box-sizing: border-box;
+  gap: 20px;
 
-  @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-  }
 `;
 
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
   width: 100%;
 `;
 
@@ -36,35 +31,18 @@ const Titulo = styled.h1`
   margin: 0;
 `;
 
-const BotaoCriar = styled.button`
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
 const CampoBusca = styled.input`
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
   width: 300px;
-  margin-bottom: 20px;
 `;
 
 const FiltrosContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
-  margin-bottom: 20px;
   flex-wrap: wrap;
 `;
 
@@ -72,71 +50,14 @@ const BotaoFiltroSituacao = styled.button`
   padding: 8px 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: ${({ ativo }) => (ativo ? "#007bff" : "#fff")};
-  color: ${({ ativo }) => (ativo ? "#fff" : "#333")};
+  background-color: ${({ $ativo }) => ($ativo ? "#007bff" : "#fff")};
+  color: ${({ $ativo }) => ($ativo ? "#fff" : "#333")};
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background-color: ${({ ativo }) => (ativo ? "#0056b3" : "#f0f0f0")};
-  }
-`;
-
-const ProcessosTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-`;
-
-const TableHeader = styled.th`
-  padding: 12px;
-  background-color: #f5f5f5;
-  border-bottom: 2px solid #ddd;
-  text-align: left;
-  font-weight: bold;
-  color: #333;
-`;
-
-const TableRow = styled.tr`
-  &:nth-child(even) {
-    background-color: #fafafa;
-  }
-  &:hover {
-    background-color: #f0f0f0;
-  }
-  cursor: pointer;
-`;
-
-const TableCell = styled.td`
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  color: #555;
-`;
-
-const ValorCausaContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const ValorCausa = styled.span`
-  filter: ${({ visivel }) => (visivel ? "none" : "blur(4px)")};
-  transition: filter 0.2s ease;
-`;
-
-const BotaoVisibilidade = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: #666;
-  padding: 0;
-  margin-left: 5px;
-
-  &:hover {
-    color: #007bff;
+    background-color: ${({ $ativo }) => ($ativo ? "#0056b3" : "#f0f0f0")};
   }
 `;
 
@@ -160,7 +81,9 @@ const ProcessosMain = () => {
   const [filtroSituacao, setFiltroSituacao] = useState(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [lastFetchTime, setLastFetchTime] = useState(0);
-  const [valoresVisiveis, setValoresVisiveis] = useState({});
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const PAGE_SIZE = 6;
 
   const buscarTodosProcessos = useCallback(
     async (forceRefresh = false) => {
@@ -188,6 +111,7 @@ const ProcessosMain = () => {
         setProcessosOriginais(data);
         if (data.length === 0) setMensagemErro("Nenhum processo cadastrado.");
         setLastFetchTime(now);
+
       } catch (error) {
         console.error("Erro ao buscar processos:", error);
         setMensagemErro("Erro ao carregar processos. Tente novamente.");
@@ -250,7 +174,9 @@ const ProcessosMain = () => {
       }
     };
     loadData();
-  }, [isInitialLoad, buscarTodosProcessos]);
+    
+  }, [currentPage, isInitialLoad, buscarTodosProcessos]);
+
 
   const aplicarFiltros = useCallback((processosData, situacao, numero) => {
     let processosFiltrados = [...processosData];
@@ -272,6 +198,15 @@ const ProcessosMain = () => {
     return aplicarFiltros(baseProcessos, filtroSituacao, numeroBusca);
   }, [processosOriginais, processosBuscados, isSearching, filtroSituacao, numeroBusca, aplicarFiltros]);
 
+  useEffect(() => {
+    const total = Math.ceil(processosFiltrados.length / PAGE_SIZE) || 1;
+    setTotalPages(total);
+
+    if (currentPage >= total) {
+      setCurrentPage(total - 1); // Evita página inválida ao reduzir itens
+    }
+  }, [processosFiltrados, currentPage]);
+
   const handleBusca = (e) => {
     const numero = e.target.value;
     setNumeroBusca(numero);
@@ -288,11 +223,26 @@ const ProcessosMain = () => {
     setFiltroSituacao((prev) => (prev === situacao ? null : situacao));
   };
 
-  const toggleVisibilidadeValor = (id) => {
-    setValoresVisiveis((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const situacoesLabel = {
+    INICIADO: "Iniciado",
+    EM_ANDAMENTO: "Em Andamento",
+    FINALIZADO: "Finalizado",
+    ARQUIVADO: "Arquivado",
+    SUSPENSO: "Suspenso",
+    AGUARDANDO_DISTRIBUICAO: "Aguardando Distribuição",
+    EM_RECURSO: "Em Recurso"
   };
 
   return (
@@ -313,76 +263,70 @@ const ProcessosMain = () => {
           <div>
             <span>Filtrar por Situação: </span>
             <BotaoFiltroSituacao
-              ativo={filtroSituacao === "INICIADO"}
+              $ativo={filtroSituacao === "INICIADO"}
               onClick={() => handleFiltroSituacao("INICIADO")}
             >
               Iniciado
             </BotaoFiltroSituacao>
             <BotaoFiltroSituacao
-              ativo={filtroSituacao === "EM ANDAMENTO"}
-              onClick={() => handleFiltroSituacao("EM ANDAMENTO")}
+              $ativo={filtroSituacao === "EM_ANDAMENTO"}
+              onClick={() => handleFiltroSituacao("EM_ANDAMENTO")}
             >
               Em Andamento
             </BotaoFiltroSituacao>
           </div>
         </FiltrosContainer>
 
-        {isLoading ? (
-          <Mensagem>Carregando processos...</Mensagem>
-        ) : mensagemErro ? (
-          <Mensagem>{mensagemErro}</Mensagem>
-        ) : processosFiltrados.length === 0 && numeroBusca.length >= 4 ? (
-          <Mensagem>Nenhum processo encontrado.</Mensagem>
-        ) : processosFiltrados.length === 0 ? (
-          <Mensagem>Nenhum processo corresponde aos filtros selecionados.</Mensagem>
-        ) : (
-          <ProcessosTable>
-            <thead>
-              <tr>
-                <TableHeader>Número do Processo</TableHeader>
-                <TableHeader>Situação</TableHeader>
-                <TableHeader>Tipo de Ação</TableHeader>
-                <TableHeader>Cliente</TableHeader>
-                <TableHeader>Responsável</TableHeader>
-                <TableHeader>Vara</TableHeader>
-                <TableHeader>Valor da Causa</TableHeader>
-              </tr>
-            </thead>
-            <tbody>
-              {processosFiltrados.map((processo) => {
-                const visivel = valoresVisiveis[processo.id] || false;
-                return (
-                  <TableRow
-                    key={processo.id}
-                    onClick={() => navigate(`/processos/${processo.id}`)}
-                  >
-                    <TableCell>{processo.numeroProcesso || "N/A"}</TableCell>
-                    <TableCell>{processo.situacao || "N/A"}</TableCell>
-                    <TableCell>{processo.tipoAcaoClasse || "N/A"}</TableCell>
-                    <TableCell>{(processo.clienteNome || []).join(", ") || "N/A"}</TableCell>
-                    <TableCell>{(processo.responsaveisNome || []).join(", ") || "N/A"}</TableCell>
-                    <TableCell>{processo.vara || "N/A"}</TableCell>
-                    <TableCell>
-                      <ValorCausaContainer>
-                        <ValorCausa visivel={visivel}>
-                          {processo.valorCausa || "N/A"}
-                        </ValorCausa>
-                        <BotaoVisibilidade
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleVisibilidadeValor(processo.id);
-                          }}
-                        >
-                          {visivel ? "👁️‍🗨️" : "👁️"}
-                        </BotaoVisibilidade>
-                      </ValorCausaContainer>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </tbody>
-          </ProcessosTable>
-        )}
+        <style.ClientesContainer>
+          {isLoading ? (
+            <Mensagem>Carregando processos...</Mensagem>
+          ) : mensagemErro ? (
+            <Mensagem>{mensagemErro}</Mensagem>
+          ) : processosFiltrados.length === 0 && numeroBusca.length >= 4 ? (
+            <Mensagem>Nenhum processo encontrado.</Mensagem>
+          ) : processosFiltrados.length === 0 ? (
+            <Mensagem>Nenhum processo corresponde aos filtros selecionados.</Mensagem>
+          ) : (
+            <>
+              <style.ClientesList>
+                {processosFiltrados
+                  .slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)
+                  .map((processo) => {  
+                    return (
+                      <style.ClienteCard
+                        key={processo.id}
+                        onClick={() => navigate(`/processos/${processo.id}`)}
+                        style={{
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <style.ProcNumero>
+                          {processo.numeroProcesso}
+                        </style.ProcNumero>
+                        <style.Situacao $status={processo.situacao}>
+                          Situação: {situacoesLabel[processo.situacao] || processo.situacao}
+                        </style.Situacao>
+                      </style.ClienteCard>
+                    )
+                  })
+                }
+              </style.ClientesList>
+
+              <style.NavegacaoContainer>
+                <style.BotaoNavegacao onClick={handlePreviousPage} disabled={currentPage === 0}>
+                  ⬅️
+                </style.BotaoNavegacao>
+                <span>Página {currentPage + 1} de {totalPages}</span>
+                <style.BotaoNavegacao
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages - 1}
+                >
+                  ➡️
+                </style.BotaoNavegacao>
+              </style.NavegacaoContainer>
+            </>
+          )}
+          </style.ClientesContainer>
       </MainContainer>
     </ComponentesFixos>
   );

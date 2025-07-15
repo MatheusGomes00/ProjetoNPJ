@@ -10,18 +10,12 @@ import EditarClientes from "./EditarClientes";
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 34px;
-  width: calc(100% - 34px);
-  min-height: 100vh;
-  background: #f4f7fa;
-  padding: 30px;
+  margin-left: 24px;
+  width: 100%;
+  height: 100%;
   box-sizing: border-box;
+  gap: 20px;
 
-  @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-    padding: 20px;
-  }
 `;
 
 // Estilo do cabeçalho
@@ -29,7 +23,7 @@ const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 8px;
   background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   padding: 20px;
   border-radius: 12px;
@@ -92,15 +86,15 @@ const BotaoVoltar = styled.button`
 const AbasContainer = styled.div`
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   border-bottom: 2px solid #e0e4e8;
 `;
 
 // Estilo dos botões de aba
 const BotaoAba = styled.button`
   padding: 10px 20px;
-  background-color: ${(props) => (props.ativo ? "#007bff" : "#f4f7fa")};
-  color: ${(props) => (props.ativo ? "#fff" : "#2c3e50")};
+  background-color: ${(props) => (props.$ativo ? "#007bff" : "#f4f7fa")};
+  color: ${(props) => (props.$ativo ? "#fff" : "#2c3e50")};
   border: none;
   border-radius: 8px 8px 0 0;
   font-family: "Arial", sans-serif;
@@ -110,7 +104,7 @@ const BotaoAba = styled.button`
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${(props) => (props.ativo ? "#0056b3" : "#e0e4e8")};
+    background-color: ${(props) => (props.$ativo ? "#0056b3" : "#e0e4e8")};
   }
 `;
 
@@ -121,8 +115,9 @@ const DetalhesContainer = styled.div`
   gap: 20px;
   background: #fff;
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 20px;
   border: 1px solid #e0e4e8;
+  
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -170,19 +165,19 @@ const DetalhesClientes = () => {
 
         <AbasContainer>
           <BotaoAba
-            ativo={abaAtiva === "informacoes"}
+            $ativo={abaAtiva === "informacoes"}
             onClick={() => setAbaAtiva("informacoes")}
           >
             Informações do Cliente
           </BotaoAba>
           <BotaoAba
-            ativo={abaAtiva === "documentos"}
+            $ativo={abaAtiva === "documentos"}
             onClick={() => setAbaAtiva("documentos")}
           >
             Documentos e Arquivos
           </BotaoAba>
           <BotaoAba
-            ativo={abaAtiva === "processos"}
+            $ativo={abaAtiva === "processos"}
             onClick={() => setAbaAtiva("processos")}
           >
             Processos Vinculados

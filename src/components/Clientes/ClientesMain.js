@@ -40,7 +40,7 @@ const ClientesMain = () => {
   const [filtroStatus, setFiltroStatus] = useState(null); // "ativos", "inativos", ou null
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const PAGE_SIZE = 12; // 12 clientes por página
+  const PAGE_SIZE = 6; // 12 clientes por página
 
   const navigate = useNavigate(); // Hook para navegação
 
@@ -279,13 +279,13 @@ const ClientesMain = () => {
           <div>
             <span>Mostrar apenas: </span>
             <BotaoFiltroStatus
-              ativo={filtroStatus === "ativos"}
+              $ativo={filtroStatus === "ativos"}
               onClick={() => handleFiltroStatus("ativos")}
             >
               Ativos
             </BotaoFiltroStatus>
             <BotaoFiltroStatus
-              ativo={filtroStatus === "inativos"}
+              $ativo={filtroStatus === "inativos"}
               onClick={() => handleFiltroStatus("inativos")}
             >
               Inativos
@@ -312,7 +312,7 @@ const ClientesMain = () => {
                     style={{ cursor: "pointer" }}
                   >
                     <ClienteNome>{cliente.cliente.nome}</ClienteNome>
-                    <Status ativo={cliente.status}>
+                    <Status $ativo={cliente.status}>
                       Status: {cliente.status ? "Ativo" : "Inativo"}
                     </Status>
                   </ClienteCard>

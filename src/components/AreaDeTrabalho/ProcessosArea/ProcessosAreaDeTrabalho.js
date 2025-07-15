@@ -1,12 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { createGlobalStyle } from "styled-components";
 import useAuth from "../../Seguranca/UseAuth";
 
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap');
-`;
 
 const ProcessosContainer = styled.div`
   display: flex;
@@ -86,6 +82,33 @@ const ProcessoCard = styled.div`
   }
 `;
 
+const getStatusGradient = (status) => {
+  const key = status
+    ?.normalize("NFD") // Remove acentos
+    .replace(/[\u0300-\u036f]/g, "") // Regex para acentos
+    .toUpperCase()
+    .replace(/\s/g, "_");
+
+  switch (key) {
+    case "INICIADO":
+      return "linear-gradient(90deg, #52c41a 0%, #7ed957 100%)"; // verde suave
+    case "EM_ANDAMENTO":
+      return "linear-gradient(90deg, #1890ff 0%, #40c4ff 100%)"; // azul
+    case "FINALIZADO":
+      return "linear-gradient(90deg, #8c8c8c 0%, #bfbfbf 100%)"; // cinza
+    case "ARQUIVADO":
+      return "linear-gradient(90deg, #d9d9d9 0%, #f0f0f0 100%)"; // cinza claro
+    case "SUSPENSO":
+      return "linear-gradient(90deg, #faad14 0%, #ffd666 100%)"; // laranja
+    case "AGUARDANDO_DISTRIBUICAO":
+      return "linear-gradient(90deg, #fa8c16 0%, #ffc069 100%)"; // laranja forte
+    case "EM_RECURSO":
+      return "linear-gradient(90deg, #722ed1 0%, #9254de 100%)"; // roxo
+    default:
+      return "linear-gradient(90deg, #ff4d4f 0%, #ff7875 100%)"; // vermelho padrão
+  }
+};
+
 const Status = styled.div`
   align-self: center;
   padding: 5px 10px;
@@ -94,20 +117,7 @@ const Status = styled.div`
   font-weight: 600;
   font-family: "Poppins", sans-serif;
   color: #fff;
-  background: ${(props) => {
-    switch (props.status) {
-      case "Em andamento":
-        return "linear-gradient(90deg, #1890ff 0%, #40c4ff 100%)";
-      case "Finalizado":
-        return "linear-gradient(90deg, #52c41a 0%, #76ff03 100%)";
-      case "Aguardando resposta":
-        return "linear-gradient(90deg, #faad14 0%, #ffd740 100%)";
-      case "Iniciado":
-        return "linear-gradient(90deg, #722ed1 0%, #a855f7 100%)";
-      default:
-        return "#d9d9d9";
-    }
-  }};
+  background: ${({ $status }) => getStatusGradient($status)};
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 `;
 
@@ -172,64 +182,9 @@ const ProcessosAreaDeTrabalho = () => {
   const navigate = useNavigate();
   const [processos, setProcessos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [mensagemErro, setMensagemErro] = useState("");
   const hasFetched = useRef(false);
-
-  useEffect(() => {
-    
-    if (hasFetched.current) {
-      
-      return;
-    }
-
-    const buscarProcessos = async () => {
-      
-      setIsLoading(true);
-      setMensagemErro("");
-      try {
-        const response = await fetchAuthenticated("http://localhost:8080/proc/get/auth", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        
-        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
-        const data = await response.json();
-        
-
-        const processosMapeados = data.map((proc) => {
-          const mapped = {
-            id: proc.id || "N/A",
-            nome: `Processo ${proc.numeroProcesso || "N/A"}`,
-            numeroProcesso: proc.numeroProcesso || "N/A",
-            status: mapearStatus(proc.situacao),
-            clienteNome: (proc.clienteNome || []).join(", ") || "N/A",
-          };
-          return mapped;
-        });
-       
-
-        setProcessos(processosMapeados);
-        if (processosMapeados.length === 0) {
-          setMensagemErro("Nenhum processo encontrado para este advogado.");
-        }
-      } catch (error) {
-        console.error("Erro ao buscar processos:", error);
-        setMensagemErro("Erro ao carregar processos. Tente novamente.");
-        setProcessos([]);
-      } finally {
-        setIsLoading(false);
-        hasFetched.current = true;
-      }
-    };
-
-    buscarProcessos();
-
-    return () => {
-     
-    };
-  }, []); // Dependência vazia para rodar apenas na montagem
 
   const mapearStatus = (situacao) => {
     switch (situacao) {
@@ -239,16 +194,79 @@ const ProcessosAreaDeTrabalho = () => {
         return "Em andamento";
       case "FINALIZADO":
         return "Finalizado";
+      case "ARQUIVADO":
+        return "Arquivado";
+      case "SUSPENSO":
+        return "Suspenso";
       case "AGUARDANDO_DISTRIBUICAO":
-        return "Aguardando resposta";
+        return "Aguardando distribuição";
+      case "EM_RECURSO":
+        return "Em recurso";
       default:
         return "Desconhecido";
     }
   };
 
+  const loadInitialData = useCallback(async () => {
+    
+    setIsLoading(true);
+    setMensagemErro("");
+    try {
+      const response = await fetchAuthenticated("http://localhost:8080/proc/get/auth", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
+      const data = await response.json();
+
+      const processosMapeados = data.map((proc) => {
+        const mapped = {
+          id: proc.id || "N/A",
+          nome: `Processo ${proc.numeroProcesso || "N/A"}`,
+          numeroProcesso: proc.numeroProcesso || "N/A",
+          status: mapearStatus(proc.situacao),
+          clienteNome: (proc.clienteNome || []).join(", ") || "N/A",
+        };
+        return mapped;
+      });
+      
+      setProcessos(processosMapeados);
+      if (processosMapeados.length === 0) {
+        setMensagemErro("Nenhum processo encontrado para este advogado.");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar processos:", error);
+      setMensagemErro("Erro ao carregar processos. Tente novamente.");
+      setProcessos([]);
+    } finally {
+      setIsLoading(false);
+      hasFetched.current = true;
+    }
+  }, [fetchAuthenticated]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!isInitialLoad) return;
+      setIsLoading(true);
+      try {
+        await loadInitialData();
+        setIsInitialLoad(false);
+      } catch (error) {
+        console.error("Erro no carregamento inicial:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+    
+  }, [loadInitialData, isLoading, isInitialLoad]);
+
+
   return (
     <>
-      <GlobalStyle />
       <ProcessosContainer>
         <ProcessosTitle>Seus Processos/Casos</ProcessosTitle>
         {isLoading ? (
@@ -265,7 +283,7 @@ const ProcessosAreaDeTrabalho = () => {
                   key={processo.id}
                   onClick={() => navigate(`/processos/${processo.id}`)}
                 >
-                  <Status status={processo.status}>{processo.status}</Status>
+                  <Status $status={processo.status}>{processo.status}</Status>
                   <ProcessoNome>{processo.nome}</ProcessoNome>
                   <NumeroProcesso>Nº: {processo.numeroProcesso}</NumeroProcesso>
                   <ClienteNome>Cliente: {processo.clienteNome}</ClienteNome>
