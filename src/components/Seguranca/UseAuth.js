@@ -1,17 +1,29 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { isAuthenticated, logout, fetchWithToken, getAccessToken } from './GerenciaToken';
 import { jwtDecode } from 'jwt-decode';
 import 'react-toastify/dist/ReactToastify.css';
 
+let alreadyLoggingOut = false;
+
 const useAuth = () => {
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (window.location.pathname === "/login") {
+      alreadyLoggingOut = false;
+    }
+  }, []);
 
   const checkAuth = () => {
     return isAuthenticated();
   };
 
   const logoutWithRedirect = async () => {
+    if (alreadyLoggingOut) return;
+      alreadyLoggingOut = true;
+
     try {
       await logout();
       toast.warn('Sessão expirada, redirecionando para login...', {
@@ -50,7 +62,6 @@ const useAuth = () => {
     if (response.status === 401) {
       console.warn('Token inválido ou expirado, fazendo logout...');
       await logoutWithRedirect();
-      return response;
     }
     return response;
   };

@@ -119,7 +119,7 @@ export const fetchWithToken = async (url, options = {}) => {
   };
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(url, { 
       ...options,
       headers,
     });
