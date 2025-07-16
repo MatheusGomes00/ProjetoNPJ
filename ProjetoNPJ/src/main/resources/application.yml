@@ -8,8 +8,8 @@ spring:
       uri: mongodb://localhost:27017/ProjetoNPJ
 jwt:
   secret: JvrdrGOKDYhaEyHycTLSM2dpR+dxTk1MbPy6o6e6M1dmc3PFbiJYTVqYIl0siuNoxzLXw7HwgnVzVNAt/xaTpQ==
-  accessTokenExpiration: 3600000  # 180000 = 3 minutos;  3600000 = 1 hora em milissegundos
-  refreshTokenExpiration: 604800000  # 604800000 = 7 dias; 28800000 = 8 horas em milissegundos   300000 = 5 minutos
+  accessTokenExpiration: 180000  # 180000 = 3 minutos;  3600000 = 1 hora em milissegundos
+  refreshTokenExpiration: 300000  # 604800000 = 7 dias; 28800000 = 8 horas em milissegundos   300000 = 5 minutos
 
 logging:
   level:
