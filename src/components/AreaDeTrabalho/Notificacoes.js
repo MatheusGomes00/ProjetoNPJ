@@ -211,7 +211,7 @@ const MensagemCarregando = styled.div`
 `;
 
 function Notificacoes() {
-  const { fetchAuthenticated, getId, logoutWithRedirect } = useAuth();
+  const { fetchAuthenticated, getId } = useAuth();
   const [notificacoes, setNotificacoes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagem, setMensagem] = useState("");
@@ -293,7 +293,7 @@ function Notificacoes() {
         if (error.message.includes("401")) {
           setMensagem("Sessão expirada. Redirecionando para login...");
           setTipoMensagem("error");
-          logoutWithRedirect();
+          
         }
       }
     } finally {
@@ -301,7 +301,7 @@ function Notificacoes() {
         setIsLoading(false);
       }
     }//Teste
-  }, [fetchAuthenticated, isLoading, logoutWithRedirect, limparMensagem]);
+  }, [fetchAuthenticated, isLoading, limparMensagem]);
 
   // Função para limpar notificações
   const limparNotificacoes = useCallback(async () => {
@@ -440,12 +440,12 @@ function Notificacoes() {
           if (error.message.includes("401")) {
             setMensagem("Sessão expirada. Redirecionando para login...");
             setTipoMensagem("error");
-            logoutWithRedirect();
+           
           }
         }
       }
     },
-    [fetchAuthenticated, carregarNotificacoes, logoutWithRedirect, limparMensagem]
+    [fetchAuthenticated, carregarNotificacoes, limparMensagem]
   );
 
   // Função para reativar tarefa

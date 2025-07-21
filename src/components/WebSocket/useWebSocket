@@ -4,7 +4,7 @@ import SockJS from 'sockjs-client';
 import useAuth from './useAuth';
 
 const useWebSocket = () => {
-    const { getAccessToken, getId, logoutWithRedirect } = useAuth();
+    const { getAccessToken, getId} = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [, setClient] = useState(null);
     const stompRef = useRef(null); // Guarda a instância entre renders
@@ -44,7 +44,7 @@ const useWebSocket = () => {
             console.error('Erro no STOMP:', frame);
             if (frame.headers?.message?.includes('401')) {
                 console.warn('Token inválido. Fazendo logout...');
-                logoutWithRedirect();
+                
             }
         };
 
@@ -73,7 +73,7 @@ const useWebSocket = () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             console.log('Desconectado do WebSocket');
         };
-    }, [getAccessToken, getId, logoutWithRedirect]);
+    }, [getAccessToken, getId]);
 
     return { notifications, clearNotifications: () => setNotifications([]) };
 };

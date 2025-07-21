@@ -173,7 +173,7 @@ const MensagemCarregando = styled.div`
 `;
 
 const IconeNotificacoes = () => {
-  const { fetchAuthenticated, getId, logoutWithRedirect } = useAuth();
+  const { fetchAuthenticated, getId} = useAuth();
   const [notificacoes, setNotificacoes] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -258,7 +258,7 @@ const IconeNotificacoes = () => {
         if (error.message.includes("401")) {
           setMensagem("Sessão expirada. Redirecionando para login...");
           setTipoMensagem("error");
-          setTimeout(logoutWithRedirect, 2000);
+          setTimeout(2000);
         }
       }
     } finally {
@@ -266,7 +266,7 @@ const IconeNotificacoes = () => {
         setIsLoading(false);
       }
     }
-  }, [isSessionInvalid, fetchAuthenticated, isLoading, logoutWithRedirect, limparMensagem]);
+  }, [isSessionInvalid, fetchAuthenticated, isLoading, limparMensagem]);
 
   // Função para marcar notificação como lida
   const marcarComoLida = useCallback(
@@ -306,12 +306,12 @@ const IconeNotificacoes = () => {
           if (error.message.includes("401")) {
             setMensagem("Sessão expirada. Redirecionando para login...");
             setTipoMensagem("error");
-            setTimeout(logoutWithRedirect, 2000);
+            setTimeout( 2000);
           }
         }
       }
     },
-    [fetchAuthenticated, logoutWithRedirect, limparMensagem]
+    [fetchAuthenticated, limparMensagem]
   );
 
   // Função para buscar detalhes da tarefa
@@ -393,12 +393,12 @@ const IconeNotificacoes = () => {
           if (error.message.includes("401")) {
             setMensagem("Sessão expirada. Redirecionando para login...");
             setTipoMensagem("error");
-            setTimeout(logoutWithRedirect, 2000);
+            setTimeout(2000);
           }
         }
       }
     },
-    [fetchAuthenticated, carregarNotificacoes, limparMensagem, logoutWithRedirect]
+    [fetchAuthenticated, carregarNotificacoes, limparMensagem]
   );
 
   // Função para reativar tarefa
@@ -444,12 +444,12 @@ const IconeNotificacoes = () => {
           if (error.message.includes("401")) {
             setMensagem("Sessão expirada. Redirecionando para login...");
             setTipoMensagem("error");
-            setTimeout(logoutWithRedirect, 2000);
+            setTimeout(2000);
           }
         }
       }
     },
-    [fetchAuthenticated, carregarNotificacoes, limparMensagem, logoutWithRedirect]
+    [fetchAuthenticated, carregarNotificacoes, limparMensagem]
   );
 
   // Função para editar tarefa
