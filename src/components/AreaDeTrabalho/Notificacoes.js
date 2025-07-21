@@ -300,7 +300,7 @@ function Notificacoes() {
       if (isMountedRef.current) {
         setIsLoading(false);
       }
-    }
+    }//Teste
   }, [fetchAuthenticated, isLoading, logoutWithRedirect, limparMensagem]);
 
   // Função para limpar notificações
