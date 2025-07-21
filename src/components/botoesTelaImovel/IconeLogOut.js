@@ -4,9 +4,9 @@ import useAuth from "../Seguranca/UseAuth";
 
 function IconeLogOut() {
 
-  const { logoutWithRedirect } = useAuth();
+  const { userLogout } = useAuth();
   const handleLogout = () => {
-    logoutWithRedirect();
+    userLogout();
   };
 
   return (

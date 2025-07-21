@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useAuthContext } from '../Seguranca/AuthContext'; // Importa o contexto de autenticação
 
 // Estilo do título da seção
 const SectionTitle = styled.h3`
@@ -141,9 +142,11 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
   const [hasFetched, setHasFetched] = useState(false);
   const [formData, setFormData] = useState({});
   const [showPopup, setShowPopup] = useState(false);
+  const { isSessionInvalid } = useAuthContext(); // Verifica se a sessão é inválida
 
   // Buscar dados do cliente
   useEffect(() => {
+    if (isSessionInvalid) return;
     const buscarClientePorId = async () => {
       if (hasFetched) return;
 
@@ -201,7 +204,7 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
     };
 
     buscarClientePorId();
-  }, [id, fetchAuthenticated, hasFetched]);
+  }, [id, fetchAuthenticated, hasFetched, isSessionInvalid]);
 
   // Lidar com mudanças nos inputs
   const handleInputChange = (e) => {

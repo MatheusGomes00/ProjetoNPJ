@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import useAuth from "../../Seguranca/UseAuth";
+import { useAuthContext } from '../../Seguranca/AuthContext';
 
 
 const ProcessosContainer = styled.div`
@@ -185,6 +186,7 @@ const ProcessosAreaDeTrabalho = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [mensagemErro, setMensagemErro] = useState("");
   const hasFetched = useRef(false);
+  const { isSessionInvalid } = useAuthContext();
 
   const mapearStatus = (situacao) => {
     switch (situacao) {
@@ -248,6 +250,7 @@ const ProcessosAreaDeTrabalho = () => {
   }, [fetchAuthenticated]);
 
   useEffect(() => {
+    if (isSessionInvalid) return;
     const loadData = async () => {
       if (!isInitialLoad) return;
       setIsLoading(true);
@@ -262,7 +265,7 @@ const ProcessosAreaDeTrabalho = () => {
     };
     loadData();
     
-  }, [loadInitialData, isLoading, isInitialLoad]);
+  }, [loadInitialData, isLoading, isInitialLoad, isSessionInvalid]);
 
 
   return (

@@ -1,14 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { toast } from 'react-toastify';
-import { isAuthenticated, logout, fetchWithToken, getAccessToken } from './GerenciaToken';
-import { jwtDecode } from 'jwt-decode';
+import { fetchWithToken } from './GerenciaToken';
+import { useAuthContext } from './AuthContext';
 import 'react-toastify/dist/ReactToastify.css';
 
 let alreadyLoggingOut = false;
 
 const useAuth = () => {
   const navigate = useNavigate();
+  const {
+    isSessionInvalid,
+    isAuthenticated,
+    user,
+    logout,
+    markSessionAsInvalid,
+  } = useAuthContext();
   
   useEffect(() => {
     if (window.location.pathname === "/login") {
@@ -16,26 +22,22 @@ const useAuth = () => {
     }
   }, []);
 
-  const checkAuth = () => {
-    return isAuthenticated();
-  };
+  const checkAuth = () => isAuthenticated;
+
+  const userLogout = async () => {
+    await logout();
+    navigate('/login');
+  }
 
   const logoutWithRedirect = async () => {
     if (alreadyLoggingOut) return;
       alreadyLoggingOut = true;
 
     try {
+      markSessionAsInvalid();
       await logout();
-      toast.warn('Sessão expirada, redirecionando para login...', {
-        position: 'top-center',
-        autoClose: 7000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'colored',
-        onClose: () => navigate('/login'),
-      });
+      
+      navigate('/login');
     } catch (error) {
       console.error('Erro ao realizar logout:', error.message);
       navigate('/login');
@@ -43,34 +45,34 @@ const useAuth = () => {
   };
 
   const getId = () => {
-    const token = getAccessToken();
-    if (!token) return null;
-    const decoded = jwtDecode(token);
-    return decoded.sub;
+    return user?.id || null;
   };
 
   const getRole = () => {
-    const token = getAccessToken();
-    if (!token) return null;
-    const decoded = jwtDecode(token);
-    const role = decoded.role;
-    return role ? role.replace('ROLE_', '') : null;
+    return user?.role || null;
   };
 
   const fetchAuthenticated = async (url, options = {}) => {
+    if (!checkAuth()) return;
+    if (isSessionInvalid) return;
+
     const response = await fetchWithToken(url, options);
     if (response.status === 401) {
+      markSessionAsInvalid();
       console.warn('Token inválido ou expirado, fazendo logout...');
-      await logoutWithRedirect();
+      if (!alreadyLoggingOut) {
+        await logoutWithRedirect();
+      }
+      return;
     }
     return response;
   };
 
   return {
-    checkAuth,
     getId,
     getRole,
     logoutWithRedirect,
+    userLogout,
     fetchAuthenticated,
   };
 };

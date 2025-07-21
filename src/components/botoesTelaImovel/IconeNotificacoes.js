@@ -6,6 +6,7 @@ import { Client } from "@stomp/stompjs";
 import useAuth from "../Seguranca/UseAuth";
 import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
 import ModalEdicao from "../Tarefas/Modais/ModalEdicao";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 // Estilos
 const NotificacoesContainer = styled.div`
@@ -188,6 +189,7 @@ const IconeNotificacoes = () => {
   const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
   const processedNotificationIds = useRef(new Set());
+  const { isSessionInvalid } = useAuthContext();
 
   // Função para formatar a data
   const formatarData = useCallback((dataString) => {
@@ -217,6 +219,7 @@ const IconeNotificacoes = () => {
   // Função para carregar notificações não lidas
   const carregarNotificacoes = useCallback(async () => {
     if (!isMountedRef.current || isLoading) return;
+    if (isSessionInvalid) return;
 
     setIsLoading(true);
     setMensagem("");
@@ -263,7 +266,7 @@ const IconeNotificacoes = () => {
         setIsLoading(false);
       }
     }
-  }, [fetchAuthenticated, isLoading, logoutWithRedirect, limparMensagem]);
+  }, [isSessionInvalid, fetchAuthenticated, isLoading, logoutWithRedirect, limparMensagem]);
 
   // Função para marcar notificação como lida
   const marcarComoLida = useCallback(
@@ -486,6 +489,7 @@ const IconeNotificacoes = () => {
 
   // Carregar notificações iniciais
   useEffect(() => {
+    if (isSessionInvalid) return;
     isMountedRef.current = true;
     if (!hasLoadedRef.current) {
       carregarNotificacoes();
@@ -498,7 +502,7 @@ const IconeNotificacoes = () => {
         clearTimeout(mensagemTimeoutRef.current);
       }
     };
-  }, [carregarNotificacoes]);
+  }, [carregarNotificacoes, isSessionInvalid]);
 
   // Configurar WebSocket
   const setupWebSocket = useCallback(() => {
@@ -583,12 +587,14 @@ const IconeNotificacoes = () => {
   }, [getId, limparMensagem]);
 
   useEffect(() => {
+    if (isSessionInvalid) return;
     const cleanup = setupWebSocket();
     return cleanup;
-  }, [setupWebSocket]);
+  }, [setupWebSocket, isSessionInvalid]);
 
   // Fechar dropdown ao clicar fora
   useEffect(() => {
+    if (isSessionInvalid) return;
     const handleClickOutside = (event) => {
       if (
         dropdownRef.current &&
@@ -601,7 +607,7 @@ const IconeNotificacoes = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isSessionInvalid]);
 
   // Toggle do dropdown
   const toggleDropdown = useCallback(() => {

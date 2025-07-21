@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-
 import styled from 'styled-components';
-
 import {
   InfoRow,
   InfoLabel,
@@ -10,7 +8,6 @@ import {
   Mensagem,
   Section
 } from "./EstilosDetalhesProcessos";
-
 import {
   Card,  
   CardContent,
@@ -19,10 +16,9 @@ import {
   ModalContent,
   ModalActions,
 } from "./EstilosComentarios"
-
 import {  adicionarComentario,  editarComentario,  excluirComentario } from "./EdicaoProcessos";
-
 import useAuth from "../Seguranca/UseAuth";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 // Estilizar SectionTitle com interatividade
 const SectionTitle = styled.h3`
@@ -72,6 +68,7 @@ const Comentarios = ({
   const userId = getId();
   const [novoComentario, setNovoComentario] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isSessionInvalid } = useAuthContext();
 
   const toggleCollapse = () => setIsCollapsed((prev) => !prev);
 
@@ -173,6 +170,7 @@ const Comentarios = ({
 
   // Fechar modal com tecla Esc
   useEffect(() => {
+    if (isSessionInvalid) return; // Verifica se a sessão é inválida
     const handleEsc = (event) => {
       if (event.key === 'Escape' && modalAberto) {
         fecharModal();
@@ -180,7 +178,7 @@ const Comentarios = ({
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [modalAberto, fecharModal]);
+  }, [modalAberto, fecharModal, isSessionInvalid]);
 
   return (
     <Section>

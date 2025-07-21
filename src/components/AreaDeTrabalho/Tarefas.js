@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import BotaoEditar from "./BotaoEditar";
 import useAuth from "../Seguranca/UseAuth";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 const TarefasContainer = styled.div`
   display: flex;
@@ -514,6 +515,7 @@ function Tarefas() {
   const [isLoadingFinalizar, setIsLoadingFinalizar] = useState(false);
   const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
   const [dropdownAberto, setDropdownAberto] = useState(false);
+  const { isSessionInvalid } = useAuthContext();
 
   const formatarData = (dataString) => {
     if (!dataString) return "Sem prazo";
@@ -804,6 +806,8 @@ function Tarefas() {
   };
 
   useEffect(() => {
+    if (isSessionInvalid) return;
+
     const loadData = async () => {
       if (!isInitialLoad) return;
       setIsLoading(true);
@@ -818,7 +822,7 @@ function Tarefas() {
       }
     };
     loadData();
-  }, [isInitialLoad, carregarTarefas, buscarAdvogados]);
+  }, [isInitialLoad, carregarTarefas, buscarAdvogados, isSessionInvalid]);
 
   return (
     <TarefasContainer>

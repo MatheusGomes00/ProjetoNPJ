@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import useAuth from "../Seguranca/UseAuth";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 const MainContainer = styled.div`
   display: flex;
@@ -370,6 +371,7 @@ const CriarProcessosCliente = () => {
   const [showToast, setShowToast] = useState(false);
   const [hasFetchedAdvogados, setHasFetchedAdvogados] = useState(false);
   const [hasFetchedClientes, setHasFetchedClientes] = useState(false);
+  const { isSessionInvalid } = useAuthContext(); // Verifica se a sessão é inválida
 
   const fetchClientes = useCallback(async () => {
     if (hasFetchedClientes) return;
@@ -456,13 +458,14 @@ const CriarProcessosCliente = () => {
   }, [fetchAuthenticated, hasFetchedAdvogados]);
 
   useEffect(() => {
+    if (isSessionInvalid) return; // Verifica se a sessão é inválida
     fetchAdvogados();
     if (!clientId) {
       fetchClientes();
     } else {
       fetchClientName();
     }
-  }, [fetchAdvogados, fetchClientes, fetchClientName, clientId]);
+  }, [fetchAdvogados, fetchClientes, fetchClientName, clientId, isSessionInvalid]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

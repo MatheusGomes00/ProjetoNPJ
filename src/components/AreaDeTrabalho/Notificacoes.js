@@ -5,6 +5,7 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
 import ModalEdicao from "../Tarefas/Modais/ModalEdicao";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 // 🎨 Estilos completamente reimaginados
 const NotificacoesContainer = styled.div`
@@ -222,6 +223,7 @@ function Notificacoes() {
   const stompClientRef = useRef(null);
   const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
+  const { isSessionInvalid } = useAuthContext();
 
   // Função para formatar a data
   const formatarData = useCallback((dataString) => {
@@ -524,6 +526,8 @@ function Notificacoes() {
 
   // Carregar notificações iniciais
   useEffect(() => {
+    if (isSessionInvalid) return;
+
     isMountedRef.current = true;
     if (!hasLoadedRef.current) {
       carregarNotificacoes();
@@ -536,7 +540,7 @@ function Notificacoes() {
         clearTimeout(mensagemTimeoutRef.current);
       }
     };
-  }, [carregarNotificacoes]);
+  }, [carregarNotificacoes, isSessionInvalid]);
 
   // Configurar WebSocket
   const setupWebSocket = useCallback(() => {
@@ -598,9 +602,10 @@ function Notificacoes() {
   }, [getId, limparMensagem]);
 
   useEffect(() => {
+    if (isSessionInvalid) return;
     const cleanup = setupWebSocket();
     return cleanup;
-  }, [setupWebSocket]);
+  }, [setupWebSocket, isSessionInvalid]);
 
   // Função para lidar com clique na notificação
   const handleNotificacaoClick = useCallback(

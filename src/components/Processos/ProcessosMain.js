@@ -4,6 +4,7 @@ import styled from "styled-components";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import useAuth from "../Seguranca/UseAuth";
 import * as style from "../Clientes/EstilosClientes";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 const MainContainer = styled.div`
   display: flex;
@@ -84,6 +85,7 @@ const ProcessosMain = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const PAGE_SIZE = 6;
+  const { isSessionInvalid } = useAuthContext();
 
   const buscarTodosProcessos = useCallback(
     async (forceRefresh = false) => {
@@ -161,6 +163,7 @@ const ProcessosMain = () => {
   );
 
   useEffect(() => {
+    if (isSessionInvalid) return;
     const loadData = async () => {
       if (!isInitialLoad) return;
       setIsLoading(true);
@@ -175,7 +178,7 @@ const ProcessosMain = () => {
     };
     loadData();
     
-  }, [currentPage, isInitialLoad, buscarTodosProcessos]);
+  }, [currentPage, isInitialLoad, buscarTodosProcessos, isSessionInvalid]);
 
 
   const aplicarFiltros = useCallback((processosData, situacao, numero) => {
@@ -199,13 +202,14 @@ const ProcessosMain = () => {
   }, [processosOriginais, processosBuscados, isSearching, filtroSituacao, numeroBusca, aplicarFiltros]);
 
   useEffect(() => {
+    if (isSessionInvalid) return;
     const total = Math.ceil(processosFiltrados.length / PAGE_SIZE) || 1;
     setTotalPages(total);
 
     if (currentPage >= total) {
       setCurrentPage(total - 1); // Evita página inválida ao reduzir itens
     }
-  }, [processosFiltrados, currentPage]);
+  }, [processosFiltrados, currentPage, isSessionInvalid]);
 
   const handleBusca = (e) => {
     const numero = e.target.value;

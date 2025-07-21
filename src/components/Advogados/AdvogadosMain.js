@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useAuth from "../Seguranca/UseAuth";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
+import { useAuthContext } from '../Seguranca/AuthContext';
 import { useNavigate } from "react-router-dom";
 import {
   MainContainer,
@@ -41,6 +42,7 @@ const AdvogadosMain = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const PAGE_SIZE = 6; 
+  const { isSessionInvalid } = useAuthContext();
 
   const navigate = useNavigate();
 
@@ -202,8 +204,9 @@ const AdvogadosMain = () => {
 
   // Carregar clientes ao mudar a página
   useEffect(() => {
+    if (isSessionInvalid) return;
     buscarAdvogados("");
-  }, [currentPage, buscarAdvogados]);
+  }, [currentPage, buscarAdvogados, isSessionInvalid]);
 
   // Debounce para busca
   const handleBuscaDebounced = useMemo(

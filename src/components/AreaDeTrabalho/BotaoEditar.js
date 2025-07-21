@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import React, { useState, useEffect, useCallback } from "react";
 import useAuth from "../Seguranca/UseAuth";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 // Estilos (mantidos como estão)
 const BotaoEditar = styled.button`
@@ -293,6 +294,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
   const [advogados, setAdvogados] = useState([]);
   const [dropdownAberto, setDropdownAberto] = useState(false);
   const { fetchAuthenticated } = useAuth();
+  const { isSessionInvalid } = useAuthContext();
 
   const formatarDataParaInput = (dataString) => {
     if (!dataString) return "";
@@ -323,12 +325,14 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
   }, [fetchAuthenticated]);
 
   useEffect(() => {
+    if (isSessionInvalid) return;
     if (modalAberto && advogados.length === 0) {
       fetchAdvogados();
     }
-  }, [modalAberto, advogados.length, fetchAdvogados]);
+  }, [modalAberto, advogados.length, fetchAdvogados, isSessionInvalid]);
 
   useEffect(() => {
+    if (isSessionInvalid) return;
     if (tarefaSelecionada) {
       const responsaveis = (tarefaSelecionada.responsaveisId || []).map((id, index) => ({
         id: id,
@@ -346,7 +350,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
         status: tarefaSelecionada.status || false,
       });
     }
-  }, [tarefaSelecionada]);
+  }, [tarefaSelecionada, isSessionInvalid]);
 
   const abrirModal = () => {
     if (tarefaSelecionada) {

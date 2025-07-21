@@ -38,15 +38,14 @@ import {
   Mensagem,
   formatarSituacao,
 } from "./EstilosDetalhesProcessos";
-
 import {
   handleInputChange,
   salvarAlteracoes,
   adicionarResponsavel,
   removerResponsavel,
 } from "./EdicaoProcessos";
-
 import Comentarios from "./Comentarios";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 
 const DetalhesProcesso = () => {
@@ -76,6 +75,7 @@ const DetalhesProcesso = () => {
   const [novoResponsavelId, setNovoResponsavelId] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const { isSessionInvalid } = useAuthContext();
 
   // Busca os dados do processo
   const fetchProcesso = useCallback(async () => {
@@ -153,6 +153,7 @@ const DetalhesProcesso = () => {
   }, [fetchAuthenticated]);
 
   useEffect(() => {
+    if (isSessionInvalid) return;
     const loadData = async () => {
       if (!isLoading) return;
       setIsLoading(true);
@@ -168,7 +169,7 @@ const DetalhesProcesso = () => {
     };
     loadData();
     
-  }, [fetchProcesso, fetchAdvogados, isLoading]);
+  }, [fetchProcesso, fetchAdvogados, isLoading, isSessionInvalid]);
 
   // Renderização condicional para evitar erros durante o carregamento
   if (isLoading) {

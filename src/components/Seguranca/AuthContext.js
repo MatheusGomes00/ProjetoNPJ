@@ -1,38 +1,71 @@
-import React, { createContext, useCallback } from 'react';
-import fetchWithToken from './GerenciaToken';
-import useAuth from './UseAuth';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getAccessToken, logout as logoutStorage, isAuthenticated as checkToken } from './GerenciaToken';
+import { jwtDecode } from 'jwt-decode';
 
+const AuthContext = createContext();
 
+export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(checkToken());
+  const [isSessionInvalid, setIsSessionInvalid] = useState(false);
+  const [user, setUser] = useState(() => {
+    const token = getAccessToken();
+    if (!token) return null;
+    try {
+      const decoded = jwtDecode(token);
+      return {
+        id: decoded.sub,
+        role: decoded.role?.replace('ROLE_', '') || null,
+      };
+    } catch {
+      return null;
+    }
+  });
 
-// Criação do contexto
-const AuthContext = createContext({
-  fetchAuthenticated: async () => {},
-  getId: () => '',
-});
+  // Sincroniza autenticação se o token mudar
+  useEffect(() => {
+    setIsAuthenticated(checkToken());
+  }, []);
 
-// Provedor do contexto
-const AuthProvider = ({ children }) => {
-  const { logoutWithRedirect } = useAuth();
-
-  const fetchAuthenticated = useCallback(
-    async (url, options = {}) => {
-      const response = await fetchWithToken(url, options);
-      if (response.status === 401) {
-        console.warn('Token inválido ou expirado, fazendo logout...');
-        await logoutWithRedirect();
-        return response;
-      }
-      return response;
-    },
-    [logoutWithRedirect]
-  );
-
-  // Valor fornecido pelo contexto
-  const value = {
-    fetchAuthenticated
+  const login = (token) => {
+    // Você pode estender para salvar o token aqui
+    setIsAuthenticated(true);
+    setIsSessionInvalid(false);
+    try {
+      const decoded = jwtDecode(token);
+      setUser({
+        id: decoded.sub,
+        role: decoded.role?.replace('ROLE_', '') || null,
+      });
+    } catch {
+      setUser(null);
+    }
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const logout = () => {
+    logoutStorage(); // limpa token e dados no localStorage/sessionStorage
+    setIsAuthenticated(false);
+    setIsSessionInvalid(false);
+    setUser(null);
+  };
+
+  const markSessionAsInvalid = () => {
+    setIsSessionInvalid(true);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        isSessionInvalid,
+        user,
+        login,
+        logout,
+        markSessionAsInvalid,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export { AuthContext, AuthProvider };
+export const useAuthContext = () => useContext(AuthContext);

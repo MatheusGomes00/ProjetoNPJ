@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import useAuth from "../Seguranca/UseAuth";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from '../Seguranca/AuthContext';
 import {
   MainContainer,
   Header,
@@ -41,6 +42,7 @@ const ClientesMain = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const PAGE_SIZE = 6; // 12 clientes por página
+  const { isSessionInvalid } = useAuthContext(); // Verifica se a sessão é inválida
 
   const navigate = useNavigate(); // Hook para navegação
 
@@ -82,6 +84,7 @@ const ClientesMain = () => {
   // Função para buscar clientes
   const buscarClientes = useCallback(
     async (nome = "", forceRefresh = false) => {
+           
       const now = Date.now();
       const minInterval = 5000; // 5 segundos
       const cacheKey = nome ? `${nome}_page${currentPage}` : `all_page${currentPage}`;
@@ -110,6 +113,8 @@ const ClientesMain = () => {
 
       setIsLoading(true);
       setMensagemErro("");
+
+      if (isSessionInvalid) return;
 
       try {
         const url = nome
@@ -191,7 +196,7 @@ const ClientesMain = () => {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, isLoading, currentPage]
+    [isSessionInvalid, fetchAuthenticated, isLoading, currentPage]
   );
 
   // Memoizar clientes filtrados
@@ -202,8 +207,9 @@ const ClientesMain = () => {
 
   // Carregar clientes ao mudar a página
   useEffect(() => {
+    if (isSessionInvalid) return;
     buscarClientes("");
-  }, [currentPage, buscarClientes]);
+  }, [isSessionInvalid, currentPage, buscarClientes]);
 
   // Debounce para busca
   const handleBuscaDebounced = useMemo(

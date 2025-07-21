@@ -5,6 +5,7 @@ import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import ModalTarefa from "./ModalTarefasDetalhes";
 import ModalEdicao from "./Modais/ModalEdicao";
 import CriarTarefa from "./Modais/CriarTarefa";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 // Estilo do container principal
 const MainContainer = styled.div`
@@ -253,6 +254,7 @@ const TarefasMain = () => {
   const [currentPage, setCurrentPage] = useState(0); // Página atual, começa em 0
   const [totalPages, setTotalPages] = useState(1); // Total de páginas, começa em 1
   const PAGE_SIZE = 12; // Tamanho da página fixo (12 tarefas por página)
+  const { isSessionInvalid } = useAuthContext();
 
   // Usar useRef para cache e lastFetchTime
   const cacheRef = useRef({});
@@ -510,6 +512,7 @@ const TarefasMain = () => {
 
   // Carregar tarefas sempre que a página atual mudar (apenas para não-busca)
   useEffect(() => {
+    if (isSessionInvalid) return;
     if (!isSearching) {
       buscarTarefasPorNome("");
     }

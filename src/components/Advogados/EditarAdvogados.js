@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import useAuth from "../Seguranca/UseAuth";
 import { TextField, InputAdornment, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useAuthContext } from '../Seguranca/AuthContext';
 import {
   SectionTitle,
   FormRow,
@@ -71,6 +72,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
   const [passwordError, setPasswordError] = useState('');
   const [showNovaSenha, setShowNovaSenha] = useState(false);
   const [showRepeteSenha, setShowRepeteSenha] = useState(false);
+  const { isSessionInvalid } = useAuthContext();
 
   // Função para lidar com a mudança nos campos de senha
   const handlePasswordChange = (e) => {
@@ -136,6 +138,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
 
   // Buscar dados do advogado
   useEffect(() => {
+    if (isSessionInvalid) return;
     const buscarAdvogadoPorId = async () => {
       if (hasFetched) return;
 
@@ -186,7 +189,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
     };
 
     buscarAdvogadoPorId();
-  }, [id, fetchAuthenticated, hasFetched, API_URL]);
+  }, [id, fetchAuthenticated, hasFetched, API_URL, isSessionInvalid]);
 
   // Lidar com mudanças nos inputs
   const handleInputChange = (e) => {

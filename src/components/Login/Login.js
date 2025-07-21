@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from 'styled-components';
-import { login, isAuthenticated } from "../Seguranca/GerenciaToken";
+import { getAccessToken, login, isAuthenticated } from "../Seguranca/GerenciaToken";
 import { motion } from 'framer-motion';
+import { useAuthContext } from "../Seguranca/AuthContext";
+
 
 // Container principal que centraliza o conteúdo
 const LoginContainer = styled.div`
@@ -103,6 +105,7 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login: setAuthState } = useAuthContext();
 
   const handleLogin = async (e) => {
 
@@ -115,14 +118,16 @@ const Login = () => {
       await login(username, password);
       
       if (isAuthenticated()) {
-        
+        const token = getAccessToken();
+        setAuthState(token);
+
         navigate("/workspace", {replace: true});
-        setTimeout(() => {
-          if (window.location.pathname !== "/workspace") {
-            console.log("navigate falhou, usando window.location");
-            window.location.href = "/workspace";
-          }
-        }, 100);
+        // setTimeout(() => {
+        //   if (window.location.pathname !== "/workspace") {
+        //     console.log("navigate falhou, usando window.location");
+        //     window.location.href = "/workspace";
+        //   }
+        // }, 100);
       } else {
         throw new Error("Credenciais inválidas ou falha na autenticação.");
       }

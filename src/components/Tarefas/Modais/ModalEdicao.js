@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import useAuth from "../../Seguranca/UseAuth";
+import { useAuthContext } from '../../Seguranca/AuthContext';
 
 // Estilo do overlay do modal
 const ModalOverlay = styled.div`
@@ -271,6 +272,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
   const [tarefaEditada, setTarefaEditada] = useState(null);
   const [error, setError] = useState(""); // Estado para erros gerais
   const [dataError, setDataError] = useState(""); // Estado para erro de data
+  const { isSessionInvalid } = useAuthContext();
 
   // Função para formatar a data do backend para o formato do input datetime-local (yyyy-MM-ddTHH:mm)
   const formatarDataParaInput = (dataString) => {
@@ -293,6 +295,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
 
   // Inicializar o estado tarefaEditada
   useEffect(() => {
+    if (isSessionInvalid) return;
     if (tarefa) {
       
       setTarefaEditada({
@@ -306,7 +309,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
         status: tarefa.status !== undefined ? tarefa.status : true,
       });
     }
-  }, [tarefa]);
+  }, [tarefa, isSessionInvalid]);
 
   // Função para buscar advogados
   const fetchAdvogados = useCallback(async () => {
@@ -334,10 +337,11 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
 
   // Carregar advogados ao abrir o modal
   useEffect(() => {
+    if (isSessionInvalid) return;
     if (advogados.length === 0) {
       fetchAdvogados();
     }
-  }, [advogados.length, fetchAdvogados]);
+  }, [advogados.length, fetchAdvogados, isSessionInvalid]);
 
   // Função para validar e lidar com mudanças no campo de data
   const handleDataChange = (e) => {

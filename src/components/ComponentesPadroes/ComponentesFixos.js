@@ -66,37 +66,44 @@ const MainContent = styled.div`
   box-sizing: border-box;
 `;
 
-const ComponentesFixos = ({ children }) => (
-  <LayoutContainer>
-    <SidebarArea>
-      <Sidebar />
-    </SidebarArea>
-    <MainArea>
-      <TopBarArea>
-        <SearchBarTop />
-        <TopRightIcons>
-          <IconeNotificacoes />
-          <IconeLogOut />
-          <IconeNovaTarefa />
-        </TopRightIcons>
-      </TopBarArea>
-      <MainContent>
-        {children}
-      </MainContent>
-      <ToastContainer
-        position="top-center"
-        autoClose={7000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        style={{ zIndex: 10000 }}
-      />
-    </MainArea>
-  </LayoutContainer>
-);
+
+
+const ComponentesFixos = ({ children }) => {
+  
+  return (
+    <LayoutContainer>
+      <SidebarArea>
+        <Sidebar />
+      </SidebarArea>
+      <MainArea>
+        <TopBarArea>
+          <SearchBarTop />
+          <TopRightIcons>
+            <IconeNotificacoes />
+            <IconeLogOut />
+            <IconeNovaTarefa />
+          </TopRightIcons>
+        </TopBarArea>
+
+        <MainContent>
+          {children}
+        </MainContent>
+
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+          style={{ zIndex: 10000 }}
+        />
+      </MainArea>
+    </LayoutContainer>
+  );
+};
 
 export default ComponentesFixos;

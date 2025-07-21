@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import useAuth from "../../Seguranca/UseAuth";
+import { useAuthContext } from '../../Seguranca/AuthContext';
 
 // Estilo do botão "Criar Tarefa"
 const BotaoCriar = styled.button`
@@ -300,6 +301,7 @@ const CriarTarefa = ({ carregarTarefas }) => {
   const [mensagemErro, setMensagemErro] = useState("");
   const [erros, setErros] = useState({});
   const [dataError, setDataError] = useState("");
+  const { isSessionInvalid } = useAuthContext();
 
   // Função para buscar advogados
   const fetchAdvogados = useCallback(async () => {
@@ -327,10 +329,11 @@ const CriarTarefa = ({ carregarTarefas }) => {
 
   // Carregar advogados ao abrir o modal
   useEffect(() => {
+    if (isSessionInvalid) return;
     if (showModal && advogados.length === 0) {
       fetchAdvogados();
     }
-  }, [showModal, advogados.length, fetchAdvogados]);
+  }, [isSessionInvalid, showModal, advogados.length, fetchAdvogados]);
 
   // Funções para abrir e fechar o modal
   const abrirModal = () => {

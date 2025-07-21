@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useAuthContext } from '../Seguranca/AuthContext';
 
 // Estilo para a tabela de processos
 const TabelaProcessos = styled.table`
@@ -90,6 +91,7 @@ const AbaProcessos = ({ fetchAuthenticated, id, abaAtiva }) => {
   const [clientName, setClientName] = useState("");
   const [isLoadingClient, setIsLoadingClient] = useState(true);
   const navigate = useNavigate();
+  const { isSessionInvalid } = useAuthContext();
 
   // Fetch client name
   const fetchClientName = useCallback(async () => {
@@ -118,6 +120,7 @@ const AbaProcessos = ({ fetchAuthenticated, id, abaAtiva }) => {
 
   // Fetch processos vinculados
   useEffect(() => {
+    if (isSessionInvalid) return;
     const buscarProcessos = async () => {
       if (abaAtiva !== "processos" || hasFetchedProcessos) return;
 
@@ -161,7 +164,7 @@ const AbaProcessos = ({ fetchAuthenticated, id, abaAtiva }) => {
 
     fetchClientName();
     buscarProcessos();
-  }, [id, fetchAuthenticated, abaAtiva, hasFetchedProcessos, fetchClientName]);
+  }, [id, fetchAuthenticated, abaAtiva, hasFetchedProcessos, fetchClientName, isSessionInvalid]);
 
   return (
     <>
