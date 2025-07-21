@@ -122,18 +122,13 @@ const Login = () => {
         setAuthState(token);
 
         navigate("/workspace", {replace: true});
-        // setTimeout(() => {
-        //   if (window.location.pathname !== "/workspace") {
-        //     console.log("navigate falhou, usando window.location");
-        //     window.location.href = "/workspace";
-        //   }
-        // }, 100);
       } else {
         throw new Error("Credenciais inválidas ou falha na autenticação.");
       }
       setLoading(false);
     } catch (error) {
       console.error("Erro no login:", error.message);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
