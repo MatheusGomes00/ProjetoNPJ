@@ -311,7 +311,7 @@ const CriarClientes = () => {
     }
 
     try {
-      const response = await fetchAuthenticated("http://localhost:8080/cad/ins", {
+      const response = await fetchAuthenticated("/cad/ins", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

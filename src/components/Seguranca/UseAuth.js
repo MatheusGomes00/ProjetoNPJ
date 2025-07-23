@@ -56,7 +56,8 @@ const useAuth = () => {
     if (!checkAuth()) return;
     if (isSessionInvalid) return;
 
-    const response = await fetchWithToken(url, options);
+    const apiUrl = `${process.env.REACT_APP_API_URL}${url}`;
+    const response = await fetchWithToken(apiUrl, options);
     if (response.status === 401) {
       markSessionAsInvalid();
       console.warn('Token inválido ou expirado, fazendo logout...');

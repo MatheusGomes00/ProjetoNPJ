@@ -96,7 +96,7 @@ const AbaProcessos = ({ fetchAuthenticated, id, abaAtiva }) => {
   // Fetch client name
   const fetchClientName = useCallback(async () => {
     try {
-      const response = await fetchAuthenticated(`http://localhost:8080/cad/get`, {
+      const response = await fetchAuthenticated(`/cad/get`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +130,7 @@ const AbaProcessos = ({ fetchAuthenticated, id, abaAtiva }) => {
 
       try {
         const response = await fetchAuthenticated(
-          `http://localhost:8080/proc/porNome/${id}`,
+          `/proc/porNome/${id}`,
           {
             method: "GET",
             headers: {

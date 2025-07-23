@@ -64,7 +64,6 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
   const [hasFetched, setHasFetched] = useState(false);
   const [formData, setFormData] = useState({});
   const [showPopup, setShowPopup] = useState(false);
-  const API_URL = process.env.REACT_APP_API_URL;
   const { getRole, getId } = useAuth(); 
   const [showPasswordFields, setShowPasswordFields] = useState(false);
   const [novaSenha, setNovaSenha] = useState('');
@@ -101,7 +100,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
 
     try {
       const response = await fetchAuthenticated(
-        `${process.env.REACT_APP_API_URL}adv/upd`,
+        `/adv/upd`,
         {
           method: 'PUT',
           headers: {
@@ -147,7 +146,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
       setHasFetched(true);
 
       try {
-        const response = await fetchAuthenticated(`${API_URL}adv/buscar/${id}`, {
+        const response = await fetchAuthenticated(`/adv/buscar/${id}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -189,7 +188,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
     };
 
     buscarAdvogadoPorId();
-  }, [id, fetchAuthenticated, hasFetched, API_URL, isSessionInvalid]);
+  }, [id, fetchAuthenticated, hasFetched, isSessionInvalid]);
 
   // Lidar com mudanças nos inputs
   const handleInputChange = (e) => {
@@ -228,7 +227,7 @@ const EditarAdvogados = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving
   
     try {
       const response = await fetchAuthenticated(
-        `${process.env.REACT_APP_API_URL}adv/upd/${id}`,
+        `/adv/upd/${id}`,
         {
           method: 'PUT',
           headers: {

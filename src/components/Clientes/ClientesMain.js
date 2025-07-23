@@ -118,8 +118,8 @@ const ClientesMain = () => {
 
       try {
         const url = nome
-          ? `http://localhost:8080/cad/nome/${encodeURIComponent(nome)}`
-          : `http://localhost:8080/cad/get`;
+          ? `/cad/nome/${encodeURIComponent(nome)}`
+          : `/cad/get`;
 
         const response = await fetchAuthenticated(url, {
           method: "GET",

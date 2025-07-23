@@ -321,8 +321,8 @@ const TarefasMain = () => {
 
       try {
         let url = nome
-          ? `http://localhost:8080/task/search/${encodeURIComponent(nome)}`
-          : `http://localhost:8080/task/get`;
+          ? `/task/search/${encodeURIComponent(nome)}`
+          : `/task/get`;
 
         const response = await fetchAuthenticated(url, {
           method: "GET",
@@ -415,7 +415,7 @@ const TarefasMain = () => {
     setMensagemSucesso("");
 
     try {
-      const url = `http://localhost:8080/task/end/${id}`;
+      const url = `/task/end/${id}`;
 
       const response = await fetchAuthenticated(url, {
         method: "PUT",
@@ -461,7 +461,7 @@ const TarefasMain = () => {
     setMensagemSucesso("");
 
     try {
-      const url = `http://localhost:8080/task/reopen/${id}`;
+      const url = `/task/reopen/${id}`;
 
       const response = await fetchAuthenticated(url, {
         method: "PUT",

@@ -314,7 +314,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
   // Função para buscar advogados
   const fetchAdvogados = useCallback(async () => {
     try {
-      const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
+      const response = await fetchAuthenticated("/adv/buscarTodos", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -473,7 +473,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
 
      
 
-      const response = await fetchAuthenticated(`http://localhost:8080/task/upd/${tarefa.id}`, {
+      const response = await fetchAuthenticated(`/task/upd/${tarefa.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

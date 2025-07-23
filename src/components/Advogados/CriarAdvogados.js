@@ -35,7 +35,6 @@ const CriarAdvogado = () => {
   });
   const [mensagemErro, setMensagemErro] = useState("");
   const [showToast, setShowToast] = useState(false);
-  const API_URL = process.env.REACT_APP_API_URL;
 
   const updateFormData = (section, field, value, nestedSection, nestedField) => {
     if (nestedSection && nestedField) {
@@ -144,7 +143,7 @@ const CriarAdvogado = () => {
     console.log(JSON.stringify(formData))
 
     try {
-      const response = await fetchAuthenticated(`${API_URL}adv/ins`, {
+      const response = await fetchAuthenticated('/adv/ins', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

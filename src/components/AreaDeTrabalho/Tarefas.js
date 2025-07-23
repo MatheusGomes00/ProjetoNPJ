@@ -574,7 +574,7 @@ function Tarefas() {
       setIsLoading(true);
 
       try {
-        const response = await fetchAuthenticated("http://localhost:8080/task/get", {
+        const response = await fetchAuthenticated("/task/get", {
           method: "GET",
         });
 
@@ -627,7 +627,7 @@ function Tarefas() {
       }
 
       try {
-        const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
+        const response = await fetchAuthenticated("/adv/buscarTodos", {
           method: "GET",
         });
         const data = await response.json();
@@ -649,7 +649,7 @@ function Tarefas() {
     setMensagemSucesso("");
 
     try {
-      const url = `http://localhost:8080/task/end/${id}`;
+      const url = `/task/end/${id}`;
 
       await fetchAuthenticated(url, {
         method: "PUT",
@@ -742,7 +742,7 @@ function Tarefas() {
         responsaveisNome: novaTarefa.responsaveisNome,
       };
 
-      const response = await fetchAuthenticated("http://localhost:8080/task/create", {
+      const response = await fetchAuthenticated("/task/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

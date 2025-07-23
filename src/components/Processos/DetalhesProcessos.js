@@ -82,7 +82,7 @@ const DetalhesProcesso = () => {
     setIsLoading(true);
     setMensagemErro("");
     try {
-      const response = await fetchAuthenticated(`http://localhost:8080/proc/porId/${idProc}`, {
+      const response = await fetchAuthenticated(`/proc/porId/${idProc}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -137,7 +137,7 @@ const DetalhesProcesso = () => {
   // Busca a lista de advogados
   const fetchAdvogados = useCallback(async () => {
     try {
-      const response = await fetchAuthenticated(`http://localhost:8080/adv/buscarTodos`, {
+      const response = await fetchAuthenticated(`/adv/buscarTodos`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

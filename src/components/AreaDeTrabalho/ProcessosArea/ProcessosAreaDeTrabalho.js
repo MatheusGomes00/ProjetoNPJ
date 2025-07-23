@@ -214,7 +214,7 @@ const ProcessosAreaDeTrabalho = () => {
     setIsLoading(true);
     setMensagemErro("");
     try {
-      const response = await fetchAuthenticated("http://localhost:8080/proc/get/auth", {
+      const response = await fetchAuthenticated("/proc/get/auth", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

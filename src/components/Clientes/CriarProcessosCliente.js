@@ -378,7 +378,7 @@ const CriarProcessosCliente = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetchAuthenticated("http://localhost:8080/cad/get", {
+      const response = await fetchAuthenticated("/cad/get", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -405,7 +405,7 @@ const CriarProcessosCliente = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetchAuthenticated("http://localhost:8080/cad/get", {
+      const response = await fetchAuthenticated("/cad/get", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -441,7 +441,7 @@ const CriarProcessosCliente = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
+      const response = await fetchAuthenticated("/adv/buscarTodos", {
         method: "GET",
       });
       if (!response.ok) throw new Error("Erro ao buscar advogados");
@@ -545,7 +545,7 @@ const CriarProcessosCliente = () => {
     setIsLoading(true);
     setMensagemErro("");
     try {
-      const response = await fetchAuthenticated("http://localhost:8080/proc/newProc", {
+      const response = await fetchAuthenticated("/proc/newProc", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

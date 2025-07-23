@@ -260,7 +260,7 @@ function Notificacoes() {
 
     try {
       const response = await fetchAuthenticated(
-        `http://localhost:8080/notificacao/get`,
+        `/notificacao/get`,
         {
           method: "GET",
           headers: {
@@ -319,7 +319,7 @@ function Notificacoes() {
 
     try {
       const response = await fetchAuthenticated(
-        `http://localhost:8080/notificacao/delete/${advogadoId}`,
+        `/notificacao/delete/${advogadoId}`,
         {
           method: "DELETE",
           headers: {
@@ -369,7 +369,7 @@ function Notificacoes() {
 
       try {
         const response = await fetchAuthenticated(
-          `http://localhost:8080/task/${tarefaId}`,
+          `/task/${tarefaId}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -407,7 +407,7 @@ function Notificacoes() {
 
       try {
         const response = await fetchAuthenticated(
-          `http://localhost:8080/task/end/${tarefaId}`,
+          `/task/end/${tarefaId}`,
           {
             method: "PUT",
             headers: {
@@ -458,7 +458,7 @@ function Notificacoes() {
 
       try {
         const response = await fetchAuthenticated(
-          `http://localhost:8080/task/reopen/${tarefaId}`,
+          `/task/reopen/${tarefaId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -557,7 +557,7 @@ function Notificacoes() {
       return;
     }
 
-    const socket = new SockJS("http://localhost:8080/ws");
+    const socket = new SockJS("/ws");
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,

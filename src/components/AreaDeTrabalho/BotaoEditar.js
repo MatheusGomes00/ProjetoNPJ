@@ -312,7 +312,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
 
   const fetchAdvogados = useCallback(async () => {
     try {
-      const response = await fetchAuthenticated("http://localhost:8080/adv/buscarTodos", {
+      const response = await fetchAuthenticated("/adv/buscarTodos", {
         method: "GET",
       });
       if (!response.ok) throw new Error("Erro ao buscar advogados");
@@ -435,7 +435,7 @@ const BotaoEditarComponent = ({ tarefaSelecionada, carregarTarefas, atualizarTar
 
 
       const response = await fetchAuthenticated(
-        `http://localhost:8080/task/upd/${tarefaSelecionada.id}`,
+        `/task/upd/${tarefaSelecionada.id}`,
         {
           method: "PUT",
           headers: {

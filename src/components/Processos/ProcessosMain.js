@@ -101,7 +101,7 @@ const ProcessosMain = () => {
       setIsLoading(true);
       setMensagemErro("");
       try {
-        const response = await fetchAuthenticated("http://localhost:8080/proc/findAll", {
+        const response = await fetchAuthenticated("/proc/findAll", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -131,7 +131,7 @@ const ProcessosMain = () => {
       setMensagemErro("");
       try {
         const response = await fetchAuthenticated(
-          `http://localhost:8080/proc/searchProc/${encodeURIComponent(numero)}`,
+          `/proc/searchProc/${encodeURIComponent(numero)}`,
           {
             method: "GET",
             headers: {

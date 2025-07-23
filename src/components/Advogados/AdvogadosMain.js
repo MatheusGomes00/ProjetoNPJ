@@ -115,8 +115,8 @@ const AdvogadosMain = () => {
 
       try {
         const url = nome
-          ? `${process.env.REACT_APP_API_URL}adv/buscanome/${encodeURIComponent(nome)}`
-          : `${process.env.REACT_APP_API_URL}adv/buscarTodos`;
+          ? `/adv/buscanome/${encodeURIComponent(nome)}`
+          : `/adv/buscarTodos`;
 
         const response = await fetchAuthenticated(url, {
           method: "GET",

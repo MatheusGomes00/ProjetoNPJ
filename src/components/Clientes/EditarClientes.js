@@ -155,7 +155,7 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
       setHasFetched(true);
 
       try {
-        const response = await fetchAuthenticated(`http://localhost:8080/cad/get/${id}`, {
+        const response = await fetchAuthenticated(`/cad/get/${id}`, {
           method: "GET",
         });
 
@@ -263,7 +263,7 @@ const EditarClientes = ({ fetchAuthenticated, id, navigate, onSave, setIsSaving 
 
     try {
       const response = await fetchAuthenticated(
-        `http://localhost:8080/cad/upd/${id}`,
+        `/cad/upd/${id}`,
         {
           method: "PUT",
           headers: {

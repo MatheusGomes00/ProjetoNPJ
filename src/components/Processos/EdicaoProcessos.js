@@ -53,7 +53,7 @@ export const salvarAlteracoes = async (
       listaComentarios: formData.listaComentarios
     };
 
-    const response = await fetchAuthenticated(`http://localhost:8080/proc/updProc/${id}`, {
+    const response = await fetchAuthenticated(`/proc/updProc/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -148,7 +148,7 @@ export const adicionarResponsavel = async (
 
     
 
-    const response = await fetchAuthenticated(`http://localhost:8080/proc/updProc/${id}`, {
+    const response = await fetchAuthenticated(`/proc/updProc/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -231,7 +231,7 @@ export const removerResponsavel = async (
 
     
 
-    const response = await fetchAuthenticated(`http://localhost:8080/proc/updProc/${id}`, {
+    const response = await fetchAuthenticated(`/proc/updProc/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -300,7 +300,7 @@ export const adicionarComentario = async (
         comentarios: novoComentario,
       };
 
-      const response = await fetchAuthenticated(`http://localhost:8080/proc/${idProc}/add-comentario`, {
+      const response = await fetchAuthenticated(`/proc/${idProc}/add-comentario`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -344,7 +344,7 @@ export const editarComentario = async (
     setMensagemErro('');
 
     try {
-      const response = await fetchAuthenticated(`http://localhost:8080/proc/${idProc}/upd-comentario/${comentarioId}`, {
+      const response = await fetchAuthenticated(`/proc/${idProc}/upd-comentario/${comentarioId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -388,7 +388,7 @@ export const excluirComentario = async (
 
   try {
     const response = await fetchAuthenticated(
-      `http://localhost:8080/proc/${idProc}/del-comentario`,
+      `/proc/${idProc}/del-comentario`,
       {
         method: 'DELETE',
         headers: {
