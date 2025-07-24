@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
@@ -25,11 +26,9 @@ public class AgendamentoDto {
     private String cpf;
 
     @NotNull(message = "O início é obrigatório")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime start;
 
     @NotNull(message = "O fim é obrigatório")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime end;
 
     @NotBlank

@@ -10,6 +10,7 @@ import com.npj.ProjetoNPJ.exceptions.NullPointerException;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
 import com.npj.ProjetoNPJ.clientes.repository.CadastroRepository;
 import com.npj.ProjetoNPJ.security.UserAutenticado;
+import com.npj.ProjetoNPJ.utils.ConversorDataHora;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,11 +46,10 @@ public class AgendamentoService {
         return cpf.replaceAll("[.\\-\\s]", "");
     }
 
-
     public AgendamentoDto criarAgendamento(AgendamentoDto dto) {
         dto.setCpf(normalizarCpf(dto.getCpf()));
         Agendamento novoAgendamento = agendamentoRepository.insert(AgendamentoMapper.toEntity(dto));
-        novoAgendamento.setResponsaveis(dto.getResponsaveis());
+        //novoAgendamento.setResponsaveis(dto.getResponsaveis());
         return AgendamentoMapper.toDto(novoAgendamento);
     }
 
@@ -60,7 +60,6 @@ public class AgendamentoService {
     // public void criarAlerta() {
     //
     // }
-
 
     public AgendamentoDto atualizarAgendamento(AgendamentoDto updateDto, String id) {
         Agendamento registro = agendamentoRepository.findById(id)
@@ -81,10 +80,10 @@ public class AgendamentoService {
             registro.setCpf(updateDto.getCpf());
         }
         if(updateDto.getStart() != null) {
-            registro.setStart(updateDto.getStart());
+            registro.setStart(ConversorDataHora.convertInstant(updateDto.getStart()));
         }
         if(updateDto.getEnd() != null) {
-            registro.setEnd(updateDto.getEnd());
+            registro.setEnd(ConversorDataHora.convertInstant(updateDto.getEnd()));
         }
         if(updateDto.getCasoTipo() != null) {
             registro.setCasoTipo(updateDto.getCasoTipo());

@@ -6,7 +6,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Getter
@@ -24,13 +27,13 @@ public class Agendamento {
 
     private String cpf;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime start;
+    private Instant start;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime end;
+    private Instant end;
 
     private String casoTipo;
 
     private List<ResponsavelDto> responsaveis;
+
+
 }
