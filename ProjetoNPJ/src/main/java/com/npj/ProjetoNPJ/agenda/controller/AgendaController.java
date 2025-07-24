@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/agenda")
+@RequestMapping(value = "/api/agenda")
 public class AgendaController {
 
     @Autowired

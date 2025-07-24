@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @RestController
-@RequestMapping(value = "/notificacao")
+@RequestMapping(value = "/api/notificacao")
 public class NotificacaoController {
 
     private static final Logger LOGGER = Logger.getLogger(NotificacaoController.class.getName());

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/adv")
+@RequestMapping(value = "/api/adv")
 public class AdvogadoController {
 
     @Autowired

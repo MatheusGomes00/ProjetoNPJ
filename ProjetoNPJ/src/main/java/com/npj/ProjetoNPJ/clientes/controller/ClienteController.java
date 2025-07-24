@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/cad")
+@RequestMapping(value = "/api/cad")
 public class ClienteController {
 
     @Autowired

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/agendamento")
+@RequestMapping(value = "/api/agendamento")
 public class AgendamentoController {
 
     @Autowired

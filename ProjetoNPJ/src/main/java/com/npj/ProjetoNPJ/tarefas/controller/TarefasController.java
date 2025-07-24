@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @RestController
-@RequestMapping(value = "/task")
+@RequestMapping(value = "/api/task")
 public class TarefasController {
 
     private static final Logger LOGGER = Logger.getLogger(TarefasController.class.getName());

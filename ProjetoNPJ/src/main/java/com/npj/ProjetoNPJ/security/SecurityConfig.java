@@ -41,11 +41,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/refresh-token", "/auth/logout").permitAll()
-                        .requestMatchers("/ws/**", "/ws/info/**").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/refresh-token", "/api/auth/logout").permitAll()
+                        .requestMatchers("/api/ws/**", "/api/ws/info/**").permitAll()
                         //.requestMatchers("/adv/ins").permitAll()
-                        .requestMatchers("/adv/ins").hasAuthority("ROLE_ADVOGADO")
-                        .requestMatchers("/adv/**").authenticated()
+                        .requestMatchers("/api/adv/ins").hasAuthority("ROLE_ADVOGADO")
+                        .requestMatchers("/api/adv/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
@@ -60,7 +60,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Libera o front-end
+        configuration.setAllowedOrigins(List.of("http://intranet.testes", "http://intranet.testes:3001", "http://192.168.100.31:3001", "http://localhost://3001")); // Libera o front-end
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);

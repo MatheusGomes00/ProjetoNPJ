@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/proc")
+@RequestMapping(value = "/api/proc")
 public class ProcessosController {
 
     @Autowired
