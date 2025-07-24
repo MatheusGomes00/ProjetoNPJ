@@ -557,7 +557,7 @@ function Notificacoes() {
       return;
     }
 
-    const socket = new SockJS("/ws");
+    const socket = new SockJS(`${process.env.REACT_APP_API_URL}/ws`);
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,

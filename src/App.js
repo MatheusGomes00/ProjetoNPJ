@@ -12,10 +12,11 @@ import DetalhesProcesso from "./components/Processos/DetalhesProcessos";
 import CriarClientes from "./components/Clientes/CriarClientes";
 import CriarProcessosCliente from "./components/Clientes/CriarProcessosCliente";
 import './App.css';
+import { useAuthContext } from './components/Seguranca/AuthContext';
 
 
 function App() {
-
+  const { isAuthenticated } = useAuthContext();
   return (
     <div className="app-container">
       <Routes>
@@ -27,59 +28,59 @@ function App() {
         {/* Rotas Protegidas */}
         <Route
           path="/workspace"
-          //element={isAuthenticated ? <AreaDeTrabalho /> : <Navigate to="/login" />}
-          element={<AreaDeTrabalho />}
+          element={isAuthenticated ? <AreaDeTrabalho /> : <Navigate to="/login" />}
+          //element={<AreaDeTrabalho />}
         />
         <Route
           path="/tarefas"
-          // element={isAuthenticated ? <TarefasMain /> : <Navigate to="/login" />}
-          element={<TarefasMain />}
+          element={isAuthenticated ? <TarefasMain /> : <Navigate to="/login" />}
+          //element={<TarefasMain />}
         />
         <Route
           path="/processos"
-          // element={isAuthenticated ? <Processos /> : <Navigate to="/login" />}
-          element={<Processos />}
+          element={isAuthenticated ? <Processos /> : <Navigate to="/login" />}
+          //element={<Processos />}
         />
         <Route
           path="/advogados"
-          // element={isAuthenticated ? <AdvogadosMain /> : <Navigate to="/login" />}
-          element={<AdvogadosMain />}
+          element={isAuthenticated ? <AdvogadosMain /> : <Navigate to="/login" />}
+          //element={<AdvogadosMain />}
         />
         <Route
           path="/advogados/criar"
-          // element={isAuthenticated ? <CriarAdvogados /> : <Navigate to="/login" />}
-          element={<CriarAdvogados />}
+          element={isAuthenticated ? <CriarAdvogados /> : <Navigate to="/login" />}
+          //element={<CriarAdvogados />}
         />
         <Route
           path="/advogados/:id"
-          // element={isAuthenticated ? <DetalhesAdvogados /> : <Navigate to="/login" />}
-          element={<DetalhesAdvogados />}
+          element={isAuthenticated ? <DetalhesAdvogados /> : <Navigate to="/login" />}
+          //element={<DetalhesAdvogados />}
         />
         <Route
           path="/clientes"
-          // element={isAuthenticated ? <ClientesMain /> : <Navigate to="/login" />}
-          element={<ClientesMain />}
+          element={isAuthenticated ? <ClientesMain /> : <Navigate to="/login" />}
+          //element={<ClientesMain />}
         />
          <Route
           path="/clientes/:id"
-          // element={isAuthenticated ? <DetalhesClientes /> : <Navigate to="/login" />}
-          element={<DetalhesClientes />}
+          element={isAuthenticated ? <DetalhesClientes /> : <Navigate to="/login" />}
+          //element={<DetalhesClientes />}
         />
          <Route
           path="/clientes/criar"
-          // element={isAuthenticated ? <CriarClientes /> : <Navigate to="/login" />}
-          element={<CriarClientes />}
+          element={isAuthenticated ? <CriarClientes /> : <Navigate to="/login" />}
+          //element={<CriarClientes />}
         />
         
         <Route
           path="/processos/:id"
-          // element={isAuthenticated ? <DetalhesProcesso /> : <Navigate to="/login" />}
-          element={<DetalhesProcesso />}
+          element={isAuthenticated ? <DetalhesProcesso /> : <Navigate to="/login" />}
+          //element={<DetalhesProcesso />}
         />
         <Route
           path="/clientes/criarProc"
-          // element={isAuthenticated ? <CriarProcessosCliente /> : <Navigate to="/login" />}
-          element={<CriarProcessosCliente />}
+          element={isAuthenticated ? <CriarProcessosCliente /> : <Navigate to="/login" />}
+          //element={<CriarProcessosCliente />}
         />
         
       </Routes>
