@@ -16,4 +16,14 @@ public class ConversorDataHora {
         if (instant == null) return null;
         return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
+
+    public static Instant convertStringToInstant(String string) {
+        if (string == null) return null;
+        return Instant.parse(string);
+    }
+
+    public static String converterInstantToString(Instant instant) {
+        if (instant == null) return null;
+        return instant.toString();
+    }
 }

@@ -9,6 +9,7 @@ import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
 import com.npj.ProjetoNPJ.tarefas.repository.TarefasRepository;
+import com.npj.ProjetoNPJ.utils.ConversorDataHora;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +51,7 @@ public class TarefefasService {
                         .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
                 .collect(Collectors.toList());
 
-        System.out.println(advogados);
+        //System.out.println(advogados);
 
 
         Tarefas newTask = TarefasMapper.toEntity(dto, advogados);
@@ -72,10 +73,10 @@ public class TarefefasService {
 
     public void updateData(Tarefas tarefa, DtoTarefas dto) {
         if (dto.getNomeTarefa() != null) tarefa.setNomeTarefa(dto.getNomeTarefa());
-        if (dto.getDataCriacao() != null) tarefa.setDataCriacao(dto.getDataCriacao());
+        //if (dto.getDataCriacao() != null) tarefa.setDataCriacao(ConversorDataHora.convertInstant(dto.getDataCriacao()));
         if (dto.getDescricao() != null) tarefa.setDescricao(dto.getDescricao());
         if (dto.getPrioridade() != null) tarefa.setPrioridade(dto.getPrioridade());
-        if (dto.getPrazoLimite() != null) tarefa.setPrazoLimite(dto.getPrazoLimite());
+        if (dto.getPrazoLimite() != null) tarefa.setPrazoLimite(ConversorDataHora.convertInstant(dto.getPrazoLimite()));
 
         //Método que atualizei para o update conseguir atualizar os responsáveis também
         if (dto.getResponsaveisId() != null && !dto.getResponsaveisId().isEmpty()) {

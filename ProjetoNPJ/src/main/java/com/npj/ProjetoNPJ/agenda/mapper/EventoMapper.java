@@ -4,8 +4,11 @@ import com.npj.ProjetoNPJ.agenda.dto.EventoItemDto;
 import com.npj.ProjetoNPJ.agenda.dto.ResponsavelDto;
 import com.npj.ProjetoNPJ.agendamentos.dto.AgendamentoDto;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
+import com.npj.ProjetoNPJ.utils.ConversorDataHora;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +40,10 @@ public class EventoMapper {
         if (tarefaDto == null) {
             return null;
         }
-
         EventoItemDto evento = new EventoItemDto();
         evento.setId(tarefaDto.getId());
         evento.setTitle(tarefaDto.getNomeTarefa());
-        evento.setStart(tarefaDto.getPrazoLimite().atStartOfDay());
+        evento.setStart(tarefaDto.getPrazoLimite());
         evento.setEnd(null);
         evento.setAllDay(true);
         evento.setType("tarefa");

@@ -3,7 +3,9 @@ package com.npj.ProjetoNPJ.tarefas.mapper;
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
+import com.npj.ProjetoNPJ.utils.ConversorDataHora;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,8 +18,8 @@ public class TarefasMapper {
         tarefas.setDescricao(dtoTarefas.getDescricao());
         tarefas.setStatus(dtoTarefas.isStatus());
         tarefas.setPrioridade(dtoTarefas.getPrioridade());
-        tarefas.setPrazoLimite(dtoTarefas.getPrazoLimite());
-        tarefas.setDataCriacao(dtoTarefas.getDataCriacao());
+        tarefas.setPrazoLimite(ConversorDataHora.convertInstant(dtoTarefas.getPrazoLimite()));
+        tarefas.setDataCriacao(Instant.now());
         tarefas.setCriador(dtoTarefas.getCriador());
         tarefas.setAdvogadoFinalizadorId(tarefas.getAdvogadoFinalizadorId());
         tarefas.setFinalizadoPor(dtoTarefas.getFinalizadoPor());
@@ -38,8 +40,8 @@ public class TarefasMapper {
         dtoTarefas.setDescricao(tarefas.getDescricao());
         dtoTarefas.setStatus(tarefas.isStatus());
         dtoTarefas.setPrioridade(tarefas.getPrioridade());
-        dtoTarefas.setPrazoLimite(tarefas.getPrazoLimite());
-        dtoTarefas.setDataCriacao(tarefas.getDataCriacao());
+        dtoTarefas.setPrazoLimite(ConversorDataHora.convertLocalDate(tarefas.getPrazoLimite()));
+        dtoTarefas.setDataCriacao(ConversorDataHora.convertLocalDate(tarefas.getDataCriacao()));
         dtoTarefas.setCriador(tarefas.getCriador());
         dtoTarefas.setFinalizadoPor(tarefas.getFinalizadoPor());
         dtoTarefas.setAdvogadoFinalizadorId(tarefas.getAdvogadoFinalizadorId());

@@ -33,10 +33,9 @@ public class DtoTarefas {
     private String prioridade;
 
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate prazoLimite;
+    private LocalDateTime prazoLimite;
 
-    private LocalDate dataCriacao;
+    private LocalDateTime dataCriacao;
 
     @NotEmpty
     private List<String> responsaveisId;

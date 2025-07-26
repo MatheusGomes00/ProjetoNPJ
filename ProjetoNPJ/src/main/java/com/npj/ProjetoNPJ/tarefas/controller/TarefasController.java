@@ -46,7 +46,6 @@ public class TarefasController {
 
     @PostMapping(value = "/create")
     public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody  DtoTarefas tarefaDto, @RequestHeader("Authorization") String authorizationHeader) {
-
         String token = authorizationHeader.replace("Bearer ", "");
 
         String advogadoId = jwtService.extractUserId(token);
