@@ -211,14 +211,13 @@ const formatarData = (dataString) => {
   const dia = String(data.getUTCDate()).padStart(2, "0");
   const mes = String(data.getUTCMonth() + 1).padStart(2, "0");
   const ano = data.getUTCFullYear();
-  const horas = String(data.getUTCHours()).padStart(2, "0");
-  const minutos = String(data.getUTCMinutes()).padStart(2, "0");
+  const horas = String(data.getHours()).padStart(2, "0");
+  const minutos = String(data.getMinutes()).padStart(2, "0");
   return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 };
 
 const ModalTarefa = ({ tarefa, onClose, onFinalizar, onReabrir, onEditar, marcarComoLida }) => {
   
-
   if (!tarefa) return null;
 
   // Função para lidar com o clique no botão de reativar

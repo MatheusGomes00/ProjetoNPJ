@@ -523,8 +523,8 @@ function Tarefas() {
     const dia = String(data.getUTCDate()).padStart(2, "0");
     const mes = String(data.getUTCMonth() + 1).padStart(2, "0");
     const ano = data.getUTCFullYear();
-    const horas = String(data.getUTCHours()).padStart(2, "0");
-    const minutos = String(data.getUTCMinutes()).padStart(2, "0");
+    const horas = String(data.getHours()).padStart(2, "0");
+    const minutos = String(data.getMinutes()).padStart(2, "0");
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
   };
 
@@ -729,14 +729,14 @@ function Tarefas() {
     }
 
     try {
-      const prazoLimiteFormatado = novaTarefa.prazoLimite ? novaTarefa.prazoLimite.split("T")[0] : null;
+      // const prazoLimiteFormatado = novaTarefa.prazoLimite ? novaTarefa.prazoLimite.split("T")[0] : null;
 
       const novaTarefaComData = {
         nomeTarefa: novaTarefa.nomeTarefa,
         descricao: novaTarefa.descricao,
         status: novaTarefa.status,
         prioridade: novaTarefa.prioridade,
-        prazoLimite: prazoLimiteFormatado,
+        prazoLimite: novaTarefa.prazoLimite,
         dataCriacao: new Date().toISOString(),
         responsaveisId: novaTarefa.responsaveisId,
         responsaveisNome: novaTarefa.responsaveisNome,

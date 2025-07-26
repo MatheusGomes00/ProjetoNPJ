@@ -266,8 +266,8 @@ const TarefasMain = () => {
     const dia = String(data.getUTCDate()).padStart(2, "0");
     const mes = String(data.getUTCMonth() + 1).padStart(2, "0");
     const ano = data.getUTCFullYear();
-    const horas = String(data.getUTCHours()).padStart(2, "0");
-    const minutos = String(data.getUTCMinutes()).padStart(2, "0");
+    const horas = String(data.getHours()).padStart(2, "0");
+    const minutos = String(data.getMinutes()).padStart(2, "0");
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
   };
 
@@ -516,8 +516,12 @@ const TarefasMain = () => {
     if (!isSearching) {
       buscarTarefasPorNome("");
     }
-  }, [buscarTarefasPorNome, isSearching]);
+  }, [isSessionInvalid, buscarTarefasPorNome, isSearching]);
 
+  // atualiza ModalTarefa com novos dados
+  const atualizarTarefa = useCallback((tarefaAtualizada) => {
+    setTarefaSelecionada(tarefaAtualizada); 
+  }, []);
 
   const handleBusca = (e) => {
     setNomeBusca(e.target.value);
@@ -678,6 +682,7 @@ const TarefasMain = () => {
             tarefa={tarefaParaEditar}
             onClose={fecharModalEdicao}
             carregarTarefas={buscarTarefasPorNome}
+            atualizarTarefa={atualizarTarefa}
           />
         )}
       </MainContainer>

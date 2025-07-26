@@ -276,21 +276,14 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
 
   // Função para formatar a data do backend para o formato do input datetime-local (yyyy-MM-ddTHH:mm)
   const formatarDataParaInput = (dataString) => {
-    if (!dataString) return "";
-    try {
-      const data = new Date(dataString);
-      const dataUTC = new Date(Date.UTC(
-        data.getUTCFullYear(),
-        data.getUTCMonth(),
-        data.getUTCDate(),
-        data.getUTCHours(),
-        data.getUTCMinutes()
-      ));
-      return dataUTC.toISOString().slice(0, 16);
-    } catch (err) {
-      console.error("Erro ao formatar data:", err);
-      return "";
-    }
+    if (!dataString) return "Sem prazo";
+    const data = new Date(dataString);
+    const dia = String(data.getUTCDate()).padStart(2, "0");
+    const mes = String(data.getUTCMonth() + 1).padStart(2, "0");
+    const ano = data.getUTCFullYear();
+    const horas = String(data.getHours()).padStart(2, "0");
+    const minutos = String(data.getMinutes()).padStart(2, "0");
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
   };
 
   // Inicializar o estado tarefaEditada
@@ -302,8 +295,8 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
         nomeTarefa: tarefa.nomeTarefa || "",
         descricao: tarefa.descricao || "",
         prioridade: tarefa.prioridade || "baixa",
-        prazoLimite: formatarDataParaInput(tarefa.prazoLimite),
-        dataCriacao: tarefa.dataCriacao || new Date().toISOString(),
+        prazoLimite: tarefa.prazoLimite || "",
+        //dataCriacao: tarefa.dataCriacao || new Date().toISOString(),
         responsaveisId: tarefa.responsaveisId || [],
         responsaveisNome: tarefa.responsaveisNome || [],
         status: tarefa.status !== undefined ? tarefa.status : true,
@@ -466,7 +459,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
         status: tarefaEditada.status ?? true,
         prioridade: tarefaEditada.prioridade,
         prazoLimite: prazoLimiteFormatado,
-        dataCriacao: tarefaEditada.dataCriacao ?? new Date().toISOString(),
+        //dataCriacao: tarefaEditada.dataCriacao ?? new Date().toISOString(),
         responsaveisId: tarefaEditada.responsaveisId ?? [],
         responsaveisNome: tarefaEditada.responsaveisNome ?? [],
       };
@@ -509,6 +502,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
       }
 
       onClose();
+
       alert("Tarefa atualizada com sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar tarefa:", error);
@@ -520,6 +514,24 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
     
     return null;
   }
+
+  const formatarParaInputDatetimeLocal = (dataString) => {
+    if (!dataString) return "";
+    try {
+      const data = new Date(dataString);
+
+      const ano = data.getFullYear();
+      const mes = String(data.getMonth() + 1).padStart(2, "0");
+      const dia = String(data.getDate()).padStart(2, "0");
+      const horas = String(data.getHours()).padStart(2, "0");
+      const minutos = String(data.getMinutes()).padStart(2, "0");
+
+      return `${ano}-${mes}-${dia}T${horas}:${minutos}`;
+    } catch (err) {
+      console.error("Erro ao formatar para datetime-local:", err);
+      return "";
+    }
+  };
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -567,7 +579,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
               <Input
                 type="datetime-local"
                 name="prazoLimite"
-                value={tarefaEditada.prazoLimite}
+                value={formatarParaInputDatetimeLocal(tarefaEditada.prazoLimite)}
                 onChange={handleDataChange}
               />
               {dataError && <ErrorMessage>{dataError}</ErrorMessage>}

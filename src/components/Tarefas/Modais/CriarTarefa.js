@@ -509,7 +509,7 @@ const CriarTarefa = ({ carregarTarefas }) => {
     }
 
     try {
-      const prazoCompleto = novaTarefa.prazoLimite && novaTarefa.prazoHora
+      const prazoCompletoISO = novaTarefa.prazoLimite && novaTarefa.prazoHora
         ? `${novaTarefa.prazoLimite}T${novaTarefa.prazoHora}:00`
         : null;
 
@@ -518,8 +518,8 @@ const CriarTarefa = ({ carregarTarefas }) => {
         descricao: novaTarefa.descricao,
         status: novaTarefa.status,
         prioridade: novaTarefa.prioridade,
-        prazoLimite: prazoCompleto,
-        dataCriacao: new Date().toISOString(),
+        prazoLimite: prazoCompletoISO,
+        //dataCriacao: dataCriacaoLocal,
         responsaveisId: novaTarefa.responsaveisId,
         responsaveisNome: novaTarefa.responsaveisNome,
       };
@@ -538,8 +538,7 @@ const CriarTarefa = ({ carregarTarefas }) => {
         throw new Error(`Erro na requisição: ${response.status} - ${JSON.stringify(errorData)}`);
       }
 
-      const tarefaCriada = await response.json();
-      
+      await response.json();
 
       setShowModal(false);
       setNovaTarefa({
@@ -556,7 +555,7 @@ const CriarTarefa = ({ carregarTarefas }) => {
       setDataError("");
 
       if (carregarTarefas) {
-        await carregarTarefas(true);
+        await carregarTarefas();
       }
     } catch (error) {
       console.error("Erro ao adicionar tarefa:", error);
