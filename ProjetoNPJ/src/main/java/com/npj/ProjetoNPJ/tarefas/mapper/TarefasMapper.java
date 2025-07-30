@@ -19,7 +19,7 @@ public class TarefasMapper {
         tarefas.setStatus(dtoTarefas.isStatus());
         tarefas.setPrioridade(dtoTarefas.getPrioridade());
         tarefas.setPrazoLimite(ConversorDataHora.convertInstant(dtoTarefas.getPrazoLimite()));
-        tarefas.setDataCriacao(Instant.now());
+        tarefas.setDataCriacao(ConversorDataHora.convertInstant(dtoTarefas.getDataCriacao()));
         tarefas.setCriador(dtoTarefas.getCriador());
         tarefas.setAdvogadoFinalizadorId(tarefas.getAdvogadoFinalizadorId());
         tarefas.setFinalizadoPor(dtoTarefas.getFinalizadoPor());
@@ -29,7 +29,7 @@ public class TarefasMapper {
                 .collect(Collectors.toList());
         tarefas.setResponsaveis(responsaveis);
         tarefas.setReativadoPor(dtoTarefas.getReativadaPor());
-
+        tarefas.setDataFinalizacao(ConversorDataHora.convertInstant(dtoTarefas.getDataFinalizacao()));
         return tarefas;
     }
 
@@ -45,6 +45,7 @@ public class TarefasMapper {
         dtoTarefas.setCriador(tarefas.getCriador());
         dtoTarefas.setFinalizadoPor(tarefas.getFinalizadoPor());
         dtoTarefas.setAdvogadoFinalizadorId(tarefas.getAdvogadoFinalizadorId());
+        dtoTarefas.setDataFinalizacao(ConversorDataHora.convertLocalDate(tarefas.getDataFinalizacao()));
 
         // Métod que atualizei para atualizar os responsáveis também
         if (tarefas.getResponsaveis() != null && !tarefas.getResponsaveis().isEmpty()) {

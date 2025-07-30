@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,24 +52,21 @@ public class TarefefasService {
                         .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
                 .collect(Collectors.toList());
 
-        //System.out.println(advogados);
-
-
         Tarefas newTask = TarefasMapper.toEntity(dto, advogados);
         newTask.setCriador(dto.getCriador());
-
         repository.save(newTask);
         return TarefasMapper.toDto(newTask);
     }
 
-    public Tarefas update(DtoTarefas dto, String id){
+    public DtoTarefas update(DtoTarefas dto, String id){
 
         Tarefas tarefa = repository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa não encontrada."));
         updateData(tarefa, dto);
         repository.save(tarefa);
-        System.out.println(tarefa.getDataCriacao());
-        return tarefa;
+        //System.out.println(tarefa.getDataCriacao());
+        // return tarefa;
+        return TarefasMapper.toDto(tarefa);
     }
 
     public void updateData(Tarefas tarefa, DtoTarefas dto) {
@@ -78,7 +76,7 @@ public class TarefefasService {
         if (dto.getPrioridade() != null) tarefa.setPrioridade(dto.getPrioridade());
         if (dto.getPrazoLimite() != null) tarefa.setPrazoLimite(ConversorDataHora.convertInstant(dto.getPrazoLimite()));
 
-        //Método que atualizei para o update conseguir atualizar os responsáveis também
+        //Metodo que atualizei para o update conseguir atualizar os responsáveis também
         if (dto.getResponsaveisId() != null && !dto.getResponsaveisId().isEmpty()) {
             List<Advogado> advogados = dto.getResponsaveisId().stream()
                     .map(id -> advogadoRepository.findById(id)
@@ -89,7 +87,7 @@ public class TarefefasService {
         }
     }
 
-    public Tarefas finalizar(String id, String advogadoId){
+    public DtoTarefas finalizar(String id, String advogadoId){
         Tarefas task = repository.findById(id).orElseThrow(()-> new RecursoNaoEncontradoException("Tarefa não encontrada"));
 
         Advogado advogado = advogadoRepository.findById(advogadoId)
@@ -98,25 +96,22 @@ public class TarefefasService {
         task.setFinalizadoPor(advogadoId);
         task.setAdvogadoFinalizadorId(advogado.getNome());
         task.setStatus(false);
+        task.setDataFinalizacao(Instant.now());
         repository.save(task);
-        return task;
+        return TarefasMapper.toDto(task);
     }
 
-    public Tarefas reativarTarefa(String id){
+    public DtoTarefas reativarTarefa(String id){
 
         Tarefas task = repository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Tarefa Não encontrada"));
         task.setFinalizadoPor(null);
         task.setStatus(true);
         repository.save(task);
-        return task;
-
+        return TarefasMapper.toDto(task);
     }
 
     public List<DtoTarefas> getTarefasAutenticado() {
-
-        Advogado advogado = advogadoRepository.findById(getAuthenticatedUsername())
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrada"));
-        List<Tarefas> tarefa = repository.findByAdvogado(advogado.getId());
+        List<Tarefas> tarefa = repository.findByAdvogado(getAuthenticatedUsername());
         return TarefasMapper.toListDto(tarefa);
     }
 

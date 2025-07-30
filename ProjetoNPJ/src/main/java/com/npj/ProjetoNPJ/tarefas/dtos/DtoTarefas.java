@@ -51,4 +51,6 @@ public class DtoTarefas {
 
     private String criador;
 
+    private LocalDateTime dataFinalizacao;
+
 }

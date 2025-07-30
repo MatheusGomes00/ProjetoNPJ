@@ -76,24 +76,25 @@ public class TarefasController {
         }
         return ResponseEntity.ok().body(tarefa);
     }
+
     @PutMapping(value = "/upd/{id}")
-    public ResponseEntity<Tarefas> update(@PathVariable String id, @RequestBody DtoTarefas dto) {
+    public ResponseEntity<DtoTarefas> update(@PathVariable String id, @RequestBody DtoTarefas dto) {
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("O ID da tarefa não pode ser nulo ou vazio.");
         }
-        Tarefas task = service.update(dto, id);
+        DtoTarefas task = service.update(dto, id);
         return ResponseEntity.ok(task);
     }
 
     @PutMapping(value = "/end/{id}")
-    public ResponseEntity<Tarefas> finalizarTarefa(@PathVariable String id, @RequestHeader("Authorization") String authorizationHeader){
+    public ResponseEntity<DtoTarefas> finalizarTarefa(@PathVariable String id, @RequestHeader("Authorization") String authorizationHeader){
 
         try {
             String token = authorizationHeader.replace("Bearer ", "");
 
             String advogadoId = jwtService.extractUserId(token);
 
-            Tarefas tarefaAtualizada = service.finalizar(id, advogadoId);
+            DtoTarefas tarefaAtualizada = service.finalizar(id, advogadoId);
 
             return ResponseEntity.ok(tarefaAtualizada);
         } catch (Exception e) {
@@ -125,9 +126,9 @@ public class TarefasController {
         return ResponseEntity.ok(tarefas);
     }
     @PutMapping(value = "/reopen/{id}")
-    public ResponseEntity <Tarefas> reabrirTarefas(@PathVariable String id){
+    public ResponseEntity <DtoTarefas> reabrirTarefas(@PathVariable String id){
 
-        Tarefas tarefaAtualiza = service.reativarTarefa(id);
+        DtoTarefas tarefaAtualiza = service.reativarTarefa(id);
 
         return ResponseEntity.ok(tarefaAtualiza);
     }

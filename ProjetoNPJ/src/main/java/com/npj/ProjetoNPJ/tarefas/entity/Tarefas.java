@@ -45,5 +45,5 @@ public class Tarefas {
 
     private String reativadoPor;
 
-
+    private Instant dataFinalizacao;
 }
