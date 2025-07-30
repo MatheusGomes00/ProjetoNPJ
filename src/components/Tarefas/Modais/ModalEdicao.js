@@ -274,18 +274,6 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
   const [dataError, setDataError] = useState(""); // Estado para erro de data
   const { isSessionInvalid } = useAuthContext();
 
-  // Função para formatar a data do backend para o formato do input datetime-local (yyyy-MM-ddTHH:mm)
-  const formatarDataParaInput = (dataString) => {
-    if (!dataString) return "Sem prazo";
-    const data = new Date(dataString);
-    const dia = String(data.getUTCDate()).padStart(2, "0");
-    const mes = String(data.getUTCMonth() + 1).padStart(2, "0");
-    const ano = data.getUTCFullYear();
-    const horas = String(data.getHours()).padStart(2, "0");
-    const minutos = String(data.getMinutes()).padStart(2, "0");
-    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
-  };
-
   // Inicializar o estado tarefaEditada
   useEffect(() => {
     if (isSessionInvalid) return;
@@ -450,7 +438,7 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
     try {
       // Formatar prazoLimite para o formato LocalDateTime (yyyy-MM-dd'T'HH:mm:ss)
       const prazoLimiteFormatado = tarefaEditada.prazoLimite
-        ? `${tarefaEditada.prazoLimite}:00`
+        ? `${tarefaEditada.prazoLimite}`
         : null;
 
       const tarefaAtualizada = {
@@ -489,7 +477,6 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
         tarefaAtualizadaDoBackend = { ...tarefaAtualizada, id: tarefa.id };
         tarefaAtualizadaDoBackend.prazoLimite = prazoLimiteFormatado;
       }
-
       
 
       if (typeof atualizarTarefa === "function") {
@@ -500,6 +487,8 @@ const ModalEdicao = ({ tarefa, onClose, carregarTarefas, atualizarTarefa }) => {
           await carregarTarefas("", true);
         }
       }
+
+      //console.log(tarefaAtualizadaDoBackend)
 
       onClose();
 

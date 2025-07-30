@@ -110,14 +110,14 @@ const Label = styled.label`
 const Input = styled.input`
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid ${(props) => (props.error ? "#e74c3c" : "#ddd")};
+  border: 1px solid ${(props) => (props.erros ? "#e74c3c" : "#ddd")};
   width: 100%;
   font-size: 16px;
   color: #333;
   transition: border-color 0.3s ease;
 
   &:focus {
-    border-color: ${(props) => (props.error ? "#e74c3c" : "#007bff")};
+    border-color: ${(props) => (props.erros ? "#e74c3c" : "#007bff")};
     outline: none;
   }
 `;
@@ -126,14 +126,14 @@ const Input = styled.input`
 const Select = styled.select`
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid ${(props) => (props.error ? "#e74c3c" : "#ddd")};
+  border: 1px solid ${(props) => (props.erros ? "#e74c3c" : "#ddd")};
   width: 100%;
   font-size: 16px;
   color: #333;
   transition: border-color 0.3s ease;
 
   &:focus {
-    border-color: ${(props) => (props.error ? "#e74c3c" : "#007bff")};
+    border-color: ${(props) => (props.erros ? "#e74c3c" : "#007bff")};
     outline: none;
   }
 `;
@@ -513,13 +513,16 @@ const CriarTarefa = ({ carregarTarefas }) => {
         ? `${novaTarefa.prazoLimite}T${novaTarefa.prazoHora}:00`
         : null;
 
+      const agora = new Date();
+      const dataCriacaoLocal = agora.toISOString().slice(0, 19); // yyyy-MM-ddTHH:mm:ss
+
       const novaTarefaComData = {
         nomeTarefa: novaTarefa.nomeTarefa,
         descricao: novaTarefa.descricao,
         status: novaTarefa.status,
         prioridade: novaTarefa.prioridade,
         prazoLimite: prazoCompletoISO,
-        //dataCriacao: dataCriacaoLocal,
+        dataCriacao: dataCriacaoLocal,
         responsaveisId: novaTarefa.responsaveisId,
         responsaveisNome: novaTarefa.responsaveisNome,
       };
