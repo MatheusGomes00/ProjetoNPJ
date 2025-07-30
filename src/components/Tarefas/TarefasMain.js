@@ -1,240 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import styled from "styled-components";
 import useAuth from "../Seguranca/UseAuth";
 import ComponentesFixos from "../ComponentesPadroes/ComponentesFixos";
 import ModalTarefa from "./ModalTarefasDetalhes";
 import ModalEdicao from "./Modais/ModalEdicao";
 import CriarTarefa from "./Modais/CriarTarefa";
 import { useAuthContext } from '../Seguranca/AuthContext';
+import * as Ts from "./TarefasStyles"
 
-// Estilo do container principal
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 34px;
-  width: calc(100% - 34px);
-  min-height: 100vh;
-  background: #f4f7fa;
-  padding: 30px;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-  }
-`;
-
-// Estilo do cabeçalho
-const Header = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  width: 100%;
-`;
-
-// Estilo do título
-const Titulo = styled.h1`
-  font-family: "Arial", sans-serif;
-  font-size: 28px;
-  font-weight: 700;
-  color: #2c3e50;
-  margin: 0;
-`;
-
-// Estilo do container de busca
-const BuscaContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  width: 100%;
-  max-width: 350px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
-`;
-
-// Estilo do campo de busca
-const CampoBusca = styled.input`
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  flex: 1;
-
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-`;
-
-// Estilo do botão de busca
-const BotaoBusca = styled.button`
-  background: rgb(4, 0, 255);
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: #218838;
-  }
-
-  &:active {
-    background: #1e7e34;
-  }
-
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-`;
-
-// Estilo do container de filtros
-const FiltrosContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-`;
-
-// Estilo dos botões de filtro de status
-const BotaoFiltroStatus = styled.button`
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: ${({ $ativo }) => ($ativo ? "#007bff" : "#fff")};
-  color: ${({ $ativo }) => ($ativo ? "#fff" : "#333")};
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-
-  &:hover {
-    background-color: ${({ $ativo }) => ($ativo ? "#0056b3" : "#f0f0f0")};
-  }
-`;
-
-// Estilo do dropdown de prioridade
-const SelectPrioridade = styled.select`
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #fff;
-  color: #333;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-`;
-
-// Estilo do grid de tarefas
-const TarefasGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 20px;
-  width: 100%;
-  box-sizing: border-box;
-`;
-
-// Estilo de cada card de tarefa
-const TarefaCard = styled.div`
-  font-size: 15px;
-  background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 10px;
-  width: 120px;
-  height: 120px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  transition: transform 0.2s ease-in-out;
-  cursor: pointer;
-
-  &:hover {
-    transform: scale(1.05);
-  }
-`;
-
-// Estilo da tag de prioridade
-const StatusTag = styled.div`
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 10px;
-  height: 20px;
-  background-color: ${({ $prioridade }) => {
-    const prioridadeLower = $prioridade.toLowerCase();
-    return prioridadeLower === "baixa"
-      ? "green"
-      : prioridadeLower === "média" || prioridadeLower === "media"
-      ? "yellow"
-      : "red";
-  }};
-  border-radius: 30%;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-`;
-
-// Estilo para mensagens de loading ou erro
-const Mensagem = styled.p`
-  font-family: "Arial", sans-serif;
-  font-size: 16px;
-  color: #7f8c8d;
-  text-align: center;
-  margin: 20px 0;
-`;
-
-// Estilo do container de navegação
-const NavegacaoContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-top: 20px;
-  font-family: "Arial", sans-serif;
-  font-size: 16px;
-  color: #2c3e50;
-`;
-
-// Estilo dos botões de navegação
-const BotaoNavegacao = styled.button`
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-  color: ${({ disabled }) => (disabled ? "#ccc" : "#007bff")};
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: ${({ disabled }) => (disabled ? "#ccc" : "#0056b3")};
-  }
-`;
-
-const NomeTarefa = styled.div`
-  font-size: 15px;
-  font-weight: 600;
-  color: #333;
-  display: -webkit-box;
-  -webkit-line-clamp: 2; /* Limita a 2 linhas */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2em; /* Altura da linha para consistência */
-  max-height: 2.4em; /* 2 linhas x 1.2em */
-  word-wrap: break-word; /* Quebra palavras longas */
-`;
 
 const TarefasMain = () => {
   const { fetchAuthenticated } = useAuth();
@@ -581,42 +353,42 @@ const TarefasMain = () => {
 
   return (
     <ComponentesFixos>
-      <MainContainer>
-        <Header>
-          <Titulo>Suas Tarefas</Titulo>
+      <Ts.MainContainer>
+        <Ts.Header>
+          <Ts.Titulo>Suas Tarefas</Ts.Titulo>
           <CriarTarefa carregarTarefas={buscarTarefasPorNome} />
-        </Header>
+        </Ts.Header>
 
-        <BuscaContainer>
-          <CampoBusca
+        <Ts.BuscaContainer>
+          <Ts.CampoBusca
             type="text"
             value={nomeBusca}
             onChange={handleBusca}
             placeholder="Buscar tarefa por nome..."
           />
-          <BotaoBusca onClick={handleBotaoBusca}>Procurar</BotaoBusca>
-        </BuscaContainer>
+          <Ts.BotaoBusca onClick={handleBotaoBusca}>Procurar</Ts.BotaoBusca>
+        </Ts.BuscaContainer>
 
         {/* Filtros */}
-        <FiltrosContainer>
+        <Ts.FiltrosContainer>
           <div>
             <span>Mostrar apenas: </span>
-            <BotaoFiltroStatus
+            <Ts.BotaoFiltroStatus
               $ativo={filtroStatus === "ativas"}
               onClick={() => handleFiltroStatus("ativas")}
             >
               Ativas
-            </BotaoFiltroStatus>
-            <BotaoFiltroStatus
+            </Ts.BotaoFiltroStatus>
+            <Ts.BotaoFiltroStatus
               $ativo={filtroStatus === "inativas"}
               onClick={() => handleFiltroStatus("inativas")}
             >
               Inativas
-            </BotaoFiltroStatus>
+            </Ts.BotaoFiltroStatus>
           </div>
           <div>
             <span>Prioridade: </span>
-            <SelectPrioridade
+            <Ts.SelectPrioridade
               value={filtroPrioridade || "todas"}
               onChange={handleFiltroPrioridade}
             >
@@ -624,46 +396,60 @@ const TarefasMain = () => {
               <option value="alta">Alta</option>
               <option value="media">Média</option>
               <option value="baixa">Baixa</option>
-            </SelectPrioridade>
+            </Ts.SelectPrioridade>
           </div>
-        </FiltrosContainer>
+          <Ts.LegendaPrioridades>
+            <Ts.TagLegenda>
+              <Ts.CorTag $cor="#ff3b30" />
+              <span>Alta</span>
+            </Ts.TagLegenda>
+            <Ts.TagLegenda>
+              <Ts.CorTag $cor="#ffca28" />
+              <span>Média</span>
+            </Ts.TagLegenda>
+            <Ts.TagLegenda>
+              <Ts.CorTag $cor="#34c759" />
+              <span>Baixa</span>
+            </Ts.TagLegenda>
+          </Ts.LegendaPrioridades>
+        </Ts.FiltrosContainer>
 
         {isLoading ? (
-          <Mensagem>Carregando tarefas...</Mensagem>
+          <Ts.Mensagem>Carregando tarefas...</Ts.Mensagem>
         ) : mensagemErro ? (
-          <Mensagem>{mensagemErro}</Mensagem>
+          <Ts.Mensagem>{mensagemErro}</Ts.Mensagem>
         ) : mensagemSucesso ? (
-          <Mensagem style={{ color: "green" }}>{mensagemSucesso}</Mensagem>
+          <Ts.Mensagem style={{ color: "green" }}>{mensagemSucesso}</Ts.Mensagem>
         ) : tarefasFiltradas.length === 0 && isSearching ? (
-          <Mensagem>Nenhuma tarefa encontrada.</Mensagem>
+          <Ts.Mensagem>Nenhuma tarefa encontrada.</Ts.Mensagem>
         ) : tarefasFiltradas.length === 0 ? (
-          <Mensagem>Nenhuma tarefa corresponde aos filtros selecionados.</Mensagem>
+          <Ts.Mensagem>Nenhuma tarefa corresponde aos filtros selecionados.</Ts.Mensagem>
         ) : (
           <>
-            <TarefasGrid>
+            <Ts.TarefasGrid>
               {tarefasFiltradas.map((tarefa) => (
-                <TarefaCard
+                <Ts.TarefaCard
                   key={tarefa.id}
                   onClick={() => abrirModalDetalhes(tarefa)}
                 >
-                  <StatusTag $prioridade={tarefa.prioridade} />
-                  <NomeTarefa>{tarefa.nomeTarefa}</NomeTarefa>
+                  <Ts.StatusTag $prioridade={tarefa.prioridade} />
+                  <Ts.NomeTarefa>{tarefa.nomeTarefa}</Ts.NomeTarefa>
                   <div>Status: {tarefa.status ? "Ativa" : "Finalizada"}</div>
                   <div>Prazo: {formatarData(tarefa.prazoLimite)}</div>
-                </TarefaCard>
+                </Ts.TarefaCard>
               ))}
-            </TarefasGrid>
+            </Ts.TarefasGrid>
 
             {/* Controles de Navegação */}
-            <NavegacaoContainer>
-              <BotaoNavegacao onClick={handlePreviousPage} disabled={currentPage === 0}>
+            <Ts.NavegacaoContainer>
+              <Ts.BotaoNavegacao onClick={handlePreviousPage} disabled={currentPage === 0}>
                 ⬅️
-              </BotaoNavegacao>
+              </Ts.BotaoNavegacao>
               <span>Página {currentPage + 1} de {filteredTotalPages}</span>
-              <BotaoNavegacao onClick={handleNextPage} disabled={currentPage === filteredTotalPages - 1}>
+              <Ts.BotaoNavegacao onClick={handleNextPage} disabled={currentPage === filteredTotalPages - 1}>
                 ➡️
-              </BotaoNavegacao>
-            </NavegacaoContainer>
+              </Ts.BotaoNavegacao>
+            </Ts.NavegacaoContainer>
           </>
         )}
 
@@ -685,7 +471,7 @@ const TarefasMain = () => {
             atualizarTarefa={atualizarTarefa}
           />
         )}
-      </MainContainer>
+      </Ts.MainContainer>
     </ComponentesFixos>
   );
 };
