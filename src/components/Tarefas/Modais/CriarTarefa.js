@@ -13,7 +13,7 @@ const BotaoCriar = styled.button`
   cursor: pointer;
   font-weight: 600;
   transition: background 0.3s ease, transform 0.2s;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 
   &:hover {
     background: #218838;
