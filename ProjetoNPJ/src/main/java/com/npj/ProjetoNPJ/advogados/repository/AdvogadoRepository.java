@@ -24,4 +24,7 @@ public interface AdvogadoRepository extends MongoRepository<Advogado, String> {
     @Query("{'responsaveis.id': { $in: ?0 }}")
     List<Advogado> findByResponsaveisIds(List<String> advogadosIds);
 
+    @Query(value = "{ '_id': ?0}", fields = "{ 'nome': 1 }")
+    Optional<AdvogadoNomeProjection> findAdvogadoNomeById(String id);
+
 }

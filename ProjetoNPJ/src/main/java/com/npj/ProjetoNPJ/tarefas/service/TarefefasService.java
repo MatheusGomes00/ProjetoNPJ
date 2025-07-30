@@ -1,10 +1,13 @@
 package com.npj.ProjetoNPJ.tarefas.service;
 
 import com.npj.ProjetoNPJ.advogados.entity.Advogado;
+import com.npj.ProjetoNPJ.advogados.repository.AdvogadoNomeProjection;
 import com.npj.ProjetoNPJ.advogados.repository.AdvogadoRepository;
 import com.npj.ProjetoNPJ.exceptions.RecursoNaoEncontradoException;
+import com.npj.ProjetoNPJ.notificacoes.service.NotificacaoService;
 import com.npj.ProjetoNPJ.security.JwtService;
 import com.npj.ProjetoNPJ.security.UserAutenticado;
+import com.npj.ProjetoNPJ.tarefas.controller.TarefasController;
 import com.npj.ProjetoNPJ.tarefas.dtos.DtoTarefas;
 import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import com.npj.ProjetoNPJ.tarefas.mapper.TarefasMapper;
@@ -13,6 +16,7 @@ import com.npj.ProjetoNPJ.utils.ConversorDataHora;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -20,10 +24,13 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
 public class TarefefasService {
+
+    private static final Logger LOGGER = Logger.getLogger(TarefasController.class.getName());
 
     @Autowired
     private AdvogadoRepository advogadoRepository;
@@ -32,7 +39,10 @@ public class TarefefasService {
     private TarefasRepository repository;
 
     @Autowired
-    private JwtService jwtService;
+    private NotificacaoService notificacaoService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
 
     public String getAuthenticatedUsername() {
@@ -46,7 +56,12 @@ public class TarefefasService {
     }
 
     public DtoTarefas insert(DtoTarefas dto) {
+        String advogadoId = getAuthenticatedUsername();
         dto.setStatus(true);
+        AdvogadoNomeProjection advogadoNome = advogadoRepository.findAdvogadoNomeById(advogadoId)
+                        .orElseThrow(() -> new RecursoNaoEncontradoException("Nome do advogado não localizado"));
+        dto.setCriador(advogadoNome.getNome());
+
         List<Advogado> advogados = dto.getResponsaveisId().stream()
                 .map(id -> advogadoRepository.findById(id)
                         .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + id)))
@@ -55,7 +70,26 @@ public class TarefefasService {
         Tarefas newTask = TarefasMapper.toEntity(dto, advogados);
         newTask.setCriador(dto.getCriador());
         repository.save(newTask);
-        return TarefasMapper.toDto(newTask);
+        DtoTarefas tarefa = TarefasMapper.toDto(newTask);
+
+        String mensagem = "Uma nova tarefa foi atribuída a você: " + tarefa.getNomeTarefa();
+        List<String> responsaveisId = tarefa.getResponsaveisId();
+        if (responsaveisId != null && !responsaveisId.isEmpty()) {
+            try {
+                notificacaoService.criarNotificacoesParaResponsaveis(mensagem, responsaveisId, tarefa.getId())
+                        .forEach(notificacao -> {
+                            messagingTemplate.convertAndSend(
+                                    "/topic/notificacoes/" + notificacao.getAdvogadoId(),
+                                    notificacao
+                            );
+                        });
+            } catch (Exception e) {
+                LOGGER.severe("Erro ao criar notificações: " + e.getMessage());
+                // Continue to return the task, as notification failure shouldn’t block creation
+            }
+        }
+
+        return tarefa;
     }
 
     public DtoTarefas update(DtoTarefas dto, String id){
@@ -87,9 +121,9 @@ public class TarefefasService {
         }
     }
 
-    public DtoTarefas finalizar(String id, String advogadoId){
+    public DtoTarefas finalizar(String id){
         Tarefas task = repository.findById(id).orElseThrow(()-> new RecursoNaoEncontradoException("Tarefa não encontrada"));
-
+        String advogadoId = getAuthenticatedUsername();
         Advogado advogado = advogadoRepository.findById(advogadoId)
                 .orElseThrow(() -> new RuntimeException("Advogado não encontrado com ID: " + advogadoId));
 

@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 @RequestMapping(value = "/task")
 public class TarefasController {
 
-    private static final Logger LOGGER = Logger.getLogger(TarefasController.class.getName());
+
     @Autowired
     private TarefefasService service;
 
@@ -36,44 +36,11 @@ public class TarefasController {
     private AdvogadoRepository advogadoRepository;
 
     @Autowired
-    private NotificacaoService notificacaoService;
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
-    @Autowired
     private TarefefasService services;
 
     @PostMapping(value = "/create")
-    public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody  DtoTarefas tarefaDto, @RequestHeader("Authorization") String authorizationHeader) {
-        String token = authorizationHeader.replace("Bearer ", "");
-
-        String advogadoId = jwtService.extractUserId(token);
-
-        Advogado advogado = advogadoRepository.findById(advogadoId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Advogado não encontrado: " + advogadoId));
-
-        tarefaDto.setCriador(advogado.getNome());
-
+    public ResponseEntity<DtoTarefas> criarTarefa(@RequestBody  DtoTarefas tarefaDto) {
         DtoTarefas tarefa = service.insert(tarefaDto);
-
-        String mensagem = "Uma nova tarefa foi atribuída a você: " + tarefa.getNomeTarefa();
-        List<String> responsaveisId = tarefa.getResponsaveisId();
-        if (responsaveisId != null && !responsaveisId.isEmpty()) {
-            try {
-                notificacaoService.criarNotificacoesParaResponsaveis(mensagem, responsaveisId, tarefa.getId())
-                        .forEach(notificacao -> {
-                            messagingTemplate.convertAndSend(
-                                    "/topic/notificacoes/" + notificacao.getAdvogadoId(),
-                                    notificacao
-                            );
-                        });
-            } catch (Exception e) {
-                LOGGER.severe("Erro ao criar notificações: " + e.getMessage());
-                // Continue to return the task, as notification failure shouldn’t block creation
-            }
-
-        }
         return ResponseEntity.ok().body(tarefa);
     }
 
@@ -86,15 +53,10 @@ public class TarefasController {
         return ResponseEntity.ok(task);
     }
 
-    @PutMapping(value = "/end/{id}")
-    public ResponseEntity<DtoTarefas> finalizarTarefa(@PathVariable String id, @RequestHeader("Authorization") String authorizationHeader){
-
+    @PutMapping(value = "/end/{tarefaId}")
+    public ResponseEntity<DtoTarefas> finalizarTarefa(@PathVariable String tarefaId){
         try {
-            String token = authorizationHeader.replace("Bearer ", "");
-
-            String advogadoId = jwtService.extractUserId(token);
-
-            DtoTarefas tarefaAtualizada = service.finalizar(id, advogadoId);
+            DtoTarefas tarefaAtualizada = service.finalizar(tarefaId);
 
             return ResponseEntity.ok(tarefaAtualizada);
         } catch (Exception e) {
@@ -125,6 +87,7 @@ public class TarefasController {
         List<DtoTarefas> tarefas = service.findByNome(nome);
         return ResponseEntity.ok(tarefas);
     }
+
     @PutMapping(value = "/reopen/{id}")
     public ResponseEntity <DtoTarefas> reabrirTarefas(@PathVariable String id){
 
@@ -132,8 +95,4 @@ public class TarefasController {
 
         return ResponseEntity.ok(tarefaAtualiza);
     }
-
-
-
-
 }
