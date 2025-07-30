@@ -514,8 +514,8 @@ const CriarTarefa = ({ carregarTarefas }) => {
         : null;
 
       const agora = new Date();
+      agora.setHours(agora.getHours() - 3); // Ajusta para UTC-3
       const dataCriacaoLocal = agora.toISOString().slice(0, 19); // yyyy-MM-ddTHH:mm:ss
-
       const novaTarefaComData = {
         nomeTarefa: novaTarefa.nomeTarefa,
         descricao: novaTarefa.descricao,
