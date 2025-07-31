@@ -566,7 +566,7 @@ const CriarProcessosCliente = () => {
       setTimeout(() => {
         setShowToast(false);
         navigate(formData.clienteId.length ? `/clientes/${formData.clienteId[0]}` : "/processos");
-      }, 2000);
+      }, 1000);
     } catch (error) {
       console.error("Erro ao criar processo:", error);
       setMensagemErro(`Erro ao criar processo: ${error.message}`);

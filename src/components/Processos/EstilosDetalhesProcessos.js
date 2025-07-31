@@ -486,7 +486,16 @@ export const BotaoCancelar = styled.button`
 export const Mensagem = styled.p`
   font-family: "Arial", sans-serif;
   font-size: 16px;
-  color: #7f8c8d;
+  color: #1f34ecff;
+  text-align: center;
+  margin: 20px 0;
+`;
+
+// Estilo para mensagens
+export const MensagemErro = styled.p`
+  font-family: "Arial", sans-serif;
+  font-size: 16px;
+  color: #d33232ff;
   text-align: center;
   margin: 20px 0;
 `;

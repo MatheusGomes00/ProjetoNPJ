@@ -36,6 +36,7 @@ import {
   ModalButtons,
   BotaoCancelar,
   Mensagem,
+  MensagemErro,
   formatarSituacao,
 } from "./EstilosDetalhesProcessos";
 import {
@@ -202,7 +203,7 @@ const DetalhesProcesso = () => {
               <BotaoVoltar onClick={() => navigate(-1)}>Voltar</BotaoVoltar>
             </div>
             </Header>
-            {mensagemErro && <Mensagem erro={mensagemErro !== '' ? 'true' : 'false'}>{mensagemErro}</Mensagem>}
+            {mensagemErro && <MensagemErro erro={mensagemErro !== '' ? 'true' : 'false'}>{mensagemErro}</MensagemErro>}
             {!processo ? (
               <Mensagem>Nenhum dado disponível para este processo.</Mensagem>
             ) : (
@@ -396,7 +397,7 @@ const DetalhesProcesso = () => {
                                   )
                                 }
                               >
-                                <span>✕</span> Desassociar
+                                <span>✕</span> Remover
                               </BotaoDesassociar>
                             </TableCell>
                           </TableRow>
