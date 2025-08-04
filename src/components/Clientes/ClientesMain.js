@@ -15,6 +15,7 @@ import {
   ClientesList,
   ClienteCard,
   ClienteNome,
+  CpfCliente,
   Status,
   Mensagem,
   NavegacaoContainer,
@@ -36,15 +37,17 @@ const ClientesMain = () => {
   const [clientesBuscados, setClientesBuscados] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagemErro, setMensagemErro] = useState("");
+  const [buscaTexto, setBuscaTexto] = useState("");
   const [nomeBusca, setNomeBusca] = useState("");
+  const [cpfBusca, setCpfBusca] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState(null); // "ativos", "inativos", ou null
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const PAGE_SIZE = 6; // 12 clientes por página
   const { isSessionInvalid } = useAuthContext(); // Verifica se a sessão é inválida
-
   const navigate = useNavigate(); // Hook para navegação
+  const limparCpf = (texto) => texto.replace(/[^\d]/g, '');
 
   // Cache e controle de tempo
   const cacheRef = useRef({});
@@ -60,15 +63,34 @@ const ClientesMain = () => {
     return !!status; // Fallback para outros tipos
   };
 
+  const isCpfParcial = useCallback((texto) => {
+    const textoLimpo = limparCpf(texto);
+    const primeirosDigitos = textoLimpo.slice(0, 4);
+    return primeirosDigitos.length >= 3 && /^[0-9]+$/.test(primeirosDigitos);
+  }, []);
+
   // Função para aplicar filtros (status)
-  const aplicarFiltros = (clientesData, status, nome) => {
+  const aplicarFiltros = useCallback((clientesData, status, termobusca) => {
     let clientesFiltrados = [...clientesData];
 
     // Filtro por nome
-    if (nome) {
-      clientesFiltrados = clientesFiltrados.filter((cliente) =>
-        cliente.cliente.nome.toLowerCase().includes(nome.toLowerCase())
-      );
+    if (termobusca) {
+      const termo = termobusca.toLowerCase().trim();
+      
+      const cpfLimpo = limparCpf(termo);
+      const isCpf = /^\d{11}$/.test(cpfLimpo);
+
+      if (isCpf) {
+        // Filtrar pelo CPF completo (comparação exata ou includes, se quiser parcial)
+        clientesFiltrados = clientesFiltrados.filter((cliente) =>
+          cliente.cliente.cpf.includes(cpfLimpo)
+        );
+      } else {
+        // Filtrar pelo nome (includes case-insensitive)
+        clientesFiltrados = clientesFiltrados.filter((cliente) =>
+          cliente.cliente.nome.toLowerCase().includes(termo)
+        );
+      }
     }
 
     // Filtro por status
@@ -79,15 +101,19 @@ const ClientesMain = () => {
     }
 
     return clientesFiltrados;
-  };
+  }, []);
 
   // Função para buscar clientes
   const buscarClientes = useCallback(
-    async (nome = "", forceRefresh = false) => {
+    async (nome = "", cpf = "", forceRefresh = false) => {
            
       const now = Date.now();
       const minInterval = 5000; // 5 segundos
-      const cacheKey = nome ? `${nome}_page${currentPage}` : `all_page${currentPage}`;
+      const cacheKey = nome 
+        ? `nome_${nome}_page${currentPage}` 
+        : cpf
+        ? `cpf_${cpf}_page${currentPage}`
+        : `all_page${currentPage}`;
 
       // Verificar cache
       if (
@@ -97,7 +123,7 @@ const ClientesMain = () => {
       ) {
        
         const clientesDoCache = cacheRef.current[cacheKey];
-        if (nome) {
+        if (nome || cpf) {
           setClientesBuscados(clientesDoCache);
         } else {
           setClientesOriginais(clientesDoCache);
@@ -106,38 +132,47 @@ const ClientesMain = () => {
         return;
       }
 
-      if (isLoading) {
-       
-        return;
-      }
+      if (isLoading || isSessionInvalid) return;
 
       setIsLoading(true);
       setMensagemErro("");
 
-      if (isSessionInvalid) return;
-
       try {
-        const url = nome
-          ? `/cad/nome/${encodeURIComponent(nome)}`
-          : `/cad/get`;
-
-        const response = await fetchAuthenticated(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        let response;
+        if (nome) {
+          response = await fetchAuthenticated(`/cad/nome/${encodeURIComponent(nome)}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        } else if (cpf) {
+          response = await fetchAuthenticated("/cad/cpf", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({cpf: cpf})
+          });
+        } else {
+          response = await fetchAuthenticated("/cad/get", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        }
 
         if (!response.ok) {
           if (response.status === 404) {
-            setMensagemErro(
-              nome ? "Nenhum cliente encontrado com esse nome." : "Nenhum cliente cadastrado."
-            );
-            if (nome) {
-              setClientesBuscados([]);
-            } else {
-              setClientesOriginais([]);
-            }
+            const msg = nome
+              ? "Nenhum cliente encontrado com esse nome."
+              : cpf
+              ? "Nenhum cliente encontrado com esse CPF."
+              : "Nenhum cliente localizado.";
+            setMensagemErro(msg);
+            setClientesBuscados([]);
+            setClientesOriginais([]);
             setTotalPages(1);
             cacheRef.current[cacheKey] = [];
             return;
@@ -150,14 +185,9 @@ const ClientesMain = () => {
         let data = await response.json();
 
         if (!data || data.length === 0) {
-          setMensagemErro(
-            nome ? "Nenhum cliente encontrado com esse nome." : "Nenhum cliente cadastrado."
-          );
-          if (nome) {
-            setClientesBuscados([]);
-          } else {
-            setClientesOriginais([]);
-          }
+          setMensagemErro("Nenhum cliente encontrado.");
+          setClientesBuscados([]);
+          setClientesOriginais([]);
           setTotalPages(1);
           cacheRef.current[cacheKey] = [];
           return;
@@ -174,11 +204,12 @@ const ClientesMain = () => {
         const paginatedData = data.slice(startIndex, startIndex + PAGE_SIZE);
         const calculatedTotalPages = Math.ceil(data.length / PAGE_SIZE) || 1;
 
-        if (nome) {
+        if (nome || cpf) {
           setClientesBuscados(paginatedData);
         } else {
           setClientesOriginais(paginatedData);
         }
+
         setTotalPages(calculatedTotalPages);
         setMensagemErro("");
         lastFetchTimeRef.current = now;
@@ -186,11 +217,8 @@ const ClientesMain = () => {
       } catch (error) {
         console.error("Erro ao buscar clientes:", error);
         setMensagemErro(error.message || "Erro ao carregar os clientes. Tente novamente.");
-        if (nome) {
-          setClientesBuscados([]);
-        } else {
-          setClientesOriginais([]);
-        }
+        setClientesBuscados([]);
+        setClientesOriginais([]);
         setTotalPages(1);
       } finally {
         setIsLoading(false);
@@ -201,9 +229,9 @@ const ClientesMain = () => {
 
   // Memoizar clientes filtrados
   const clientesFiltrados = useMemo(() => {
-    let baseClientes = isSearching && nomeBusca.length >= 4 ? clientesBuscados : clientesOriginais;
-    return aplicarFiltros(baseClientes, filtroStatus, nomeBusca);
-  }, [clientesOriginais, clientesBuscados, isSearching, filtroStatus, nomeBusca]);
+    let baseClientes = isSearching && buscaTexto.length >= 4 ? clientesBuscados : clientesOriginais;
+    return aplicarFiltros(baseClientes, filtroStatus, buscaTexto);
+  }, [clientesOriginais, clientesBuscados, isSearching, filtroStatus, buscaTexto, aplicarFiltros]);
 
   // Carregar clientes ao mudar a página
   useEffect(() => {
@@ -214,30 +242,46 @@ const ClientesMain = () => {
   // Debounce para busca
   const handleBuscaDebounced = useMemo(
     () =>
-      debounce((nome) => {
-        if (nome.length >= 4) {
-          setIsSearching(true);
-          buscarClientes(nome, true);
+      debounce((valor) => {
+        const texto = valor.trim();
+        const cpfLimpo = limparCpf(texto);
+        const isCpf = /^\d{11}$/.test(cpfLimpo); // CPF deve ter exatamente 11 dígitos
+        const isNome = texto.length >= 4 && /\D/.test(texto); // Nome com 4+ letras e pelo menos um caractere não numérico
+        const cpfIncompleto = isCpfParcial(texto)
+
+        setIsSearching(true);
+        setCurrentPage(0);
+        
+
+        if (isCpf) {
+          setCpfBusca(cpfLimpo);
+          setNomeBusca("");
+          buscarClientes("", cpfLimpo, true);
+        } else if (isNome && !cpfIncompleto) {
+          setNomeBusca(valor);
+          setCpfBusca("");
+          buscarClientes(valor, "", true);
         } else {
           setIsSearching(false);
           setMensagemErro("");
-          setCurrentPage(0);
+          setCpfBusca("");
+          setNomeBusca("");
         }
-      }, 500),
-    [buscarClientes]
+      }, 3000),
+    [buscarClientes, isCpfParcial]
   );
 
   const handleBusca = (e) => {
-    const nome = e.target.value;
-    setNomeBusca(nome);
-    handleBuscaDebounced(nome);
+    const valor = e.target.value;
+    setBuscaTexto(valor);
+    handleBuscaDebounced(valor);
   };
 
   const handleFiltroStatus = (status) => {
     setFiltroStatus((prev) => (prev === status ? null : status));
-    if (nomeBusca.length >= 4) {
+    if (nomeBusca.length >= 4 || /^\d{11}$/.test(cpfBusca)) {
       setIsSearching(true);
-      buscarClientes(nomeBusca, true);
+      buscarClientes(nomeBusca, cpfBusca, true);
     } else {
       setIsSearching(false);
     }
@@ -276,9 +320,9 @@ const ClientesMain = () => {
 
         <CampoBusca
           type="text"
-          value={nomeBusca}
+          value={buscaTexto}
           onChange={handleBusca}
-          placeholder="Buscar por nome do cliente..."
+          placeholder="Buscar por nome ou cpf do cliente..."
         />
 
         <FiltrosContainer>
@@ -318,6 +362,7 @@ const ClientesMain = () => {
                     style={{ cursor: "pointer" }}
                   >
                     <ClienteNome>{cliente.cliente.nome}</ClienteNome>
+                    <CpfCliente>CPF: {cliente.cliente.cpf}</CpfCliente>
                     <Status $ativo={cliente.status}>
                       Status: {cliente.status ? "Ativo" : "Inativo"}
                     </Status>
