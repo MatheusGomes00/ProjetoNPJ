@@ -174,8 +174,9 @@ const FormSelect = styled.select`
 `;
 
 const FormCheckbox = styled.input`
-  width: auto;
+  width: 60%;
   margin-right: 8px;
+  position: relative;
 `;
 
 const Mensagem = styled.p`
@@ -433,13 +434,16 @@ const CriarClientes = () => {
           </FormRow>
           <FormRow>
             <FormLabel>Casa Própria</FormLabel>
-            <FormCheckbox
-              type="checkbox"
-              checked={formData.cliente.casaPropria}
+            <FormSelect
+              name="casaPropria"
+              value={formData.cliente.casaPropria.toString()}
               onChange={(e) =>
-                updateFormData("cliente", "casaPropria", e.target.checked)
+                updateFormData("cliente", "casaPropria", e.target.value)
               }
-            />
+            >
+              <option value="true">Sim</option>
+              <option value="false">Não</option>
+            </FormSelect>
           </FormRow>
         </Section>
 
