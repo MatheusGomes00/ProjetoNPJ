@@ -133,6 +133,21 @@ export const ClienteNome = styled.div`
   }
 `;
 
+export const CpfCliente = styled.div`
+  font-family: "Arial", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3c72;
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    grid-column: span 1;
+  }
+`;
+
 export const ProcNumero = styled.div`
   font-family: "Arial", sans-serif;
   font-size: 20px;
@@ -161,9 +176,9 @@ const getStatusColor = ($status) => {
     case "EM_ANDAMENTO":
       return "#1890ff"; // azul
     case "FINALIZADO":
-      return "#8c8c8c"; // cinza
+      return "#180000ff"; // cinza
     case "ARQUIVADO":
-      return "#d9d9d9"; // cinza claro
+      return "#585858ff"; // cinza claro
     case "SUSPENSO":
       return "#faad14"; // laranja
     case "AGUARDANDO_DISTRIBUICAO":
