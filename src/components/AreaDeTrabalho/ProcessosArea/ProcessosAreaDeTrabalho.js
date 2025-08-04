@@ -96,9 +96,9 @@ const getStatusGradient = (status) => {
     case "EM_ANDAMENTO":
       return "linear-gradient(90deg, #1890ff 0%, #40c4ff 100%)"; // azul
     case "FINALIZADO":
-      return "linear-gradient(90deg, #8c8c8c 0%, #bfbfbf 100%)"; // cinza
+      return "linear-gradient(90deg, #180000ff 0%, #bfbfbf 100%)"; // cinza
     case "ARQUIVADO":
-      return "linear-gradient(90deg, #d9d9d9 0%, #f0f0f0 100%)"; // cinza claro
+      return "linear-gradient(90deg, #585858ff 0%, #f0f0f0 100%)"; // cinza claro
     case "SUSPENSO":
       return "linear-gradient(90deg, #faad14 0%, #ffd666 100%)"; // laranja
     case "AGUARDANDO_DISTRIBUICAO":
