@@ -47,6 +47,7 @@ public class ClienteController {
     @PostMapping(value = "/cpf")
     public ResponseEntity<List<CadastroDto>> getByCpf(@RequestBody Map<String, String> request) {
         String cpf = request.get("cpf");
+        //System.out.println(cpf);
         List<CadastroDto> cadastros = service.findByCpf(cpf);
         return ResponseEntity.ok().body(cadastros);
     }
