@@ -193,7 +193,7 @@ const AdvogadosMain = () => {
         setIsLoading(false);
       }
     },
-    [fetchAuthenticated, isLoading, currentPage]
+    [fetchAuthenticated, currentPage, isLoading]
   );
 
   // Memoizar clientes filtrados
@@ -204,9 +204,9 @@ const AdvogadosMain = () => {
 
   // Carregar clientes ao mudar a página
   useEffect(() => {
-    if (isSessionInvalid) return;
+    if (isSessionInvalid || isLoading) return;
     buscarAdvogados("");
-  }, [currentPage, buscarAdvogados, isSessionInvalid]);
+  }, [currentPage, buscarAdvogados, isSessionInvalid, isLoading]);
 
   // Debounce para busca
   const handleBuscaDebounced = useMemo(

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import styled from "styled-components";
 import useAuth from "../Seguranca/UseAuth";
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
 import ModalEdicao from "../Tarefas/Modais/ModalEdicao";
 import { useAuthContext } from '../Seguranca/AuthContext';
@@ -212,7 +210,7 @@ const MensagemCarregando = styled.div`
 
 function Notificacoes() {
   const { fetchAuthenticated, getId } = useAuth();
-  const [notificacoes, setNotificacoes] = useState([]);
+  const [notificacoesFetch, setNotificacoesFetch] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [tipoMensagem, setTipoMensagem] = useState(""); // "success" ou "error"
@@ -220,10 +218,9 @@ function Notificacoes() {
   const [selectedTarefa, setSelectedTarefa] = useState(null);
   const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
   const mensagemTimeoutRef = useRef(null);
-  const stompClientRef = useRef(null);
-  const isMountedRef = useRef(true);
+  //const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
-  const { isSessionInvalid } = useAuthContext();
+  const { isSessionInvalid, resetarNotificacoes, isMountedRef } = useAuthContext();
 
   // Função para formatar a data
   const formatarData = useCallback((dataString) => {
@@ -276,7 +273,7 @@ function Notificacoes() {
 
       const data = await response.json();
       if (isMountedRef.current) {
-        setNotificacoes(data.length > 0 ? data : []);
+        setNotificacoesFetch(data.length > 0 ? data : []);
         if (data.length === 0) {
           setMensagem("Nenhuma notificação disponível.");
           setTipoMensagem("error");
@@ -288,7 +285,7 @@ function Notificacoes() {
         console.error("Erro ao buscar notificações:", error);
         setMensagem(`Erro ao carregar notificações: ${error.message}`);
         setTipoMensagem("error");
-        setNotificacoes([]);
+        setNotificacoesFetch([]);
         limparMensagem();
         if (error.message.includes("401")) {
           setMensagem("Sessão expirada. Redirecionando para login...");
@@ -301,7 +298,7 @@ function Notificacoes() {
         setIsLoading(false);
       }
     }//Teste
-  }, [fetchAuthenticated, isLoading, limparMensagem]);
+  }, [fetchAuthenticated, isLoading, limparMensagem, setNotificacoesFetch, isMountedRef]);
 
   // Função para limpar notificações
   const limparNotificacoes = useCallback(async () => {
@@ -340,11 +337,12 @@ function Notificacoes() {
       }
 
       if (isMountedRef.current) {
-        setNotificacoes([]);
+        resetarNotificacoes();
         setMensagem("Notificações limpas com sucesso!");
         setTipoMensagem("success");
         limparMensagem();
       }
+      
     } catch (error) {
       if (isMountedRef.current) {
         console.error("Erro ao limpar notificações:", error);
@@ -357,7 +355,7 @@ function Notificacoes() {
         setIsClearing(false);
       }
     }
-  }, [fetchAuthenticated, getId, limparMensagem]);
+  }, [fetchAuthenticated, getId, limparMensagem, resetarNotificacoes, isMountedRef]);
 
   // Função para buscar detalhes da tarefa
   const fetchTarefa = useCallback(
@@ -394,7 +392,7 @@ function Notificacoes() {
         }
       }
     },
-    [fetchAuthenticated, limparMensagem]
+    [fetchAuthenticated, limparMensagem, isMountedRef]
   );
 
   // Função para finalizar tarefa
@@ -445,7 +443,7 @@ function Notificacoes() {
         }
       }
     },
-    [fetchAuthenticated, carregarNotificacoes, limparMensagem]
+    [fetchAuthenticated, carregarNotificacoes, limparMensagem, isMountedRef]
   );
 
   // Função para reativar tarefa
@@ -487,7 +485,7 @@ function Notificacoes() {
         }
       }
     },
-    [fetchAuthenticated, carregarNotificacoes, limparMensagem]
+    [fetchAuthenticated, carregarNotificacoes, limparMensagem, isMountedRef]
   );
 
   // Função para editar tarefa
@@ -540,72 +538,7 @@ function Notificacoes() {
         clearTimeout(mensagemTimeoutRef.current);
       }
     };
-  }, [carregarNotificacoes, isSessionInvalid]);
-
-  // Configurar WebSocket
-  const setupWebSocket = useCallback(() => {
-    const userId = getId();
-
-    if (!userId) {
-      setMensagem("Usuário não autenticado. Faça login para receber notificações.");
-      setTipoMensagem("error");
-      limparMensagem();
-      return;
-    }
-
-    if (stompClientRef.current && stompClientRef.current.connected) {
-      return;
-    }
-
-    const socket = new SockJS(`${process.env.REACT_APP_API_URL}/ws`);
-    const client = new Client({
-      webSocketFactory: () => socket,
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-    });
-
-    client.onConnect = () => {
-      if (!isMountedRef.current) return;
-      client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
-        if (!isMountedRef.current) return;
-        const novaNotificacao = JSON.parse(message.body);
-        setNotificacoes((prev) => {
-          if (prev.some((n) => n.id === novaNotificacao.id)) return prev;
-          return [novaNotificacao, ...prev];
-        });
-      });
-      stompClientRef.current = client;
-    };
-
-    client.onStompError = (frame) => {
-      if (!isMountedRef.current) return;
-      console.error("Erro no STOMP:", frame);
-      setMensagem("Erro ao conectar ao WebSocket: " + frame.headers?.message);
-      setTipoMensagem("error");
-      limparMensagem();
-    };
-
-    client.onWebSocketClose = () => {
-      if (!isMountedRef.current) return;
-      stompClientRef.current = null;
-    };
-
-    client.activate();
-
-    return () => {
-      if (client && client.connected) {
-        client.deactivate();
-        stompClientRef.current = null;
-      }
-    };
-  }, [getId, limparMensagem]);
-
-  useEffect(() => {
-    if (isSessionInvalid) return;
-    const cleanup = setupWebSocket();
-    return cleanup;
-  }, [setupWebSocket, isSessionInvalid]);
+  }, [carregarNotificacoes, isSessionInvalid, isMountedRef]);
 
   // Função para lidar com clique na notificação
   const handleNotificacaoClick = useCallback(
@@ -653,8 +586,8 @@ function Notificacoes() {
               <span role="img" aria-label="error">⚠️</span> {mensagem}
             </MensagemErro>
           )
-        ) : notificacoes.length > 0 ? (
-          notificacoes.map((notificacao) => (
+        ) : notificacoesFetch.length > 0 ? (
+          notificacoesFetch.map((notificacao) => (
             <NotificacaoItem
               key={notificacao.id}
               onClick={() => handleNotificacaoClick(notificacao)}

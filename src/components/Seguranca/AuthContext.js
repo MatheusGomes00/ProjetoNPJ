@@ -1,12 +1,20 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { getAccessToken, logout as logoutStorage, isAuthenticated as checkToken } from './GerenciaToken';
 import { jwtDecode } from 'jwt-decode';
+import {iniciarConexaoWebSocket, limparConexaoWebSocket, } from '../../websocket/socketConfig'
 
 const AuthContext = createContext();
 
+
 export const AuthProvider = ({ children }) => {
+  const stompClientRef = useRef(null);
+  const subscriptionRef = useRef(null);
+  const processedNotificationIds = useRef(new Set());
+  const isMountedRef = useRef(true);
+  const [tokenRef, setTokenRef] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(checkToken());
   const [isSessionInvalid, setIsSessionInvalid] = useState(false);
+  const [notificacoes, setNotificacoes] = useState([]);
   const [user, setUser] = useState(() => {
     const token = getAccessToken();
     if (!token) return null;
@@ -27,9 +35,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (token) => {
-    // Você pode estender para salvar o token aqui
     setIsAuthenticated(true);
     setIsSessionInvalid(false);
+    setTokenRef(getAccessToken());
     try {
       const decoded = jwtDecode(token);
       setUser({
@@ -46,7 +54,39 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     setIsSessionInvalid(false);
     setUser(null);
+    limparConexaoWebSocket({
+      stompClientRef,
+      subscriptionRef,
+      processedNotificationIds
+    });
   };
+
+  useEffect(() => {
+    if(isAuthenticated && tokenRef){
+      const decoded = jwtDecode(tokenRef);
+      iniciarConexaoWebSocket({
+        userId: decoded.sub,
+        token: tokenRef,
+        stompClientRef,
+        subscriptionRef,
+        processedNotificationIds,
+        isMountedRef,
+        setNotificacoes,
+        onError: (msg) => {
+          console.error("Erro WebSocket:", msg);
+        }
+      });
+    }
+    return () => {
+      isMountedRef.current = false;
+      limparConexaoWebSocket({
+        stompClientRef,
+        subscriptionRef,
+        processedNotificationIds
+      });
+    };
+  }, [isAuthenticated, tokenRef]);
+
 
   const markSessionAsInvalid = () => {
     setIsSessionInvalid(true);
@@ -61,6 +101,13 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         markSessionAsInvalid,
+        notificacoes,
+        setNotificacoes,
+        processedNotificationIds,
+        isMountedRef,
+        setTokenRef,
+        tokenRef,
+        resetarNotificacoes: () => setNotificacoes([]),
       }}
     >
       {children}

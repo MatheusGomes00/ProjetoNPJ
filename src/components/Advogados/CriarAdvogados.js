@@ -140,7 +140,7 @@ const CriarAdvogado = () => {
         senha: formData.senha,
     };
 
-    console.log(JSON.stringify(formData))
+    //console.log(JSON.stringify(formData))
 
     try {
       const response = await fetchAuthenticated('/adv/ins', {

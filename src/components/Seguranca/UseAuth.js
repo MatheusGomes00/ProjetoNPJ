@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { fetchWithToken } from './GerenciaToken';
+import { fetchWithToken, getAccessToken } from './GerenciaToken';
 import { useAuthContext } from './AuthContext';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -14,6 +14,8 @@ const useAuth = () => {
     user,
     logout,
     markSessionAsInvalid,
+    setTokenRef,
+    tokenRef,
   } = useAuthContext();
   
   useEffect(() => {
@@ -58,6 +60,10 @@ const useAuth = () => {
 
     const apiUrl = `${process.env.REACT_APP_API_URL}${url}`;
     const response = await fetchWithToken(apiUrl, options);
+    const currentToken = getAccessToken(); 
+    if (currentToken !== tokenRef) {
+      setTokenRef(currentToken);
+    }   
     if (response.status === 401) {
       markSessionAsInvalid();
       console.warn('Token inválido ou expirado, fazendo logout...');

@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { FaBell } from "react-icons/fa";
-import SockJS from "sockjs-client";
-import { Client } from "@stomp/stompjs";
 import useAuth from "../Seguranca/UseAuth";
 import ModalTarefa from "../Tarefas/ModalTarefasDetalhes";
 import ModalEdicao from "../Tarefas/Modais/ModalEdicao";
@@ -75,7 +74,6 @@ const Dropdown = styled.div`
   transform: ${props => props.$isVisible ? 'translateY(0)' : 'translateY(-10px)'};
   pointer-events: ${props => props.$isVisible ? 'auto' : 'none'};
 `;
-
 
 const DropdownHeader = styled.div`
   font-family: "Inter", sans-serif;
@@ -173,8 +171,7 @@ const MensagemCarregando = styled.div`
 `;
 
 const IconeNotificacoes = () => {
-  const { fetchAuthenticated, getId} = useAuth();
-  const [notificacoes, setNotificacoes] = useState([]);
+  const { fetchAuthenticated } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [mensagem, setMensagem] = useState("");
@@ -182,14 +179,16 @@ const IconeNotificacoes = () => {
   const [selectedTarefa, setSelectedTarefa] = useState(null);
   const [, setSelectedNotificacaoId] = useState(null);
   const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
+  const [notificacoesFetch, setNotificacoesFetch] = useState([]);
   const mensagemTimeoutRef = useRef(null);
-  const stompClientRef = useRef(null);
-  const subscriptionRef = useRef(null);
   const dropdownRef = useRef(null);
-  const isMountedRef = useRef(true);
   const hasLoadedRef = useRef(false);
-  const processedNotificationIds = useRef(new Set());
-  const { isSessionInvalid } = useAuthContext();
+  const location = useLocation();
+  const { isSessionInvalid, notificacoes, setNotificacoes, processedNotificationIds, isMountedRef } = useAuthContext();
+  const totalNaoLidas = new Set([
+    ...notificacoesFetch.map(n => n.id),
+    ...notificacoes.map(n => n.id)
+  ]).size;
 
   // Função para formatar a data
   const formatarData = useCallback((dataString) => {
@@ -247,7 +246,7 @@ const IconeNotificacoes = () => {
         uniqueNotificacoes.forEach((notificacao) => {
           processedNotificationIds.current.add(notificacao.id);
         });
-        setNotificacoes(uniqueNotificacoes.length > 0 ? uniqueNotificacoes : []);
+        setNotificacoesFetch(uniqueNotificacoes.length > 0 ? uniqueNotificacoes : []);
       }
     } catch (error) {
       if (isMountedRef.current) {
@@ -266,7 +265,7 @@ const IconeNotificacoes = () => {
         setIsLoading(false);
       }
     }
-  }, [isSessionInvalid, fetchAuthenticated, isLoading, limparMensagem]);
+  }, [isSessionInvalid, fetchAuthenticated, isLoading, limparMensagem, processedNotificationIds, setNotificacoesFetch, isMountedRef]);
 
   // Função para marcar notificação como lida
   const marcarComoLida = useCallback(
@@ -311,7 +310,7 @@ const IconeNotificacoes = () => {
         }
       }
     },
-    [fetchAuthenticated, limparMensagem]
+    [fetchAuthenticated, limparMensagem, processedNotificationIds, setNotificacoes, isMountedRef]
   );
 
   // Função para buscar detalhes da tarefa
@@ -350,7 +349,7 @@ const IconeNotificacoes = () => {
         }
       }
     },
-    [fetchAuthenticated, limparMensagem]
+    [fetchAuthenticated, limparMensagem, isMountedRef]
   );
 
   // Função para finalizar tarefa
@@ -398,7 +397,7 @@ const IconeNotificacoes = () => {
         }
       }
     },
-    [fetchAuthenticated, carregarNotificacoes, limparMensagem]
+    [fetchAuthenticated, carregarNotificacoes, limparMensagem, isMountedRef]
   );
 
   // Função para reativar tarefa
@@ -449,7 +448,7 @@ const IconeNotificacoes = () => {
         }
       }
     },
-    [fetchAuthenticated, carregarNotificacoes, limparMensagem]
+    [fetchAuthenticated, carregarNotificacoes, limparMensagem, isMountedRef]
   );
 
   // Função para editar tarefa
@@ -495,102 +494,14 @@ const IconeNotificacoes = () => {
       carregarNotificacoes();
       hasLoadedRef.current = true;
     }
-
+    
     return () => {
       isMountedRef.current = false;
       if (mensagemTimeoutRef.current) {
         clearTimeout(mensagemTimeoutRef.current);
       }
     };
-  }, [carregarNotificacoes, isSessionInvalid]);
-
-  // Configurar WebSocket
-  const setupWebSocket = useCallback(() => {
-    const userId = getId();
-    if (!userId) {
-      setMensagem("Usuário não autenticado. Faça login para receber notificações.");
-      setTipoMensagem("error");
-      limparMensagem();
-      return;
-    }
-
-    if (stompClientRef.current?.connected) {
-      return;
-    }
-
-    const socket = new SockJS(`${process.env.REACT_APP_API_URL}/ws`);
-    const client = new Client({
-      webSocketFactory: () => socket,
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-    });
-
-    client.onConnect = () => {
-      if (!isMountedRef.current) return;
-
-      if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
-      }
-
-      subscriptionRef.current = client.subscribe(`/topic/notificacoes/${userId}`, (message) => {
-        if (!isMountedRef.current) return;
-        try {
-          const novaNotificacao = JSON.parse(message.body);
-          if (novaNotificacao.lida) {
-            return;
-          }
-          if (!processedNotificationIds.current.has(novaNotificacao.id)) {
-            processedNotificationIds.current.add(novaNotificacao.id);
-            setNotificacoes((prev) => {
-              if (prev.some((n) => n.id === novaNotificacao.id)) {
-                return prev;
-              }
-              return [novaNotificacao, ...prev];
-            });
-          }
-        } catch (error) {
-          console.error("Erro ao processar mensagem WebSocket:", error);
-        }
-      });
-      stompClientRef.current = client;
-    };
-
-    client.onStompError = (frame) => {
-      if (!isMountedRef.current) return;
-      console.error("Erro no STOMP:", frame);
-      setMensagem("Erro ao conectar ao WebSocket: " + frame.headers?.message);
-      setTipoMensagem("error");
-      limparMensagem();
-    };
-
-    client.onWebSocketClose = () => {
-      if (!isMountedRef.current) return;
-      stompClientRef.current = null;
-      subscriptionRef.current = null;
-      processedNotificationIds.current.clear();
-    };
-
-    client.activate();
-
-    return () => {
-      if (client?.connected) {
-        if (subscriptionRef.current) {
-          subscriptionRef.current.unsubscribe();
-        }
-        client.deactivate();
-        stompClientRef.current = null;
-        subscriptionRef.current = null;
-        processedNotificationIds.current.clear();
-      }
-    };
-  }, [getId, limparMensagem]);
-
-  useEffect(() => {
-    if (isSessionInvalid) return;
-    const cleanup = setupWebSocket();
-    return cleanup;
-  }, [setupWebSocket, isSessionInvalid]);
+  }, [location.pathname, carregarNotificacoes, isSessionInvalid, isMountedRef]);
 
   // Fechar dropdown ao clicar fora
   useEffect(() => {
@@ -608,6 +519,7 @@ const IconeNotificacoes = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isSessionInvalid]);
+
 
   // Toggle do dropdown
   const toggleDropdown = useCallback(() => {
@@ -640,9 +552,8 @@ const IconeNotificacoes = () => {
         role="button"
         aria-label="Toggle notificações"
       />
-      {notificacoes.length > 0 && <Badge>{Math.min(notificacoes.length, 99)}</Badge>}
+      {totalNaoLidas > 0 && <Badge>{Math.min(totalNaoLidas, 99)}</Badge>}
       <Dropdown ref={dropdownRef} $isVisible={showDropdown}>
-
         <DropdownHeader>Notificações</DropdownHeader>
         {isLoading ? (
           <MensagemCarregando>Carregando...</MensagemCarregando>
