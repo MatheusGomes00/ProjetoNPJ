@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -36,23 +35,23 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilita CORS
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/refresh-token", "/auth/logout").permitAll()
-                        .requestMatchers("/ws/**", "/ws/info/**").permitAll()
-                        //.requestMatchers("/adv/ins").permitAll()
-                        .requestMatchers("/adv/ins").hasAuthority("ROLE_ADVOGADO")
-                        .requestMatchers("/adv/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(unauthorizedHandler()) // Falta de autenticação
-                        .accessDeniedHandler(accessDeniedHandler()) // Sem permissão (role errada)
-                )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService), UsernamePasswordAuthenticationFilter.class);
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/auth/login", "/auth/refresh-token", "/auth/logout").permitAll()
+                    .requestMatchers("/ws/**", "/ws/info/**").permitAll()
+                    .requestMatchers("/adv/ins").hasAuthority("ROLE_ADVOGADO")
+                    .requestMatchers("/adv/**").authenticated()
+                    .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint(unauthorizedHandler()) // Falta de autenticação
+                    .accessDeniedHandler(accessDeniedHandler()) // Sem permissão (role errada)
+            )
+            .addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

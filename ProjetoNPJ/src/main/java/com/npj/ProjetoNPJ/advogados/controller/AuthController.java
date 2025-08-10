@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -45,6 +46,7 @@ public class AuthController {
                     tokens.get("refreshToken"),
                     maxAgeInSeconds
             );
+            // System.out.println(SecurityContextHolder.getContext().getAuthentication().toString());
             return ResponseEntity.ok()
                     .header("Set-Cookie", cookieValue)
                     .body(Map.of("accessToken", tokens.get("accessToken")));

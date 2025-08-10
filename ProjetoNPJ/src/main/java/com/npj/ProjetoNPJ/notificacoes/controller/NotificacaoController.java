@@ -9,6 +9,7 @@ import com.npj.ProjetoNPJ.tarefas.entity.Tarefas;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -39,21 +40,20 @@ public class NotificacaoController {
     }
 
     @GetMapping(value = "/get")
-    public ResponseEntity<List<Notificacao>> getNotificacao(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<List<Notificacao>> getNotificacao(@AuthenticationPrincipal UserAutenticado usuario) {
         try {
-            // String token = authorizationHeader.replace("Bearer ", "").trim();
-            String advogadoId = getAuthenticatedUsername();
+            String advogadoId = usuario.getId();
             List<Notificacao> notificacoes = notificacaoService.buscarNotificacoesPorAdvogado(advogadoId);
             return ResponseEntity.ok(notificacoes);
         } catch (Exception e) {
             throw new RuntimeException("Erro interno ao buscar notificações: " + e.getMessage(), e);
         }
     }
+
     @GetMapping(value = "/getNaoLida")
-    public ResponseEntity<List<Notificacao>> getNotificacaoNaoLida(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<List<Notificacao>> getNotificacaoNaoLida(@AuthenticationPrincipal UserAutenticado usuario) {
         try {
-            // String token = authorizationHeader.replace("Bearer ", "").trim();
-            String advogadoId = getAuthenticatedUsername();
+            String advogadoId = usuario.getId();
             List<Notificacao> notificacoes = notificacaoService.buscarNotificacoesNaoLidas(advogadoId);
             return ResponseEntity.ok(notificacoes);
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class NotificacaoController {
     }
 
     @PutMapping(value = "/end/{id}")
-    public ResponseEntity<Notificacao> finalizarTarefa(@PathVariable String id, @RequestHeader("Authorization") String authorizationHeader){
+    public ResponseEntity<Notificacao> finalizarTarefa(@PathVariable String id){
 
         try {
             Notificacao notificacaoAtualizada = notificacaoService.finalizar(id);

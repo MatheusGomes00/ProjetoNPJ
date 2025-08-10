@@ -85,7 +85,6 @@ public class TarefefasService {
                         });
             } catch (Exception e) {
                 LOGGER.severe("Erro ao criar notificações: " + e.getMessage());
-                // Continue to return the task, as notification failure shouldn’t block creation
             }
         }
 

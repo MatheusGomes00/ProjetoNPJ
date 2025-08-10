@@ -25,7 +25,6 @@ public class NotificacaoService{
         notificacao.setMensagem(mensagem);
         notificacao.setTarefaID(tarefaId);
         notificacao.setDataCriacao(LocalDateTime.now());
-
         return repository.save(notificacao);
     }
 
